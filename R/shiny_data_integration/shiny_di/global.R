@@ -17,6 +17,7 @@ load_package("crosstalk")
 load_package("assertthat")
 load_package("skimr")
 load_package("shinydashboardPlus")
+load_package("shinyBS")
 
 load_package("leaflet.extras")
 load_package("sf")
@@ -47,7 +48,6 @@ load_package("glue")
 load_package("shinyjs")
 load_package("shinydashboard")
 load_package("shinyWidgets")
-load_package("shinyBS")
 #load_package("sqldf")
 load_package("leaflet")
 load_package("shinytoastr")
@@ -100,7 +100,7 @@ source("writenewgroupmetricModule.R")
 source("writeupdatedgroupmetricModule.R")
 source("writedeletedgroupmetricModule.R")
 source("writedeletedindmetricModule.R")
-
+source("dataWriterModule.R")
 
 # Local shiny files ---------------------------------------------------------------------------------
 

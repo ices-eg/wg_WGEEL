@@ -221,12 +221,12 @@ compare_with_database_deleted_values <- function(deleted_from_excel, data_from_b
   } else {   
     if (!all(deleted_from_excel$eel_id %in% data_from_base$eel_id))
       validate(need(FALSE,paste("eel_id",paste(deleted_from_excel$eel_id[!deleted_from_excel$eel_id %in% data_from_base$eel_id],collapse=","),
-                  "not found in db",sep="")))
+                                "not found in db",sep="")))
     current_typ_id <- unique(deleted_from_excel$eel_typ_id)
     if (!all(current_typ_id %in% data_from_base$eel_typ_id)) 
       validate(need(FALSE,paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                      collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
-                      collapse = ";"), "did you select the right File type ?")))
+                                                                                      collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$eel_typ_id), 
+                                                                                                                                                  collapse = ";"), "did you select the right File type ?")))
   }
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
@@ -236,33 +236,33 @@ compare_with_database_deleted_values <- function(deleted_from_excel, data_from_b
   
   
   deleted_from_excel <- deleted_from_excel %>%
-      select(-eel_typ_name)
+    select(-eel_typ_name)
   
   comparison_deleted <- anti_join(deleted_from_excel %>%
-          select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
-              eel_lfs_code,eel_hty_code,eel_year),
-      data_from_base %>%
-          filter(eel_id %in% deleted_from_excel$eel_id) %>%
-          select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
-              eel_lfs_code,eel_hty_code,eel_year))
+                                    select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                           eel_lfs_code,eel_hty_code,eel_year),
+                                  data_from_base %>%
+                                    filter(eel_id %in% deleted_from_excel$eel_id) %>%
+                                    select(eel_emu_nameshort,eel_value,eel_typ_id,eel_id,eel_cou_code,
+                                           eel_lfs_code,eel_hty_code,eel_year))
   validate(need(nrow(comparison_deleted) == 0, "the data in deleted_data have been modified compared with the content of the db"))
   
   #since dc2020, qal_id are automatically created during the import
   deleted_from_excel$eel_qal_id <- qualify_code
   deleted_from_excel$eel_qal_comment <- paste(ifelse(is.na(deleted_from_excel$eel_qal_comment),
-          "",
-          deleted_from_excel$eel_qal_comment),
-      "deleted during", the_eel_datasource)
+                                                     "",
+                                                     deleted_from_excel$eel_qal_comment),
+                                              "deleted during", the_eel_datasource)
   
   deleted_from_excel <- deleted_from_excel %>%
-      select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
-                  "eel_value", "eel_missvaluequal", 
-                  "eel_emu_nameshort", "eel_cou_code",
-                  "perc_f","perc_t","perc_c", "perc_mo",
-                  "eel_lfs_code", "eel_hty_code",
-                  "eel_area_division","eel_comment", 
-                  "eel_datasource",
-                  "eel_qal_id", "eel_qal_comment")))
+    select(any_of(c("eel_id", "eel_typ_id", "eel_typ_name", "eel_year",
+                    "eel_value", "eel_missvaluequal", 
+                    "eel_emu_nameshort", "eel_cou_code",
+                    "perc_f","perc_t","perc_c", "perc_mo",
+                    "eel_lfs_code", "eel_hty_code",
+                    "eel_area_division","eel_comment", 
+                    "eel_datasource",
+                    "eel_qal_id", "eel_qal_comment")))
   
   return(deleted_from_excel)
 }
@@ -307,8 +307,8 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
     current_typ_id <- unique(data_from_excel$ser_typ_id)
     if (!all(current_typ_id %in% data_from_base$ser_typ_id)) 
       stop(paste("There is a mismatch between selected typ_id", paste0(current_typ_id, 
-                  collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$ser_typ_id), 
-                  collapse = ";"), "did you select the right File type ?"))
+                                                                       collapse = ";"), "and the dataset loaded from base", paste0(unique(data_from_base$ser_typ_id), 
+                                                                                                                                   collapse = ";"), "did you select the right File type ?"))
   }
   
   ser_colnames <- colnames(data_from_base)[grepl("ser", colnames(data_from_base))]
@@ -319,40 +319,40 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
   data_from_excel$ser_sam_gear <- as.numeric(data_from_excel$ser_sam_gear)
   data_from_excel$ser_restocking <- convert2boolean(data_from_excel$ser_restocking, "new series")
   data_from_excel <- data_from_excel %>% 
-      mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-              ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
+    mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+                   ser_area_division,ser_cou_code,ser_effort_uni_code, ser_uni_code, ser_method ),list(as.character)) 
   
   duplicates <- data_from_base %>% dplyr::filter(ser_typ_id %in% current_typ_id & 
-              ser_cou_code == current_cou_code) %>% dplyr::select(all_of(ser_colnames)) %>% # dplyr::select(-eel_cou_code)%>%
-      dplyr::inner_join(data_from_excel, by = c("ser_typ_id",  "ser_nameshort"), 
-          suffix = c(".base", ".xls"))
+                                                   ser_cou_code == current_cou_code) %>% dplyr::select(all_of(ser_colnames)) %>% # dplyr::select(-eel_cou_code)%>%
+    dplyr::inner_join(data_from_excel, by = c("ser_typ_id",  "ser_nameshort"), 
+                      suffix = c(".base", ".xls"))
   duplicates <- duplicates[, 
-      # not in the datacall or used as pivot :
-      c("ser_id",  "ser_nameshort", "ser_typ_id", "ser_qal_id" ,"ser_qal_comment","ser_ccm_wso_id", 
-          
-          # other columns
-          "ser_dts_datasource.base","ser_dts_datasource.xls",
-          "ser_namelong.base", "ser_namelong.xls", 
-          "ser_effort_uni_code.base", "ser_effort_uni_code.xls",
-          "ser_comment.base", "ser_comment.xls", 
-          "ser_uni_code.base", "ser_uni_code.xls", 
-          "ser_lfs_code.base", "ser_lfs_code.xls",
-          "ser_hty_code.base", "ser_hty_code.xls",
-          "ser_locationdescription.base",  "ser_locationdescription.xls",
-          "ser_emu_nameshort.base", "ser_emu_nameshort.xls",
-          "ser_cou_code.base", "ser_cou_code.xls",
-          "ser_area_division.base", "ser_area_division.xls",
-          "ser_tblcodeid.base", "ser_tblcodeid.xls", 
-          "ser_sam_gear.base", 	"ser_sam_gear.xls",
-          "ser_distanceseakm.base", "ser_distanceseakm.xls",
-          "ser_method.base", "ser_method.xls",
-          "ser_restocking.base", "ser_restocking.xls",
-          "ser_x.base","ser_x.xls",
-          "ser_y.base", "ser_y.xls",
-          "ser_sam_id.base",  "ser_sam_id.xls")]
+                           # not in the datacall or used as pivot :
+                           c("ser_id",  "ser_nameshort", "ser_typ_id", "ser_qal_id" ,"ser_qal_comment","ser_ccm_wso_id", 
+                             
+                             # other columns
+                             "ser_dts_datasource.base","ser_dts_datasource.xls",
+                             "ser_namelong.base", "ser_namelong.xls", 
+                             "ser_effort_uni_code.base", "ser_effort_uni_code.xls",
+                             "ser_comment.base", "ser_comment.xls", 
+                             "ser_uni_code.base", "ser_uni_code.xls", 
+                             "ser_lfs_code.base", "ser_lfs_code.xls",
+                             "ser_hty_code.base", "ser_hty_code.xls",
+                             "ser_locationdescription.base",  "ser_locationdescription.xls",
+                             "ser_emu_nameshort.base", "ser_emu_nameshort.xls",
+                             "ser_cou_code.base", "ser_cou_code.xls",
+                             "ser_area_division.base", "ser_area_division.xls",
+                             "ser_tblcodeid.base", "ser_tblcodeid.xls", 
+                             "ser_sam_gear.base", 	"ser_sam_gear.xls",
+                             "ser_distanceseakm.base", "ser_distanceseakm.xls",
+                             "ser_method.base", "ser_method.xls",
+                             "ser_restocking.base", "ser_restocking.xls",
+                             "ser_x.base","ser_x.xls",
+                             "ser_y.base", "ser_y.xls",
+                             "ser_sam_id.base",  "ser_sam_id.xls")]
   # Anti join only keeps columns from X
   new <-  dplyr::anti_join(data_from_excel, data_from_base, 
-      by = c("ser_nameshort", "ser_typ_id"))
+                           by = c("ser_nameshort", "ser_typ_id"))
   if (nrow(new) >0 ){
     new$ser_qal_id <- 0 #by default, a new series as ser_qal_id because it is short
     new$ser_qal_comment <- "new series: 0 by default if too short"
@@ -360,9 +360,9 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
     new$ser_dts_datasource <- the_eel_datasource
   }
   modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-      by = c("ser_nameshort", "ser_typ_id", "ser_effort_uni_code", "ser_comment", "ser_uni_code", 
-          "ser_lfs_code", "ser_hty_code", "ser_locationdescription", "ser_emu_nameshort",
-          "ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id", "ser_sam_gear", "ser_distanceseakm", 	"ser_method" , "ser_restocking"))
+                               by = c("ser_nameshort", "ser_typ_id", "ser_effort_uni_code", "ser_comment", "ser_uni_code", 
+                                      "ser_lfs_code", "ser_hty_code", "ser_locationdescription", "ser_emu_nameshort",
+                                      "ser_cou_code", "ser_area_division", "ser_x", "ser_y", "ser_sam_id", "ser_sam_gear", "ser_distanceseakm", 	"ser_method" , "ser_restocking"))
   modified <- modified[!modified$ser_nameshort %in% new$ser_nameshort,]
   # after anti join there are still values that are not really changed.
   # this is further investigated below
@@ -376,8 +376,8 @@ compare_with_database_series <- function(data_from_excel, data_from_base) {
     {
       v=v*2+1
       test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
       
     }
@@ -447,35 +447,35 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
   # any other change will not be detected
   
   duplicates <- data_from_base %>% 	dplyr::inner_join(data_from_excel, by = c("das_ser_id","das_year"), 
-      suffix = c(".base", ".xls"))
+                                                      suffix = c(".base", ".xls"))
   
   
   
   # the followin just checks and reorders the columns
   
   columns_updated <- c("id", "das_ser_id","das_year", "ser_nameshort", "das_last_update",
-      # duplicates columns
-      "das_id.base", "das_id.xls",
-      "das_qal_id.base", "das_qal_id.xls",
-      "das_dts_datasource.base", "das_dts_datasource.xls", 
-      "das_value.base", "das_value.xls",					
-      "das_comment.base", "das_comment.xls",
-      "das_effort.base", "das_effort.xls",
-      "das_qal_comment.base", "das_qal_comment.xls",
-      "sheetorigin")
+                       # duplicates columns
+                       "das_id.base", "das_id.xls",
+                       "das_qal_id.base", "das_qal_id.xls",
+                       "das_dts_datasource.base", "das_dts_datasource.xls", 
+                       "das_value.base", "das_value.xls",					
+                       "das_comment.base", "das_comment.xls",
+                       "das_effort.base", "das_effort.xls",
+                       "das_qal_comment.base", "das_qal_comment.xls",
+                       "sheetorigin")
   
   columns_new <- c("id","das_id",
-      "das_ser_id",
-      "das_year", 
-      "ser_nameshort",						
-      "das_last_update",
-      "das_dts_datasource.base", "das_dts_datasource.xls", 
-      # duplicates columns
-      "das_qal_id.base", "das_qal_id.xls",						
-      "das_value.base", "das_value.xls",					
-      "das_comment.base", "das_comment.xls",
-      "das_effort.base", "das_effort.xls",
-      "sheetorigin")
+                   "das_ser_id",
+                   "das_year", 
+                   "ser_nameshort",						
+                   "das_last_update",
+                   "das_dts_datasource.base", "das_dts_datasource.xls", 
+                   # duplicates columns
+                   "das_qal_id.base", "das_qal_id.xls",						
+                   "das_value.base", "das_value.xls",					
+                   "das_comment.base", "das_comment.xls",
+                   "das_effort.base", "das_effort.xls",
+                   "sheetorigin")
   
   # If the data_from_excel corresponds to the updated_data tab, then there is a das_id
   # check that das_id has not been modified by the user
@@ -484,15 +484,15 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
   if (sheetorigin %in% c("updated_data", "deleted_data")){
     if (!all( columns_updated  %in% colnames (duplicates)))	{
       error_id_message <- sprintf("<p style='color:red;'> column %s not present in updated data",
-          paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";")
+                                  paste(columns_updated[!columns_updated  %in% colnames (duplicates)], collapse=";")
       ) 
     } else {
       duplicates <- duplicates[, columns_updated]
     }
     if (any(duplicates$das_id.base!=duplicates$das_id.excel)) {
       error_id_message <- sprintf("<p style='color:red;'> you have changed das_id for series %s and year %s please use the das_id provided in existing data </p>", 
-          paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"ser_nameshort"],collapse=" , "), 
-          paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"das_year"],collapse=" , ")
+                                  paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"ser_nameshort"],collapse=" , "), 
+                                  paste(duplicates[duplicates$das_id.base!=duplicates$das_id.xls,"das_year"],collapse=" , ")
       )
     }
     
@@ -507,7 +507,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
   
   # Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
   new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-      by = c("das_ser_id","das_year")) 
+                           by = c("das_ser_id","das_year")) 
   # change 2023 removed das_qal_id
   # otherwise rows with qal_id changed go into the new dataset and there is a bug when integrating indb
   if (nrow(new)>0){
@@ -520,13 +520,13 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
   
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-      by = c("das_year", 
-          "das_value", 
-          "das_comment", 
-          "das_effort", 
-          "das_ser_id",
-          "das_qal_id",
-          "das_qal_comment")
+                               by = c("das_year", 
+                                      "das_value", 
+                                      "das_comment", 
+                                      "das_effort", 
+                                      "das_ser_id",
+                                      "das_qal_id",
+                                      "das_qal_comment")
   )
   # new is also modified (less columns in the anti join) I need to remove the lines 
   # from new in modified
@@ -547,8 +547,8 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
     {
       v=v*2+1
       test <- highlight_change %>% select(all_of(num_common_col))%>% select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
       
     }
@@ -559,8 +559,8 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
     # when modified come from sheet new data later identified as a duplicate, I need the id which I get from existing database data
     if (!"das_id" %in% colnames(modified)){
       modified <- inner_join(
-          data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
-          modified, by= c("das_ser_id","das_year"))
+        data_from_base[,c("das_year","das_ser_id","das_id", "das_qal_id")], 
+        modified, by= c("das_ser_id","das_year"))
     }
   }
   data_from_excel <- data_from_excel %>% select(-id)
@@ -610,47 +610,47 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric))
   data_from_excel <- data_from_excel %>% mutate_at(vars(sai_lastupdate), list(as.Date))
   data_from_excel <- data_from_excel %>% 
-      mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort,
-              sai_area_division,sai_hty_code, sai_comment,
-              sai_samplingobjective, sai_samplingstrategy, sai_protocol, sai_dts_datasource),list(as.character)) 
+    mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort,
+                   sai_area_division,sai_hty_code, sai_comment,
+                   sai_samplingobjective, sai_samplingstrategy, sai_protocol, sai_dts_datasource),list(as.character)) 
   duplicates <- data_from_base %>% dplyr::filter(
-          sai_cou_code == current_cou_code) %>% dplyr::select(all_of(sai_colnames)) %>%
-      dplyr::inner_join(data_from_excel, by = c("sai_name"), 
-          suffix = c(".base", ".xls"))
+    sai_cou_code == current_cou_code) %>% dplyr::select(all_of(sai_colnames)) %>%
+    dplyr::inner_join(data_from_excel, by = c("sai_name"), 
+                      suffix = c(".base", ".xls"))
   duplicates <- duplicates[, 
-      # not in the datacall or used as pivot :
-      c("sai_id",  "sai_name",  				
-          # other columns
-          "sai_cou_code.base", "sai_cou_code.xls",
-          "sai_emu_nameshort.base", "sai_emu_nameshort.xls",	
-          "sai_area_division.base", "sai_area_division.xls",
-          "sai_hty_code.base", "sai_hty_code.xls",
-          "sai_comment.base", "sai_comment.xls", 
-          "sai_samplingobjective.base","sai_samplingobjective.xls",
-          "sai_samplingstrategy.base", "sai_samplingstrategy.xls",
-          "sai_protocol.base","sai_protocol.xls",
-          "sai_qal_id.base", "sai_qal_id.xls",
-          "sai_lastupdate.base" ,"sai_lastupdate.xls",
-          "sai_dts_datasource.base","sai_dts_datasource.xls")]	
+                           # not in the datacall or used as pivot :
+                           c("sai_id",  "sai_name",  				
+                             # other columns
+                             "sai_cou_code.base", "sai_cou_code.xls",
+                             "sai_emu_nameshort.base", "sai_emu_nameshort.xls",	
+                             "sai_area_division.base", "sai_area_division.xls",
+                             "sai_hty_code.base", "sai_hty_code.xls",
+                             "sai_comment.base", "sai_comment.xls", 
+                             "sai_samplingobjective.base","sai_samplingobjective.xls",
+                             "sai_samplingstrategy.base", "sai_samplingstrategy.xls",
+                             "sai_protocol.base","sai_protocol.xls",
+                             "sai_qal_id.base", "sai_qal_id.xls",
+                             "sai_lastupdate.base" ,"sai_lastupdate.xls",
+                             "sai_dts_datasource.base","sai_dts_datasource.xls")]	
   
   # Anti join only keeps columns from X
   new <-  dplyr::anti_join(data_from_excel, data_from_base, 
-      by = c("sai_name"))
+                           by = c("sai_name"))
   if (nrow(new) >0 ){
     new$sai_qal_id <- 1
     new$sai_qal_comment <- NA
     new$sai_dts_datasource <- the_eel_datasource
   }
   modified <- dplyr::anti_join(data_from_excel, data_from_base, 
-      by = c("sai_cou_code",
-          "sai_emu_nameshort",	
-          "sai_area_division",
-          "sai_hty_code",
-          "sai_comment", 
-          "sai_samplingobjective",
-          "sai_samplingstrategy",
-          "sai_protocol",
-          "sai_qal_id"))
+                               by = c("sai_cou_code",
+                                      "sai_emu_nameshort",	
+                                      "sai_area_division",
+                                      "sai_hty_code",
+                                      "sai_comment", 
+                                      "sai_samplingobjective",
+                                      "sai_samplingstrategy",
+                                      "sai_protocol",
+                                      "sai_qal_id"))
   modified <- modified[!modified$sai_name %in% new$sai_name,]
   # after anti join there are still values that are not really changed.
   # this is further investigated below
@@ -664,8 +664,8 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
     {
       v=v*2+1
       test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]])) %>% pull(test)
       mat[,c(v,v+1)]<-test
       
     }
@@ -723,12 +723,12 @@ compare_with_database_sampling <- function(data_from_excel, data_from_base) {
 ## there might be different gr_id , for one series and date while it was necessarily unique for das_id
 
 compare_with_database_metric_group <- function(data_from_excel, 
-    data_from_base, 
-    sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
-    type="series") {
+                                               data_from_base, 
+                                               sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
+                                               type="series") {
   # data integrity checks
   if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
-            new_group_metrics, updated_group_metrics, deleted_group_metrics")
+						new_group_metrics, updated_group_metrics, deleted_group_metrics")
   if (nrow(data_from_excel) == 0) 
     validate(need(FALSE,"There are no data coming from the excel file"))
   if (nrow(data_from_base) == 0) {
@@ -737,59 +737,57 @@ compare_with_database_metric_group <- function(data_from_excel,
   # convert columns with missing data to numeric	  
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
   data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
-          ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
+                                                        ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
   if (sheetorigin != "new_group_metrics"){
     if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
       stop(paste0(sheetorigin,
-              ": some gr_id are not in the db:",
-              paste(data_from_excel$gr_id[! data_from_excel$gr_id %in% data_from_base$gr_id],collapse=",")))
+                  ": some gr_id are not in the db:",
+                  paste(data_from_excel$gr_id[! data_from_excel$gr_id %in% data_from_base$gr_id],collapse=",")))
   }
   data_from_excel$sheetorigin <- sheetorigin
   data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
   if (sheetorigin == "new_group_metrics") data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)
   
   metrics_group <- tr_metrictype_mty %>% 
-      filter(mty_group!="individual") %>% select(mty_name,mty_id)
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
   data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
-      select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
-      tidyr::pivot_wider(names_from=mty_name,
-          values_from=meg_value) 
-  
+    select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
+    tidyr::pivot_wider(names_from=mty_name,
+                       values_from=meg_value) 
   data_from_excel_long <- data_from_excel %>% 
-      tidyr::pivot_longer(cols=metrics_group$mty_name,
-          values_to="meg_value",
-          names_to="mty_name"
-      ) %>%
-      drop_na(meg_value) %>% 
-      left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
-      rename(meg_mty_id=mty_id)
+    tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
+                        values_to="meg_value",
+                        names_to="mty_name"
+    ) %>%
+    drop_na(meg_value) %>% 
+    left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
+    rename(meg_mty_id=mty_id)
   #browser()
   duplicates <- data_from_base_wide %>% 	
-      dplyr::inner_join(
-          data_from_excel, 
-          #by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
-          by = "gr_id",#we only need a junction based on gr_id
-          suffix = c(".base", ".xls"))
-  
+    dplyr::inner_join(
+      data_from_excel, 
+      #by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
+      by = "gr_id",#we only need a junction based on gr_id
+      suffix = c(".base", ".xls"))
   
   # Anti join only keeps columns from X
   if (sheetorigin == "new_group_metrics"){
     if (type=="series"){
       new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-          by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
+                               by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
     } else{
       new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-          by = c("sai_name", "gr_year","meg_mty_id","grsa_lfs_code"))
+                               by = c("sai_name", "gr_year","meg_mty_id","grsa_lfs_code"))
     }
   } else {
     new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-        by = "gr_id")
+                             by = "gr_id")
   }
   
   if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by =c("gr_id", "gr_year", "gr_number", metrics_group$mty_name))
+                               by =c("gr_id", "gr_year", "gr_number", intersect(metrics_group$mty_name,names(data_from_excel))))
   modified <- modified[!modified$id %in% new$id,]
   if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
     modified$gr_comment <- "THIS LINE WAS DETECTED AS A DUPLICATE, IF IT WAS NOT IN DELETED, YOU CAN DELETE THE LINE, OTHERWISE RELOAD"
@@ -814,8 +812,8 @@ compare_with_database_metric_group <- function(data_from_excel,
     {
       v=v*2+1
       test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
       mat[,c(v,v+1)]<-test
       
     }
@@ -827,17 +825,17 @@ compare_with_database_metric_group <- function(data_from_excel,
       highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
     }
   }
-  modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_group$mty_name,
-          values_to="meg_value",
-          names_to="mty_name"
-      ) %>% left_join(tr_metrictype_mty %>% select(mty_id, mty_name)) %>%
-      select(-mty_name) %>%
-      rename(meg_mty_id=mty_id) %>%
-      left_join(data_from_base %>%
-              filter(meg_qal_id == 1 | is.na(meg_qal_id)) %>%
-              select(gr_id,meg_mty_id,meg_id)
-      ) %>%
-      filter(!is.na(meg_value))
+  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
+                                                    values_to="meg_value",
+                                                    names_to="mty_name"
+  ) %>% left_join(tr_metrictype_mty %>% select(mty_id, mty_name)) %>%
+    select(-mty_name) %>%
+    rename(meg_mty_id=mty_id) %>%
+    left_join(data_from_base %>%
+                filter(meg_qal_id == 1 | is.na(meg_qal_id)) %>%
+                select(gr_id,meg_mty_id,meg_id)
+    ) %>%
+    filter(!is.na(meg_value))
   
   if (sheetorigin == "deleted_group_metrics") {
     return(list(deleted=data_from_excel))
@@ -868,7 +866,7 @@ compare_with_database_metric_ind <- function(
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
-            new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
+						new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
     validate(need(FALSE,"There are no data coming from the excel file"))
   if (nrow(data_from_base) == 0) {
@@ -879,8 +877,8 @@ compare_with_database_metric_ind <- function(
   if (sheetorigin != "new_individual_metrics"){
     if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
       stop(paste0(sheetorigin,
-              ": some fi_id are not in the db:",
-              paste(data_from_excel$fi_id[! data_from_excel$fi_id %in% data_from_base$fi_id],collapse=",")))
+                  ": some fi_id are not in the db:",
+                  paste(data_from_excel$fi_id[! data_from_excel$fi_id %in% data_from_base$fi_id],collapse=",")))
   }
   
   # convert columns with missing data to numeric	  
@@ -897,64 +895,64 @@ compare_with_database_metric_ind <- function(
   if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
   # only select metrics names in individual metrics :
   metrics_ind <- tr_metrictype_mty %>% 
-      filter(mty_group!="group") %>% 
-      mutate(mty_name =
-              case_when(
-                  is.na(mty_individual_name) ~ mty_name,
-                  !is.na(mty_individual_name) ~ mty_individual_name
-              )) %>%
-      select(mty_name,mty_id)
+    filter(mty_group!="group") %>% 
+    mutate(mty_name =
+             case_when(
+               is.na(mty_individual_name) ~ mty_name,
+               !is.na(mty_individual_name) ~ mty_individual_name
+             )) %>%
+    select(mty_name,mty_id)
   
   # after pivot wider generates lines with NA so remove with is.na(fi_id)
   data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
-      tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
-          names_from=mty_name,
-          values_from=mei_value) %>% filter(!is.na(fi_id))
+    tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
+                       names_from=mty_name,
+                       values_from=mei_value) %>% filter(!is.na(fi_id))
   
   data_from_excel_long <- data_from_excel %>% 
-      tidyr::pivot_longer(cols=metrics_ind$mty_name,
-          values_to="mei_value",
-          names_to="mty_name"
-      ) %>%
-      drop_na(mei_value) %>% 
-      left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
-      rename(mei_mty_id=mty_id)
+    tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
+                        values_to="mei_value",
+                        names_to="mty_name"
+    ) %>%
+    drop_na(mei_value) %>% 
+    left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
+    rename(mei_mty_id=mty_id)
   # use fi_id if updated but length and weight and date if new
   if ("fi_id" %in% colnames(data_from_excel) ){
     
     duplicates <- data_from_base_wide %>% 	
-        dplyr::inner_join(
-            data_from_excel, 
-            by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id"), 
-            suffix = c(".base", ".xls"))
+      dplyr::inner_join(
+        data_from_excel, 
+        by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id"), 
+        suffix = c(".base", ".xls"))
     
   } else {
     
     
     duplicates <- data_from_base_wide %>% 	
-        dplyr::inner_join(
-            data_from_excel, 
-            by = c(ifelse(type=="series","ser_nameshort","sai_name"), ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")), 
-            suffix = c(".base", ".xls"))
+      dplyr::inner_join(
+        data_from_excel, 
+        by = c(ifelse(type=="series","ser_nameshort","sai_name"), ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")), 
+        suffix = c(".base", ".xls"))
   }
   
   
   # Anti join only keeps columns from X
   new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")))
+                           by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")))
   new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-      by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou"),"mei_mty_id"))
+                                by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou"),"mei_mty_id"))
   if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by =c("fi_id", "fi_date", "fi_comment", metrics_ind$mty_name))
+                               by =c("fi_id", "fi_date", "fi_comment", intersect(metrics_ind$mty_name,names(data_from_excel))))
   modified <- modified[!modified$id %in% new$id,]
   
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
   
   if (nrow(highlight_change) == 0){
     modified <- modified %>%
-        slice(0)
+      slice(0)
   } else if (nrow(modified) >0 ) {	
     
     num_common_col <- grep(".xls|.base",colnames(highlight_change))
@@ -965,8 +963,8 @@ compare_with_database_metric_ind <- function(
     {
       v=v*2+1
       test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+        mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+        mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
       mat[,c(v,v+1)]<-test
       
     }
@@ -978,19 +976,19 @@ compare_with_database_metric_ind <- function(
       highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
     }
   } 
-  modified_long <- modified %>% tidyr::pivot_longer(cols=metrics_ind$mty_name,
-          values_to="mei_value",
-          names_to="mty_name") %>% 
-      left_join(metrics_ind %>%
-              select(mty_name,mty_id), by="mty_name") %>%
-      rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
-      dplyr::filter(!is.na(mei_value))
+  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
+                                                    values_to="mei_value",
+                                                    names_to="mty_name") %>% 
+    left_join(metrics_ind %>%
+                select(mty_name,mty_id), by="mty_name") %>%
+    rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
+    dplyr::filter(!is.na(mei_value))
   if (sheetorigin == "deleted_individual_metrics") {
     return(list(deleted=data_from_excel))
   } else {
     return(list(new = new_long %>% dplyr::filter(! id %in% modified_long$id),
-            modified=modified_long, 
-            highlight_change=highlight_change))
+                modified=modified_long, 
+                highlight_change=highlight_change))
   }
 }
 
@@ -1029,13 +1027,13 @@ write_duplicates <- function(path, qualify_code) {
   # should ensure file integrity
   validate(need(ncol(duplicates2) %in% c(22,30), "number column wrong (should be 22) \n"))
   validate(need(all(colnames(duplicates2) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
-                  "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
-                  "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
-                  "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-                  "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
-                  "eel_datasource.base", "eel_datasource.xls",
-                  "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls")), 
-          "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+                                                 "eel_year", "eel_value.base", "eel_value.xls", "keep_new_value", "eel_qal_id.xls", 
+                                                 "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                                                 "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+                                                 "eel_hty_code", "eel_area_division", "eel_comment.base", "eel_comment.xls", 
+                                                 "eel_datasource.base", "eel_datasource.xls",
+                                                 "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls")), 
+                "Error in replicated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   
   cou_code = unique(duplicates2$eel_cou_code)
   eel_typ_id = paste(unique(duplicates2$eel_typ_id), collapse=",")
@@ -1053,7 +1051,7 @@ write_duplicates <- function(path, qualify_code) {
   duplicates2$keep_new_value[duplicates2$keep_new_value == "NO"] <- "false"
   
   validate( need(all(duplicates2$keep_new_value %in% c("TRUE", "FALSE")), 
-          "value in keep_new_value should be false or true"))
+                 "value in keep_new_value should be false or true"))
   
   duplicates2$keep_new_value <- as.logical(toupper(duplicates2$keep_new_value))
   # Issue #149
@@ -1067,7 +1065,7 @@ write_duplicates <- function(path, qualify_code) {
   
   
   validate( need(all(!is.na(replaced$eel_qal_id.xls)), 
-          "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
+                 "All values with true in keep_new_value column should have a value in eel_qal_id \n"))
   
   
   
@@ -1075,13 +1073,13 @@ write_duplicates <- function(path, qualify_code) {
     
     replaced$eel_comment.base[is.na(replaced$eel_comment.base)] <- ""
     replaced$eel_comment.base <- paste0(replaced$eel_comment.base, " Value ", 
-        replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
-        " for datacall ", format(Sys.time(), "%Y"))
+                                        replaced$eel_value.base, " replaced by value ", replaced$eel_value.xls, 
+                                        " for datacall ", format(Sys.time(), "%Y"))
     
     
     
     query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", qualify_code ,",r.eel_comment) from ", 
-        "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
+                     "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id;")
     
     # this will perform the reverse operation if error in query 1 or 2
     # sqldf will handle this one as it is a several liners
@@ -1093,11 +1091,11 @@ write_duplicates <- function(path, qualify_code) {
     # second insert the new lines into the database -------------------------------------------------
     
     replaced <- replaced %>%
-        select(any_of(c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
-                    "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
-                    "perc_f.xls","perc_t.xls","perc_c.xls", "perc_mo.xls",
-                    "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
-                    "eel_comment.xls")))
+      select(any_of(c("eel_id", "eel_typ_id", "eel_year", "eel_value.xls", "eel_missvaluequal.xls", 
+                      "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", "eel_hty_code", 
+                      "perc_f.xls","perc_t.xls","perc_c.xls", "perc_mo.xls",
+                      "eel_area_division", "eel_qal_id.xls", "eel_qal_comment.xls", "eel_datasource.xls", 
+                      "eel_comment.xls")))
     
     replaced$eel_qal_comment.xls <- iconv(replaced$eel_qal_comment.xls,"UTF8")
     replaced$eel_comment.xls <- iconv(replaced$eel_comment.xls,"UTF8")
@@ -1105,43 +1103,43 @@ write_duplicates <- function(path, qualify_code) {
     colnames(replaced) <- gsub(".xls", "", colnames(replaced))
     
     query1 <- str_c("insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment from replaced_temp_", cou_code ," returning eel_id;")
+						eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment) 
+						select eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment from replaced_temp_", cou_code ," returning eel_id;")
     #for mortality and biomass, we have to insert into t_eel_stock_eel_percent too
     query1bis <- str_c("insert into datawg.t_eelstock_eel_percent (         
-            percent_id,       
-            perc_f,
-            perc_t,
-            perc_c,
-            perc_mo) 
-            select eel_id_new,       
-            perc_f,
-            perc_t,
-            perc_c,
+						percent_id,       
+						perc_f,
+						perc_t,
+						perc_c,
+						perc_mo) 
+						select eel_id_new,       
+						perc_f,
+						perc_t,
+						perc_c,
             perc_mo from replaced_temp_perc", cou_code ,";")
     # again this query will be run later cause we don't want it to run if the other fail
     
@@ -1165,58 +1163,58 @@ write_duplicates <- function(path, qualify_code) {
     
     not_replaced$eel_comment.xls[is.na(not_replaced$eel_comment.xls)] <- ""
     not_replaced$eel_comment.xls <- paste0(not_replaced$eel_comment.xls, " Value ", 
-        not_replaced$eel_value.xls, " not used, value from the database ", not_replaced$eel_value.base, 
-        " kept instead for datacall ", format(Sys.time(), "%Y"))
+                                           not_replaced$eel_value.xls, " not used, value from the database ", not_replaced$eel_value.base, 
+                                           " kept instead for datacall ", format(Sys.time(), "%Y"))
     not_replaced$eel_qal_id <- qualify_code
     not_replaced <- not_replaced %>%
-        select(any_of(c("eel_typ_id", "eel_year", "eel_value.xls", 
-                    "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
-                    "eel_hty_code", 
-                    "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-                    "eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
-                    "eel_datasource.xls", "eel_comment.xls")))
+      select(any_of(c("eel_typ_id", "eel_year", "eel_value.xls", 
+                      "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code", "eel_lfs_code", 
+                      "eel_hty_code", 
+                      "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+                      "eel_area_division", "eel_qal_id", "eel_qal_comment.xls", 
+                      "eel_datasource.xls", "eel_comment.xls")))
     
     not_replaced$eel_qal_comment.xls <- iconv(not_replaced$eel_qal_comment.xls,"UTF8")
     not_replaced$eel_comment.xls <- iconv(not_replaced$eel_comment.xls,"UTF8")
     #browser()
     colnames(not_replaced) <- gsub(".xls","",colnames(not_replaced))
     query2 <- str_c( "insert into datawg.t_eelstock_eel (         
-            eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment) 
-            select eel_typ_id,       
-            eel_year,
-            eel_value,
-            eel_missvaluequal,
-            eel_emu_nameshort,
-            eel_cou_code,
-            eel_lfs_code,
-            eel_hty_code,
-            eel_area_division,
-            eel_qal_id,
-            eel_qal_comment,            
-            eel_datasource,
-            eel_comment from not_replaced_temp_",cou_code, " returning eel_id")
+						eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment) 
+						select eel_typ_id,       
+						eel_year,
+						eel_value,
+						eel_missvaluequal,
+						eel_emu_nameshort,
+						eel_cou_code,
+						eel_lfs_code,
+						eel_hty_code,
+						eel_area_division,
+						eel_qal_id,
+						eel_qal_comment,            
+						eel_datasource,
+						eel_comment from not_replaced_temp_",cou_code, " returning eel_id")
     query2bis <- str_c( "insert into datawg.t_eelstock_eel_percent (         
-            percent_id,       
-            perc_f,
-            perc_t,
-            perc_c,
-            perc_mo) 
-            select eel_id_new,       
-            perc_f,
-            perc_t,
-            perc_c,
+						percent_id,       
+						perc_f,
+						perc_t,
+						perc_c,
+						perc_mo) 
+						select eel_id_new,       
+						perc_f,
+						perc_t,
+						perc_c,
             perc_mo from not_replaced_temp_perc",cou_code,";") 
     
   } 
@@ -1228,19 +1226,19 @@ write_duplicates <- function(path, qualify_code) {
   message <- NULL
   
   tryCatch({
-        dbBegin(conn)
-        dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-        dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced, temporary=TRUE, row.names=FALSE )
-        dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-        dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
-        # First step, replace values in the database --------------------------------------------------
-        # Second step insert replaced ------------------------------------------------------------------
-        if (nrow(replaced)>0){
-          nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
-          eel_id <-dbGetQuery(conn, query1)
-          nr1 <- nrow(eel_id)
-          #nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
-          if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc	
+    dbBegin(conn)
+    dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+    dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced, temporary=TRUE, row.names=FALSE )
+    dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+    dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
+    # First step, replace values in the database --------------------------------------------------
+    # Second step insert replaced ------------------------------------------------------------------
+    if (nrow(replaced)>0){
+      nr0 <-dbExecute(conn, query0) # this will be the same count as inserted nr1 
+      eel_id <-dbGetQuery(conn, query1)
+      nr1 <- nrow(eel_id)
+      #nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
+      if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc						
             # the id has been updated and I need a new temp table with this "new_id"
             replaced_perc <- replaced%>% select(any_of(c(
                         "perc_f","perc_t","perc_c", "perc_mo"
@@ -1249,24 +1247,24 @@ write_duplicates <- function(path, qualify_code) {
             # So we can simply add a column
             replaced_perc$eel_id_new <- eel_id$eel_id            
             dbWriteTable(conn, str_c("replaced_temp_perc", tolower(cou_code)), replaced_perc, temporary=TRUE, row.names=FALSE )        
-            nr1bis <- dbExecute(conn,query1bis)
-          } else {
-            nr1bis <- 0
-          }
-        } else {
-          showNotification(				
-              "You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
-              duration = 20,	
-              type = "warning"
-          )
-          nr1 <- 0
-          nr1bis <- 0
-        }
-        # Third step insert not replaced values into the database with qal id 22-----------------------------------------
-        if (nrow(not_replaced)>0){
-          eel_id2 <- dbGetQuery(conn, query2)
-          nr2 <- nrow(eel_id2)
-          #nr2 <- dbGetQuery(conn, "get diagnostics nbLignes = ROW_COUNT")
+        nr1bis <- dbExecute(conn,query1bis)
+      } else {
+        nr1bis <- 0
+      }
+    } else {
+      showNotification(				
+        "You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
+        duration = 20,	
+        type = "warning"
+      )
+      nr1 <- 0
+      nr1bis <- 0
+    }
+    # Third step insert not replaced values into the database with qal id 22-----------------------------------------
+    if (nrow(not_replaced)>0){
+      eel_id2 <- dbGetQuery(conn, query2)
+      nr2 <- nrow(eel_id2)
+      #nr2 <- dbGetQuery(conn, "get diagnostics nbLignes = ROW_COUNT")
           if (sum(startsWith(names(not_replaced),"perc_"))>0) { 
             #we have to update also t_eelsock_eel_perc
             not_replaced_perc <- not_replaced%>% select(any_of(c(
@@ -1276,40 +1274,40 @@ write_duplicates <- function(path, qualify_code) {
             # So we can simply add a column
             not_replaced_perc$eel_id_new <- eel_id2$eel_id            
             dbWriteTable(conn, str_c("not_replaced_temp_perc", tolower(cou_code)), not_replaced_perc, temporary=TRUE, row.names=FALSE ) 
-            nr2bis <- dbExecute(conn,query2bis) # nrow not replaced
-          } else {
-            nr2bis <- 0
-          }
-        }  else {
-          showNotification(				
-              "All values had FALSE in 'keep new values', no new value inserted in the database",
-              duration = 20,	
-              type = "warning"
-          )
-          nr2 <-0
-          nr2bis <- 0
-        }
-        dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-        dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+        nr2bis <- dbExecute(conn,query2bis) # nrow not replaced
+      } else {
+        nr2bis <- 0
+      }
+    }  else {
+      showNotification(				
+        "All values had FALSE in 'keep new values', no new value inserted in the database",
+        duration = 20,	
+        type = "warning"
+      )
+      nr2 <-0
+      nr2bis <- 0
+    }
+    dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+    dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
         dbExecute(conn,str_c("drop table if exists replaced_temp_perc",cou_code) )
-        dbCommit(conn) # if goes to there commit
-        message <- sprintf(
-            "For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
+    dbCommit(conn) # if goes to there commit
+    message <- sprintf(
+      "For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
                 %s values not replaced (values from current datacall stored with code eel_qal_id %s),", nr1,  qualify_code,  nr2, qualify_code)
-        if (nr1bis+nr2bis>0) {
-          message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
-                      %s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
+    if (nr1bis+nr2bis>0) {
+      message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
+													%s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
                   nr1bis,  qualify_code,  nr2bis,  qualify_code))
-        }
-        
-      }, error = function(e) {
-        message <<- e  
-        cat(" message :")
-        print(message) 
-        dbRollback(conn)
-      },
-      finally = {
-      })	
+    }
+    
+  }, error = function(e) {
+    message <<- e  
+    cat(" message :")
+    print(message) 
+    dbRollback(conn)
+  },
+  finally = {
+  })	
   
   return(list(message = message, cou_code = cou_code, eel_typ_id = eel_typ_id))
 }
@@ -1345,7 +1343,7 @@ write_new <- function(path) {
   # for the most common format
   if (ncol(new)==14) {
     new <- read_excel(path = path, sheet = 1, skip = 1, 
-        col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
+                      col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
   }
   shinybusy::remove_modal_spinner()
   ####when there are no data, new values have incorrect type
@@ -1362,10 +1360,10 @@ write_new <- function(path) {
   
   
   new <- new %>%
-      select(any_of(c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-                  "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
-                  "perc_f","perc_t","perc_c","perc_mo",
-                  "eel_qal_comment", "eel_datasource", "eel_comment")))
+    select(any_of(c("eel_typ_id", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+                    "eel_cou_code", "eel_lfs_code", "eel_hty_code", "eel_area_division", "eel_qal_id", 
+                    "perc_f","perc_t","perc_c","perc_mo",
+                    "eel_qal_comment", "eel_datasource", "eel_comment")))
   shinybusy::show_modal_spinner(text = "writing t_eelstock_eel", color="orange", spin="folding-cube")	
   conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists new_temp ")
@@ -1373,63 +1371,63 @@ write_new <- function(path) {
   
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
-      eel_typ_id,       
-      eel_year,
-      eel_value,
-      eel_missvaluequal,
-      eel_emu_nameshort,
-      eel_cou_code,
-      eel_lfs_code,
-      eel_hty_code,
-      eel_area_division,
-      eel_qal_id,
-      eel_qal_comment,            
-      eel_datasource,
-      eel_comment) 
-      select eel_typ_id,       
-      eel_year,
-      eel_value,
-      eel_missvaluequal,
-      eel_emu_nameshort,
-      eel_cou_code,
-      eel_lfs_code,
-      eel_hty_code,
-      eel_area_division,
-      eel_qal_id,
-      eel_qal_comment,            
-      eel_datasource,
-      eel_comment from new_temp returning eel_id;"
+			eel_typ_id,       
+			eel_year,
+			eel_value,
+			eel_missvaluequal,
+			eel_emu_nameshort,
+			eel_cou_code,
+			eel_lfs_code,
+			eel_hty_code,
+			eel_area_division,
+			eel_qal_id,
+			eel_qal_comment,            
+			eel_datasource,
+			eel_comment) 
+			select eel_typ_id,       
+			eel_year,
+			eel_value,
+			eel_missvaluequal,
+			eel_emu_nameshort,
+			eel_cou_code,
+			eel_lfs_code,
+			eel_hty_code,
+			eel_area_division,
+			eel_qal_id,
+			eel_qal_comment,            
+			eel_datasource,
+			eel_comment from new_temp returning eel_id;"
   
   querybis <- "insert into datawg.t_eelstock_eel_percent (         
-      percent_id,       
-      perc_f,
-      perc_t,
-      perc_c,
-      perc_mo) select eel_id_perc,       
-      perc_f,
-      perc_t,
-      perc_c,
-      perc_mo from new_temp;"
+			percent_id,       
+			perc_f,
+			perc_t,
+			perc_c,
+			perc_mo) select eel_id_perc,       
+			perc_f,
+			perc_t,
+			perc_c,
+			perc_mo from new_temp;"
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   message <- NULL
   nr <- tryCatch({
-        if(nrow(new)>0){
-          new$eel_id_perc <- dbGetQuery(conn, query)[,1]
-          if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
-            dbExecute(conn,"drop table if exists new_temp ")
-            dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-            dbExecute(conn, querybis)
-          }
-        }
-        nrow(new)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        
+    if(nrow(new)>0){
+      new$eel_id_perc <- dbGetQuery(conn, query)[,1]
+      if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
         dbExecute(conn,"drop table if exists new_temp ")
-        poolReturn(conn)
-      })
+        dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
+        dbExecute(conn, querybis)
+      }
+    }
+    nrow(new)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    
+    dbExecute(conn,"drop table if exists new_temp ")
+    poolReturn(conn)
+  })
   
   shinybusy::remove_modal_spinner()
   if (is.null(message))   
@@ -1458,19 +1456,19 @@ write_updated_values <- function(path, qualify_code) {
   updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
   validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
   validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
-                  "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
-                  "eel_missvaluequal.base","eel_missvaluequal.xls",
-                  "eel_emu_nameshort.base","eel_emu_nameshort.xls",
-                  "eel_qal_id.xls", "eel_qal_id.base",
-                  "eel_qal_comment.xls","eel_qal_comment.base",
-                  "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
-                  "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
-                  "eel_lfs_code.base", "eel_lfs_code.xls",
-                  "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
-                  "eel_comment.base", "eel_comment.xls",
-                  "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
-                  "eel_datasource.base", "eel_datasource.xls")), 
-          "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+                                                          "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
+                                                          "eel_missvaluequal.base","eel_missvaluequal.xls",
+                                                          "eel_emu_nameshort.base","eel_emu_nameshort.xls",
+                                                          "eel_qal_id.xls", "eel_qal_id.base",
+                                                          "eel_qal_comment.xls","eel_qal_comment.base",
+                                                          "eel_qal_comment.xls", "eel_qal_id.base", "eel_qal_comment.base", "eel_missvaluequal.base", 
+                                                          "eel_missvaluequal.xls", "eel_emu_nameshort", "eel_cou_code.base","eel_cou_code.xls",
+                                                          "eel_lfs_code.base", "eel_lfs_code.xls",
+                                                          "eel_hty_code.base","eel_hty_code.xls", "eel_area_division.base", "eel_area_division.xls",
+                                                          "eel_comment.base", "eel_comment.xls",
+                                                          "perc_f.base","perc_f.xls","perc_t.base","perc_t.xls","perc_c.base","perc_c.xls", "perc_mo.base", "perc_mo.xls",
+                                                          "eel_datasource.base", "eel_datasource.xls")), 
+                "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
   cou_code = unique(updated_values_table$eel_cou_code.base)
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1487,46 +1485,46 @@ write_updated_values <- function(path, qualify_code) {
   dbWriteTable(conn,"updated_temp",updated_values_table,row.names=FALSE,temporary=TRUE)
   cyear=format(Sys.Date(), "%Y")
   query=paste("
-          DO $$
-          DECLARE
-          rec RECORD;
-          oldid integer;
-          newid integer;
-          comment text;
-          BEGIN
-          FOR rec in SELECT * from updated_temp
-          LOOP
-          BEGIN
-          oldid:=rec.eel_id;
-          update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-          comment:=rec.eel_comment_xls;
-          insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,
-          eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,
-          eel_datasource,eel_comment)
-          (select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,
-          eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,
-          eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) 
-          returning eel_id into newid;
-          update datawg.t_eelstock_eel set eel_qal_comment=
-          coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' 
-          where eel_id=oldid;\n",
-      ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
-          "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
-          ""),
-      "
-          END;
-          END LOOP;
-          END;
-          $$ LANGUAGE 'plpgsql';",sep="")
+					DO $$
+					DECLARE
+					rec RECORD;
+					oldid integer;
+					newid integer;
+					comment text;
+					BEGIN
+					FOR rec in SELECT * from updated_temp
+					LOOP
+					BEGIN
+					oldid:=rec.eel_id;
+					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+					comment:=rec.eel_comment_xls;
+					insert into datawg.t_eelstock_eel (eel_typ_id,eel_year,eel_value,eel_missvaluequal,
+					eel_emu_nameshort,eel_cou_code,eel_lfs_code,eel_hty_code,eel_area_division,eel_qal_id, eel_qal_comment,
+					eel_datasource,eel_comment)
+					(select eel_typ_id,eel_year_xls,eel_value_xls,eel_missvaluequal_xls,eel_emu_nameshort_xls,
+					eel_cou_code_xls,eel_lfs_code_xls,eel_hty_code_xls,eel_area_division_xls,eel_qal_id_xls,
+					eel_qal_comment_xls,eel_datasource_xls,eel_comment_xls from updated_temp where eel_id=oldid ) 
+					returning eel_id into newid;
+					update datawg.t_eelstock_eel set eel_qal_comment=
+					coalesce(eel_qal_comment,'') || ' updated to eel_id ' || newid::text || ' in ",cyear,"' 
+					where eel_id=oldid;\n",
+              ifelse(any(startsWith(names(updated_values_table), "perc_"))>0,
+                     "insert into datawg.t_eelstock_eel_percent values (newid,rec.perc_f,rec.perc_t,rec.perc_c,rec.perc_mo);\n",
+                     ""),
+              "
+					END;
+					END LOOP;
+					END;
+					$$ LANGUAGE 'plpgsql';",sep="")
   message <- NULL
   nr <- tryCatch({
-        dbExecute(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn,"drop table if exists updated_temp;")
-        poolReturn(conn)
-      })
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists updated_temp;")
+    poolReturn(conn)
+  })
   
   
   if (is.null(message))   
@@ -1549,19 +1547,19 @@ write_deleted_values <- function(path, qualify_code) {
   deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
   validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
   validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
-                  "eel_year","eel_value",
-                  "eel_missvaluequal",
-                  "eel_emu_nameshort",
-                  "eel_qal_id",
-                  "eel_qal_comment",
-                  "eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
-                  "eel_emu_nameshort", "eel_cou_code",
-                  "eel_lfs_code",
-                  "eel_hty_code", "eel_area_division",
-                  "eel_comment",
-                  "perc_f","perc_t","perc_c", "perc_mo",
-                  "eel_datasource")), 
-          "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
+                                                          "eel_year","eel_value",
+                                                          "eel_missvaluequal",
+                                                          "eel_emu_nameshort",
+                                                          "eel_qal_id",
+                                                          "eel_qal_comment",
+                                                          "eel_qal_id", "eel_qal_comment", "eel_missvaluequal", 
+                                                          "eel_emu_nameshort", "eel_cou_code",
+                                                          "eel_lfs_code",
+                                                          "eel_hty_code", "eel_area_division",
+                                                          "eel_comment",
+                                                          "perc_f","perc_t","perc_c", "perc_mo",
+                                                          "eel_datasource")), 
+                "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   validate(need(all(!is.na(deleted_values_table$eel_qal_id)), "There are still lines without eel_qal_id, please check your file"))
   cou_code = unique(deleted_values_table$eel_cou_code)
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1575,33 +1573,33 @@ write_deleted_values <- function(path, qualify_code) {
   dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
   cyear=format(Sys.Date(), "%Y")
   query=paste("
-          DO $$
-          DECLARE
-          rec RECORD;
-          oldid integer;
-          newid integer;
-          comment text;
-          BEGIN
-          FOR rec in SELECT * from deleted_temp
-          LOOP
-          BEGIN
-          oldid:=rec.eel_id;
-          update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
-          comment:=rec.eel_qal_comment;
-          update datawg.t_eelstock_eel set eel_qal_comment=comment where eel_id=oldid;
-          END;
-          END LOOP;
-          END;
-          $$ LANGUAGE 'plpgsql';",sep="")
+					DO $$
+					DECLARE
+					rec RECORD;
+					oldid integer;
+					newid integer;
+					comment text;
+					BEGIN
+					FOR rec in SELECT * from deleted_temp
+					LOOP
+					BEGIN
+					oldid:=rec.eel_id;
+					update datawg.t_eelstock_eel set eel_qal_id=",qualify_code," where eel_id=oldid;
+					comment:=rec.eel_qal_comment;
+					update datawg.t_eelstock_eel set eel_qal_comment=comment where eel_id=oldid;
+					END;
+					END LOOP;
+					END;
+					$$ LANGUAGE 'plpgsql';",sep="")
   message <- NULL
   nr <- tryCatch({
-        dbExecute(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn,"drop table if exists deleted_temp;")
-        poolReturn(conn)
-      })
+    dbExecute(conn, query)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists deleted_temp;")
+    poolReturn(conn)
+  })
   
   
   if (is.null(message))   
@@ -1638,21 +1636,22 @@ write_deleted_values <- function(path, qualify_code) {
 #'  }
 #' }
 #' @rdname write_new series
-write_new_series <- function(path) {
+write_new_series <- function(path, conn) {
+  message <- NULL
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
   new <- new %>% mutate_if(is.logical,list(as.character)) 
   
   new <- new %>% 
-      mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
-              ser_area_division,ser_cou_code), list(as.character)) 
+    mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort, 	ser_method,
+                   ser_area_division,ser_cou_code), list(as.character)) 
   new <- new %>% 
-      mutate_at(vars(ser_sam_id,ser_sam_gear), list(as.integer)) 
+    mutate_at(vars(ser_sam_id,ser_sam_gear), list(as.integer)) 
   new$ser_restocking <- convert2boolean(new$ser_restocking,
-      "new boolean")
+                                        "new boolean")
   new <- new %>%
-      mutate_at(vars(ser_distanceseakm), list(as.numeric))
+    mutate_at(vars(ser_distanceseakm), list(as.numeric))
   # check for new file -----------------------------------------------------------------------------
   
   validate(need(all(!is.na(new$ser_qal_id)), "There are still lines without ser_qal_id, please check your file"))
@@ -1663,45 +1662,34 @@ write_new_series <- function(path) {
   
   
   new <- new[, c("ser_nameshort", "ser_namelong", "ser_typ_id", "ser_effort_uni_code", 
-          "ser_comment", "ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription",
-          "ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
-          "ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
-          "ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking", "ser_qal_id", "ser_qal_comment",
-          "ser_ccm_wso_id" )	]
-  conn <- poolCheckout(pool)	
+                 "ser_comment", "ser_uni_code", "ser_lfs_code", "ser_hty_code", "ser_locationdescription",
+                 "ser_emu_nameshort", "ser_cou_code", "ser_area_division", "ser_tblcodeid",
+                 "ser_x", "ser_y", "ser_sam_id", "ser_dts_datasource",
+                 "ser_sam_gear", "ser_distanceseakm", 	"ser_method", "ser_restocking", "ser_qal_id", "ser_qal_comment",
+                 "ser_ccm_wso_id" )	]
   dbExecute(conn,"drop table if exists new_series_temp ")
   dbWriteTable(conn, "new_series_temp",new,temporary=TRUE,row.names=FALSE)
   
   
   query <- "insert into datawg.t_series_ser (         
-      ser_nameshort,
-      ser_namelong, ser_typ_id, ser_effort_uni_code, 
-      ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
-      ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid,
-      ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id, ser_qal_comment,
-      ser_ccm_wso_id,ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking ) 
-      select ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
-      ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
-      ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
-      ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
-      ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp;"
-  
-  
-  message <- NULL
-  (nr <- tryCatch({
-              dbExecute(conn, query)
-            }, error = function(e) {
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists new_series_temp;")
-              poolReturn(conn)
-            }))
-  
+			ser_nameshort,
+			ser_namelong, ser_typ_id, ser_effort_uni_code, 
+			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
+			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid,
+			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id, ser_qal_comment,
+			ser_ccm_wso_id,ser_sam_gear, ser_distanceseakm, 	ser_method, ser_restocking ) 
+			select ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code, 
+			ser_comment, ser_uni_code, ser_lfs_code, ser_hty_code, ser_locationdescription,
+			ser_emu_nameshort, ser_cou_code, ser_area_division, ser_tblcodeid::integer,
+			ser_x, ser_y, ser_sam_id, ser_dts_datasource, ser_qal_id::integer, ser_qal_comment,
+			ser_ccm_wso_id::integer[], ser_sam_gear::integer, ser_distanceseakm, 	ser_method, ser_restocking from new_series_temp returning *;"
+  nr <- dbGetQuery(conn, query)
+  dbExecute(conn,"drop table if exists new_series_temp;")
   
   if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
+    message <- sprintf(" %s new values inserted in the database", nrow(nr))
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
 
 #' @title write new sampling into the database
@@ -1719,13 +1707,13 @@ write_new_sampling <- function(path) {
   new <- new %>% mutate_if(is.logical, list(as.character)) 
   
   new <- new %>% 
-      mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective,
-              sai_protocol,sai_comment,sai_qal_comment), list(as.character)) 
+    mutate_at(vars(sai_name, sai_cou_code, sai_emu_nameshort, sai_area_division, sai_hty_code,  sai_samplingobjective,
+                   sai_protocol,sai_comment,sai_qal_comment), list(as.character)) 
   new <- new %>% 
-      mutate_at(vars(sai_qal_id), list(as.integer)) 
+    mutate_at(vars(sai_qal_id), list(as.integer)) 
   
   new <- new %>% 
-      mutate_at(vars(sai_lastupdate), list(as.Date)) 
+    mutate_at(vars(sai_lastupdate), list(as.Date)) 
   
   # check for new file -----------------------------------------------------------------------------
   
@@ -1743,44 +1731,44 @@ write_new_sampling <- function(path) {
   
   # Query uses temp table just created in the database
   query <- "insert into datawg.t_samplinginfo_sai (         
-      sai_name,
-      sai_cou_code,
-      sai_emu_nameshort,
-      sai_area_division,
-      sai_hty_code,
-      sai_comment,
-      sai_samplingobjective,
-      sai_samplingstrategy,
-      sai_protocol,
-      sai_qal_id,
-      sai_lastupdate,
-      sai_dts_datasource) 
-      SELECT 
-      sai_name,
-      sai_cou_code,
-      sai_emu_nameshort,
-      sai_area_division,
-      sai_hty_code,
-      sai_comment,
-      sai_samplingobjective,
-      sai_samplingstrategy,
-      sai_protocol,
-      sai_qal_id,
-      sai_lastupdate,
-      sai_dts_datasource
-      FROM new_sampling_temp;"
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource) 
+			SELECT 
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource
+			FROM new_sampling_temp;"
   
   message <- NULL
   (nr <- tryCatch({
-              dbExecute(conn, query)
-              query <- "SELECT * FROM datawg.t_samplinginfo_sai"
-              t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
-            }, error = function(e) {
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists new_sampling_temp;")
-              poolReturn(conn)
-            }))
+    dbExecute(conn, query)
+    query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+    t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists new_sampling_temp;")
+    poolReturn(conn)
+  }))
   query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
   tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
   
@@ -1815,24 +1803,23 @@ write_new_sampling <- function(path) {
 #'  }
 #' }
 #' @rdname write_new dataseries
-write_new_dataseries <- function(path) {
-  
+write_new_dataseries <- function(path, conn) {
   new <- read_excel(path = path, sheet = 1, skip = 1)
   new$das_qal_id <- as.integer(new$das_qal_id)
   ser_nameshort	 <- new$ser_nameshort	 # these will be dropped later
   ####when there are no data, new values have incorrect type
   new <- new %>% mutate_if(is.logical,list(as.numeric)) 
   validate(need(all(!is.na(new$das_ser_id)),"You probably didn't integrate all series, 
-              you need to re-run check duplicates after integrating new series, 
-              otherwise you will have missing values in das_ser_id"))
+							you need to re-run check duplicates after integrating new series, 
+							otherwise you will have missing values in das_ser_id"))
   # create dataset for insertion -------------------------------------------------------------------
   new <- new[, c("das_year", "das_value", "das_comment",
-          "das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
+                 "das_effort", "das_dts_datasource", "das_ser_id", "das_qal_id")	]
   
   # das_last_update : there is a trigger
-  conn <- poolCheckout(pool)
+ 
   cou_code <- (dbGetQuery(conn, statement=paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-                ser_nameshort[1],"';")))$ser_cou_code  
+                                                 ser_nameshort[1],"';")))$ser_cou_code  
   
   
   dbExecute(conn,"drop table if exists new_dataseries_temp ")
@@ -1840,28 +1827,16 @@ write_new_dataseries <- function(path) {
   
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_dataseries_das (das_year, das_value, das_comment,
-      das_effort, das_dts_datasource, das_ser_id, das_qal_id)
-      select 
-      das_year, das_value, das_comment,	das_effort, das_dts_datasource, das_ser_id, das_qal_id
-      from new_dataseries_temp"
+			das_effort, das_dts_datasource, das_ser_id, das_qal_id)
+			(select 
+			das_year, das_value, das_comment,	das_effort, das_dts_datasource, das_ser_id, das_qal_id
+			from new_dataseries_temp) returning *"
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
+  newind <- dbGetQuery(conn, query)
+  message <- sprintf(" %s new values inserted in the database", nrow(newind))
   
-  message <- NULL
-  (nr <- tryCatch({
-              dbExecute(conn, query)
-            }, error = function(e) {
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists new_dataseries_temp ")
-              poolReturn(conn)
-            }))
-  
-  
-  if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
-  
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = newind, message=message, cou_code = cou_code))
 }
 
 
@@ -1887,7 +1862,7 @@ write_new_dataseries <- function(path) {
 #		password= passwordwgeel) 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_series_2020-08-23_FR.xlsx"
 
-update_series <- function(path) {
+update_series <- function(path, conn) {
   
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   cou_code = unique(updated_values_table$ser_cou_code)  
@@ -1895,82 +1870,73 @@ update_series <- function(path) {
   updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
   
   updated_values_table <- updated_values_table %>% 
-      mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
-              ser_area_division,ser_cou_code, 	ser_method),list(as.character)) 
+    mutate_at(vars(ser_dts_datasource, ser_comment, ser_lfs_code, ser_hty_code, ser_locationdescription, ser_emu_nameshort,
+                   ser_area_division,ser_cou_code, 	ser_method),list(as.character)) 
   updated_values_table <- updated_values_table %>%
-      mutate_at(vars(ser_distanceseakm), list(as.numeric))
+    mutate_at(vars(ser_distanceseakm), list(as.numeric))
   updated_values_table$ser_restocking <- convert2boolean(updated_values_table$ser_restocking,
-      "updated_values_table boolean")
+                                                         "updated_values_table boolean")
   updated_values_table <- updated_values_table %>% 
-      mutate_at(vars(ser_sam_id, ser_tblcodeid, ser_sam_gear),list(as.integer)) 
+    mutate_at(vars(ser_sam_id, ser_tblcodeid, ser_sam_gear),list(as.integer)) 
   
   # create dataset for insertion -------------------------------------------------------------------
   
-  conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists updated_series_temp ")
   dbWriteTable(conn,"updated_series_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
-  
   query="UPDATE datawg.t_series_ser set 
-      (
-      ser_namelong, 
-      ser_typ_id,
-      ser_effort_uni_code, 
-      ser_comment, 
-      ser_uni_code, 
-      ser_lfs_code, 
-      ser_hty_code, 
-      ser_locationdescription, 
-      ser_emu_nameshort, 
-      ser_cou_code, 
-      ser_area_division, 
-      ser_tblcodeid, 
-      ser_x, 
-      ser_y, 
-      ser_sam_id,
-      ser_dts_datasource,
-      ser_sam_gear,
-      ser_distanceseakm, 
-      ser_method,
-      ser_restocking) =
-      (
-      t.ser_namelong, 
-      t.ser_typ_id,
-      t.ser_effort_uni_code, 
-      t.ser_comment, 
-      t.ser_uni_code, 
-      t.ser_lfs_code, 
-      t.ser_hty_code, 
-      t.ser_locationdescription, 
-      t.ser_emu_nameshort, 
-      t.ser_cou_code, 
-      t.ser_area_division, 
-      t.ser_tblcodeid, 
-      t.ser_x, 
-      t.ser_y, 
-      t.ser_sam_id,
-      t.ser_dts_datasource,
-      t.ser_sam_gear,
-      t.ser_distanceseakm,
-      t.ser_method,
-      t.ser_restocking)
-      FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort"
+			(
+			ser_namelong, 
+			ser_typ_id,
+			ser_effort_uni_code, 
+			ser_comment, 
+			ser_uni_code, 
+			ser_lfs_code, 
+			ser_hty_code, 
+			ser_locationdescription, 
+			ser_emu_nameshort, 
+			ser_cou_code, 
+			ser_area_division, 
+			ser_tblcodeid, 
+			ser_x, 
+			ser_y, 
+			ser_sam_id,
+			ser_dts_datasource,
+			ser_sam_gear,
+			ser_distanceseakm, 
+			ser_method,
+			ser_restocking) =
+			(
+			t.ser_namelong, 
+			t.ser_typ_id,
+			t.ser_effort_uni_code, 
+			t.ser_comment, 
+			t.ser_uni_code, 
+			t.ser_lfs_code, 
+			t.ser_hty_code, 
+			t.ser_locationdescription, 
+			t.ser_emu_nameshort, 
+			t.ser_cou_code, 
+			t.ser_area_division, 
+			t.ser_tblcodeid, 
+			t.ser_x, 
+			t.ser_y, 
+			t.ser_sam_id,
+			t.ser_dts_datasource,
+			t.ser_sam_gear,
+			t.ser_distanceseakm,
+			t.ser_method,
+			t.ser_restocking)
+			FROM updated_series_temp t WHERE t.ser_nameshort = t_series_ser.ser_nameshort returning t_series_ser.*"
   
   message <- NULL
-  nr <- tryCatch({
-        dbExecute(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn, "DROP TABLE updated_series_temp")
-        poolReturn(conn)
-        
-      })
+  nr <- dbGetQuery(conn, query)
+    dbExecute(conn, "DROP TABLE updated_series_temp")
   
   
   if (is.null(message))   
-    message <- paste(nrow(updated_values_table),"values updated in the db")
+    message <- paste(nrow(nr),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
 
 #' @title update sampling value into the database
@@ -1984,14 +1950,14 @@ update_sampling <- function(path) {
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
   updated_values_table <- updated_values_table %>% mutate_if(is.logical, list(as.character)) 
   updated_values_table <- updated_values_table %>% 
-      mutate(across(any_of(c("sai_name", "sai_cou_code", "sai_emu_nameshort", "sai_area_division", "sai_hty_code", "sai_samplingobjective", 	 
-                      "sai_protocol","sai_comment")),~as.character(.x))) 
+    mutate(across(any_of(c("sai_name", "sai_cou_code", "sai_emu_nameshort", "sai_area_division", "sai_hty_code", "sai_samplingobjective", 	 
+                           "sai_protocol","sai_comment")),~as.character(.x))) 
   
   updated_values_table <- updated_values_table %>% 
-      mutate_at(vars(sai_qal_id),list(as.integer)) 
+    mutate_at(vars(sai_qal_id),list(as.integer)) 
   
   updated_values_table <- updated_values_table %>% 
-      mutate_at(vars(sai_lastupdate),list(as.Date)) 
+    mutate_at(vars(sai_lastupdate),list(as.Date)) 
   
   # create dataset for insertion -------------------------------------------------------------------
   
@@ -2000,48 +1966,48 @@ update_sampling <- function(path) {
   dbWriteTable(conn,"updated_sampling_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
   
   query="UPDATE datawg.t_samplinginfo_sai set 
-      (
-      sai_name,
-      sai_cou_code,
-      sai_emu_nameshort,
-      sai_area_division,
-      sai_hty_code,
-      sai_comment,
-      sai_samplingobjective,
-      sai_samplingstrategy,
-      sai_protocol,
-      sai_qal_id,
-      sai_lastupdate,
-      sai_dts_datasource) =
-      (
-      t.sai_name,
-      t.sai_cou_code,
-      t.sai_emu_nameshort,
-      t.sai_area_division,
-      t.sai_hty_code,
-      t.sai_comment,
-      t.sai_samplingobjective,
-      t.sai_samplingstrategy,
-      t.sai_protocol,
-      t.sai_qal_id,
-      t.sai_lastupdate,
-      t.sai_dts_datasource)
-      FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-      returning datawg.t_samplinginfo_sai.sai_name"
+			(
+			sai_name,
+			sai_cou_code,
+			sai_emu_nameshort,
+			sai_area_division,
+			sai_hty_code,
+			sai_comment,
+			sai_samplingobjective,
+			sai_samplingstrategy,
+			sai_protocol,
+			sai_qal_id,
+			sai_lastupdate,
+			sai_dts_datasource) =
+			(
+			t.sai_name,
+			t.sai_cou_code,
+			t.sai_emu_nameshort,
+			t.sai_area_division,
+			t.sai_hty_code,
+			t.sai_comment,
+			t.sai_samplingobjective,
+			t.sai_samplingstrategy,
+			t.sai_protocol,
+			t.sai_qal_id,
+			t.sai_lastupdate,
+			t.sai_dts_datasource)
+			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
+	returning datawg.t_samplinginfo_sai.sai_name"
   
   message <- NULL
   tryCatch({
-        rs <- dbSendQuery(conn,query)
-        res0 <- dbFetch(rs)
-        dbClearResult(rs)
-        nr <- nrow(res0)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn, "DROP TABLE updated_sampling_temp")
-        poolReturn(conn)
-        
-      })
+    rs <- dbSendQuery(conn,query)
+    res0 <- dbFetch(rs)
+    dbClearResult(rs)
+    nr <- nrow(res0)
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn, "DROP TABLE updated_sampling_temp")
+    poolReturn(conn)
+    
+  })
   
   
   if (is.null(message))   
@@ -2053,47 +2019,39 @@ update_sampling <- function(path) {
 
 #path <-file.choose()
 #delete_dataseries(path)
-delete_dataseries <- function(path) {
+delete_dataseries <- function(path, conn) {
   deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   if (nrow(deleted_values_table) == 0)
     return(list(message="no values to be deleted", cou_code=NULL))
-  conn <- poolCheckout(pool)
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-          deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
+                                    deleted_values_table$ser_nameshort[1],"';"))$ser_cou_code  
   
   
   dbExecute(conn,"drop table if exists deleted_dataseries_temp ")
   dbWriteTable(conn,"deleted_dataseries_temp",deleted_values_table, row.names=FALSE,temporary=TRUE)
   if (sum(!is.na(deleted_values_table$das_id)) == 0)
-    return(list(message="no values to be deleted", cou_code=NULL))
+    return(list(datadb = data.frame(), message="no values to be deleted", cou_code=NULL))
   query=paste("update datawg.t_dataseries_das set das_qal_id=",qualify_code ,"WHERE das_id IN 
-          (SELECT das_id FROM deleted_dataseries_temp) RETURNING das_id ")
+					(SELECT das_id FROM deleted_dataseries_temp) RETURNING datawg.t_dataseries_das.* ")
   message <- NULL
-  nr <- tryCatch({
-        res <- dbGetQuery(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
-        poolReturn(conn)
-      })
+    res <- dbGetQuery(conn, query)
+    dbExecute(conn,"drop table if exists deleted_dataseries_temp;")
   
   if (is.null(message))   
     if (! all(deleted_values_table$das_id %in% res$das_id)) {
       message <- paste("das_id not deleted :", 
-          paste(deleted_values_table$das_id[!deleted_values_table$das_id %in% res$das_id], collapse=","))
+                       paste(deleted_values_table$das_id[!deleted_values_table$das_id %in% res$das_id], collapse=","))
     } else {		
       message <- paste(nrow(deleted_values_table),"values deleted from the db")
     }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res, message = message, cou_code = cou_code))
 }
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
-update_dataseries <- function(path) {
+update_dataseries <- function(path, conn) {
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
-  conn <- poolCheckout(pool)
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-          updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
+                                    updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
   
   # create dataset for insertion -------------------------------------------------------------------
   
@@ -2104,59 +2062,74 @@ update_dataseries <- function(path) {
   dbWriteTable(conn,"updated_dataseries_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
   
   query="UPDATE datawg.t_dataseries_das set 
-      (
-      das_year, 
-      das_value, 
-      das_comment,
-      das_effort, 
-      das_dts_datasource, 
-      das_ser_id, 
-      das_qal_id) =
-      (
-      t.das_year, 
-      t.das_value,
-      t.das_comment,
-      t.das_effort, 
-      t.das_dts_datasource, 
-      t.das_ser_id, 
-      t.das_qal_id)
-      FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id"
+			(
+			das_year, 
+			das_value, 
+			das_comment,
+			das_effort, 
+			das_dts_datasource, 
+			das_ser_id, 
+			das_qal_id) =
+			(
+			t.das_year, 
+			t.das_value,
+			t.das_comment,
+			t.das_effort, 
+			t.das_dts_datasource, 
+			t.das_ser_id, 
+			t.das_qal_id)
+			FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id returning datawg.t_dataseries_das.*"
   
   
   message <- NULL
-  nr <- tryCatch({
-        dbExecute(conn, query)
-      }, error = function(e) {
-        message <<- e
-      }, finally = {
-        dbExecute(conn, "DROP TABLE updated_dataseries_temp")
-        poolReturn(conn)
-        
-      })
+  nr <- dbGetQuery(conn, query)
+    dbExecute(conn, "DROP TABLE updated_dataseries_temp")
   
   
   if (is.null(message))   
-    message <- paste(nrow(updated_values_table),"values updated in the db")
+    message <- paste(nrow(nr),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = nr, message = message, cou_code = cou_code))
 }
+
+
+#' create_group_metrics_wide
+#' create a table in wide format with groups and related metrics
+#' that can be displayed in a userfriendly way
+#' @param groups the group table from the db
+#' @param metrics the metrics table from the db
+#' @param mty_ref reference table
+#'
+#' @return a well formatted wide-format table
+
+create_group_metrics_wide <- function(groups, metrics, mty_ref){
+  res_wide <- groups %>% 
+    left_join(metrics %>%
+                select(meg_gr_id,meg_mty_id,meg_value) %>%
+                left_join(mty_ref,by=c("meg_mty_id"="mty_id")) %>%
+                select(meg_gr_id, mty_name, meg_value ) %>%
+                pivot_wider(names_from=mty_name,values_from=meg_value),
+              c("gr_id"="meg_gr_id"))
+  return(res_wide)
+  
+}
+
 #' @title write new group metrics into the database
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
 #'  path <- file.choose()
 
-write_new_group_metrics <- function(path, type="series") {
-  #browser()
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+write_new_group_metrics <- function(path, conn, type="series") {
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
   if (type == "series"){
     fk <- "grser_ser_id"
   } else{
     fk <- "grsa_sai_id"
   }
   new <- read_excel(path = path, sheet = 1, skip = 1) %>%
-      mutate(gr_number=as.numeric(gr_number))
+    mutate(gr_number=as.numeric(gr_number))
   if (nrow(new) == 0){
     message <- "nothing to import"
     cou_code <- ""
@@ -2164,10 +2137,10 @@ write_new_group_metrics <- function(path, type="series") {
     message <- paste("some",fk,"are missing, don't you have forgotten to rerun database comparison?")
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-              new$grser_ser_id[1],"';"))$ser_cou_code  
+                                        new$grser_ser_id[1],"';"))$ser_cou_code  
     } else {
       cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-              new$sai_name[1],"';"))$sai_cou_code  	
+                                        new$sai_name[1],"';"))$sai_cou_code  	
     }
   } else {
     gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
@@ -2176,14 +2149,14 @@ write_new_group_metrics <- function(path, type="series") {
     gr_add1 <- ifelse(type=="series","",",g.grsa_lfs_code")
     metric_table <- ifelse(type=="series","t_metricgroupseries_megser","t_metricgroupsamp_megsa")	
     newgroups <- new %>%
-        filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
-        select(any_of(c("gr_year","grsa_lfs_code",
-                    "gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
-        distinct()
+      filter(is.na(gr_id)) %>% #nor group nor metrics already  exist 
+      select(any_of(c("gr_year","grsa_lfs_code",
+                      "gr_number","gr_comment","gr_dts_datasource",gr_key,"id"))) %>%
+      distinct()
     oldgroups <- new %>%
-        filter(!is.na(gr_id)) %>% #the group already exists, only a metric is new
-        select(id, gr_id) %>%
-        distinct()
+      filter(!is.na(gr_id)) %>% #the group already exists, only a metric is new
+      select(id, gr_id) %>%
+      distinct()
     message <- NULL
     if (any(is.na(new[,gr_key]))) {
       message0 <- paste("you have missing values in",gr_key,"(1) integrate new sampling, (2) re-run steps 0 and 1 and (3) integrate new group metrics")
@@ -2191,64 +2164,51 @@ write_new_group_metrics <- function(path, type="series") {
       message0 <-NULL
     }
     #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-    nr <- tryCatch({
-          dbBegin(conn)
-          dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
-          
-          # glue_sql does not handle removing strings use glue instead
-          
-          sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
-                  (SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
-                  FROM group_tmp g) returning gr_id;")
-          
-          rs <- dbSendQuery(conn,sqlgr)
-          res0 <- dbFetch(rs)
-          dbClearResult(rs)
-          newgroups$gr_id <- res0$gr_id
-          new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
-              select(-gr_id) %>%
-              left_join(bind_rows(newgroups,oldgroups))
-          dbWriteTable(conn,"metrics_tmp",new2)
-          sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-                  SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp;",
-              .con=conn)
-          
-          nr0 <- nrow(res0)
-          nr1 <- dbExecute(conn, sqlmetrics)
-          # this has to be launched why the transaction is still going
-          dbExecute(conn,"drop table if exists group_tmp")
-          dbExecute(conn,"drop table if exists metrics_tmp")
-          dbCommit(conn)
-          
-        }, warning = function(e) {
-          message <<- e
-          dbRollback(conn)
-          # not possible to continue the transation on error, the transaction is cancelled and tables group_tmp and  metrics_tmp are removed
-        }, error = function(e) {
-          message <<- e
-          dbRollback(conn)
-        }, finally = {
-          #nothing
-        })
+      dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
+      
+      # glue_sql does not handle removing strings use glue instead
+      
+      sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
+									(SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
+									FROM group_tmp g) returning *;")
+      
+    res0 <- dbGetQuery(conn, sqlgr)
+      newgroups$gr_id <- res0$gr_id
+      new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
+        select(-gr_id) %>%
+        left_join(bind_rows(newgroups,oldgroups))
+    dbWriteTable(conn,"metrics_tmp",new2,row.names=FALSE, temporary = TRUE)
+      sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp returning *;",
+                                   .con=conn)
+      
+      nr0 <- nrow(res0)
+    res1 <- dbGetQuery(conn, sqlmetrics)
+    nr1 <- nrow(res1)
+      # this has to be launched why the transaction is still going
+      dbExecute(conn,"drop table if exists group_tmp")
+      dbExecute(conn,"drop table if exists metrics_tmp")
+    res_wide <- create_group_metrics_wide(res0, res1, metrics_group)
     
     
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-              new$grser_ser_id[1],"';"))$ser_cou_code  
+                                        new$grser_ser_id[1],"';"))$ser_cou_code  
     } else {
       cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-              new$sai_name[1],"';"))$sai_cou_code  	
+                                        new$sai_name[1],"';"))$sai_cou_code  	
     }
     if (is.null(message))   
       message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
     if (!is.null(message0)) message <- paste(message, message0)
   }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-write_updated_group_metrics <-function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+write_updated_group_metrics <-function(path, conn, type="series"){
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
+  
   updated <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
@@ -2263,43 +2223,38 @@ write_updated_group_metrics <-function(path, type="series"){
   dbWriteTable(conn,"group_tmp",updated,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-  (nr <- tryCatch({	
-              dbBegin(conn)
-              sqlgr<- glue::glue_sql("UPDATE datawg.{`gr_table`} SET 
-                      (gr_year,gr_number,gr_comment,gr_dts_datasource,{`gr_key`}) =
-                      (g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{`gr_key`}) FROM
-                      group_tmp g
-                      WHERE g.gr_id={`gr_table`}.gr_id returning datawg.{`gr_table`}.gr_id",
-                  .con=conn)
-              
-              rs <- dbSendQuery(conn,sqlgr)
-              nr1 <- length(unique(dbFetch(rs)[,1]))
-              dbClearResult(rs)
-              sqlmetrics <- glue::glue_sql("delete from  datawg.{`metric_table`} 
-                      WHERE meg_gr_id in (select gr_id from group_tmp)",
-                  .con=conn)
-              dbExecute(conn, sqlmetrics)
-              
-              sqlmetrics2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-                      SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp;",
-                  .con=conn)
-              nr2<- dbExecute(conn, sqlmetrics2)
-              dbCommit(conn)
-            }, error = function(e) {
-              dbRollback(conn)
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists group_tmp")
-            }))
-  if (is.null(message)) message <- sprintf(" %s and %s new values modified in the group and metric tables", nr1, nr2)
+    sqlgr<- glue::glue_sql("UPDATE datawg.{`gr_table`} SET 
+											(gr_year,gr_number,gr_comment,gr_dts_datasource,{`gr_key`}) =
+											(g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{`gr_key`}) FROM
+											group_tmp g
+											WHERE g.gr_id={`gr_table`}.gr_id returning datawg.{`gr_table`}.*",
+                           .con=conn)
+    
+  res0 <- dbGetQuery(conn,sqlgr)
+  nr1 <- nrow(res0)
+  
+    sqlmetrics <- glue::glue_sql("delete from  datawg.{`metric_table`} 
+											WHERE meg_gr_id in (select gr_id from group_tmp)",
+                                 .con=conn)
+    dbExecute(conn, sqlmetrics)
+    
+    sqlmetrics2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp returning datawg.{`metric_table`}.*;",
+                                  .con=conn)
+  res2<- dbGetQuery(conn, sqlmetrics2)
+  
+  res_wide <- res_wide <- create_group_metrics_wide(res0, res2, metrics_group)
+  
+    dbExecute(conn,"drop table if exists group_tmp")
+  if (is.null(message)) message <- sprintf(" %s and %s new values modified in the group and metric tables", nrow(res0), nrow(res2))
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-            updated$ser_nameshort[1],"';"))$ser_cou_code  
+                                      updated$ser_nameshort[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-            updated$sai_name[1],"';"))$sai_cou_code  	
+                                      updated$sai_name[1],"';"))$sai_cou_code  	
   }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
 delete_group_metrics <- function(path, type="series"){
@@ -2319,22 +2274,22 @@ delete_group_metrics <- function(path, type="series"){
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
   (nr <- tryCatch({	
-              sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
-                      WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp)",
-                  .con=conn)
-              nr0 <- dbExecute(conn, sql_group)							
-            }, error = function(e) {
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists group_tmp")
-            }))
+    sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
+											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp)",
+                                .con=conn)
+    nr0 <- dbExecute(conn, sql_group)							
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists group_tmp")
+  }))
   if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nr0)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
-            deleted$ser_nameshort[1],"';"))$ser_cou_code  
+                                      deleted$ser_nameshort[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-            deleted$sai_name[1],"';"))$sai_cou_code  	
+                                      deleted$sai_name[1],"';"))$sai_cou_code  	
   }
   
   return(list(message = message, cou_code = cou_code))
@@ -2367,9 +2322,9 @@ write_new_individual_metrics_show <- function(path, type="series"){
   new <- read_excel(path = path, sheet=1, skip=skip)
   shinybusy::remove_modal_spinner() 
   new_wide=pivot_wider(new %>%
-              dplyr::select(!!name, fi_date,fi_id_cou,fi_year,fi_lfs_code,mty_name,mei_value,id),
-          names_from="mty_name",values_from="mei_value") %>%
-      dplyr::select(-id)
+                         dplyr::select(!!name, fi_date,fi_id_cou,fi_year,fi_lfs_code,mty_name,mei_value,id),
+                       names_from="mty_name",values_from="mei_value") %>%
+    dplyr::select(-id)
   summary_data <- skim(new_wide)
   return(list(data_read=new,summary=summary_data))
 }
@@ -2390,8 +2345,8 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
   if (all(is.na(new$fi_date)))
     new$fi_date <- as.Date(rep(NA,nrow(new)))
   new <- new %>%
-      mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
-              ~as.numeric(.x)))
+    mutate(across(any_of(c("fisa_x_4326", "fisa_y_4326", "fi_year")),
+                  ~as.numeric(.x)))
   if (nrow(new) == 0){
     cou_code <- ""
     message <- "nothing to import"
@@ -2405,10 +2360,10 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
     } else {
       if (type=="series"){
         cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-                new$fiser_ser_id[!is.na(new$fiser_ser_id)][1],"';"))$ser_cou_code  
+                                          new$fiser_ser_id[!is.na(new$fiser_ser_id)][1],"';"))$ser_cou_code  
       } else {
         cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-                new$sai_name[!is.na(new$sai_name)][1],"';"))$sai_cou_code  	
+                                          new$sai_name[!is.na(new$sai_name)][1],"';"))$sai_cou_code  	
       }  
       if (length(cou_code)==0) {
         cou_code <-"VA"
@@ -2421,18 +2376,18 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
     ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
     metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
     addcol0 <- ifelse(type=="series",
-        "",
-        ",fisa_x_4326,fisa_y_4326,fi_lfs_code")
+                      "",
+                      ",fisa_x_4326,fisa_y_4326,fi_lfs_code")
     addcol1 <- ifelse(type=="series",
-        "",
-        ",i.fisa_x_4326,i.fisa_y_4326,i.fi_lfs_code")
+                      "",
+                      ",i.fisa_x_4326,i.fisa_y_4326,i.fi_lfs_code")
     
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-              new$fiser_ser_id[1],"';"))$ser_cou_code  
+                                        new$fiser_ser_id[1],"';"))$ser_cou_code  
     } else {
       cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-              new$sai_name[1],"';"))$sai_cou_code  	
+                                        new$sai_name[1],"';"))$sai_cou_code  	
     }     
     message <- NULL
     message <- NULL
@@ -2443,71 +2398,71 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
     }
     
     newfish <- new %>%
-        filter(is.na(fi_id)) %>% #nor group nor metrics already  exist 				
-        select(any_of(c("fi_year","fi_date","fi_year","fi_lfs_code",
-                    "fi_comment",ind_key,"id"))) %>%
-        distinct()
+      filter(is.na(fi_id)) %>% #nor group nor metrics already  exist 				
+      select(any_of(c("fi_year","fi_date","fi_year","fi_lfs_code",
+                      "fi_comment",ind_key,"id"))) %>%
+      distinct()
     oldfish <- new %>%
-        filter(!is.na(fi_id)) %>% #the fish already exists, only a metric is new
-        select(id, fi_id) %>%
-        distinct()
+      filter(!is.na(fi_id)) %>% #the fish already exists, only a metric is new
+      select(id, fi_id) %>%
+      distinct()
     #browser()
     
     nr <- tryCatch({
-          dbBegin(conn)
-          shinybusy::show_modal_spinner(text = "writing fish", color="orange", spin="folding-cube")
-          dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
-          #check that fish falls into emu
-          misslocated = data.frame()
-          if (type != "series") {
-            misslocated <- dbGetQuery(conn, "with fi as (select * from ind_tmp where fisa_x_4326 is not null and fisa_y_4326 is not null)
-                    select fi.fi_id_cou, fi.fisa_x_4326, fi.fisa_y_4326, fi.sai_name from fi left join datawg.t_samplinginfo_sai tss on fi.fisa_sai_id = tss.sai_id  left join ref.tr_emu_emu tee on tss.sai_emu_nameshort = tee.emu_nameshort where st_intersects(tee.geom_buffered,st_point(fisa_x_4326, fisa_y_4326,4326))= false" )
-            if (nrow(misslocated)>0)
-              message <- paste("fishes do not fall in emu:",paste0(misslocated, collapse=", "))
-          }
-          if (nrow(misslocated) == 0){
-            # insert fish			
-            sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
-                    SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
-                    FROM ind_tmp i RETURNING fi_id ;")	
-            # better to do dbSendQuery and dbFetch within trycath
-            rs <- dbSendQuery(conn,sqlid)
-            res0 <- dbFetch(rs)
-            dbClearResult(rs)         
-            newfish$fi_id <- res0$fi_id
-            
-            new2 <- new %>%  #now we merge the metric table with groups table to recover fi_id
-                select(-fi_id) %>%
-                left_join(bind_rows(newfish,oldfish))
-            shinybusy::show_modal_spinner(text = "writing metrics", color="red", spin="folding-cube")
-            dbWriteTable(conn,"indiv_metrics_tmp",new2)
-            # insert metrics, qal_id is 1
-            
-            sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-                    SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM indiv_metrics_tmp",
-                .con=conn)
-            
-            nr0 <- nrow(res0)
-            nr1 <- dbExecute(conn, sqlmetrics)
-            dbExecute(conn,"drop table if exists ind_tmp")
-            dbExecute(conn,"drop table if exists indiv_metrics_tmp")
-            dbCommit(conn)
-          }
-          shinybusy::remove_modal_spinner() 
-          
-        }           , warning = function(e) {	
-          shinybusy::remove_modal_spinner() 
-          message <<- e		
-          dbRollback(conn)
-        }, error = function(e) {
-          message <<- e
-          dbRollback(conn)
-          shinybusy::remove_modal_spinner() 
-          
-        }, finally = {				
-        })	
+      dbBegin(conn)
+      shinybusy::show_modal_spinner(text = "writing fish", color="orange", spin="folding-cube")
+      dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
+      #check that fish falls into emu
+      misslocated = data.frame()
+      if (type != "series") {
+        misslocated <- dbGetQuery(conn, "with fi as (select * from ind_tmp where fisa_x_4326 is not null and fisa_y_4326 is not null)
+					                            select fi.fi_id_cou, fi.fisa_x_4326, fi.fisa_y_4326, fi.sai_name from fi left join datawg.t_samplinginfo_sai tss on fi.fisa_sai_id = tss.sai_id  left join ref.tr_emu_emu tee on tss.sai_emu_nameshort = tee.emu_nameshort where st_intersects(tee.geom_buffered,st_point(fisa_x_4326, fisa_y_4326,4326))= false" )
+        if (nrow(misslocated)>0)
+          message <- paste("fishes do not fall in emu:",paste0(misslocated, collapse=", "))
+      }
+      if (nrow(misslocated) == 0){
+        # insert fish			
+        sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
+									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
+									FROM ind_tmp i RETURNING fi_id ;")	
+        # better to do dbSendQuery and dbFetch within trycath
+        rs <- dbSendQuery(conn,sqlid)
+        res0 <- dbFetch(rs)
+        dbClearResult(rs)         
+        newfish$fi_id <- res0$fi_id
+        
+        new2 <- new %>%  #now we merge the metric table with groups table to recover fi_id
+          select(-fi_id) %>%
+          left_join(bind_rows(newfish,oldfish))
+        shinybusy::show_modal_spinner(text = "writing metrics", color="red", spin="folding-cube")
+        dbWriteTable(conn,"indiv_metrics_tmp",new2)
+        # insert metrics, qal_id is 1
+        
+        sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM indiv_metrics_tmp",
+                                     .con=conn)
+        
+        nr0 <- nrow(res0)
+        nr1 <- dbExecute(conn, sqlmetrics)
+        dbExecute(conn,"drop table if exists ind_tmp")
+        dbExecute(conn,"drop table if exists indiv_metrics_tmp")
+        dbCommit(conn)
+      }
+      shinybusy::remove_modal_spinner() 
+      
+    }           , warning = function(e) {	
+      shinybusy::remove_modal_spinner() 
+      message <<- e		
+      dbRollback(conn)
+    }, error = function(e) {
+      message <<- e
+      dbRollback(conn)
+      shinybusy::remove_modal_spinner() 
+      
+    }, finally = {				
+    })	
     if (is.null(message))  		message <-
-          sprintf(" %s and %s new values inserted in the fish and metric tables", 
+      sprintf(" %s and %s new values inserted in the fish and metric tables", 
               nr0, 
               nr1) 
     if (!is.null(message0)) message <- paste(message, message0)
@@ -2535,40 +2490,40 @@ write_updated_individual_metrics <- function(path, type="series"){
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
   (nr <- tryCatch({	
-              dbBegin(conn)
-              sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
-                      (fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
-                      (i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
-                      ind_tmp i
-                      WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.fi_id",
-                  .con=conn)
-              rs <- dbSendQuery(conn, sql0)
-              nr1 <- length(unique(dbFetch(rs)[,1]))
-              dbClearResult(rs)
-              sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
-                      where mei_fi_id in (select fi_id from ind_tmp)",
-                  .con=conn)
-              dbExecute(conn, sql1)
-              
-              sql2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-                      SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp",
-                  .con=conn)
-              nr2 <- dbExecute(conn, sql2)
-              dbCommit(conn)
-              
-            }, error = function(e) {
-              message <<- e
-              dbRollback(conn)
-            }, finally = {
-              dbExecute(conn,"drop table if exists ind_tmp")
-            }))
+    dbBegin(conn)
+    sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
+											(fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
+											(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
+											ind_tmp i
+											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.fi_id",
+                           .con=conn)
+    rs <- dbSendQuery(conn, sql0)
+    nr1 <- length(unique(dbFetch(rs)[,1]))
+    dbClearResult(rs)
+    sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
+							                       where mei_fi_id in (select fi_id from ind_tmp)",
+                           .con=conn)
+    dbExecute(conn, sql1)
+    
+    sql2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
+									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp",
+                           .con=conn)
+    nr2 <- dbExecute(conn, sql2)
+    dbCommit(conn)
+    
+  }, error = function(e) {
+    message <<- e
+    dbRollback(conn)
+  }, finally = {
+    dbExecute(conn,"drop table if exists ind_tmp")
+  }))
   if (is.null(message)) message <- sprintf(" %s and %s new values updated in the group and metric tables", nr1, nr2)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-            updated$fiser_ser_id[1],"';"))$ser_cou_code  
+                                      updated$fiser_ser_id[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-            updated$sai_name[1],"';"))$sai_cou_code  	
+                                      updated$sai_name[1],"';"))$sai_cou_code  	
   } 
   
   return(list(message = message, cou_code = cou_code))
@@ -2592,22 +2547,22 @@ delete_individual_metrics <- function(path, type="series"){
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   (nr <- tryCatch({
-              sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
-                      WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
-                  .con=conn)
-              nr0 <- dbExecute(conn, sql)							
-            }, error = function(e) {
-              message <<- e
-            }, finally = {
-              dbExecute(conn,"drop table if exists ind_tmp")
-            }))
+    sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
+											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
+                          .con=conn)
+    nr0 <- dbExecute(conn, sql)							
+  }, error = function(e) {
+    message <<- e
+  }, finally = {
+    dbExecute(conn,"drop table if exists ind_tmp")
+  }))
   if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
-            deleted$fiser_ser_id[1],"';"))$ser_cou_code  
+                                      deleted$fiser_ser_id[1],"';"))$ser_cou_code  
   } else {
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
-            deleted$sai_name[1],"';"))$sai_cou_code  	
+                                      deleted$sai_name[1],"';"))$sai_cou_code  	
   } 
   return(list(message = message, cou_code = cou_code))
 }
@@ -2645,29 +2600,29 @@ update_t_eelstock_eel <- function(editedValue, pool, data) {
   # columns row, col, value this part ensures that only the last value changed in a
   # cell is replaced.  Previous edits are ignored
   editedValue <- editedValue %>% group_by(row, col) %>% filter(value == dplyr::last(value) | 
-          is.na(value)) %>% ungroup()
+                                                                 is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   # Apply to all rows of editedValue dataframe
   t_eelstock_eel_ids <- data$eel_id
   error = list()
   lapply(seq_len(nrow(editedValue)), function(i) {
-        row = editedValue$row[i]
-        id = t_eelstock_eel_ids[row]
-        col = t_eelstock_eel_fields[editedValue$col[i]]
-        value = editedValue$value[i]
-        # glue sql will use arguments tbl, col, value and id
-        query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
-                {`col`} = {value}
-                WHERE eel_id = {id}
-                ", 
-            .con = conn)
-        tryCatch({
-              dbExecute(conn, sqlInterpolate(ANSI(), query))
-            }, error = function(e) {
-              error[i] <<- e
-            })
-      })
+    row = editedValue$row[i]
+    id = t_eelstock_eel_ids[row]
+    col = t_eelstock_eel_fields[editedValue$col[i]]
+    value = editedValue$value[i]
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql("UPDATE datawg.t_eelstock_eel SET
+								{`col`} = {value}
+								WHERE eel_id = {id}
+								", 
+                            .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+    }, error = function(e) {
+      error[i] <<- e
+    })
+  })
   poolReturn(conn)
   # print(editedValue)
   return(error)
@@ -2710,64 +2665,64 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
   new_rows <- which(is.na(data[,1]))
   insertedValue <- editedValue %>% filter(row %in% new_rows)
   insertedValue <- insertedValue %>% group_by(row,col) %>% 
-      filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
-      pivot_wider(row,names_from=col,values_from=value)
+    filter(value == dplyr::last(value) | is.na(value)) %>% ungroup() %>%
+    pivot_wider(row,names_from=col,values_from=value)
   editedValue <- editedValue %>% filter(!row %in% new_rows) %>%
-      group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
+    group_by(row, col) %>% filter(value == dplyr::last(value) | is.na(value)) %>% ungroup()
   # opens the connection, this must be followed by poolReturn
   conn <- poolCheckout(pool)
   idcolname <- names(data)[1]
   # Apply to all rows of editedValue dataframe
   data_ids <- data[,1]
   data %>%
-      select(-ends_with("_ref"))
+    select(-ends_with("_ref"))
   tablename=str_c("datawg.",edit_datatype)
   error = list()
   nupdate=0
   dbExecute(conn,"begin;")
   
   lapply(seq_len(nrow(editedValue)), function(i) {
-        row = editedValue$row[i]
-        id = data_ids[row]
-        col = names(data)[editedValue$col[i]]
-        value = editedValue$value[i]
-        if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
-          value = paste0("{",value,"}")
-        }
-        # glue sql will use arguments tbl, col, value and id
-        query <- glue::glue_sql(str_c("UPDATE ",tablename," SET
-                    {`col`} = {value}
-                    WHERE   {`idcolname`} = {id}
-                    "), 
-            .con = conn)
-        tryCatch({
-              dbExecute(conn, sqlInterpolate(ANSI(), query))
-              nupdate<<-nupdate+1
-            }, error = function(e) {
-              error[i] <<- paste("update:", e)
-            })
-      })
+    row = editedValue$row[i]
+    id = data_ids[row]
+    col = names(data)[editedValue$col[i]]
+    value = editedValue$value[i]
+    if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
+      value = paste0("{",value,"}")
+    }
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql(str_c("UPDATE ",tablename," SET
+										{`col`} = {value}
+										WHERE   {`idcolname`} = {id}
+										"), 
+                            .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+      nupdate<<-nupdate+1
+    }, error = function(e) {
+      error[i] <<- paste("update:", e)
+    })
+  })
   ninsert=0
   lapply(seq_len(nrow(insertedValue)), function(i) {
-        row = insertedValue$row[i]
-        col = names(data)[as.integer(names(insertedValue)[-1])]
-        value = insertedValue[i,-1]
-        col=col[!is.na(value)]
-        value=as.character(value[1,])
-        value=value[!is.na(value)]
-        if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
-          value = paste0("{",value,"}")
-        }
-        # glue sql will use arguments tbl, col, value and id
-        query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
-                    values ({value*})"), .con = conn)
-        tryCatch({
-              dbExecute(conn, sqlInterpolate(ANSI(), query))
-              ninsert<<-ninsert+1
-            }, error = function(e) {
-              error[i] <<- paste("insert:", e)
-            })
-      })
+    row = insertedValue$row[i]
+    col = names(data)[as.integer(names(insertedValue)[-1])]
+    value = insertedValue[i,-1]
+    col=col[!is.na(value)]
+    value=as.character(value[1,])
+    value=value[!is.na(value)]
+    if (!is.na(as.integer(value)) & col == "ser_ccm_wso_id"){ #the value looks like an integer, brackets have been forgotten
+      value = paste0("{",value,"}")
+    }
+    # glue sql will use arguments tbl, col, value and id
+    query <- glue::glue_sql(str_c("insert into ",tablename," ({`col`*})
+										values ({value*})"), .con = conn)
+    tryCatch({
+      dbExecute(conn, sqlInterpolate(ANSI(), query))
+      ninsert<<-ninsert+1
+    }, error = function(e) {
+      error[i] <<- paste("insert:", e)
+    })
+  })
   if (length(error)>0){
     dbExecute(conn,"rollback;")
   } else{
@@ -2776,7 +2731,7 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
   poolReturn(conn)
   # print(editedValue)
   return(list(error=error,message=paste(nupdate,"values updated -",
-              ninsert,"rows inserted")))
+                                        ninsert,"rows inserted")))
 }
 
 
@@ -2792,15 +2747,15 @@ update_data_generic <- function(editedValue, pool, data,edit_datatype) {
 #' @return nothing
 log_datacall <- function(step, cou_code, message, file_type, main_assessor, secondary_assessor) {
   query <- glue_sql("INSERT INTO datawg.log(log_cou_code,log_data,log_evaluation_name,log_main_assessor,log_secondary_assessor, log_message, log_date) VALUES
-          ({cou_code},{data},{evaluation},{main},{secondary},{log_message},{date})", 
-      cou_code = cou_code, 
-      data = file_type, 
-      evaluation = step, 
-      main = main_assessor, 
-      secondary = secondary_assessor, 
-      log_message = message,
-      date = Sys.Date(), 
-      .con = pool)
+					({cou_code},{data},{evaluation},{main},{secondary},{log_message},{date})", 
+                    cou_code = cou_code, 
+                    data = file_type, 
+                    evaluation = step, 
+                    main = main_assessor, 
+                    secondary = secondary_assessor, 
+                    log_message = message,
+                    date = Sys.Date(), 
+                    .con = pool)
   out_data <- dbGetQuery(pool, query)
   return(out_data)
 }
@@ -2818,34 +2773,34 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   load_library("data.table")
   typ <- unique(newdata$eel_typ_id)
   all_comb <- expand.grid(eel_lfs_code=c("G","Y","S"),
-      eel_hty_code=c("F","T","C"),
-      eel_emu_nameshort=unique(complete$eel_emu_nameshort),
-      eel_cou_code=unique(complete$eel_cou_code),
-      eel_year=unique(complete$eel_year),
-      eel_typ_id=typ)
+                          eel_hty_code=c("F","T","C"),
+                          eel_emu_nameshort=unique(complete$eel_emu_nameshort),
+                          eel_cou_code=unique(complete$eel_cou_code),
+                          eel_year=unique(complete$eel_year),
+                          eel_typ_id=typ)
   missing_comb <- anti_join(all_comb, complete)
   missing_comb$id <- 1:nrow(missing_comb)
   conn <- poolCheckout(pool)
   dbWriteTable(conn,"missing_comb",missing_comb,temporary=TRUE,row.names=FALSE)
   dbWriteTable(conn,"complete",complete,temporary=TRUE,row.names=FALSE)
   found_matches <- dbGetQuery(conn,"select id from missing_comb m inner join complete c on c.eel_cou_code=m.eel_cou_code and
-          c.eel_year=m.eel_year and
-          c.eel_typ_id=m.eel_typ_id and
-          c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
-          and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
-          and (c.eel_emu_nameshort=m.eel_emu_nameshort or
-          c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
+					c.eel_year=m.eel_year and
+					c.eel_typ_id=m.eel_typ_id and
+					c.eel_lfs_code like '%'||m.eel_lfs_code||'%'
+					and c.eel_hty_code like '%'||m.eel_hty_code||'%' 
+					and (c.eel_emu_nameshort=m.eel_emu_nameshort or
+					c.eel_emu_nameshort=substr(m.eel_emu_nameshort,1,3)||'total')")
   dbExecute(conn,str_c("drop table if exists complete") )
   dbExecute(conn,str_c("drop table if exists missing_comb") )
   poolReturn(conn)
   #looks for missing combinations
   missing_comb <- missing_comb %>%
-      filter(!missing_comb$id %in% found_matches$id)%>%
-      select(-id) %>%
-      arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
+    filter(!missing_comb$id %in% found_matches$id)%>%
+    select(-id) %>%
+    arrange(eel_cou_code,eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code,eel_year)
   if (restricted){
     missing_comb <-missing_comb %>%
-        filter(eel_year>=min(newdata$eel_year) & eel_year<=max(newdata$eel_year))
+      filter(eel_year>=min(newdata$eel_year) & eel_year<=max(newdata$eel_year))
   }
   
   missing_comb$eel_hty_code=as.character(missing_comb$eel_hty_code)
@@ -2858,24 +2813,24 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   setkey(missing_comb_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
   
   hty_dt = data.table(missing_comb %>%
-          group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code) %>%
-          summarise(nb=n()))
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code) %>%
+                        summarise(nb=n()))
   setkey(hty_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code,eel_hty_code)
   
   lfs_dt = data.table(missing_comb %>% 
-          group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code) %>%
-          summarize(nb=n()))
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code) %>%
+                        summarize(nb=n()))
   setkey(lfs_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort,eel_lfs_code)
   
   emu_dt = data.table(missing_comb %>%
-          group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort) %>%
-          summarize(nb=n()))
+                        group_by(eel_cou_code, eel_typ_id,eel_emu_nameshort) %>%
+                        summarize(nb=n()))
   setkey(emu_dt, eel_cou_code, eel_typ_id,eel_emu_nameshort)
   
   
   main_dt = data.table(missing_comb %>%
-          group_by(eel_cou_code, eel_typ_id)%>%
-          summarize(nb=n()))
+                         group_by(eel_cou_code, eel_typ_id)%>%
+                         summarize(nb=n()))
   setkey(main_dt, eel_cou_code, eel_typ_id)
   
   
@@ -2925,131 +2880,131 @@ check_missing_data <- function(complete, newdata, restricted=TRUE) {
   
   ## the callback https://stackoverflow.com/questions/51425442/parent-child-rows-in-r-shiny-package
   callback = JS(
-      "table.column(1).nodes().to$().css({cursor: 'pointer'});",
-      "",
-      "// make the table header of the nested table",
-      "var format = function(d, childId){",
-      "  if(d != null){",
-      "    var html = ", 
-      "      '<table class=\"display compact hover\" id=\"' + childId + '\"><thead><tr>';",
-      "    for (var key in d[d.length-1][0]) {",
-      "      html += '<th>' + key + '</th>';",
-      "    }",
-      "    html += '</tr></thead></table>'",
-      "    return html;",
-      "  } else {",
-      "    return '';",
-      "  }",
-      "};",
-      "",
-      "// row callback to style the rows of the child tables",
-      "var rowCallback = function(row, dat, displayNum, index){",
-      "  if($(row).hasClass('odd')){",
-      "    $(row).css('background-color', 'papayawhip');",
-      "    $(row).hover(function(){",
-      "      $(this).css('background-color', '#E6FF99');",
-      "    }, function() {",
-      "      $(this).css('background-color', 'papayawhip');",
-      "    });",
-      "  } else {",
-      "    $(row).css('background-color', 'lemonchiffon');",
-      "    $(row).hover(function(){",
-      "      $(this).css('background-color', '#DDFF75');",
-      "    }, function() {",
-      "      $(this).css('background-color', 'lemonchiffon');",
-      "    });",
-      "  }",
-      "};",
-      "",
-      "// header callback to style the header of the child tables",
-      "var headerCallback = function(thead, data, start, end, display){",
-      "  $('th', thead).css({",
-      "    'border-top': '3px solid indigo',", 
-      "    'color': 'indigo',",
-      "    'background-color': '#fadadd'",
-      "  });",
-      "};",
-      "",
-      "// make the datatable",
-      "var format_datatable = function(d, childId){",
-      "  var dataset = [];",
-      "  var n = d.length - 1;",
-      "  for(var i = 0; i < d[n].length; i++){",
-      "    var datarow = $.map(d[n][i], function (value, index) {",
-      "      return [value];",
-      "    });",
-      "    dataset.push(datarow);",
-      "  }",
-      "  var id = 'table#' + childId;",
-      "  if (Object.keys(d[n][0]).indexOf('_details') === -1) {",
-      "    var subtable = $(id).DataTable({",
-      "                 'data': dataset,",
-      "                 'autoWidth': true,",
-      "                 'deferRender': true,",
-      "                 'info': false,",
-      "                 'lengthChange': false,",
-      "                 'ordering': d[n].length > 1,",
-      "                 'order': [],",
-      "                 'paging': false,",
-      "                 'scrollX': false,",
-      "                 'scrollY': false,",
-      "                 'searching': false,",
-      "                 'sortClasses': false,",
-      "                 'rowCallback': rowCallback,",
-      "                 'headerCallback': headerCallback,",
-      "                 'columnDefs': [{targets: '_all', className: 'dt-center'}]",
-      "               });",
-      "  } else {",
-      "    var subtable = $(id).DataTable({",
-      "            'data': dataset,",
-      "            'autoWidth': true,",
-      "            'deferRender': true,",
-      "            'info': false,",
-      "            'lengthChange': false,",
-      "            'ordering': d[n].length > 1,",
-      "            'order': [],",
-      "            'paging': false,",
-      "            'scrollX': false,",
-      "            'scrollY': false,",
-      "            'searching': false,",
-      "            'sortClasses': false,",
-      "            'rowCallback': rowCallback,",
-      "            'headerCallback': headerCallback,",
-      "            'columnDefs': [", 
-      "              {targets: -1, visible: false},", 
-      "              {targets: 0, orderable: false, className: 'details-control'},", 
-      "              {targets: '_all', className: 'dt-center'}",
-      "             ]",
-      "          }).column(0).nodes().to$().css({cursor: 'pointer'});",
-      "  }",
-      "};",
-      "",
-      "// display the child table on click",
-      "table.on('click', 'td.details-control', function(){",
-      "  var tbl = $(this).closest('table'),",
-      "      tblId = tbl.attr('id'),",
-      "      td = $(this),",
-      "      row = $(tbl).DataTable().row(td.closest('tr')),",
-      "      rowIdx = row.index();",
-      "  if(row.child.isShown()){",
-      "    row.child.hide();",
-      "    td.html('&oplus;');",
-      "  } else {",
-      "    var childId = tblId + '-child-' + rowIdx;",
-      "    row.child(format(row.data(), childId)).show();",
-      "    td.html('&CircleMinus;');",
-      "    format_datatable(row.data(), childId);",
-      "  }",
-      "});")
+    "table.column(1).nodes().to$().css({cursor: 'pointer'});",
+    "",
+    "// make the table header of the nested table",
+    "var format = function(d, childId){",
+    "  if(d != null){",
+    "    var html = ", 
+    "      '<table class=\"display compact hover\" id=\"' + childId + '\"><thead><tr>';",
+    "    for (var key in d[d.length-1][0]) {",
+    "      html += '<th>' + key + '</th>';",
+    "    }",
+    "    html += '</tr></thead></table>'",
+    "    return html;",
+    "  } else {",
+    "    return '';",
+    "  }",
+    "};",
+    "",
+    "// row callback to style the rows of the child tables",
+    "var rowCallback = function(row, dat, displayNum, index){",
+    "  if($(row).hasClass('odd')){",
+    "    $(row).css('background-color', 'papayawhip');",
+    "    $(row).hover(function(){",
+    "      $(this).css('background-color', '#E6FF99');",
+    "    }, function() {",
+    "      $(this).css('background-color', 'papayawhip');",
+    "    });",
+    "  } else {",
+    "    $(row).css('background-color', 'lemonchiffon');",
+    "    $(row).hover(function(){",
+    "      $(this).css('background-color', '#DDFF75');",
+    "    }, function() {",
+    "      $(this).css('background-color', 'lemonchiffon');",
+    "    });",
+    "  }",
+    "};",
+    "",
+    "// header callback to style the header of the child tables",
+    "var headerCallback = function(thead, data, start, end, display){",
+    "  $('th', thead).css({",
+    "    'border-top': '3px solid indigo',", 
+    "    'color': 'indigo',",
+    "    'background-color': '#fadadd'",
+    "  });",
+    "};",
+    "",
+    "// make the datatable",
+    "var format_datatable = function(d, childId){",
+    "  var dataset = [];",
+    "  var n = d.length - 1;",
+    "  for(var i = 0; i < d[n].length; i++){",
+    "    var datarow = $.map(d[n][i], function (value, index) {",
+    "      return [value];",
+    "    });",
+    "    dataset.push(datarow);",
+    "  }",
+    "  var id = 'table#' + childId;",
+    "  if (Object.keys(d[n][0]).indexOf('_details') === -1) {",
+    "    var subtable = $(id).DataTable({",
+    "                 'data': dataset,",
+    "                 'autoWidth': true,",
+    "                 'deferRender': true,",
+    "                 'info': false,",
+    "                 'lengthChange': false,",
+    "                 'ordering': d[n].length > 1,",
+    "                 'order': [],",
+    "                 'paging': false,",
+    "                 'scrollX': false,",
+    "                 'scrollY': false,",
+    "                 'searching': false,",
+    "                 'sortClasses': false,",
+    "                 'rowCallback': rowCallback,",
+    "                 'headerCallback': headerCallback,",
+    "                 'columnDefs': [{targets: '_all', className: 'dt-center'}]",
+    "               });",
+    "  } else {",
+    "    var subtable = $(id).DataTable({",
+    "            'data': dataset,",
+    "            'autoWidth': true,",
+    "            'deferRender': true,",
+    "            'info': false,",
+    "            'lengthChange': false,",
+    "            'ordering': d[n].length > 1,",
+    "            'order': [],",
+    "            'paging': false,",
+    "            'scrollX': false,",
+    "            'scrollY': false,",
+    "            'searching': false,",
+    "            'sortClasses': false,",
+    "            'rowCallback': rowCallback,",
+    "            'headerCallback': headerCallback,",
+    "            'columnDefs': [", 
+    "              {targets: -1, visible: false},", 
+    "              {targets: 0, orderable: false, className: 'details-control'},", 
+    "              {targets: '_all', className: 'dt-center'}",
+    "             ]",
+    "          }).column(0).nodes().to$().css({cursor: 'pointer'});",
+    "  }",
+    "};",
+    "",
+    "// display the child table on click",
+    "table.on('click', 'td.details-control', function(){",
+    "  var tbl = $(this).closest('table'),",
+    "      tblId = tbl.attr('id'),",
+    "      td = $(this),",
+    "      row = $(tbl).DataTable().row(td.closest('tr')),",
+    "      rowIdx = row.index();",
+    "  if(row.child.isShown()){",
+    "    row.child.hide();",
+    "    td.html('&oplus;');",
+    "  } else {",
+    "    var childId = tblId + '-child-' + rowIdx;",
+    "    row.child(format(row.data(), childId)).show();",
+    "    td.html('&CircleMinus;');",
+    "    format_datatable(row.data(), childId);",
+    "  }",
+    "});")
   
   datatable(main_dt, callback = callback, escape = -2,
-      options = list(
-          columnDefs = list(
-              list(visible = FALSE, targets = ncol(main_dt)),
-              list(orderable = FALSE, className = 'details-control', targets = 1),
-              list(className = "dt-center", targets = "_all")
-          )
-      ))
+            options = list(
+              columnDefs = list(
+                list(visible = FALSE, targets = ncol(main_dt)),
+                list(orderable = FALSE, className = 'details-control', targets = 1),
+                list(className = "dt-center", targets = "_all")
+              )
+            ))
   
   
 }
@@ -3061,26 +3016,26 @@ write_new_participants <- function(p){
   conn <- poolCheckout(pool)
   message <- NULL
   exists <- dbGetQuery(conn, str_c("select name from datawg.participants where 
-              name='",p,"'"))
+							name='",p,"'"))
   if (nrow(exists) > 0)
     message <- str_c("participant ",p," already exists")
   
   if (is.null(message)){
     query <- str_c("INSERT INTO datawg.participants SELECT '",p,"'")
     tryCatch({     
-          dbExecute(conn, query)
-          message <- str_c("participant ",p," insterted in the db")
-          query <- "SELECT name from datawg.participants order by name asc"
-          participants<<- dbGetQuery(conn, sqlInterpolate(ANSI(), query)) 
-          save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
-        }, error = function(e) {
-          message <- e  
-          cat("step1 message :")
-          print(message)   
-        }, finally = {
-          #poolReturn(conn)
-          
-        })
+      dbExecute(conn, query)
+      message <- str_c("participant ",p," insterted in the db")
+      query <- "SELECT name from datawg.participants order by name asc"
+      participants<<- dbGetQuery(conn, sqlInterpolate(ANSI(), query)) 
+      save(participants,list_country,typ_id,the_years,t_eelstock_eel_fields, file=str_c(getwd(),"/common/data/init_data.Rdata"))
+    }, error = function(e) {
+      message <- e  
+      cat("step1 message :")
+      print(message)   
+    }, finally = {
+      #poolReturn(conn)
+      
+    })
   }
   
   poolReturn(conn)
