@@ -35,8 +35,10 @@ importtsstep2UI <- function(id){
                                dataWriterModuleUI(ns("integratenewgroupmetrics"), "Write new group metrics file"),
                                h2("step 2.3.3 Update group metrics"),
                                dataWriterModuleUI(ns("updatedgroupmetricseries"), "Update the modified group metrics")),
-                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
-                               writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
+                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			
+                               writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
+                               h2("step 2.4.2 Integrate new individual metrics"),
+                               dataWriterModuleUI(ns("newindmetricseries"), "Write new individual metrics file"),
                                writeupdatedindmetricUI(ns("updatedindmetricseries"), "step 2.4.3 Update individual metrics")))
           
   )
@@ -131,8 +133,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  writedeletedindmetricServer("deletedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
                  
                  # 2.4.2 Integrate new individual metrics --------------------------------------------------------							
-                 writenewindmetricServer("newindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
-                 
+                 dataWriterModuleServer("newindmetricseries", loaded_data_ts,globaldata,  write_new_individual_metrics_proceed,"write new individual_metrics",type="series")
+
                  
                  # 2.4.3 updated individual metrics  --------------------------------------------------------							
                  writeupdatedindmetricServer("updatedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
