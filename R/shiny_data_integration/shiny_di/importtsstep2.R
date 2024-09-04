@@ -39,7 +39,8 @@ importtsstep2UI <- function(id){
                                writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
                                h2("step 2.4.2 Integrate new individual metrics"),
                                dataWriterModuleUI(ns("newindmetricseries"), "Write new individual metrics file"),
-                               writeupdatedindmetricUI(ns("updatedindmetricseries"), "step 2.4.3 Update individual metrics")))
+                               h2("step 2.4.3 Update individual metrics"),
+                               dataWriterModuleUI(ns("updatedindmetricseries"), "Update the modified individual metrics file")))
           
   )
 }
@@ -137,7 +138,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
 
                  
                  # 2.4.3 updated individual metrics  --------------------------------------------------------							
-                 writeupdatedindmetricServer("updatedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+                 dataWriterModuleServer("updatedindmetricseries", loaded_data_ts,globaldata,  write_updated_individual_metrics,"update individual_metrics",type="series")
                  
                  return(mytspanel)
                  
