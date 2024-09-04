@@ -45,7 +45,9 @@ importtsstep2UI <- function(id){
                                            dataWriterModuleUI(ns("integrateupdatedas"), "Update the modified dataseries")),
                       tabPanel("GROUP METRICS", value="GROUP METRICS",
                                                        writedeletedgroupmetricUI(ns("deletedgroupmetricseries"), "step 2.3.1 Delete from group metrics"),
-                                                       writenewgroupmetricUI(ns("newgroupmetricseries"), "step 2.3.2 Integrate new group metrics"),
+                               h2("step 2.3.2 Integrate new group metrics"),
+                               dataWriterModuleUI(ns("integratenewgroupmetrics"), "Write new group metrics file"),
+                               
                                                        writeupdatedgroupmetricUI(ns("updatedgroupmetricseries"), "step 2.3.3 Update group metrics")),
                       tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
                                writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
@@ -169,8 +171,10 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  writedeletedgroupmetricServer("deletedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
                  
                  # 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
-                 writenewgroupmetricServer("newgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+                 dataWriterModuleServer("integratenewgroupmetrics", loaded_data_ts,globaldata,  write_new_group_metrics,"write new group_metrics",type="series")
+     
                  
+
                  # 2.3.3 update modified group metrics  --------------------------------------------------------							
                  writeupdatedgroupmetricServer("updatedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
                  

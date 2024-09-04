@@ -2079,10 +2079,9 @@ update_dataseries <- function(path, conn) {
 #' @return message indicating success or failure at data insertion
 #'  path <- file.choose()
 
-write_new_group_metrics <- function(path, type="series") {
-  #browser()
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+write_new_group_metrics <- function(path, conn, type="series") {
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
   if (type == "series"){
     fk <- "grser_ser_id"
   } else{
@@ -2124,46 +2123,39 @@ write_new_group_metrics <- function(path, type="series") {
       message0 <-NULL
     }
     #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-    nr <- tryCatch({
-      dbBegin(conn)
       dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
       
       # glue_sql does not handle removing strings use glue instead
       
       sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
 									(SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
-									FROM group_tmp g) returning gr_id;")
+									FROM group_tmp g) returning *;")
       
-      rs <- dbSendQuery(conn,sqlgr)
-      res0 <- dbFetch(rs)
-      dbClearResult(rs)
+      res0 <- dbGetQuery(conn, sqlgr)
       newgroups$gr_id <- res0$gr_id
       new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
         select(-gr_id) %>%
         left_join(bind_rows(newgroups,oldgroups))
-      dbWriteTable(conn,"metrics_tmp",new2)
+      dbWriteTable(conn,"metrics_tmp",new2,row.names=FALSE, temporary = TRUE)
       sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp;",
+									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp returning *;",
                                    .con=conn)
       
       nr0 <- nrow(res0)
-      nr1 <- dbExecute(conn, sqlmetrics)
+      res1 <- dbGetQuery(conn, sqlmetrics)
+      nr1 <- nrow(res1)
       # this has to be launched why the transaction is still going
       dbExecute(conn,"drop table if exists group_tmp")
       dbExecute(conn,"drop table if exists metrics_tmp")
-      dbCommit(conn)
-      
-    }, warning = function(e) {
-      message <<- e
-      dbRollback(conn)
-      # not possible to continue the transation on error, the transaction is cancelled and tables group_tmp and  metrics_tmp are removed
-    }, error = function(e) {
-      message <<- e
-      dbRollback(conn)
-    }, finally = {
-      #nothing
-    })
-    
+      res_wide <- res0 %>% 
+        left_join(res1 %>%
+                    select(meg_gr_id,meg_mty_id,meg_value) %>%
+                    left_join(metrics_group,by=c("meg_mty_id"="mty_id")) %>%
+                    select(meg_gr_id, mty_name, meg_value ) %>%
+                    pivot_wider(names_from=mty_name,values_from=meg_value),
+                  c("gr_id"="meg_gr_id"))
+        
+
     
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2176,7 +2168,7 @@ write_new_group_metrics <- function(path, type="series") {
       message <- sprintf(" %s and %s new values inserted in the group and metric tables", nr0, nr1)
     if (!is.null(message0)) message <- paste(message, message0)
   }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
 write_updated_group_metrics <-function(path, type="series"){
