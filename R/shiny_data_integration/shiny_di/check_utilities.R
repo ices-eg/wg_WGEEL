@@ -562,7 +562,7 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
   if (any(is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 				  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0")))) {
 		  
-		  cat(sprintf("dataset <%s>, line <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns \n", 
+		  cat(sprintf("dataset <%s>, line <%s> is wrong, if eel_value is empty then it would be best to use 0 or -1 in percentages columns \n", 
 						  namedataset,
 						  str_c(newdataset2$nline[is.na(newdataset$eel_value) & (!newdataset$perc_F %in% c("NP","0") | !newdataset$perc_T %in% c("NP","0") | 
 													  !newdataset$perc_C %in% c("NP","0") | !newdataset$perc_MO %in% c("NP","0"))], collapse=";")))
@@ -573,7 +573,7 @@ check_consistency_missvalue_rates <- function(dataset, namedataset, rates){
       line <- str_c(line)
 		  # same but split and no end of line
 		  answer  = data.frame(nline = line, 
-				  error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP is possible in percentages columns", 
+				  error_message = sprintf("dataset <%s> is wrong, if eel_value is empty only 0 or NP -1 in percentages columns", 
 						  namedataset))	  
 	  } 
 }
