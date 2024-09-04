@@ -1938,7 +1938,7 @@ update_series <- function(path, conn) {
 #' @description Performs update queries
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
-update_sampling <- function(path) {
+update_sampling <- function(path, conn) {
   
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   cou_code = unique(updated_values_table$sai_cou_code)  
@@ -1956,7 +1956,6 @@ update_sampling <- function(path) {
   
   # create dataset for insertion -------------------------------------------------------------------
   
-  conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists updated_sampling_temp ")
   dbWriteTable(conn,"updated_sampling_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
   
@@ -1988,27 +1987,17 @@ update_sampling <- function(path) {
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
 			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-	returning datawg.t_samplinginfo_sai.sai_name"
+	returning datawg.t_samplinginfo_sai.*"
   
   message <- NULL
-  tryCatch({
-    rs <- dbSendQuery(conn,query)
-    res0 <- dbFetch(rs)
-    dbClearResult(rs)
-    nr <- nrow(res0)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn, "DROP TABLE updated_sampling_temp")
-    poolReturn(conn)
-    
-  })
-  
+  res0 <- dbGetQuery(conn,query)
+  nr <- nrow(res0)
+  dbExecute(conn, "DROP TABLE updated_sampling_temp")
   
   if (is.null(message))   
     message <- paste(nrow(updated_values_table),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb =  res0, message = message, cou_code = cou_code))
 }
 
 
