@@ -2466,8 +2466,8 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
       }
       if (nrow(misslocated) == 0){
         # insert fish			
-        sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
-									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
+        sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
+									SELECT distinct on (id) i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
 									FROM ind_tmp i RETURNING datawg.{ind_table}.*;")	
         # better to do dbSendQuery and dbFetch within trycath
         res0 <- dbGetQuery(conn, sqlid)
@@ -2536,8 +2536,8 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
   sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
-											(fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
-											(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
+											(fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
+											(i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
 											ind_tmp i
 											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
                            .con=conn)
