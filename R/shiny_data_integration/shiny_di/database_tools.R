@@ -2232,33 +2232,31 @@ write_updated_group_metrics <-function(path, conn, type="series"){
   return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-delete_group_metrics <- function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+delete_group_metrics <- function(path, conn, type="series"){
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
   deleted <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(deleted) == 0)
-    return(list(message="empty file", cou_code=NULL))
+    return(list(datadb = data.frame(), message="empty file", cou_code=NULL))
   if (sum(!is.na(deleted$gr_id)) ==0 )
-    return(list(message="no gr_id", cou_code=NULL))
+    return(list(datadb = data.frame(), message="no gr_id", cou_code=NULL))
   if (any(is.na(deleted$gr_id)))
-    return(list(message="some gr_id are missing", cou_code=NULL))
+    return(list(datadb = data.frame(), message="some gr_id are missing", cou_code=NULL))
   
   gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
   dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
-  (nr <- tryCatch({	
+
     sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
-											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp)",
+											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp) returning datawg.{`gr_table`}.*",
                                 .con=conn)
-    nr0 <- dbExecute(conn, sql_group)							
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
+    res0 <- dbGetQuery(conn, sql_group)							
+
     dbExecute(conn,"drop table if exists group_tmp")
-  }))
-  if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nr0)
+
+  if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nrow(res0))
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                       deleted$ser_nameshort[1],"';"))$ser_cou_code  
@@ -2267,7 +2265,7 @@ delete_group_metrics <- function(path, type="series"){
                                       deleted$sai_name[1],"';"))$sai_cou_code  	
   }
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res0, message = message, cou_code = cou_code))
 }
 
 # note require to get the fi_id before inserting unlike group there might be different fi_id, and date.
