@@ -16,6 +16,7 @@ if(is.null(options()$sqldf.RPostgreSQL.dbname)) source("R/database_interaction/d
 #' @param from_database should the data be loaded from the database? if not from a csv file
 #' @examples
 #' extract_data("Landings")
+#' DEPRECATED DO NOT PLAY WITH THIS, DANGEROUS CAUTION
 extract_data = function(data_needed, from_database=TRUE, quality = c(1,2,4), quality_check=TRUE)
 {
   	
@@ -23,10 +24,10 @@ extract_data = function(data_needed, from_database=TRUE, quality = c(1,2,4), qua
     if (from_database){
 	# give the correspondance by "human readable" name and table/view name
 	list_data_table = data.frame(data_needed = 
-            c("Landings", "Aquaculture", "Release", "B0", "Bbest", "Bcurrent", "Sigma A",
+            c("Landings", "Aquaculture", "Release", "B0", "Bbest", "Bcurrent", "Bcurrent without stocking", "Sigma A",
                  "Sigma F", "Sigma H", "Potential available habitat", "Mortality in Silver Equivalents", 
                  "Sigma F all", "Sigma H all", "PrecoData Country", "PrecoData EMU","PrecoData All"), 
-         table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "sigmaa", 
+         table_dbname = c("landings", "aquaculture", "release", "b0", "bbest", "bcurrent", "bcurrent_without_stocking", "sigmaa", 
              "sigmaf", "sigmah", "potential_available_habitat","silver_eel_equivalents", "sigmafallcat", 
              "sigmahallcat", "precodata_country", "precodata_emu","precodata_all"))
 	

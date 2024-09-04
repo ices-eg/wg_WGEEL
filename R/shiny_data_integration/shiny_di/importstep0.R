@@ -18,13 +18,13 @@ importstep0UI <- function(id){
 									accept = c(".xls",".xlsx")
 							)),
 					column(width=4,  radioButtons(inputId=ns("file_type"), label="File type:",
-									c(" Catch and Landings" = "catch_landings",
-											"Release" = "release",
-											"Aquaculture" = "aquaculture",                                
-											"Biomass indicators" = "biomass",
-											"Habitat - wetted area"= "potential_available_habitat",
-											"Mortality silver equiv. Biom."="mortality_silver_equiv",
-											"Mortality_rates"="mortality_rates"					
+									c(" Catch and Landings (Annex 4, 5 or 6)" = "catch_landings",
+											"Release (Annex 7)" = "release" ,
+											"Aquaculture  (Annex 8)" = "aquaculture",                                
+											"Biomass indicators (Annex 10)" = "biomass",
+											#"Habitat - wetted area"= "potential_available_habitat",
+											#"Mortality silver equiv. Biom."="mortality_silver_equiv",
+											"Mortality indicators (Annex 11)"="mortality_rates"					
 									))),
 					column(width=4, actionButton(ns("check_file_button"), "Check file") )                     
 			),
@@ -92,13 +92,13 @@ importstep0Server <- function(id,globaldata){
 											updateRadioButtons(session, "file_type", selected = "release")
 										if (grepl(c("aquaculture"),tolower(inFile$name)))
 											updateRadioButtons(session, "file_type", selected = "aquaculture")
-										if (grepl(c("biomass_indicator"),tolower(inFile$name))) 
+										if (grepl(c("biomass"),tolower(inFile$name))) 
 											updateRadioButtons(session, "file_type", selected = "biomass")             
-										if (grepl(c("habitat"),tolower(inFile$name)))
-											updateRadioButtons(session, "file_type", selected = "potential_available_habitat")
-										if (grepl(c("silver"),tolower(inFile$name))) 
-											updateRadioButtons(session, "file_type", selected = "mortality_silver_equiv")      
-										if (grepl(c("rate"),tolower(inFile$name)))
+#										if (grepl(c("habitat"),tolower(inFile$name)))
+#											updateRadioButtons(session, "file_type", selected = "potential_available_habitat")
+#										if (grepl(c("silver"),tolower(inFile$name))) 
+#											updateRadioButtons(session, "file_type", selected = "mortality_silver_equiv")      
+										if (grepl(c("mortality"),tolower(inFile$name)))
 											updateRadioButtons(session, "file_type", selected = "mortality_rates")
 									}
 								}, blocking_level="error")) 
@@ -110,7 +110,7 @@ importstep0Server <- function(id,globaldata){
 				# a button click (check) and will return res, a list with
 				# both data and errors
 				###########################
-				step0load_data <- function(){
+				step0load_data <- function(){          
 					validate(need(globaldata$connectOK,"No connection"))
 					path<- step0_filepath()   
 					if (is.null(data$path_step0)) return(NULL)
@@ -127,12 +127,12 @@ importstep0Server <- function(id,globaldata){
 							"biomass"={
 								message<-capture.output(res<-load_biomass(data$path_step0, 
 												datasource = the_eel_datasource ))},
-							"potential_available_habitat"={
-								message<-capture.output(res<-load_potential_available_habitat(data$path_step0, 
-												datasource = the_eel_datasource ))},
-							"mortality_silver_equiv"={
-								message<-capture.output(res<-load_mortality_silver(data$path_step0, 
-												datasource = the_eel_datasource ))},
+#							"potential_available_habitat"={
+#								message<-capture.output(res<-load_potential_available_habitat(data$path_step0, 
+#												datasource = the_eel_datasource ))},
+#							"mortality_silver_equiv"={
+#								message<-capture.output(res<-load_mortality_silver(data$path_step0, 
+#												datasource = the_eel_datasource ))},
 							"mortality_rates"={
 								message<-capture.output(res<-load_mortality_rates(data$path_step0, 
 												datasource = the_eel_datasource ))}
