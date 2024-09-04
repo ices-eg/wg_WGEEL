@@ -1700,7 +1700,7 @@ write_new_series <- function(path, conn) {
 # path <- file.choose()
 #write_new_sampling(path)
 
-write_new_sampling <- function(path) {
+write_new_sampling <- function(path, conn) {
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
@@ -1724,7 +1724,6 @@ write_new_sampling <- function(path) {
   # create dataset for insertion -------------------------------------------------------------------
   
   
-  conn <- poolCheckout(pool)	
   dbExecute(conn,"drop table if exists new_sampling_temp ")
   dbWriteTable(conn, "new_sampling_temp", new ,temporary=TRUE,row.names=FALSE)
   
@@ -1756,26 +1755,22 @@ write_new_sampling <- function(path) {
 			sai_qal_id,
 			sai_lastupdate,
 			sai_dts_datasource
-			FROM new_sampling_temp;"
+			FROM new_sampling_temp returning datawg.t_samplinginfo_sai.*;"
   
   message <- NULL
-  (nr <- tryCatch({
-    dbExecute(conn, query)
-    query <- "SELECT * FROM datawg.t_samplinginfo_sai"
-    t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists new_sampling_temp;")
-    poolReturn(conn)
-  }))
+  res <- dbGetQuery(conn, query)
+  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
+  
+  dbExecute(conn,"drop table if exists new_sampling_temp;")
+  
   query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
   tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
   
   if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
+    message <- sprintf(" %s new values inserted in the database", nrow(res))
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res, message = message, cou_code = cou_code))
 }
 
 #' @title write new dataseries into the database
