@@ -35,8 +35,9 @@ importtsstep2UI <- function(id){
                                dataWriterModuleUI(ns("integratenewgroupmetrics"), "Write new group metrics file"),
                                h2("step 2.3.3 Update group metrics"),
                                dataWriterModuleUI(ns("updatedgroupmetricseries"), "Update the modified group metrics")),
-                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			
-                               writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
+                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",
+                               h2("step 2.4.1 Delete from individual metrics"),
+                               dataWriterModuleUI(ns("deletedindmetricseries"), "Delete using deleted individual metrics file"),
                                h2("step 2.4.2 Integrate new individual metrics"),
                                dataWriterModuleUI(ns("newindmetricseries"), "Write new individual metrics file"),
                                h2("step 2.4.3 Update individual metrics"),
@@ -131,8 +132,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  dataWriterModuleServer("updatedgroupmetricseries", loaded_data_ts,globaldata,  write_updated_group_metrics,"update group_metrics",type="series")
 
                  # 2.4.1 Deleted individual metrics --------------------------------------------------------							
-                 writedeletedindmetricServer("deletedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
-                 
+                 dataWriterModuleServer("deletedindmetricseries", loaded_data_ts,globaldata,  delete_individual_metrics,"deleted individual_metrics", delete=TRUE, type="series")
+
                  # 2.4.2 Integrate new individual metrics --------------------------------------------------------							
                  dataWriterModuleServer("newindmetricseries", loaded_data_ts,globaldata,  write_new_individual_metrics_proceed,"write new individual_metrics",type="series")
 

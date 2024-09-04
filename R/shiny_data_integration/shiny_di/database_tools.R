@@ -2570,9 +2570,7 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-delete_individual_metrics <- function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+delete_individual_metrics <- function(path, conn, type="series"){
   test <- read_excel(path = path, sheet=1, range="A1:A1")
   if (names(test) %in% c("fi_id")) skip=0 else skip=1
   deleted <- read_excel(path = path, sheet=1, skip=skip)
@@ -2587,16 +2585,12 @@ delete_individual_metrics <- function(path, type="series"){
   dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-  (nr <- tryCatch({
-    sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
-											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
+  sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
+											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp) returning datawg.{`ind_table`}.*",
                           .con=conn)
-    nr0 <- dbExecute(conn, sql)							
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists ind_tmp")
-  }))
+  res0 <- dbGetQuery(conn, sql)		
+  nr0 <- nrow(res0)
+  dbExecute(conn,"drop table if exists ind_tmp")
   if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2605,7 +2599,7 @@ delete_individual_metrics <- function(path, type="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                       deleted$sai_name[1],"';"))$sai_cou_code  	
   } 
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res0, message = message, cou_code = cou_code))
 }
 
 
