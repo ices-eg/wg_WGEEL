@@ -154,8 +154,9 @@ create_datacall_file_biom_morta <- function(country, type = type_of_data[1], ...
 		## separate sheets for discarded and kept data  
 		## this year special treatment we remove everything, but still need original
 		## values in the database (ie we have not applied eel_qal_id=20) because we need the view for detect_missing
-	
+    r_coun <- r_coun %>% select(-dta_code)
     data_kept <- r_coun[r_coun$eel_qal_id  %in% c(1,2,3,4),]
+    data_kept <- 
 		data_disc <- r_coun[!r_coun$eel_qal_id  %in% c(1,2,3,4),]
     
 #		data_disc <- data_disc[,]

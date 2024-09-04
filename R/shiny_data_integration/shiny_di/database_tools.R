@@ -162,8 +162,9 @@ compare_with_database_updated_values <- function(updated_from_excel, data_from_b
   }
   # Can't join on 'eel_area_division' x 'eel_area_division' because of incompatible
   # types (character / logical)
-  updated_from_excel$eel_area_division <- as.character(updated_from_excel$eel_area_division)
-  updated_from_excel$eel_hty_code <- as.character(updated_from_excel$eel_hty_code)
+  # note for biomass and mortality this columns is not used (otherwise bug during integration)
+  if ("eel_area_division" %in% colnames(updated_from_excel))
+    updated_from_excel$eel_area_division <- as.character(updated_from_excel$eel_area_division)
   eel_colnames <- colnames(data_from_base)[grepl("eel", colnames(data_from_base))]
   
   #since dc2020, qal_id are automatically created during the import

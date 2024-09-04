@@ -86,8 +86,8 @@ importstep1Server <- function(id,globaldata, loaded_data){
 				#############################
 				
 				observeEvent(input$check_duplicate_button,
-						{ #browser()# you can put browseR here
-							#shinyCatch({ 
+						{ #browser()# you can put browser here
+							shinyCatch({ 
 										shinybusy::show_modal_spinner(text = "Checking File", color="#337ab7",spin="fading-circle")
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
@@ -292,6 +292,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																		"<p align='left'>Please click on excel",
 																		"to download this file. <p>"                         
 																))) 
+                        #browser()
 												globaldata$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
 												if (nrow(globaldata$updated_values_table)==0) stop("step1 compare_wih_database_updated_values did not return any values")
 												output$dt_updated_values <- DT::renderDataTable(
@@ -365,7 +366,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 													})
 										}
 										#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-									#}) # shiny catch
+									}) # shiny catch
 									shinybusy::remove_modal_spinner()
 						} ,# expr for browser
 						ignoreInit = TRUE)
