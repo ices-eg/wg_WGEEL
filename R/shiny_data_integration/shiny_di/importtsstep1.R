@@ -470,8 +470,6 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
                          list_comp_updated_individual_metrics$modified$id <- list_comp_updated_individual_metrics$modified$id + mxm
                          list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
-                         
-                         list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
                          list_comp_individual_metrics$modified <- bind_rows(list_comp_individual_metrics$modified,list_comp_updated_individual_metrics$modified)
                          if (nrow(list_comp_individual_metrics$highlight_change)>0){
                            list_comp_individual_metrics$highlight_change <- bind_rows(list_comp_individual_metrics$highlight_change,
