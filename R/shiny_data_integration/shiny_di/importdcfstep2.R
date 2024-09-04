@@ -20,9 +20,13 @@ importdcfstep2UI <- function(id){
                                dataWriterModuleUI(ns("integrateupdatesampling"), "xls update sampling, do this first and re-run compare")
                                ),
                       tabPanel("GROUP METRICS",value="GROUP METRICS",
-                               writedeletedgroupmetricUI(ns("deletedgroupmetricdcf"), "step 2.2.1 Delete from group metrics"),
-                               writenewgroupmetricUI(ns("newgroupmetricdcf"), "step 2.2.2 Integrate new group metrics"),
-                               writeupdatedgroupmetricUI(ns("updatedgroupmetricdcf"), "step 2.2.3 Update group metrics")),
+                               h2("step 2.2.1 Delete from group metrics"),
+                               dataWriterModuleUI(ns("deletedgroupmetricdcf"), "Delete using deleted group metrics file"),
+                               h2("step 2.2.2 Integrate new group metrics"),
+                               dataWriterModuleUI(ns("newgroupmetricdcf"), "Write new group metrics file"),
+                               h2("step 2.2.3 Update group metrics"),
+                               dataWriterModuleUI(ns("updatedgroupmetricdcf"), "Update the modified group metrics")
+                               ),
                       tabPanel("INDIVIDUAL METRICS",value="INDIVIDUAL METRICS",
                                
                                
@@ -86,15 +90,16 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf, globaldcfpanel){
                  dataWriterModuleServer("integrateupdatesampling", loaded_data_dcf,globaldata,  update_sampling, "update sampling")
 
                  # 2.2.1 deleted group metrics sampling  --------------------------------------------------------							
-                 writedeletedgroupmetricServer("deletedgroupmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
+                 dataWriterModuleServer("deletedgroupmetricdcf", loaded_data_dcf,globaldata,  delete_group_metrics, "deleted group_metrics",delete=TRUE,type="other")
+
                  
                  # 2.2.2 Integrate new group metrics sampling  --------------------------------------------------------							
-                 writenewgroupmetricServer("newgroupmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
-                 
+                 dataWriterModuleServer("newgroupmetricdcf", loaded_data_dcf,globaldata,  write_new_group_metrics, "write new group_metrics",type="other")
+
                  
                  # 2.2.3 update modified group metrics  --------------------------------------------------------							
-                 writeupdatedgroupmetricServer("updatedgroupmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
-                 
+                 dataWriterModuleServer("updatedgroupmetricdcf", loaded_data_dcf,globaldata,  write_updated_group_metrics, "update group_metrics",type="other")
+
                  # 2.3.1 Deleted individual metrics --------------------------------------------------------							
                  writedeletedindmetricServer("deletedindmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
                  
