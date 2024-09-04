@@ -47,8 +47,8 @@ importtsstep2UI <- function(id){
                                                        writedeletedgroupmetricUI(ns("deletedgroupmetricseries"), "step 2.3.1 Delete from group metrics"),
                                h2("step 2.3.2 Integrate new group metrics"),
                                dataWriterModuleUI(ns("integratenewgroupmetrics"), "Write new group metrics file"),
-                               
-                                                       writeupdatedgroupmetricUI(ns("updatedgroupmetricseries"), "step 2.3.3 Update group metrics")),
+                               h2("step 2.3.3 Update group metrics"),
+                               dataWriterModuleUI(ns("updatedgroupmetricseries"), "Update the modified group metrics")),
                       tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
                                writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
                                writeupdatedindmetricUI(ns("updatedindmetricseries"), "step 2.4.3 Update individual metrics")))
@@ -172,12 +172,10 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  
                  # 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
                  dataWriterModuleServer("integratenewgroupmetrics", loaded_data_ts,globaldata,  write_new_group_metrics,"write new group_metrics",type="series")
-     
-                 
 
                  # 2.3.3 update modified group metrics  --------------------------------------------------------							
-                 writeupdatedgroupmetricServer("updatedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
-                 
+                 dataWriterModuleServer("updatedgroupmetricseries", loaded_data_ts,globaldata,  write_updated_group_metrics,"update group_metrics",type="series")
+
                  # 2.4.1 Deleted individual metrics --------------------------------------------------------							
                  writedeletedindmetricServer("deletedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
                  

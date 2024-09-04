@@ -461,7 +461,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
                        "das_value.base", "das_value.xls",					
                        "das_comment.base", "das_comment.xls",
                        "das_effort.base", "das_effort.xls",
-      "das_qal_comment.base", "das_qal_comment.xls",
+                       "das_qal_comment.base", "das_qal_comment.xls",
                        "sheetorigin")
   
   columns_new <- c("id","das_id",
@@ -507,7 +507,7 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
   
   # Anti join only keeps columns from X, any new data is a data with ser_id and year not present in the db
   new <-  dplyr::anti_join(as.data.frame(data_from_excel), data_from_base, 
-			by = c("das_ser_id","das_year")) 
+                           by = c("das_ser_id","das_year")) 
   # change 2023 removed das_qal_id
   # otherwise rows with qal_id changed go into the new dataset and there is a bug when integrating indb
   if (nrow(new)>0){
@@ -525,13 +525,13 @@ compare_with_database_dataseries <- function(data_from_excel, data_from_base, sh
                                       "das_comment", 
                                       "das_effort", 
                                       "das_ser_id",
-          "das_qal_id",
-          "das_qal_comment")
+                                      "das_qal_id",
+                                      "das_qal_comment")
   )
   # new is also modified (less columns in the anti join) I need to remove the lines 
   # from new in modified
   modified <- modified[!modified$id %in% new$id,]
-
+  
   # after anti join there are still values that are not really changed.
   # this is further investigated below
   # I'm using the id created in the script to identify the lines ot check
@@ -873,7 +873,7 @@ compare_with_database_metric_ind <- function(
     warning("No data in the file coming from the database")
     
   }
-
+  
   if (sheetorigin != "new_individual_metrics"){
     if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
       stop(paste0(sheetorigin,
@@ -1344,7 +1344,7 @@ write_new <- function(path) {
   conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists new_temp ")
   dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-
+  
   # Query uses temp table just created in the database by sqldf
   query <- "insert into datawg.t_eelstock_eel (         
 			eel_typ_id,       
@@ -1810,7 +1810,7 @@ write_new_dataseries <- function(path, conn) {
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   newind <- dbGetQuery(conn, query)
   message <- sprintf(" %s new values inserted in the database", nrow(newind))
-
+  
   return(list(datadb = newind, message=message, cou_code = cou_code))
 }
 
@@ -1906,7 +1906,7 @@ update_series <- function(path, conn) {
   message <- NULL
   nr <- dbGetQuery(conn, query)
   dbExecute(conn, "DROP TABLE updated_series_temp")
-
+  
   
   if (is.null(message))   
     message <- paste(nrow(nr),"values updated in the db")
@@ -2073,6 +2073,29 @@ update_dataseries <- function(path, conn) {
   
   return(list(datadb = nr, message = message, cou_code = cou_code))
 }
+
+
+#' create_group_metrics_wide
+#' create a table in wide format with groups and related metrics
+#' that can be displayed in a userfriendly way
+#' @param groups the group table from the db
+#' @param metrics the metrics table from the db
+#' @param mty_ref reference table
+#'
+#' @return a well formatted wide-format table
+
+create_group_metrics_wide <- function(groups, metrics, mty_ref){
+  res_wide <- groups %>% 
+    left_join(metrics %>%
+                select(meg_gr_id,meg_mty_id,meg_value) %>%
+                left_join(mty_ref,by=c("meg_mty_id"="mty_id")) %>%
+                select(meg_gr_id, mty_name, meg_value ) %>%
+                pivot_wider(names_from=mty_name,values_from=meg_value),
+              c("gr_id"="meg_gr_id"))
+  return(res_wide)
+  
+}
+
 #' @title write new group metrics into the database
 #' @description New lines will be inserted in the database
 #' @param path path to file (collected from shiny button)
@@ -2123,39 +2146,32 @@ write_new_group_metrics <- function(path, conn, type="series") {
       message0 <-NULL
     }
     #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-      dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
-      
-      # glue_sql does not handle removing strings use glue instead
-      
-      sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
+    dbWriteTable(conn,"group_tmp",newgroups,row.names=FALSE,temporary=TRUE)
+    
+    # glue_sql does not handle removing strings use glue instead
+    
+    sqlgr <- glue("INSERT INTO datawg.{gr_table}(gr_year,gr_number,gr_comment,gr_dts_datasource,{gr_key}{gr_add})
 									(SELECT g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{gr_key}{gr_add1}
 									FROM group_tmp g) returning *;")
-      
-      res0 <- dbGetQuery(conn, sqlgr)
-      newgroups$gr_id <- res0$gr_id
-      new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
-        select(-gr_id) %>%
-        left_join(bind_rows(newgroups,oldgroups))
-      dbWriteTable(conn,"metrics_tmp",new2,row.names=FALSE, temporary = TRUE)
-      sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+    
+    res0 <- dbGetQuery(conn, sqlgr)
+    newgroups$gr_id <- res0$gr_id
+    new2 <- new %>%  #now we merge the metric table with groups table to recover gr_id
+      select(-gr_id) %>%
+      left_join(bind_rows(newgroups,oldgroups))
+    dbWriteTable(conn,"metrics_tmp",new2,row.names=FALSE, temporary = TRUE)
+    sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
 									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM metrics_tmp returning *;",
-                                   .con=conn)
-      
-      nr0 <- nrow(res0)
-      res1 <- dbGetQuery(conn, sqlmetrics)
-      nr1 <- nrow(res1)
-      # this has to be launched why the transaction is still going
-      dbExecute(conn,"drop table if exists group_tmp")
-      dbExecute(conn,"drop table if exists metrics_tmp")
-      res_wide <- res0 %>% 
-        left_join(res1 %>%
-                    select(meg_gr_id,meg_mty_id,meg_value) %>%
-                    left_join(metrics_group,by=c("meg_mty_id"="mty_id")) %>%
-                    select(meg_gr_id, mty_name, meg_value ) %>%
-                    pivot_wider(names_from=mty_name,values_from=meg_value),
-                  c("gr_id"="meg_gr_id"))
-        
-
+                                 .con=conn)
+    
+    nr0 <- nrow(res0)
+    res1 <- dbGetQuery(conn, sqlmetrics)
+    nr1 <- nrow(res1)
+    # this has to be launched why the transaction is still going
+    dbExecute(conn,"drop table if exists group_tmp")
+    dbExecute(conn,"drop table if exists metrics_tmp")
+    res_wide <- create_group_metrics_wide(res0, res1, metrics_group)
+    
     
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2171,9 +2187,10 @@ write_new_group_metrics <- function(path, conn, type="series") {
   return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-write_updated_group_metrics <-function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+write_updated_group_metrics <-function(path, conn, type="series"){
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
+  
   updated <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
@@ -2188,35 +2205,30 @@ write_updated_group_metrics <-function(path, type="series"){
   dbWriteTable(conn,"group_tmp",updated,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-  (nr <- tryCatch({	
-    dbBegin(conn)
-    sqlgr<- glue::glue_sql("UPDATE datawg.{`gr_table`} SET 
+  sqlgr<- glue::glue_sql("UPDATE datawg.{`gr_table`} SET 
 											(gr_year,gr_number,gr_comment,gr_dts_datasource,{`gr_key`}) =
 											(g.gr_year,g.gr_number,g.gr_comment,g.gr_dts_datasource,g.{`gr_key`}) FROM
 											group_tmp g
-											WHERE g.gr_id={`gr_table`}.gr_id returning datawg.{`gr_table`}.gr_id",
-                           .con=conn)
-    
-    rs <- dbSendQuery(conn,sqlgr)
-    nr1 <- length(unique(dbFetch(rs)[,1]))
-    dbClearResult(rs)
-    sqlmetrics <- glue::glue_sql("delete from  datawg.{`metric_table`} 
+											WHERE g.gr_id={`gr_table`}.gr_id returning datawg.{`gr_table`}.*",
+                         .con=conn)
+  
+  res0 <- dbGetQuery(conn,sqlgr)
+  nr1 <- nrow(res0)
+  
+  sqlmetrics <- glue::glue_sql("delete from  datawg.{`metric_table`} 
 											WHERE meg_gr_id in (select gr_id from group_tmp)",
-                                 .con=conn)
-    dbExecute(conn, sqlmetrics)
-    
-    sqlmetrics2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
-									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp;",
-                                  .con=conn)
-    nr2<- dbExecute(conn, sqlmetrics2)
-    dbCommit(conn)
-  }, error = function(e) {
-    dbRollback(conn)
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists group_tmp")
-  }))
-  if (is.null(message)) message <- sprintf(" %s and %s new values modified in the group and metric tables", nr1, nr2)
+                               .con=conn)
+  dbExecute(conn, sqlmetrics)
+  
+  sqlmetrics2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(meg_gr_id, meg_mty_id, meg_value, meg_dts_datasource, meg_qal_id)
+									SELECT gr_id, meg_mty_id, meg_value, meg_dts_datasource, 1 as meg_qal_id FROM group_tmp returning datawg.{`metric_table`}.*;",
+                                .con=conn)
+  res2<- dbGetQuery(conn, sqlmetrics2)
+  
+  res_wide <- res_wide <- create_group_metrics_wide(res0, res2, metrics_group)
+  
+  dbExecute(conn,"drop table if exists group_tmp")
+  if (is.null(message)) message <- sprintf(" %s and %s new values modified in the group and metric tables", nrow(res0), nrow(res2))
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                       updated$ser_nameshort[1],"';"))$ser_cou_code  
@@ -2224,7 +2236,7 @@ write_updated_group_metrics <-function(path, type="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                       updated$sai_name[1],"';"))$sai_cou_code  	
   }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
 delete_group_metrics <- function(path, type="series"){
