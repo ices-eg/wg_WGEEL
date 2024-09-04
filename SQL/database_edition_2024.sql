@@ -403,3 +403,12 @@ insert into ref.tr_quality_qal values (24, 'discarded_wgeel 2024','This data has
 -- DELETE FROM datawg.t_eelstock_eel AS tee WHERE eel_datasource ='dc_2024'
 
 SELECT * FROM datawg.log WHERE log_date >= '2024-09-03'
+
+
+
+
+begin;
+update ref.tr_metrictype_mty set mty_individual_name ='is_female_(1=female,0=male)' where mty_individual_name ='is_female(1=female,0=male)';
+update ref.tr_metrictype_mty set mty_individual_name ='anguillicola_presence_(1=present,0=absent)' where mty_individual_name ='anguillicola_presence(1=present,0=absent)';
+commit;
+
