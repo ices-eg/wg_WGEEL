@@ -2257,33 +2257,31 @@ write_updated_group_metrics <-function(path, conn, type="series"){
   return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-delete_group_metrics <- function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+delete_group_metrics <- function(path, conn, type="series"){
+  metrics_group <- tr_metrictype_mty %>% 
+    filter(mty_group!="individual") %>% select(mty_name,mty_id)
   deleted <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(deleted) == 0)
-    return(list(message="empty file", cou_code=NULL))
+    return(list(datadb = data.frame(), message="empty file", cou_code=NULL))
   if (sum(!is.na(deleted$gr_id)) ==0 )
-    return(list(message="no gr_id", cou_code=NULL))
+    return(list(datadb = data.frame(), message="no gr_id", cou_code=NULL))
   if (any(is.na(deleted$gr_id)))
-    return(list(message="some gr_id are missing", cou_code=NULL))
+    return(list(datadb = data.frame(), message="some gr_id are missing", cou_code=NULL))
   
   gr_table <- ifelse(type=="series","t_groupseries_grser","t_groupsamp_grsa")
   dbWriteTable(conn,"group_tmp",deleted,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
-  (nr <- tryCatch({	
+
     sql_group <- glue::glue_sql("DELETE FROM datawg.{`gr_table`} 
-											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp)",
+											WHERE gr_id IN (SELECT distinct gr_id FROM group_tmp) returning datawg.{`gr_table`}.*",
                                 .con=conn)
-    nr0 <- dbExecute(conn, sql_group)							
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
+    res0 <- dbGetQuery(conn, sql_group)							
+
     dbExecute(conn,"drop table if exists group_tmp")
-  }))
-  if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nr0)
+
+  if (is.null(message)) message <- sprintf(" %s values deleted from group table, cascade delete on metrics", nrow(res0))
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
                                       deleted$ser_nameshort[1],"';"))$ser_cou_code  
@@ -2292,8 +2290,32 @@ delete_group_metrics <- function(path, type="series"){
                                       deleted$sai_name[1],"';"))$sai_cou_code  	
   }
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res0, message = message, cou_code = cou_code))
 }
+
+
+
+#' create_ind_metrics_wide
+#' create a table in wide format with ind and related metrics
+#' that can be displayed in a userfriendly way
+#' @param ind the ind table from the db
+#' @param metrics the metrics table from the db
+#' @param mty_ref reference table
+#'
+#' @return a well formatted wide-format table
+
+create_ind_metrics_wide <- function(ind, metrics, mty_ref){
+  res_wide <- ind %>% 
+    left_join(metrics %>%
+                select(mei_fi_id,mei_mty_id,mei_value) %>%
+                left_join(mty_ref,by=c("mei_mty_id"="mty_id")) %>%
+                select(mei_fi_id, mty_name, mei_value ) %>%
+                pivot_wider(names_from=mty_name,values_from=mei_value),
+              c("fi_id"="mei_fi_id"))
+  return(res_wide)
+  
+}
+
 
 # note require to get the fi_id before inserting unlike group there might be different fi_id, and date.
 # so a loop based on id generated before inserts first the line per id (one fi_id) and then all the 
@@ -2329,7 +2351,11 @@ write_new_individual_metrics_show <- function(path, type="series"){
   return(list(data_read=new,summary=summary_data))
 }
 
-write_new_individual_metrics_proceed <- function(new, type="series"){
+write_new_individual_metrics_proceed <- function(path, conn, type="series"){
+  metrics_ind <- tr_metrictype_mty %>% 
+    filter(mty_group!="group") %>% select(mty_name,mty_id)
+  
+  res <- data.frame()
   if (type=="series"){
     fk <- "fiser_ser_id"
   } else{
@@ -2340,8 +2366,28 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
   } else{
     name <- "sai_name"
   }
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+  message <- NULL
+  shinybusy::show_modal_spinner(text = "load data indiv metrics")
+  # if we write from DT there is an extra line to be removed test it there
+  test <- read_excel(path = path, sheet=1, range="B1:B1")
+  if (length(names(test)) == 0){
+    skip = 1
+  } else if (names(test) %in% c("ser_nameshort","sai_name")) {
+    skip=0
+  }else {skip=1}
+  new <- read_excel(path = path, sheet=1, skip=skip)
+  shinybusy::remove_modal_spinner() 
+  
+  if (type=="series"){
+    fk <- "fiser_ser_id"
+  } else{
+    fk <- "fisa_sai_id"
+  }
+  if (type=="series"){
+    name <- "ser_nameshort"
+  } else{
+    name <- "sai_name"
+  }
   if (all(is.na(new$fi_date)))
     new$fi_date <- as.Date(rep(NA,nrow(new)))
   new <- new %>%
@@ -2390,7 +2436,6 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
                                         new$sai_name[1],"';"))$sai_cou_code  	
     }     
     message <- NULL
-    message <- NULL
     if (any(is.na(new[,ind_key]))) {
       message0 <- paste("you have missing values in",ind_key,"(1) integrate new sampling, (2) re-run steps 0 and 1 and (3) integrate new individual metrics")
     } else {
@@ -2409,7 +2454,6 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
     #browser()
     
     nr <- tryCatch({
-      dbBegin(conn)
       shinybusy::show_modal_spinner(text = "writing fish", color="orange", spin="folding-cube")
       dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
       #check that fish falls into emu
@@ -2424,50 +2468,51 @@ write_new_individual_metrics_proceed <- function(new, type="series"){
         # insert fish			
         sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
 									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
-									FROM ind_tmp i RETURNING fi_id ;")	
+									FROM ind_tmp i RETURNING datawg.{ind_table}.*;")	
         # better to do dbSendQuery and dbFetch within trycath
-        rs <- dbSendQuery(conn,sqlid)
-        res0 <- dbFetch(rs)
-        dbClearResult(rs)         
+        res0 <- dbGetQuery(conn, sqlid)
         newfish$fi_id <- res0$fi_id
         
         new2 <- new %>%  #now we merge the metric table with groups table to recover fi_id
           select(-fi_id) %>%
           left_join(bind_rows(newfish,oldfish))
         shinybusy::show_modal_spinner(text = "writing metrics", color="red", spin="folding-cube")
-        dbWriteTable(conn,"indiv_metrics_tmp",new2)
+        dbWriteTable(conn,"indiv_metrics_tmp",new2, temporary=TRUE)
         # insert metrics, qal_id is 1
         
         sqlmetrics <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM indiv_metrics_tmp",
+									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM indiv_metrics_tmp returning datawg.{`metric_table`}.*",
                                      .con=conn)
         
         nr0 <- nrow(res0)
-        nr1 <- dbExecute(conn, sqlmetrics)
+        res1 <- dbGetQuery(conn, sqlmetrics)
+        nr1 <- nrow(res1)
+        
+        res_wide <- create_ind_metrics_wide(res0, res1, metrics_ind)
         dbExecute(conn,"drop table if exists ind_tmp")
-        dbExecute(conn,"drop table if exists indiv_metrics_tmp")
-        dbCommit(conn)
-      }
+        dbExecute(conn,"drop table if exists indiv_metrics_tmp")      }
       shinybusy::remove_modal_spinner() 
       
     }           , warning = function(e) {	
       shinybusy::remove_modal_spinner() 
-      message <<- e		
-      dbRollback(conn)
+      message <<- e
     }, error = function(e) {
       message <<- e
-      dbRollback(conn)
       shinybusy::remove_modal_spinner() 
       
     }, finally = {				
     })	
+    if (!is.null(message))
+      stop(message)
+    if (!is.null(message0))
+      stop(message0)
     if (is.null(message))  		message <-
       sprintf(" %s and %s new values inserted in the fish and metric tables", 
               nr0, 
               nr1) 
     if (!is.null(message0)) message <- paste(message, message0)
   }
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 # no way to know if fish is updated, I'm updating it anyways...
 write_updated_individual_metrics <- function(path, type="series"){

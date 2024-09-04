@@ -24,18 +24,21 @@ importtsstep2UI <- function(id){
                       tabPanel("DATASERIES", value="DATASERIES",
                                h2("step 2.2.1 Delete from data"),
                                dataWriterModuleUI(ns("deletedataseries"), "Once the series are deleted please re-run the integration"),
-                                           h2("step 2.2.2 Integrate new data"),
-                                           dataWriterModuleUI(ns("integratenewdas"), "Once the series are updated, integrate new dataseries"),
-                                           h2("step 2.2.3 Update modified data"),
-                                           dataWriterModuleUI(ns("integrateupdatedas"), "Update the modified dataseries")),
+                               h2("step 2.2.2 Integrate new data"),
+                               dataWriterModuleUI(ns("integratenewdas"), "Once the series are updated, integrate new dataseries"),
+                               h2("step 2.2.3 Update modified data"),
+                               dataWriterModuleUI(ns("integrateupdatedas"), "Update the modified dataseries")),
                       tabPanel("GROUP METRICS", value="GROUP METRICS",
-                                                       writedeletedgroupmetricUI(ns("deletedgroupmetricseries"), "step 2.3.1 Delete from group metrics"),
+                               h2("step 2.3.1 Delete from group metrics"),
+                               dataWriterModuleUI(ns("deletegroupmetrics"), "Delete using deleted group metrics file"),
                                h2("step 2.3.2 Integrate new group metrics"),
                                dataWriterModuleUI(ns("integratenewgroupmetrics"), "Write new group metrics file"),
                                h2("step 2.3.3 Update group metrics"),
                                dataWriterModuleUI(ns("updatedgroupmetricseries"), "Update the modified group metrics")),
-                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
-                               writenewindmetricUI(ns("newindmetricseries"), "step 2.4.2 Integrate new individual metrics"),
+                      tabPanel("INDIVIDUAL METRICS", value="INDIVIDUAL METRICS",			
+                               writedeletedindmetricUI(ns("deletedindmetricseries"), "step 2.4.1 Delete from individual metrics"),
+                               h2("step 2.4.2 Integrate new individual metrics"),
+                               dataWriterModuleUI(ns("newindmetricseries"), "Write new individual metrics file"),
                                writeupdatedindmetricUI(ns("updatedindmetricseries"), "step 2.4.3 Update individual metrics")))
           
   )
@@ -118,7 +121,7 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  
                  
                  # 2.3.1 deleted group metrics series  --------------------------------------------------------							
-                 writedeletedgroupmetricServer("deletedgroupmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
+                 dataWriterModuleServer("deletegroupmetrics", loaded_data_ts,globaldata,  delete_group_metrics,"write new group_metrics",delete=TRUE,type="series")
                  
                  # 2.3.2 Integrate new group metrics series  --------------------------------------------------------							
                  dataWriterModuleServer("integratenewgroupmetrics", loaded_data_ts,globaldata,  write_new_group_metrics,"write new group_metrics",type="series")
@@ -130,8 +133,8 @@ importtsstep2Server <- function(id,globaldata,loaded_data_ts,globaltspanel){
                  writedeletedindmetricServer("deletedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
                  
                  # 2.4.2 Integrate new individual metrics --------------------------------------------------------							
-                 writenewindmetricServer("newindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
-                 
+                 dataWriterModuleServer("newindmetricseries", loaded_data_ts,globaldata,  write_new_individual_metrics_proceed,"write new individual_metrics",type="series")
+
                  
                  # 2.4.3 updated individual metrics  --------------------------------------------------------							
                  writeupdatedindmetricServer("updatedindmetricseries", globaldata=globaldata,loaded_data=loaded_data_ts,type="series")
