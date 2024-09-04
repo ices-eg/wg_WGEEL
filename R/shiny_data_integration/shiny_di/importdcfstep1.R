@@ -409,7 +409,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                            data_from_base=t_metricindsamp_meisa, 
                            sheetorigin="updated_individual_metrics",
                            type="other")
-                       if (nrow(list_comp_individual_metrics$new)>0){
+                       if (nrow(new_individual_metrics)>0){
                          if (nrow(list_comp_individual_metrics$new)>0){
                            mxn <- max(list_comp_individual_metrics$new$id, na.rm=TRUE)
                          }else{
@@ -422,8 +422,6 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                          }
                          list_comp_updated_individual_metrics$new$id <- list_comp_updated_individual_metrics$new$id + mxn
                          list_comp_updated_individual_metrics$modified$id <- list_comp_updated_individual_metrics$modified$id + mxm
-                         list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
-                         
                          list_comp_individual_metrics$new <- bind_rows(list_comp_individual_metrics$new,list_comp_updated_individual_metrics$new)
                          list_comp_individual_metrics$modified <- bind_rows(list_comp_individual_metrics$modified,list_comp_updated_individual_metrics$modified)
                          if (nrow(list_comp_individual_metrics$highlight_change)>0){

@@ -1701,7 +1701,7 @@ write_new_series <- function(path, conn) {
 # path <- file.choose()
 #write_new_sampling(path)
 
-write_new_sampling <- function(path) {
+write_new_sampling <- function(path, conn) {
   new <- read_excel(path = path, sheet = 1, skip = 1)
   
   ####when there are no data, new values have incorrect type
@@ -1725,7 +1725,6 @@ write_new_sampling <- function(path) {
   # create dataset for insertion -------------------------------------------------------------------
   
   
-  conn <- poolCheckout(pool)	
   dbExecute(conn,"drop table if exists new_sampling_temp ")
   dbWriteTable(conn, "new_sampling_temp", new ,temporary=TRUE,row.names=FALSE)
   
@@ -1757,26 +1756,22 @@ write_new_sampling <- function(path) {
 			sai_qal_id,
 			sai_lastupdate,
 			sai_dts_datasource
-			FROM new_sampling_temp;"
+			FROM new_sampling_temp returning datawg.t_samplinginfo_sai.*;"
   
   message <- NULL
-  (nr <- tryCatch({
-    dbExecute(conn, query)
-    query <- "SELECT * FROM datawg.t_samplinginfo_sai"
-    t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists new_sampling_temp;")
-    poolReturn(conn)
-  }))
+  res <- dbGetQuery(conn, query)
+  query <- "SELECT * FROM datawg.t_samplinginfo_sai"
+  t_samplinginfo_sai <<- dbGetQuery(conn, sqlInterpolate(ANSI(), query))
+  
+  dbExecute(conn,"drop table if exists new_sampling_temp;")
+  
   query <- "SELECT distinct sai_name FROM datawg.t_samplinginfo_sai"
   tr_sai_list <<- dbGetQuery(pool, sqlInterpolate(ANSI(), query))$sai_name
   
   if (is.null(message))   
-    message <- sprintf(" %s new values inserted in the database", nr)
+    message <- sprintf(" %s new values inserted in the database", nrow(res))
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res, message = message, cou_code = cou_code))
 }
 
 #' @title write new dataseries into the database
@@ -1944,7 +1939,7 @@ update_series <- function(path, conn) {
 #' @description Performs update queries
 #' @param path path to file (collected from shiny button)
 #' @return message indicating success or failure at data insertion
-update_sampling <- function(path) {
+update_sampling <- function(path, conn) {
   
   updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
   cou_code = unique(updated_values_table$sai_cou_code)  
@@ -1962,7 +1957,6 @@ update_sampling <- function(path) {
   
   # create dataset for insertion -------------------------------------------------------------------
   
-  conn <- poolCheckout(pool)
   dbExecute(conn,"drop table if exists updated_sampling_temp ")
   dbWriteTable(conn,"updated_sampling_temp",updated_values_table, row.names=FALSE,temporary=TRUE)
   
@@ -1994,27 +1988,17 @@ update_sampling <- function(path) {
 			t.sai_lastupdate,
 			t.sai_dts_datasource)
 			FROM updated_sampling_temp t WHERE t.sai_name = t_samplinginfo_sai.sai_name
-	returning datawg.t_samplinginfo_sai.sai_name"
+	returning datawg.t_samplinginfo_sai.*"
   
   message <- NULL
-  tryCatch({
-    rs <- dbSendQuery(conn,query)
-    res0 <- dbFetch(rs)
-    dbClearResult(rs)
-    nr <- nrow(res0)
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn, "DROP TABLE updated_sampling_temp")
-    poolReturn(conn)
-    
-  })
-  
+  res0 <- dbGetQuery(conn,query)
+  nr <- nrow(res0)
+  dbExecute(conn, "DROP TABLE updated_sampling_temp")
   
   if (is.null(message))   
     message <- paste(nrow(updated_values_table),"values updated in the db")
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb =  res0, message = message, cou_code = cou_code))
 }
 
 
@@ -2467,8 +2451,8 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
       }
       if (nrow(misslocated) == 0){
         # insert fish			
-        sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
-									SELECT distinct on (id) i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
+        sqlid <- glue("INSERT INTO datawg.{ind_table}(fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,fi_id_cou,{ind_key}{addcol0})
+									SELECT distinct on (id) i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.fi_id_cou,i.{ind_key}{addcol1} 
 									FROM ind_tmp i RETURNING datawg.{ind_table}.*;")	
         # better to do dbSendQuery and dbFetch within trycath
         res0 <- dbGetQuery(conn, sqlid)
@@ -2516,9 +2500,10 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
   return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 # no way to know if fish is updated, I'm updating it anyways...
-write_updated_individual_metrics <- function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+write_updated_individual_metrics <- function(path, conn, type="series"){
+  metrics_ind <- tr_metrictype_mty %>% 
+    filter(mty_group!="group") %>% select(mty_name,mty_id)
+  
   updated <- read_excel(path = path, sheet = 1, skip = 1)
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
@@ -2535,34 +2520,29 @@ write_updated_individual_metrics <- function(path, type="series"){
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
-  (nr <- tryCatch({	
-    dbBegin(conn)
-    sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
-											(fi_date,fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
-											(i.fi_date::date,i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
+  sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
+											(fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
+											(i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
 											ind_tmp i
-											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.fi_id",
+											WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
                            .con=conn)
-    rs <- dbSendQuery(conn, sql0)
-    nr1 <- length(unique(dbFetch(rs)[,1]))
-    dbClearResult(rs)
+    res1 <- dbGetQuery(conn, sql0)
+    nr1 <- length(nrow(res1))
     sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
 							                       where mei_fi_id in (select fi_id from ind_tmp)",
                            .con=conn)
     dbExecute(conn, sql1)
     
     sql2 <- glue::glue_sql("INSERT INTO datawg.{`metric_table`}(mei_fi_id, mei_mty_id, mei_value, mei_dts_datasource, mei_qal_id)
-									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp",
+									SELECT fi_id, mei_mty_id, mei_value, mei_dts_datasource, 1 as mei_qal_id FROM ind_tmp returning datawg.{`metric_table`}.*",
                            .con=conn)
-    nr2 <- dbExecute(conn, sql2)
-    dbCommit(conn)
+    res2 <- dbGetQuery(conn, sql2)
+    nr2 <- nrow(res2)
+    res_wide <- create_ind_metrics_wide(res1, res2, metrics_ind)
     
-  }, error = function(e) {
-    message <<- e
-    dbRollback(conn)
-  }, finally = {
+
+
     dbExecute(conn,"drop table if exists ind_tmp")
-  }))
   if (is.null(message)) message <- sprintf(" %s and %s new values updated in the group and metric tables", nr1, nr2)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2572,12 +2552,10 @@ write_updated_individual_metrics <- function(path, type="series"){
                                       updated$sai_name[1],"';"))$sai_cou_code  	
   } 
   
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res_wide, message = message, cou_code = cou_code))
 }
 
-delete_individual_metrics <- function(path, type="series"){
-  conn <- poolCheckout(pool)
-  on.exit(poolReturn(conn))
+delete_individual_metrics <- function(path, conn, type="series"){
   test <- read_excel(path = path, sheet=1, range="A1:A1")
   if (names(test) %in% c("fi_id")) skip=0 else skip=1
   deleted <- read_excel(path = path, sheet=1, skip=skip)
@@ -2592,16 +2570,12 @@ delete_individual_metrics <- function(path, type="series"){
   dbWriteTable(conn,"ind_tmp",deleted,temporary=TRUE, overwrite=TRUE)
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
-  (nr <- tryCatch({
-    sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
-											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp)",
+  sql <- glue::glue_sql("DELETE FROM datawg.{`ind_table`} 
+											WHERE fi_id IN (SELECT distinct fi_id FROM ind_tmp) returning datawg.{`ind_table`}.*",
                           .con=conn)
-    nr0 <- dbExecute(conn, sql)							
-  }, error = function(e) {
-    message <<- e
-  }, finally = {
-    dbExecute(conn,"drop table if exists ind_tmp")
-  }))
+  res0 <- dbGetQuery(conn, sql)		
+  nr0 <- nrow(res0)
+  dbExecute(conn,"drop table if exists ind_tmp")
   if (is.null(message)) message <- sprintf(" %s values deleted from fish table, cascade delete on metrics", nr0)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2610,7 +2584,7 @@ delete_individual_metrics <- function(path, type="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT sai_cou_code FROM datawg.t_samplinginfo_sai WHERE sai_name='",
                                       deleted$sai_name[1],"';"))$sai_cou_code  	
   } 
-  return(list(message = message, cou_code = cou_code))
+  return(list(datadb = res0, message = message, cou_code = cou_code))
 }
 
 

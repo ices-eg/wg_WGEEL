@@ -138,6 +138,10 @@ current_year <- 2024
 #DATABASE CONNECTION INFO
 ##################################"
 cred=yaml::read_yaml("./credentials_write.yml")
+if (file.exists("credentials_password.yml")){
+  cred_password = yaml::read_yaml("./credentials_password.yml")
+  cred = c(cred, cred_password)
+}
 port <- cred$port
 host <- cred$host
 userwgeel <-cred$user
