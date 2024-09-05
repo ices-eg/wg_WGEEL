@@ -27,36 +27,33 @@ load_catch_landings<-function(path,datasource){
   
   # here we have already seached for catch and landings above.
   
-  ##fix bug 2022
-  if ("deleted_data " %in% sheets) deleted <- "deleted_data " else deleted <- "deleted_data"
-  # restore this in 2023 by replacing deleted with "deleted_data"
-  output <- lapply(c("new_data","updated_data",deleted),function(sheet){
+  output <- lapply(c("new_data","updated_data","deleted_data"),function(sheet){
     data_xls<-read_excel(
       path=path,
       sheet=sheet,
       skip=0, guess_max=10000)
     data_error <- data.frame(nline = NULL, error_message = NULL)
-    country = as.character(data_xls[1,6])
+    country = data_xls$eel_cou_code[1]
     if (is.na(country)) country <- "your country"
     #    data_xls <- correct_me(data_xls)
     # check for the file integrity
     
     if (ncol(data_xls)!=13 & sheet=="new_data") cat(str_c("newdata : number column wrong, should have been 13 in file from ",country,"\n"))
     if (ncol(data_xls)!=13 & sheet=="updated_data") cat(str_c("updated_data : number column wrong, should have been 13 in file from ",country,"\n"))
-    if (ncol(data_xls)!=13 & sheet==deleted) cat(str_c("deleted_data : number column wrong, should have been 13 in file from ",country,"\n"))
+    if (ncol(data_xls)!=13 & sheet=="deleted_data") cat(str_c("deleted_data : number column wrong, should have been 13 in file from ",country,"\n"))
     
     # check column names
     if (any(is.na(data_xls$eel_typ_name))) warning("there are missing data in eel_typ_name")
     ###TEMPORARY FIX 2020 due to incorrect typ_name
     data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")] <- paste(data_xls$eel_typ_name[data_xls$eel_typ_name %in% c("rec_landings","com_landings")],"_kg",sep="")
     if (!all(colnames(data_xls)%in%
-             c(ifelse(sheet %in% c("updated_data",deleted),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
+             c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id","eel_typ_name"),"eel_typ_name","eel_year","eel_value","eel_missvaluequal",
                "eel_emu_nameshort","eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource",'eel_datelastupdate',
                'eel_datasource',	'eel_dta_code'))) 
       stop(str_c("problem in column names :",            
                  paste(colnames(data_xls)[!colnames(data_xls)%in%
-                                            c(ifelse(sheet %in% c("updated_data", deleted),"eel_id",""),
+                                            c(ifelse(sheet %in% c("updated_data", "deleted_data"),"eel_id",""),
                                               "eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                                               "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
                                               "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= "&"),
@@ -68,7 +65,7 @@ load_catch_landings<-function(path,datasource){
       
       
       ######eel_id for updated_data or deleted_data
-      if (sheet %in% c("updated_data",deleted)){
+      if (sheet %in% c("updated_data","deleted_data")){
         data_error= rbind(data_error, check_missing(dataset=data_xls,
                                                     namedataset= sheet, 
                                                     column="eel_id",
@@ -924,7 +921,7 @@ load_biomass<-function(path,datasource){
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
   if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-
+  
   #---------------------- biomass_indicators sheet ---------------------------------------------
   
   # read the biomass_indicators sheet
@@ -932,241 +929,243 @@ load_biomass<-function(path,datasource){
   
   # loop for new, update and delete
   output <- lapply(c("new_data","updated_data","deleted_data"),function(sheet){
-    data_xls<-read_excel(
-      path=path,
-      sheet=sheet,
-      skip=0)
-    # correcting an error with typ_name
-    #data_xls <- correct_me(data_xls)  
-    country =as.character(data_xls$eel_cou_code[1]) #country code is in the 6th column
-    
-    # check for the file integrity, only 12 column in this file
-    if (ncol(data_xls)!=11 & sheet=="new data" & nrow(data_xls)>0) cat(str_c("new_data: number column wrong should have been 11 in template for country ",country,"\n"))
-    if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data") & nrow(data_xls)>0) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country ",country,"\n"))
-    data_xls$eel_qal_id <- NA
-    data_xls$eel_qal_comment <- NA
-    data_xls$eel_datasource <- datasource
-    # check column names
-    #FIXME there is a problem with name in data_xls, here we have to use typ_name
-    if ("typ_name" %in% names(data_xls)){
-      data_xls <- data_xls %>%
-        rename(eel_typ_name = typ_name)
-    }
-       
-    if (nrow(data_xls)>0){
-      
-      if (!all(colnames(data_xls)%in%
-              c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
-                  "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-                  "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
-                  "eel_qal_id","eel_qal_comment","eel_comment", "eel_datasource", 
-                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
-                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
-                  ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate","")))) 
-        cat(str_c("problem in column names :",
-                paste(colnames(data_xls)[!colnames(data_xls)%in%
-                            c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
-                                "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
-                                "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
-                                "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource",
-                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
-                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
-                                ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate",""))],collapse= " & "),
-                " file = ",file,"\n")) 
-      
-      
-      ###### check_duplicate_rates #############
-      data_error=rbind(data_error, check_duplicate_rates(
-        dataset=data_xls,
-        namedataset="new_data"))
-      
-      
-      ######eel_id for updated_data or deleted_data
-      if (sheet %in% c("updated_data","deleted_data")){
-        data_error= rbind(data_error, check_missing(dataset=data_xls,
-                                                    namedataset= sheet, 
-                                                    column="eel_id",
-                                                    country=country))
+        data_xls<-read_excel(
+            path=path,
+            sheet=sheet,
+            skip=0)
+        # correcting an error with typ_name
+        #data_xls <- correct_me(data_xls)  
+        country =as.character(data_xls$eel_cou_code[1]) #country code is in the 6th column
         
-        #should be a integer
-        data_error= rbind(data_error, check_type(dataset=data_xls,
-                                                 namedataset= sheet, 
-                                                 column="eel_id",
-                                                 country=country,
-                                                 type="integer"))
-      }
-      ###### eel_typ_name #############
-      
-      # should not have any missing value
-      data_error= rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_typ_name",
-        country=country))
-      
-      #  eel_typ_id should be one of 13 B0_kg  14 Bbest_kg  15 Bcurrent_kg
-      data_error= rbind(data_error, check_values(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_typ_name",
-        country=country,
-        values=c("bcurrent_kg","bbest_kg","b0_kg","b_current_without_stocking_kg")))
-      
-      ###### eel_year ##############
-      
-      # should not have any missing value
-      data_error= rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_year",
-        country=country))
-      
-      # should be a numeric
-      data_error= rbind(data_error, check_type(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_year",
-        country=country,
-        type="numeric"))
-      
-      ###### eel_value ##############
-      
-      # can have missing values if eel_missingvaluequal is filled (check later)
-      
-      # should be numeric
-      data_error= rbind(data_error, check_type(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_value",
-        country=country,
-        type="numeric"))
-      
-      ###### eel_missvaluequal ##############
-      
-      #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
-      # and also that no missing values are provided without a comment is eel_missvaluequa
-      data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
-                                                        namedataset= "new_data", 
-                                                        country=country))
-      
-      ###### eel_emu_name ##############
-      
-      data_error= rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_emu_nameshort",
-        country=country))
-      
-      data_error= rbind(data_error, check_type(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_emu_nameshort",
-        country=country,
-        type="character"))
-      
-      ###### eel_cou_code ##############
-      
-      # must be a character
-      data_error= rbind(data_error, check_type(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_cou_code",
-        country=country,
-        type="character"))
-      
-      # should not have any missing value
-      data_error= rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_cou_code",
-        country=country))
-      
-      # must only have one value
-      data_error= rbind(data_error, check_unique(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="eel_cou_code",
-        country=country))
-      
-      ###### biom_perc_F ##############
-      # should not have any missing value
-      data_error = rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_F",
-        country=country))
-      
-      #  biom_perc_F should be 1 to 100 or NP
-      data_error= rbind(data_error, check_rates_num(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_F",
-        country=country)) 
-      
-      ###### biom_perc_T ##############
-      # should not have any missing value
-      data_error = rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_T",
-        country=country))
-      
-      #  biom_perc_T should be 1 to 100 or NP
-      data_error= rbind(data_error, check_rates_num(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_T",
-        country=country)) 
-      
-      ###### biom_perc_C ##############
-      # should not have any missing value
-      data_error = rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_C",
-        country=country))
-      
-      #  biom_perc_C should be 1 to 100 or NP
-      data_error= rbind(data_error, check_rates_num(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_C",
-        country=country)) 
-      
-      ###### biom_perc_MO ##############
-      # should not have any missing value
-      data_error = rbind(data_error, check_missing(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_MO",
-        country=country))
-      
-      #  biom_perc_MO should be 1 to 100 or NP
-      data_error= rbind(data_error, check_rates_num(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        column="biom_perc_MO",
-        country=country))
-      
-      ###### check consistency missvalue biomass rate ##############
-      # if eel_value is empty, only 0 or NP is possible in percentages columns
-      data_error= rbind(data_error, check_consistency_missvalue_rates(
-        dataset=data_xls,
-        namedataset= "new_data", 
-        rates="biom"))
-      if (nrow(data_error)>0) {
-        data_error$sheet <- sheet
-      } else {
-        data_error <- data.frame(nline = NULL, error_message = NULL,sheet=NULL)
-      }
-      
-    }
-    return(list(data=data_xls,error=data_error))
-  })
+        # check for the file integrity, only 12 column in this file
+        if (ncol(data_xls)!=11 & sheet=="new data" & nrow(data_xls)>0) cat(str_c("new_data: number column wrong should have been 11 in template for country ",country,"\n"))
+        if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data") & nrow(data_xls)>0) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country ",country,"\n"))
+        data_xls$eel_qal_id <- NA
+        data_xls$eel_qal_comment <- NA
+        data_xls$eel_datasource <- datasource
+        # check column names
+        
+        if (nrow(data_xls)>0){
+          
+          if (!all(colnames(data_xls)%in%
+                  c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                      "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+                      "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+                      "eel_qal_id","eel_qal_comment","eel_comment", "eel_datasource", 
+                      ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                      ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                      ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate","")))) 
+            cat(str_c("problem in column names :",
+                    paste(colnames(data_xls)[!colnames(data_xls)%in%
+                                c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                                    "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
+                                    "eel_cou_code", "biom_perc_F", "biom_perc_T", "biom_perc_C", "biom_perc_MO", 
+                                    "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource",
+                                    ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                                    ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                                    ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate",""))],collapse= " & "),
+                    " file = ",file,"\n")) 
+          
+          
+          ###### check_duplicate_rates #############
+          data_error=rbind(data_error, check_duplicate_rates(
+                  dataset=data_xls,
+                  namedataset="new_data"))
+          
+          
+          ######eel_id for updated_data or deleted_data
+          if (sheet %in% c("updated_data","deleted_data")){
+            data_error= rbind(data_error, check_missing(dataset=data_xls,
+                    namedataset= sheet, 
+                    column="eel_id",
+                    country=country))
+            
+            #should be a integer
+            data_error= rbind(data_error, check_type(dataset=data_xls,
+                    namedataset= sheet, 
+                    column="eel_id",
+                    country=country,
+                    type="integer"))
+          }
+          ###### eel_typ_name #############
+          
+          # should not have any missing value
+          data_error= rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_typ_name",
+                  country=country))
+          
+          #  eel_typ_id should be one of 13 B0_kg  14 Bbest_kg  15 Bcurrent_kg
+          data_error= rbind(data_error, check_values(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_typ_name",
+                  country=country,
+                  values=c("bcurrent_kg","bbest_kg","b0_kg","b_current_without_stocking_kg")))
+          
+          ###### eel_year ##############
+          
+          # should not have any missing value
+          data_error= rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_year",
+                  country=country))
+          
+          # should be a numeric
+          data_error= rbind(data_error, check_type(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_year",
+                  country=country,
+                  type="numeric"))
+          
+          ###### eel_value ##############
+          
+          # can have missing values if eel_missingvaluequal is filled (check later)
+          
+          # should be numeric
+          data_error= rbind(data_error, check_type(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_value",
+                  country=country,
+                  type="numeric"))
+          
+          ###### eel_missvaluequal ##############
+          
+          #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
+          # and also that no missing values are provided without a comment is eel_missvaluequa
+          data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
+                  namedataset= sheet, 
+                  country=country))
+          
+          ###### eel_emu_name ##############
+          
+          data_error= rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_emu_nameshort",
+                  country=country))
+          
+          data_error= rbind(data_error, check_type(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_emu_nameshort",
+                  country=country,
+                  type="character"))
+          
+          ###### eel_cou_code ##############
+          
+          # must be a character
+          data_error= rbind(data_error, check_type(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_cou_code",
+                  country=country,
+                  type="character"))
+          
+          # should not have any missing value
+          data_error= rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_cou_code",
+                  country=country))
+          
+          # must only have one value
+          data_error= rbind(data_error, check_unique(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="eel_cou_code",
+                  country=country))
+          
+          ###### biom_perc_F ##############
+          # should not have any missing value
+          data_error = rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_F",
+                  country=country))
+          
+          #  biom_perc_F should be 1 to 100 or NP
+          data_error= rbind(data_error, check_rates_num(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_F",
+                  country=country)) 
+          
+          ###### biom_perc_T ##############
+          # should not have any missing value
+          data_error = rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_T",
+                  country=country))
+          
+          #  biom_perc_T should be 1 to 100 or NP
+          data_error= rbind(data_error, check_rates_num(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_T",
+                  country=country)) 
+          
+          ###### biom_perc_C ##############
+          # should not have any missing value
+          data_error = rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_C",
+                  country=country))
+          
+          #  biom_perc_C should be 1 to 100 or NP
+          data_error= rbind(data_error, check_rates_num(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_C",
+                  country=country)) 
+          
+          ###### biom_perc_MO ##############
+          # should not have any missing value
+          data_error = rbind(data_error, check_missing(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_MO",
+                  country=country))
+          
+          #  biom_perc_MO should be 1 to 100 or NP
+          data_error= rbind(data_error, check_rates_num(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  column="biom_perc_MO",
+                  country=country))
+          
+          ###### check consistency missvalue biomass rate ##############
+          # if eel_value is empty, only 0 or NP is possible in percentages columns
+          data_error= rbind(data_error, check_consistency_missvalue_rates(
+                  dataset=data_xls,
+                  namedataset= sheet, 
+                  rates="biom"))
+          if (nrow(data_error)>0) {
+            data_error$sheet <- sheet
+          } else {
+            data_error <- data.frame(nline = NULL, error_message = NULL,sheet=NULL)
+          }
+          
+          # fix table format (lfs, hty and remove biom_ from colnames) replace NP with -1
+          data_xls$eel_lfs_code <- 'S' #always S
+          data_xls$eel_hty_code <- 'AL' #always AL
+          data_xls <- data_xls %>% 
+              rename_with(function(x) tolower(gsub("biom_", "", x)), starts_with("biom_")) %>%
+              mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
+          data_xls$eel_area_division <- as.vector(rep(NA,nrow(data_xls)),"character")      
+        }
+        return(list(data=data_xls,error=data_error))
+      })
   shinybusy::remove_modal_spinner()
   data_error=rbind.data.frame(output[[1]]$error,output[[2]]$error,output[[3]]$error)
   return(invisible(list(data=output[[1]]$data,updated_data=output[[2]]$data,deleted_data=output[[3]]$data,
-                        error=data_error)))
+              error=data_error)))
 }
 
 
@@ -1196,36 +1195,40 @@ load_mortality_rates<-function(path,datasource){
       sheet=sheet,
       skip=0)
     #data_xls <- correct_me(data_xls)
-    country =as.character(data_xls[1,6]) #country code is in the 6th column
-    # check for the file integrity, only 12 column in this file
-    if (ncol(data_xls)!=11 & sheet=="new data") cat(str_c("new_data: number column wrong should have been 11 in template for country",country,"\n"))
-    if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data")) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country",country,"\n"))
-    data_xls$eel_qal_id <- NA
-    data_xls$eel_qal_comment <- NA
-    data_xls$eel_datasource <- datasource
-    if ("typ_name" %in% names(data_xls)){
-      data_xls <- data_xls %>%
-        rename(eel_typ_name = typ_name)
-    }
-    if (!all(colnames(data_xls)%in%
-             c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),"eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
-               "eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
-               "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource"))) 
-      cat(str_c("problem in column names :",            
-                paste(colnames(data_xls)[!colnames(data_xls)%in%
-                                           c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),"eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort",
-                                             "eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
-                                             "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource")],collapse= " & "),
-                " file =",
-                file,"\n"))     
-    
-    
+      
     if (nrow(data_xls)>0){
+      country =as.character(data_xls[1,6]) #country code is in the 6th column
+      # check for the file integrity, only 12 column in this file
+      data_xls$eel_qal_id <- NA
+      data_xls$eel_qal_comment <- NA
+      data_xls$eel_datasource <- datasource
+      
+      if (!all(colnames(data_xls)%in%
+              c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                  "eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
+                  "eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
+                  "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource",               
+                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                  ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                  ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate","")))) 
+        cat(str_c("problem in column names :",            
+                paste(colnames(data_xls)[!colnames(data_xls)%in%
+                            c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
+                                "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort",
+                                "eel_cou_code", "mort_perc_F", "mort_perc_T","mort_perc_C", "mort_perc_MO",
+                                "eel_qal_id", "eel_qal_comment","eel_comment", "eel_datasource", 
+                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_hty_code", ""),
+                                ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
+                                ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate",""))],collapse= " & "),
+                " file =",
+                file,"\n")) 
+      if (ncol(data_xls)!=11 & sheet=="new data") cat(str_c("new_data: number column wrong should have been 11 in template for country",country,"\n"))
+      if (ncol(data_xls)!=18 & sheet %in% c("deleted_data","updated_data")) cat(str_c("updated or deleted_data: number column wrong should be  18 in template for country",country,"\n"))
       
       ###### check_duplicate_rates #############
       data_error=rbind(data_error, check_duplicate_rates(
         dataset=data_xls,
-        namedataset="new_data"))
+        namedataset=sheet))
       
       
       ######eel_id for updated_data or deleted_data
@@ -1247,14 +1250,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error= rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_typ_name",
         country=country))
       
       #  eel_typ_id should be 17 to 25
       data_error= rbind(data_error, check_values(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_typ_name",
         country=country,
         values=c("suma","sumf","sumh", "sumf_com", "sumf_rec", "sumh_hydro", "sumh_habitat", "sumh_stocking", "sumh_other", "sumh_release"))) 
@@ -1264,14 +1267,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error= rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_year",
         country=country))
       
       # should be a numeric
       data_error= rbind(data_error, check_type(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_year",
         country=country,
         type="numeric"))
@@ -1283,14 +1286,14 @@ load_mortality_rates<-function(path,datasource){
       # should be numeric
       data_error= rbind(data_error, check_type(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_value",
         country=country,
         type="numeric"))
       
       data_error= rbind(data_error, check_positive(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_value",
         country=country))
       
@@ -1306,13 +1309,13 @@ load_mortality_rates<-function(path,datasource){
       
       data_error= rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_emu_nameshort",
         country=country))
       
       data_error= rbind(data_error, check_type(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_emu_nameshort",
         country=country,
         type="character"))
@@ -1322,7 +1325,7 @@ load_mortality_rates<-function(path,datasource){
       # must be a character
       data_error= rbind(data_error, check_type(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_cou_code",
         country=country,
         type="character"))
@@ -1330,14 +1333,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error= rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_cou_code",
         country=country))
       
       # must only have one value
       data_error= rbind(data_error, check_unique(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="eel_cou_code",
         country=country))
       
@@ -1345,14 +1348,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error = rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_F",
         country=country))
       
       #  mort_perc_F should be 1 to 100 or NP
       data_error= rbind(data_error, check_rates_num(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_F",
         country=country)) 
       
@@ -1360,14 +1363,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error = rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_T",
         country=country))
       
       #  mort_perc_T should be 1 to 100 or NP
       data_error= rbind(data_error, check_rates_num(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_T",
         country=country)) 
       
@@ -1375,14 +1378,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error = rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_C",
         country=country))
       
       #  mort_perc_C should be 1 to 100 or NP
       data_error= rbind(data_error, check_rates_num(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_C",
         country=country)) 
       
@@ -1390,14 +1393,14 @@ load_mortality_rates<-function(path,datasource){
       # should not have any missing value
       data_error = rbind(data_error, check_missing(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_MO",
         country=country))
       
       #  mort_perc_MO should be 1 to 100 or NP
       data_error= rbind(data_error, check_rates_num(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         column="mort_perc_MO",
         country=country))
       
@@ -1405,8 +1408,17 @@ load_mortality_rates<-function(path,datasource){
       # if eel_value is empty, only 0 or NP is possible in percentages columns
       data_error= rbind(data_error, check_consistency_missvalue_rates(
         dataset=data_xls,
-        namedataset= "new_data", 
+        namedataset= sheet, 
         rates="mort"))
+
+      # fix format
+
+      data_xls$eel_lfs_code <- 'S' #always S
+      data_xls $eel_hty_code <- 'AL' #always AL
+      data_xls <- data_xls %>% 
+        rename_with(function(x) tolower(gsub("mort_", "", x)), starts_with("mort_")) %>%
+        mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
+      data_xls$eel_area_division <- as.vector(rep(NA,nrow(data_xls)),"character")
       if (nrow(data_error)>0) {
         data_error$sheet <- sheet
       } else {
@@ -1421,427 +1433,6 @@ load_mortality_rates<-function(path,datasource){
                         error=data_error)))
 }
 
-
-
-############# MORTALITY SILVER EQUIVALENT BIOMASS #############################################
-
-# path <- file.choose()
-load_mortality_silver<-function(path,datasource){
-  data_error <- data.frame(nline = NULL, error_message = NULL)
-  dir<-dirname(path)
-  file<-basename(path)
-  mylocalfilename<-gsub(".xlsx","",file)
-  
-  sheets <- excel_sheets(path=path)
-  if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
-  if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-
-  #---------------------- mortality_silver sheet ---------------------------------------------
-  
-  # read the mortality_silver sheet
-  cat("mortality_silver \n")
-  
-  data_xls<-read_excel(
-    path=path,
-    sheet=3,
-    skip=0)
-  country =as.character(data_xls[1,6]) #country code is in the 6th column
-  #data_xls <- correct_me(data_xls)
-  # check for the file integrity, only 10 column in this file
-  if (ncol(data_xls)!=10) cat(str_c("number column wrong, should have been 10 in file for country ",country,"\n"))
-  # check column names
-  # data_xls$eel_qal_id <- NA
-  # data_xls$eel_qal_comment <- NA
-  data_xls$eel_datasource <- datasource
-  if (!all(colnames(data_xls)%in%
-           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
-             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
-    cat(str_c("problem in column names :",            
-              paste(colnames(data_xls)[!colnames(data_xls)%in%
-                                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-                                           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                                           "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
-              " file =",
-              file,"\n"))     
-  if (nrow(data_xls)>0){
-    
-    ###### eel_typ_name ##############
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_typ_name",
-      country=country))
-    
-    #  eel_typ_id should be 17 to 25
-    data_error= rbind(data_error, check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_typ_name",
-      country=country,
-      values=c("see_com", "see_rec", "see_hydro", "see_habitat", "see_stocking", "see_other"))) 
-    
-    ###### eel_year ##############
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_year",
-      country=country))
-    
-    # should be a numeric
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_year",
-      country=country,
-      type="numeric"))
-    
-    ###### eel_value ##############
-    
-    # can have missing values if eel_missingvaluequa is filled (check later)
-    
-    # should be numeric
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_value",
-      country=country,
-      type="numeric"))
-    
-    data_error =rbind(data_error, check_positive(
-      dataset = data_xls,
-      namedataset= "new_data", 
-      column="eel_value",
-      country=country))
-    
-    
-    ###### eel_missvaluequal ##############
-    
-    #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
-    # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(dataset=data_xls,
-                                                      country=country))
-    
-    ###### eel_emu_name ##############
-    
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_emu_nameshort",
-      country=country))
-    
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_emu_nameshort",
-      country=country,
-      type="character"))
-    
-    ###### eel_cou_code ##############
-    
-    # must be a character
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country))
-    
-    # must only have one value
-    data_error= rbind(data_error, check_unique(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country))
-    
-    ###### eel_lfs_code ##############
-    
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_lfs_code",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_lfs_code",
-      country=country))
-    
-    # should only correspond to the following list
-    data_error= rbind(data_error, check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_lfs_code",
-      country=country,
-      values=c("G","Y","YS","S","AL")))
-    
-    ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error,check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country))
-    
-    # should only correspond to the following list
-    data_error= rbind(data_error,check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country,
-      values=c("F","T","C","MO", "AL")))
-    
-    ###### eel_area_div ##############
-    
-    data_error= rbind(data_error,check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_area_division",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error,check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_area_division",
-      country=country))
-    
-    # the dataset ices_division should have been loaded there
-    data_error= rbind(data_error,check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_area_division",
-      country=country,
-      values=ices_division))
-    
-    ###### freshwater shouldn't have area ########################
-    
-    data_error= rbind(data_error, check_freshwater_without_area(
-      dataset=data_xls,
-      country=country) 
-    )
-    
-    ### no missvalue and qual id0 at the same time
-    
-    data_error= bind_rows(data_error, checknotqalid0andmissvalue(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      country=country)%>%
-        dplyr::select(any_of(c("nline","error_message")))
-    )
-    
-  }
-  return(invisible(list(data=data_xls,error=data_error)))
-}
-
-
-load_potential_available_habitat<-function(path,datasource){
-  data_error <- data.frame(nline = NULL, error_message = NULL)
-  dir<-dirname(path)
-  file<-basename(path)
-  mylocalfilename<-gsub(".xlsx","",file)
-  
-  sheets <- excel_sheets(path=path)
-  if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
-  if ("sampling_info" %in% sheets) stop("There is a sampling_info tab in your data, you want to use import time series tab")
-
-  # end loop for directories
-  
-  #---------------------- hab_wet_Area sheet ---------------------------------------------
-  
-  # read the mortality_silver sheet
-  cat("Potential available habitat \n")
-  
-  data_xls<-read_excel(
-    path=path,
-    sheet=3,
-    skip=0)
-  country =as.character(data_xls[1,6]) #country code is in the 6th column
-  #data_xls <- correct_me(data_xls)
-  # check for the file integrity, only 10 column in this file
-  if (ncol(data_xls)!=10) cat(str_c("number column wrong ",file,"\n"))
-  # check column names
-  # data_xls$eel_qal_id <- NA
-  # data_xls$eel_qal_comment <- NA
-  data_xls$eel_datasource <- datasource
-  
-  if (!all(colnames(data_xls)%in%
-           c("eel_typ_name", "eel_year","eel_value", "eel_missvaluequal","eel_emu_nameshort",
-             "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-             "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource"))) 
-    cat(str_c("problem in column names :",            
-              paste(colnames(data_xls)[!colnames(data_xls)%in%
-                                         c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-                                           "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                                           "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
-              " file =",
-              file,"\n")) 
-  
-  if (nrow(data_xls)>0){
-    
-    ###### eel_typ_name ##############
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_typ_name",
-      country=country))
-    
-    #  eel_typ_id should be 16
-    data_error= rbind(data_error, check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_typ_name",
-      country=country,
-      values=c("potential_availabe_habitat_production_ha"))) 
-    
-    ###### eel_year ##############
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_year",
-      country=country))
-    
-    # should be a numeric
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_year",
-      country=country,
-      type="numeric"))
-    
-    ###### eel_value ##############
-    
-    # can have missing values if eel_missingvaluequa is filled (check later)
-    
-    # should be numeric
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_value",
-      country=country,
-      type="numeric"))
-    
-    data_error =rbind(data_error, check_positive(
-      dataset = data_xls,
-      namedataset= "new_data", 
-      column="eel_value",
-      country=country))
-    
-    
-    ###### eel_missvaluequal ##############
-    
-    #check that there are data in missvaluequal only when there are missing value (NA) is eel_value
-    # and also that no missing values are provided without a comment is eel_missvaluequa
-    data_error= rbind(data_error, check_missvaluequal(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      country=country))
-    
-    ###### eel_emu_name ##############
-    
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_emu_nameshort",
-      country=country))
-    
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_emu_nameshort",
-      country=country,
-      type="character"))
-    
-    ###### eel_cou_code ##############
-    
-    # must be a character
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error, check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country))
-    
-    # must only have one value
-    data_error= rbind(data_error, check_unique(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_cou_code",
-      country=country))
-    
-    ###### eel_lfs_code ##############
-    
-    
-    
-    ###### eel_hty_code ##############
-    data_error= rbind(data_error, check_type(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country,
-      type="character"))
-    
-    # should not have any missing value
-    data_error= rbind(data_error,check_missing(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country))
-    
-    # should only correspond to the following list
-    data_error= rbind(data_error,check_values(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      column="eel_hty_code",
-      country=country,
-      values=c("F","T","C","MO", "AL")))
-    
-    
-    
-    ###### freshwater shouldn't have area ########################
-    
-    data_error= rbind(data_error, check_freshwater_without_area(
-      dataset=data_xls,
-      namedataset= "new_data", 
-      country=country) 
-    )
-    
-  }
-  return(invisible(list(data=data_xls,error=data_error)))
-}
 
 ############# time series #############################################
 #  path<-file.choose()

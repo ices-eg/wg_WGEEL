@@ -300,11 +300,10 @@ SET typ_description = typ_description || ' DEPRECATED'
 WHERE typ_name ILIKE 'see_%'; --6
 
 
--- this is view.sql  but repeat here to launch
-DROP VIEW IF EXISTS datawg.bcurrent_without_stocking CASCADE;
-CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS 
- SELECT 
-    eel_id,
+
+DROP VIEW IF EXISTS datawg.bcurrent_without_stocking;
+CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking
+AS SELECT t_eelstock_eel.eel_id,
     t_eelstock_eel.eel_typ_id,
     tr_typeseries_typ.typ_name,
     tr_typeseries_typ.typ_uni_code,
@@ -326,7 +325,11 @@ CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS
     tr_quality_qal.qal_text,
     t_eelstock_eel.eel_qal_comment,
     t_eelstock_eel.eel_comment,
-    t_eelstock_eel.eel_datasource
+    t_eelstock_eel.eel_datasource,
+    perc_f biom_perc_f,
+    perc_t biom_perc_t,
+    perc_c biom_perc_c,
+    perc_mo biom_perc_mo
    FROM datawg.t_eelstock_eel
      LEFT JOIN ref.tr_lifestage_lfs ON t_eelstock_eel.eel_lfs_code::text = tr_lifestage_lfs.lfs_code::text
      LEFT JOIN ref.tr_quality_qal ON t_eelstock_eel.eel_qal_id = tr_quality_qal.qal_id
@@ -334,9 +337,11 @@ CREATE OR REPLACE VIEW datawg.bcurrent_without_stocking AS
      LEFT JOIN ref.tr_typeseries_typ ON t_eelstock_eel.eel_typ_id = tr_typeseries_typ.typ_id
      LEFT JOIN ref.tr_habitattype_hty ON t_eelstock_eel.eel_hty_code::text = tr_habitattype_hty.hty_code::text
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
-  WHERE (t_eelstock_eel.eel_typ_id = 34) 
-  --AND (t_eelstock_eel.eel_qal_id in (1,2,4))
-  ;
+     LEFT JOIN datawg.t_eelstock_eel_percent on percent_id=eel_id
+  WHERE t_eelstock_eel.eel_typ_id = 34 AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
+GRANT SELECT ON datawg.bcurrent_without_stocking TO wgeel_read;
+ALTER VIEW datawg.bcurrent_without_stocking OWNER TO wgeel; 
+  
 
 -- is there any data from luxemburg ?
 

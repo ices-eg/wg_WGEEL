@@ -86,74 +86,41 @@ importstep1Server <- function(id,globaldata, loaded_data){
 				#############################
 				
 				observeEvent(input$check_duplicate_button,
-						{ #browser()# you can put browseR here
-							#shinyCatch({ 
+						{ #browser() #you can put browser here
+							shinyCatch({ 
 										shinybusy::show_modal_spinner(text = "Checking File", color="#337ab7",spin="fading-circle")
 										# see step0load_data returns a list with res and messages
 										# and within res data and a dataframe of errors
 										validate(
 												need(length(loaded_data$res) > 0, "Please select a data set")
 										) 
-										data_from_excel<- loaded_data$res$data
+                    
+										data_from_excel    <- loaded_data$res$data
+                    updated_from_excel <- loaded_data$res$updated_data
+                    deleted_from_excel <- loaded_data$res$deleted_data
+                    
 										switch (loaded_data$file_type, "catch_landings"={                                     
-													data_from_base <- extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)
-													updated_from_excel <- loaded_data$res$updated_data
-													deleted_from_excel <- loaded_data$res$deleted_data
+													data_from_base <- extract_data("landings", quality=c(0,1,2,3,4), quality_check=TRUE)											
 												},
 												"release"={
 													data_from_base <-extract_data("release", quality=c(0,1,2,3,4), quality_check=TRUE)
-													updated_from_excel <- loaded_data$res$updated_data
-													deleted_from_excel <- loaded_data$res$deleted_data
 												},
 												"aquaculture"={             
 													data_from_base <- extract_data("aquaculture", quality=c(0,1,2,3,4), quality_check=TRUE)
-													updated_from_excel <- loaded_data$res$updated_data
-													deleted_from_excel <- loaded_data$res$deleted_data
 												},
 												"biomass"={
-													# bug in excel file - fixed in the template
-													#colnames(data_from_excel)[colnames(data_from_excel)=="typ_name"]<-"eel_typ_name"
-													deleted_from_excel<- loaded_data$res$deleted_data
-													updated_from_excel<- loaded_data$res$updated_data
-													data_from_excel$eel_lfs_code <- 'S' #always S
-													data_from_excel$eel_hty_code <- 'AL' #always AL
-													data_from_excel <- data_from_excel %>% 
-															rename_with(function(x) tolower(gsub("biom_", "", x)),
-																	starts_with("biom_")) %>%
-															mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
-													data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
-													data_from_base<-rbind(
-															extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
-															extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
-															extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE),
-                              extract_data("bcurrent_without_stocking", quality=c(0,1,2,3,4), quality_check=TRUE)) 
-													data_from_base <- data_from_base %>% 
-															rename_with(function(x) tolower(gsub("biom_", "", x)),
-																	starts_with("biom_"))
+                          data_from_base <- rbind(
+                              extract_data("b0", quality=c(0,1,2,3,4), quality_check=TRUE),
+                              extract_data("bbest", quality=c(0,1,2,3,4), quality_check=TRUE),
+                              extract_data("bcurrent", quality=c(0,1,2,3,4), quality_check=TRUE),
+                              extract_data("bcurrent_without_stocking", quality=c(0,1,2,3,4), quality_check=TRUE)) %>% 
+                              rename_with(function(x) tolower(gsub("biom_", "", x)), starts_with("biom_"))
 												},
-												"potential_available_habitat"={
-													data_from_base<-extract_data("potential_available_habitat", quality=c(0,1,2,3,4), quality_check=TRUE)                  
-												},
-												# mortality in silver eel equivalent
-												"silver_eel_equivalents"={
-													data_from_base<-extract_data("silver_eel_equivalents", quality=c(0,1,2,3,4), quality_check=TRUE)      
-													
-												},
-												"mortality_rates"={
-													deleted_from_excel<- loaded_data$res$deleted_data
-													updated_from_excel<- loaded_data$res$updated_data
-													data_from_excel$eel_lfs_code <- 'S' #always S
-													data_from_excel$eel_hty_code <- 'AL' #always AL
-													data_from_excel <- data_from_excel %>% 
-															rename_with(function(x) tolower(gsub("mort_", "", x)),
-																	starts_with("mort_")) %>%
-															mutate_at(vars(starts_with("perc_")), function(x) as.numeric(ifelse(x=='NP','-1',x)))
-													data_from_excel$eel_area_division <- as.vector(rep(NA,nrow(data_from_excel)),"character")
+												"mortality_rates"={						
 													data_from_base<-rbind(
 															extract_data("sigmaa", quality=c(0,1,2,3,4), quality_check=TRUE),
 															extract_data("sigmaf", quality=c(0,1,2,3,4), quality_check=TRUE),
-															extract_data("sigmah", quality=c(0,1,2,3,4), quality_check=TRUE))
-													data_from_base <- data_from_base %>% 
+															extract_data("sigmah", quality=c(0,1,2,3,4), quality_check=TRUE))%>% 
 															rename_with(function(x) tolower(gsub("mort_", "", x)),
 																	starts_with("biom_"))
 												}                
@@ -291,7 +258,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																		h4("Table of updated values (xls)"),
 																		"<p align='left'>Please click on excel",
 																		"to download this file. <p>"                         
-																))) 
+																)))                 
 												globaldata$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
 												if (nrow(globaldata$updated_values_table)==0) stop("step1 compare_wih_database_updated_values did not return any values")
 												output$dt_updated_values <- DT::renderDataTable(
@@ -323,6 +290,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																		"<p align='left'>Please click on excel",
 																		"to download this file. <p>"                         
 																))) 
+                        
 												globaldata$deleted_values_table <- compare_with_database_deleted_values(deleted_from_excel,data_from_base) 
 												output$dt_deleted_values <- DT::renderDataTable(
 														globaldata$deleted_values_table,
@@ -365,7 +333,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 													})
 										}
 										#data$new <- new # new is stored in the reactive dataset to be inserted later.      
-									#}) # shiny catch
+									}) # shiny catch
 									shinybusy::remove_modal_spinner()
 						} ,# expr for browser
 						ignoreInit = TRUE)

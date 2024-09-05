@@ -126,20 +126,15 @@ importstep2Server <- function(id,globaldata, loaded_data){
                     if (is.null(data$path_step21)) 
                       return(NULL)
                     # this will alter changed values (change qal_id code) and insert new rows
-                    rls <- write_duplicates(path, qualify_code = qualify_code)
-                    eel_typ_id <- rls$eel_typ_id    
-                    message <- rls$message
-                    cou_code <- rls$cou_code
-                    main_assessor <- input$main_assessor
-                    secondary_assessor <- input$secondary_assessor
+                    rls <- write_duplicates(path, qualify_code = qualify_code)          
                     file_type <- input$file_type
                     log_datacall("write duplicates", 
-                        cou_code = cou_code, 
-                        message = sQuote(message), 
-                        file_type = eel_typ_id,  
+                        cou_code = rls$cou_code, 
+                        message = sQuote(rls$message), 
+                        file_type = rls$eel_typ_id   ,  
                         main_assessor = globaldata$main_assessor, 
                         secondary_assessor = globaldata$secondary_assessor)         
-                   return(message)
+                   return(rls$message)
                   }
                   ###########################
                   # errors_duplicates_integration
@@ -187,17 +182,14 @@ importstep2Server <- function(id,globaldata, loaded_data){
                 path <- isolate(step22_filepath())
                 if (is.null(data$path_step22)) 
                   return(NULL)
-                rls <- write_new(path)
-                message <- rls$message
-                cou_code <- rls$cou_code
-                eel_typ_id <- rls$eel_typ_id    
+                rls <- write_new(path)            
                 log_datacall(step="new data integration", 
-                    cou_code = cou_code, 
-                    message = sQuote(message), 
-                    file_type = eel_typ_id, 
+                    cou_code = rls$cou_code, 
+                    message = sQuote(rls$message), 
+                    file_type = rls$eel_typ_id, 
                     main_assessor = globaldata$main_assessor, 
                     secondary_assessor = globaldata$secondary_assessor)
-                return(message)
+                return(rls$message)
               }
               ###########################
               # new_data_integration
@@ -245,16 +237,14 @@ importstep2Server <- function(id,globaldata, loaded_data){
                     path <- isolate(step23_filepath())
                     if (is.null(data$path_step23)) 
                       return(NULL)
-                    rls <- write_updated_values(path,qualify_code=qualify_code)
-                    message <- rls$message
-                    cou_code <- rls$cou_code
-                    main_assessor <- input$main_assessor
-                    secondary_assessor <- input$secondary_assessor
-                    file_type <- input$file_type
-                    log_datacall("updated values data integration", cou_code = cou_code, message = sQuote(message), 
-                        file_type = file_type, main_assessor = globaldata$main_assessor, 
+                    rls <- write_updated_values(path,qualify_code=qualify_code)            
+                    log_datacall("updated values data integration", 
+                        cou_code = rls$cou_code, 
+                        message = sQuote(rls$message), 
+                        file_type = rls$eel_typ_id   , 
+                        main_assessor = globaldata$main_assessor, 
                         secondary_assessor = globaldata$secondary_assessor)
-                    return(message)
+                    return(rls$message)
                   }
                   ###########################
                   # updated_values_integration
@@ -301,16 +291,15 @@ importstep2Server <- function(id,globaldata, loaded_data){
                     path <- isolate(step24_filepath())
                     if (is.null(data$path_step24)) 
                       return(NULL)
-                    rls <- write_deleted_values(path,qualify_code=qualify_code)
-                    message <- rls$message
-                    cou_code <- rls$cou_code
-                    main_assessor <- input$main_assessor
-                    secondary_assessor <- input$secondary_assessor
-                    file_type <- input$file_type
-                    log_datacall("deleted values data integration", cou_code = cou_code, message = sQuote(message), 
-                        file_type = file_type, main_assessor = globaldata$main_assessor, 
+                    rls <- write_deleted_values(path,qualify_code=qualify_code)           
+         
+                    log_datacall("deleted values data integration", 
+                        cou_code = rls$cou_code, 
+                        message = sQuote(rls$message), 
+                        file_type = rls$eel_typ_id, 
+                        main_assessor = globaldata$main_assessor, 
                         secondary_assessor = globaldata$secondary_assessor)
-                    return(message)
+                    return(rls$message)
                   }
                   ###########################
                   # deleted_values_integration
