@@ -697,7 +697,7 @@ load_biomass<-function(path,datasource){
 	data_xls$eel_qal_comment <- NA
 	data_xls$eel_datasource <- datasource
 	# check column names
-#FIXME there is a problem with name in data_xls, here we have to use typ_name
+
 	if (!all(colnames(data_xls)%in%
 					c("eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
 							"eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
