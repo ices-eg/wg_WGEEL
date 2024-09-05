@@ -1456,7 +1456,6 @@ write_new <- function(path) {
 #' this version allows to catch exceptions and sqldf does not
 
 write_updated_values <- function(path, qualify_code) {
-  browser()
   updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)
   
   validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
