@@ -129,7 +129,11 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      datadb <<- rls$datadb
                      cou_code <<- rls$cou_code
                      proceedmessage <<- rls$message
-                     output$newind <- renderDT(datadb)
+                     output$newind <- renderDT(datadb,
+                                               rownames=FALSE,
+                                               option=list(
+                                                 scroller = TRUE,
+                                                 scrollX = TRUE))
                      if (! delete){
                       output$message <- renderPrint({
                         print("this is what will be in the db")
