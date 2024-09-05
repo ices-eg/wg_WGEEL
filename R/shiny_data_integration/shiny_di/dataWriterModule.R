@@ -35,10 +35,11 @@ dataWriterModuleUI <- function(id, filemessage){
 dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunction,log_message, delete=FALSE,...){
   moduleServer(id,
                function(input, output, session) {
-                 message <- ""
+                 proceedmessage <- ""
                  conn <<- NULL
-                 datadb <- data.frame
+                 datadb <- data.frame()
                  cou_code <- ""
+                 eel_typ_id <- ""
                  
                  data <- reactiveValues()
                  
@@ -51,8 +52,9 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    tryCatch({
                      dbCommit(conn)
                    }, error = function(e) {
-                     message <<- e
+                     proceedmessage <<- e
                      dbRollback(conn)
+                     shinybusy::remove_modal_spinner()
                    }, finally = {
                      dbExecute(conn,"drop table if exists new_dataseries_temp ")
                      poolReturn(conn)
@@ -61,15 +63,23 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                        # call to  function that loads data
                        # this function does not need to be reactive
                        if (is.null(data$path)) "please select a dataset" else {
-                         paste(message,collapse="\n")
+                         paste(proceedmessage,collapse="\n")
                        }
                      })
                    }
                    )
-                   log_datacall(log_message, cou_code = cou_code, message = sQuote(message),
-                                file_type = isolate(loaded_data_ts$file_type), main_assessor = globaldata$main_assessor,
-                                secondary_assessor = globaldata$secondary_assessor)
+                   if ("eel_typ_id" %in% names(datadb)) {
+                     file_type <- paste("integration eel_typ_id:",
+                                        paste(unique(datadb$eel_typ_id),
+                                              collapse=","))
+                   } else {
+                     file_type <- isolate(loaded_data_ts$file_type)
+                   }
                    
+                   log_datacall(log_message, cou_code = cou_code, message = sQuote(proceedmessage),
+                                file_type = file_type, main_assessor = globaldata$main_assessor,
+                                secondary_assessor = globaldata$secondary_assessor)
+
                  })
                  
                  
@@ -79,7 +89,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    shinyjs::hide("ok")
                    shinyjs::hide("cancel")
                    shinyjs::hide("newind")
-                   message <<- "cancelled by user"
+                   proceedmessage <<- "cancelled by user"
                    dbRollback(conn)
                    dbExecute(conn,"drop table if exists new_dataseries_temp ")
                    poolReturn(conn)
@@ -88,7 +98,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      # call to  function that loads data
                      # this function does not need to be reactive
                      if (is.null(data$path)) "please select a dataset" else {
-                       paste(message,collapse="\n")
+                       paste(proceedmessage,collapse="\n")
                      }
                    })
                  })
@@ -113,12 +123,12 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      return(NULL)
                    conn <<- poolCheckout(pool)
                    dbBegin(conn)
-                   message <- ""
+                   proceedmessage <<- ""
                    tryCatch({
                      rls <- proceedfunction(path, conn, ...)
                      datadb <<- rls$datadb
                      cou_code <<- rls$cou_code
-                     message <<- rls$message
+                     proceedmessage <<- rls$message
                      output$newind <- renderDT(datadb)
                      if (! delete){
                       output$message <- renderPrint({
@@ -137,7 +147,8 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      #   )
                      # ))
                    }, error = function(e) {
-                     message <<- e
+                     shinybusy::remove_modal_spinner()
+                     proceedmessage <<- e
                      shinyjs::hide("ok")
                      shinyjs::hide("cancel")
                      shinyjs::hide("newind")
@@ -148,7 +159,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                        # call to  function that loads data
                        # this function does not need to be reactive
                        if (is.null(data$path)) "please select a dataset" else {
-                         paste(message,collapse="\n")
+                         paste(proceedmessage,collapse="\n")
                        }
                      })
                    })
