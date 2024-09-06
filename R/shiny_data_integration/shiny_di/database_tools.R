@@ -1281,9 +1281,10 @@ write_duplicates <- function(path, qualify_code) {
           } else {
             nr2bis <- 0
           }
-        }  else {
+        }
+       {
           showNotification(				
-              "All values had FALSE in 'keep new values', no new value inserted in the database",
+              "All values had TRUE in 'keep new values', all values have been replaced in the database",
               duration = 20,	
               type = "warning"
           )
