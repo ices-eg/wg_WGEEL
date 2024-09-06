@@ -29,10 +29,12 @@ importdcfstep2UI <- function(id){
                                ),
                       tabPanel("INDIVIDUAL METRICS",value="INDIVIDUAL METRICS",
                                
-                               
-                               writedeletedindmetricUI(ns("deletedindmetricdcf"), "step 2.3.1 Delete from individual metrics"),
-                               writenewindmetricUI(ns("newindmetricdcf"), "step 2.3.2 Integrate new individual metrics"),
-                               writeupdatedindmetricUI(ns("updatedindmetricdcf"), "step 2.3.3 Update individual metrics"))),
+                               h2("step 2.3.1 Delete from individual metrics"),
+                               dataWriterModuleUI(ns("deletedindmetricdcf"), "Delete using deleted individual metrics file"),
+                               h2("step 2.3.2 Integrate new individual metrics"),
+                               dataWriterModuleUI(ns("newindmetricdcf"), "Write new individual metrics file"),
+                               h2("step 2.3.3 Update individual metrics"),
+                               dataWriterModuleUI(ns("updatedindmetricdcf"), "Update the modified individual metrics file"))),
           
           
   )
@@ -101,13 +103,13 @@ importdcfstep2Server <- function(id,globaldata,loaded_data_dcf, globaldcfpanel){
                  dataWriterModuleServer("updatedgroupmetricdcf", loaded_data_dcf,globaldata,  write_updated_group_metrics, "update group_metrics",type="other")
 
                  # 2.3.1 Deleted individual metrics --------------------------------------------------------							
-                 writedeletedindmetricServer("deletedindmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
+                 dataWriterModuleServer("deletedindmetricdcf", loaded_data_dcf,globaldata,  delete_individual_metrics,"deleted individual_metrics", delete=TRUE, type="other")
                  
                  # 2.3.2 Integrate new individual metrics --------------------------------------------------------							
-                 writenewindmetricServer("newindmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
+                 dataWriterModuleServer("newindmetricdcf", loaded_data_dcf, globaldata, write_new_individual_metrics_proceed, "write new individual_metrics",type="other")
                  
                  # 2.3.3 updated individual metrics  --------------------------------------------------------							
-                 writeupdatedindmetricServer("updatedindmetricdcf", globaldata=globaldata,loaded_data=loaded_data_dcf,type="other")
+                 dataWriterModuleServer("updatedindmetricdcf", loaded_data_dcf, globaldata, write_updated_individual_metrics, "update individual_metrics",  type="other")
                  
                  return(mydcfpanel)
                }
