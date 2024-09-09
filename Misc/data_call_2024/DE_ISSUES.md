@@ -46,7 +46,7 @@
 
 ## Annex 4
 * 230 values inserted (manually counted integration file due to disconnect right after integration)
-* ISSUE: falty updated data, waiting for response
+* ISSUE: falty "updated data", waiting for response from provider
 
 ## Annex 5
 
