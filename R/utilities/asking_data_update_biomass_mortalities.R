@@ -4,7 +4,7 @@
 # This script will create an excel sheet per country that currently have mortalities series
 #######################################################################################
 # put the current year there
-#setwd("C:/workspace\\gitwgeel\\")
+#setwd("C:/workspace/wg_WGEEL")
 CY<-2024 # put the current year there, CY-1 will be used
 # and the annex name / type of data
 type_of_data <- c("mortalities", "biomass")
