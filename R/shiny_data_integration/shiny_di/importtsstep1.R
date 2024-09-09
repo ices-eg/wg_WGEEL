@@ -449,7 +449,6 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                      } 	else {
                        list_comp_individual_metrics <- list("new"=data.frame())
                      }	 
-                     
                      if (nrow(updated_individual_metrics)>0){
                        list_comp_updated_individual_metrics <- 
                          compare_with_database_metric_ind(

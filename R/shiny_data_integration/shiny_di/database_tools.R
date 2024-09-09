@@ -948,7 +948,7 @@ compare_with_database_metric_ind <- function(
   if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
   
   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by =c("fi_id", "fi_date", "fi_comment", intersect(metrics_ind$mty_name,names(data_from_excel))))
+      by =c("fi_id", "fi_date", "fi_comment", "fi_lfs_code", intersect(metrics_ind$mty_name,names(data_from_excel))))
   modified <- modified[!modified$id %in% new$id,]
   
   highlight_change <- duplicates[duplicates$id %in% modified$id,]
