@@ -219,10 +219,12 @@ load_catch_landings<-function(path,datasource){
                                                type="character"))
       
       # should not have any missing value
-      data_error= rbind(data_error, check_missing(dataset=data_xls[data_xls$eel_hty_code!='F',],
+
+      data_error= rbind(data_error, check_missing(dataset=data_xls,
                                                   namedataset= sheet, 
                                                   column="eel_area_division",
-                                                  country=country))
+                                                  country=country,
+                                                  subset=data_xls$eel_hty_code%in%c('C','MO')))
       
       # the dataset ices_division should have been loaded there
       data_error= rbind(data_error, check_values(dataset=data_xls,
@@ -584,11 +586,12 @@ load_release<-function(path,datasource){
           
           # should not have any missing value
           
-          #						data_error= rbind(data_error, check_missing(
-          #										dataset=data_xls[data_xls$eel_hty_code!='F',],
-          #										namedataset= sheet, 
-          #										column="eel_area_division",
-          #										country=country))
+          						data_error= rbind(data_error, check_missing(
+          										dataset=data_xls,
+          										namedataset= sheet, 
+          										column="eel_area_division",
+          										country=country,
+                              subset=data_xls$eel_hty_code%in%c('MO','C')))
           
           # the dataset ices_division should have been loaded there
           
