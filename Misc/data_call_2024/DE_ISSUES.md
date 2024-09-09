@@ -10,8 +10,6 @@
 * 11 new values inserted in the database
 * 19 values updated in the db
 
-* ISSUE: For years with no data a comment was provided so that next year this data is not asked again. However, the rows with no data do not show up in the integration files (neither new nor modified)
-
 ### group metrics
 
 
