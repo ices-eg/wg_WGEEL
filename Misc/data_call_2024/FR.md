@@ -1,22 +1,25 @@
 -----------------------------------------------------------
-# 00 (put the code of the country there) 
+# FR
 -----------------------------------------------------------
 
 ## Annex 1
 
 ### series
+0 new, 4 updated, 0 deleted
 
 ### dataseries
-
+6 new, 37 updated, 0 deleted
 
 ### group metrics
-
+5 new, 3 updated, 0 deleted
 
 ### individual metrics
+210,299 new, 14733 updated, 187,365 deleted
 
 ## Annex 2
 
 ### series
+x new, x updated, x deleted
 
 ### dataseries
 

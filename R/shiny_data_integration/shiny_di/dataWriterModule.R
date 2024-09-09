@@ -36,11 +36,6 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
   moduleServer(id,
                function(input, output, session) {
                  proceedmessage <- ""
-                 conn <<- NULL
-                 datadb <- data.frame()
-                 cou_code <- ""
-                 eel_typ_id <- ""
-                 
                  data <- reactiveValues()
                  
                  
@@ -50,13 +45,39 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    shinyjs::hide("cancel")
                    shinyjs::hide("newind")
                    tryCatch({
+                     conn <- poolCheckout(pool)
+                     dbBegin(conn)
+                     getFilePath <- reactive({
+                       inFile <- isolate(input$file)
+                       if (is.null(inFile)){        return(NULL)
+                       } else {
+                         data$path <- inFile$datapath #path to a temp file
+                       }
+                     })
+                     
+                     
+                     path <- isolate(getFilePath())
+                     rls <- proceedfunction(path, conn, ...)
+                     datadb <- rls$datadb
+                     cou_code <- rls$cou_code
+                     proceedmessage <- rls$message
                      dbCommit(conn)
+                     if ("eel_typ_id" %in% names(rls$datadb)) {
+                       file_type <- paste("integration eel_typ_id:",
+                                          paste(unique(rls$datadb$eel_typ_id),
+                                                collapse=","))
+                     } else {
+                       file_type <- isolate(loaded_data_ts$file_type)
+                     }
+                     
+                     log_datacall(log_message, cou_code = rls$cou_code, message = sQuote(proceedmessage),
+                                  file_type = file_type, main_assessor = globaldata$main_assessor,
+                                  secondary_assessor = globaldata$secondary_assessor)
                    }, error = function(e) {
                      proceedmessage <<- e
                      dbRollback(conn)
                      shinybusy::remove_modal_spinner()
                    }, finally = {
-                     dbExecute(conn,"drop table if exists new_dataseries_temp ")
                      poolReturn(conn)
                      output$message <- renderText({
                        validate(need(globaldata$connectOK,"No connection"))
@@ -68,17 +89,6 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      })
                    }
                    )
-                   if ("eel_typ_id" %in% names(datadb)) {
-                     file_type <- paste("integration eel_typ_id:",
-                                        paste(unique(datadb$eel_typ_id),
-                                              collapse=","))
-                   } else {
-                     file_type <- isolate(loaded_data_ts$file_type)
-                   }
-                   
-                   log_datacall(log_message, cou_code = cou_code, message = sQuote(proceedmessage),
-                                file_type = file_type, main_assessor = globaldata$main_assessor,
-                                secondary_assessor = globaldata$secondary_assessor)
 
                  })
                  
@@ -89,10 +99,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    shinyjs::hide("ok")
                    shinyjs::hide("cancel")
                    shinyjs::hide("newind")
-                   proceedmessage <<- "cancelled by user"
-                   dbRollback(conn)
-                   dbExecute(conn,"drop table if exists new_dataseries_temp ")
-                   poolReturn(conn)
+                   proceedmessage <- "cancelled by user"
                    output$message <- renderText({
                      validate(need(globaldata$connectOK,"No connection"))
                      # call to  function that loads data
@@ -121,14 +128,14 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    path <- isolate(getFilePath())
                    if (is.null(data$path))
                      return(NULL)
-                   conn <<- poolCheckout(pool)
+                   conn <- poolCheckout(pool)
                    dbBegin(conn)
                    proceedmessage <<- ""
                    tryCatch({
                      rls <- proceedfunction(path, conn, ...)
-                     datadb <<- rls$datadb
-                     cou_code <<- rls$cou_code
-                     proceedmessage <<- rls$message
+                     datadb <- rls$datadb
+                     cou_code <- rls$cou_code
+                     proceedmessage <- rls$message
                      output$newind <- renderDT(datadb,
                                                rownames=FALSE,
                                                option=list(
@@ -156,8 +163,6 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      shinyjs::hide("ok")
                      shinyjs::hide("cancel")
                      shinyjs::hide("newind")
-                     dbRollback(conn)
-                     poolReturn(conn)
                      output$message <- renderText({
                        validate(need(globaldata$connectOK,"No connection"))
                        # call to  function that loads data
@@ -166,6 +171,10 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                          paste(proceedmessage,collapse="\n")
                        }
                      })
+                   },
+                   finally = {
+                     dbRollback(conn)
+                     poolReturn(conn)
                    })
                    
                    
