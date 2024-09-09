@@ -49,7 +49,8 @@
 * ISSUE: falty "updated data", waiting for response from provider
 
 ## Annex 5
-
+*  180 new values inserted in the database
+*  71 values updated in the db
 
 
 ## Annex 6
