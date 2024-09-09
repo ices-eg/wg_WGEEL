@@ -19,10 +19,14 @@ fn_check_columns <- function(data, columns, file, sheet, nbcol){
 #' @param namedataset the name of the sheet 
 #' @param column the name of the column
 #' @param country the current country being evaluated
-check_missing <- function(dataset, namedataset, column,country){
+#' @param subset : an index with the same number of lines to subset the dataset
+check_missing <- function(dataset, namedataset, column,country, subset=NULL){
   answer = NULL
-  if (any(is.na(dataset[,column]))){
-    line<-(1:nrow(dataset))[is.na(dataset[,column])]
+  dataset$line <- 1:nrow(dataset)
+  if (!is.null(subset)) dataset <- dataset[subset,]
+  dataset <- dataset[is.na(dataset[,column]),]
+  if (nrow(dataset)>0){
+    line <- dataset$line
     if (length(line)>10) line <-str_c(str_c(line[1:10],collapse=";"),"...") else
       line <- str_c(line) # before it was str_c(line, collapse=";") but it was crashing when checking for duplicates
     if (length(line)>0){
