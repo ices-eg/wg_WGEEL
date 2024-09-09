@@ -33,7 +33,7 @@ ui <- fluidPage(spsDepend("toastr"),
 								menuItem("Import data", tabName="Importmodule", icon=icon("upload"))%>%
 										spsComps::bsPopover(
 												title= "Data import", 
-												content = "Annex 4 to 9",
+												content = "Annex 4 to 8, 10, 11",
 												placement = "right", 
 												bgcolor = "#122c3c",
 												titlecolor = "white", 
@@ -49,7 +49,7 @@ ui <- fluidPage(spsDepend("toastr"),
 								menuItem("Import sampling",tabName= "Importdcfmodule", icon= icon("upload"))%>%
 										spsComps::bsPopover(
 												title= "DCF data", 
-												content = "Annex 10",
+												content = "Annex 9",
 												placement = "right", 
 												bgcolor = "#122c3c",
 												titlecolor = "white", 
