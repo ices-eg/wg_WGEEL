@@ -19,7 +19,6 @@
 ### series
 
 ### dataseries
-* this is a bullet point
 
 
 ### group metrics
