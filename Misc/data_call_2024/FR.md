@@ -14,7 +14,7 @@
 5 new, 3 updated, 0 deleted
 
 ### individual metrics
-210,299 new, 0 updated, 187,365 deleted
+210,299 new, 14733 updated, 187,365 deleted
 
 ## Annex 2
 
