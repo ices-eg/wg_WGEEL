@@ -44,7 +44,7 @@
 
 ## Annex 4
 
-72 new rows uploaded
+* 72 new rows uploaded
 
 ## Annex 5
 
