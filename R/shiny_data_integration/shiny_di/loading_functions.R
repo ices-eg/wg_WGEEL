@@ -356,10 +356,9 @@ load_release<-function(path,datasource){
                                                                                                                 "eel_qal_id", "eel_qal_comment","eel_comment","eel_datasource")],collapse= " & "),
                                                                                    " file =",
                                                                                    file,"\n")))
-        release_tot <- data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+        release_tot <- data_xls %>% select(any_of(c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
                                    "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                                   "eel_comment","eel_datasource")
-        ]
+                                   "eel_comment","eel_datasource")))
         
         
         
