@@ -5,10 +5,10 @@
 ## Annex 1
 
 ### series
-* modified series: 2 values updated in the db
+* 2 values updated in the db
 ### dataseries
-* new series: 11 new values inserted in the database
-* modified series: 19 values updated in the db
+* 11 new values inserted in the database
+* 19 values updated in the db
 
 * ISSUE: For years with no data a comment was provided so that next year this data is not asked again. However, the rows with no data do not show up in the integration files (neither new nor modified)
 
@@ -37,7 +37,7 @@
 ### series
 
 ### dataseries
-
+* 1 new values inserted in the database
 
 ### group metrics
 
