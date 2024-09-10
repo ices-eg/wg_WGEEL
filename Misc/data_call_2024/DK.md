@@ -69,6 +69,10 @@
 
 ## Annex 10
 
+* we chose to ignore the duplicated because it was NP for both base and xls
+* 106 new rows integrated (correction of eel_qal_id 0)
+* * 24 values with change in numbers updated to the db
+
 ### samplinginfo
 
 
