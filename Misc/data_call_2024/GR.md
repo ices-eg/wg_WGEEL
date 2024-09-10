@@ -17,6 +17,7 @@
 ## Annex 2
 
 ### series
+* 2 new values inserted in the database
 
 ### dataseries
 
