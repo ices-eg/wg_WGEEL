@@ -75,3 +75,5 @@
 ### individual metrics
 * 1722 and 5816 new values inserted in the fish and metric tables
 
+## Annex 10 biomass
+* 181 new values inserted in the database
