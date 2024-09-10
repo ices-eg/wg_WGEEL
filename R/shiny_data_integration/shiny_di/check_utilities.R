@@ -22,7 +22,6 @@ fn_check_columns <- function(data, columns, file, sheet, nbcol){
 #' @param subset : an index with the same number of lines to subset the dataset
 check_missing <- function(dataset, namedataset, column,country, subset=NULL){
   answer = NULL
-  dataset$line <- 1:nrow(dataset)
   if (!is.null(subset)) dataset <- dataset[subset,]
   dataset <- dataset[is.na(dataset[,column]),]
   if (nrow(dataset)>0){
