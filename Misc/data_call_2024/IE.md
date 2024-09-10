@@ -47,7 +47,7 @@
 * 72 new rows uploaded
 
 ## Annex 5
-*72 new values inserted in the database
+* 72 new values inserted in the database
 
 
 ## Annex 6
