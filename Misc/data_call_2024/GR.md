@@ -34,7 +34,7 @@
 ### series
 
 ### dataseries
-
+* 3 values updated in the db
 
 ### group metrics
 
