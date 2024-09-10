@@ -32,7 +32,7 @@
 
 ### individual metrics
 * 10379 values deleted from fish table, cascade delete on metrics
-* issue with date - says missing values but date present - must be a format issue
+* 10597 and 27943 new values inserted in the fish and metric tables
 
 ## Annex 3
 
