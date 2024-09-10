@@ -1416,16 +1416,17 @@ write_new <- function(path, conn) {
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   message <- NULL
         if(nrow(new)>0){
-    res <- dbGetQuery(conn, query)
+          res <- dbGetQuery(conn, query)
           if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
+            new$eel_id_perc <- res$eel_id
             dbExecute(conn,"drop table if exists new_temp ")
             dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-      resbis <- dbGetQuery(conn, querybis)
-      res <- res %>%
-        left_join(resbis, by = c("eel_id"= "percent_id"))
+            resbis <- dbGetQuery(conn, querybis)
+            res <- res %>%
+                left_join(resbis, by = c("eel_id"= "percent_id"))
           }
         }
-  
+      
         
         dbExecute(conn,"drop table if exists new_temp ")
   
