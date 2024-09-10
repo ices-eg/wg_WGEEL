@@ -175,12 +175,22 @@ load_catch_landings<-function(path,datasource){
                                                column="eel_lfs_code",
                                                country=country,
                                                type="character"))
-      
+
+      ## allow GY for annex 6
+      if (any(data_xls$eel_typ_name=="other_landings_kg" | data_xls$eel_typ_name=="other_landings_n")) {
+ 
       data_error = rbind(data_error,check_values(dataset=data_xls,
                                                  namedataset= sheet, 
                                                  column="eel_lfs_code",
                                                  country=country,
-                                                 values = c("AL","G","S", "Y", "YS")))
+                                                 values = c("AL","G","S", "Y", "YS", "GY")))
+                                       } else {
+    data_error = rbind(data_error,check_values(dataset=data_xls,
+                                                 namedataset= sheet, 
+                                                 column="eel_lfs_code",
+                                                 country=country,
+                                                 values = c("AL","G","S", "Y", "YS")))                                 
+                                       }
       
       # should not have any missing value
       data_error= rbind(data_error, check_missing(dataset=data_xls,
