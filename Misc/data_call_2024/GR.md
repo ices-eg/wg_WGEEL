@@ -71,6 +71,7 @@
 ## Annex 10
 
 ### samplinginfo
+* 260 new values inserted in the database
 
 
 ### group metrics
