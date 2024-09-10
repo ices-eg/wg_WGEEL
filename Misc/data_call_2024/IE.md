@@ -37,15 +37,17 @@
 ## Annex 3
 
 ### series
-
+*  2 new values inserted in the database
 ### dataseries
-
+*  25 new values inserted in the database
+*  2 values updated in the db
 
 ### group metrics
-
+*  22 and 226 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* 33023 values deleted from fish table, cascade delete on metrics
+* 34389 and 159029 new values inserted in the fish and metric tables
 
 
 ## Annex 4
