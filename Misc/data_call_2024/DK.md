@@ -60,12 +60,12 @@
 
 
 ## Annex 7
-
+* 4 new rows
 
 
 ## Annex 8
 
-
+* 1 new row aquaculture
 
 ## Annex 10
 
