@@ -64,10 +64,10 @@
 
 *  1 new values inserted in the database
 
-## Annex 10
+## Annex 9 other sampling
 
 ### samplinginfo
-
+*  1 new values inserted in the database
 
 ### group metrics
 
