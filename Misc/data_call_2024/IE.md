@@ -12,7 +12,8 @@
 * 15 values updated in the db
 
 ### group metrics
-
+*  3 and 9 new values inserted in the group and metric tables
+*  2 and 6 new values modified in the group and metric tables
 
 ### individual metrics
 
