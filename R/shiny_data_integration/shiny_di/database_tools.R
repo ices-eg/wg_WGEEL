@@ -2029,7 +2029,8 @@ update_dataseries <- function(path, conn) {
       das_effort, 
       das_dts_datasource, 
       das_ser_id, 
-      das_qal_id) =
+      das_qal_id,
+      das_qal_comment) =
       (
       t.das_year, 
       t.das_value,
@@ -2037,7 +2038,8 @@ update_dataseries <- function(path, conn) {
       t.das_effort, 
       t.das_dts_datasource, 
       t.das_ser_id, 
-      t.das_qal_id)
+      t.das_qal_id,
+      t.das_qal_comment)
       FROM updated_dataseries_temp t WHERE t.das_id = t_dataseries_das.das_id returning datawg.t_dataseries_das.*"
   
   
