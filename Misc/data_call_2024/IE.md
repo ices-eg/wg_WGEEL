@@ -5,9 +5,11 @@
 ## Annex 1
 
 ### series
+* 2 values updated in the db
 
 ### dataseries
-
+* 24 new values inserted in the database
+* 15 values updated in the db
 
 ### group metrics
 
