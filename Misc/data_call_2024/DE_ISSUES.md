@@ -58,8 +58,8 @@
 
 
 ## Annex 7
-
-
+* 216 new values inserted in the database
+* 547 values updated in the db
 
 ## Annex 8
 * 2 new values inserted in the database

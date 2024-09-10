@@ -43,8 +43,12 @@
 
 
 ## Annex 4
+* For duplicates 6 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id 24)
+								
+* 42 values not replaced (values from current datacall stored with code eel_qal_id 24),
 
-
+* No new data and not updated data
+ 
 
 ## Annex 5
 
@@ -56,11 +60,13 @@
 
 ## Annex 7
 
-
+* 8 new values inserted in the database
+  
 
 ## Annex 8
 
-
+* 1 new values inserted in the database
+  
 
 ## Annex 10
 
