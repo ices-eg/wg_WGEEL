@@ -72,6 +72,12 @@
 * we chose to ignore the duplicated because it was NP for both base and xls
 * 106 new rows integrated (correction of eel_qal_id 0)
 * * 24 values with change in numbers updated to the db
+ 
+* ## Annex 11
+
+* ingore changes in duplicated (only 0 qal_id) which was wrong
+* 75 values insserted for news rows
+* 36 values for updated data
 
 ### samplinginfo
 
