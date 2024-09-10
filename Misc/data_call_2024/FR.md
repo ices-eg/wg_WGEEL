@@ -47,11 +47,14 @@ x new, x updated, x deleted
 
 ## Annex 4
 
+No duplicates
+20 new, 55 updated, 0 deleted
 
 
 ## Annex 5
 
-
+No duplicates
+5 new, 20 updated, 0 deleted
 
 ## Annex 6
 
