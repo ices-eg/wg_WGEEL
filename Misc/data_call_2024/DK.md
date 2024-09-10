@@ -44,11 +44,16 @@
 
 ## Annex 4
 
+* 2 new values
+* 1 value updated in the DB
+* deleted 654 lines
 
 
 ## Annex 5
 
-
+* new values : two rows inserted in the db (NP)
+* no delete, no update
+* 740 vakues deleted in the database
 
 ## Annex 6
 
