@@ -67,10 +67,11 @@
 ## Annex 9 other sampling
 
 ### samplinginfo
-*  1 new values inserted in the database
-
+*  2 new values inserted in the database
+(entered separately)
 ### group metrics
-
+*  3 and 24 new values inserted in the group and metric tables
 
 ### individual metrics
+* 1722 and 5816 new values inserted in the fish and metric tables
 
