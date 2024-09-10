@@ -87,7 +87,7 @@ compare_with_database <- function(data_from_excel, data_from_base, eel_typ_id_va
   eel_colnames <- colnames(data_from_base)[grepl("(eel|perc_)", colnames(data_from_base))]
   
   #since dc2020, qal_id are automatically created during the import
-  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & !data_from_excel$eel_missvaluequal %in% c("NC", "NP") ,0,1)
+  data_from_excel$eel_qal_id <- ifelse(is.na(data_from_excel$eel_value) & !data_from_excel$eel_missvaluequal %in% c("NC", "NP", "NR") ,0,1)
   data_from_excel$eel_qal_comment <- rep(NA,nrow(data_from_excel))
   
   # duplicates are inner_join eel_cou_code added to the join just to avoid
