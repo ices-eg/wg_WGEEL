@@ -61,10 +61,12 @@
 ## Annex 7
 
 * 8 new values inserted in the database
+  
 
 ## Annex 8
 
-
+* 1 new values inserted in the database
+  
 
 ## Annex 10
 
