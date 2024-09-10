@@ -31,7 +31,7 @@
 *  1 and 8 new values modified in the group and metric tables
 
 ### individual metrics
-
+* 10379 values deleted from fish table, cascade delete on metrics
 
 
 ## Annex 3
