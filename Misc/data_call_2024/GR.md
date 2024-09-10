@@ -60,7 +60,7 @@
 
 ## Annex 7
 
-
+* 8 new values inserted in the database
 
 ## Annex 8
 
