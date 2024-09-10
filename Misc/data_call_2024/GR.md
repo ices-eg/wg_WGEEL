@@ -80,3 +80,7 @@
 
 ### individual metrics
 
+
+## Annex 11 
+
+* Mortality rates were not uploaded because there was problem with the pre-filled extract of "new data", which was the same as the "Biomass_Indicators"
