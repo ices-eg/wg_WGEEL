@@ -1536,7 +1536,7 @@ write_updated_values <- function(path, conn, qualify_code) {
 write_deleted_values <- function(path, conn, qualify_code) {
   message <- NULL
   deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
-  validate(need(ncol(deleted_values_table) %in% c(14,18), "number column wrong (should be 14 or 18) \n"))
+  validate(need(ncol(deleted_values_table) %in% c(13,14,18), "number column wrong (should be 14 or 18) \n"))
   validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
                   "eel_year","eel_value",
                   "eel_missvaluequal",
