@@ -36,7 +36,7 @@
 35 and 35 new values inserted in the group and metric tables.
  
 ### individual metrics
-97463 lines deleted from fish table, cascade delete on metrics.
+97463 values deleted from fish table, cascade delete on metrics.
 
 99834 and 100520 new values inserted in the fish and metric tables.
 
@@ -101,7 +101,9 @@ No data to report as no aquaculture so nothing to integrate.
 1861 and 8920 new values inserted in the fish and metric tables.
 
 ## Annex 10
+374 new values inserted in the database.
 
+107 values updated in the db.
 
 
 ## Annex 11
