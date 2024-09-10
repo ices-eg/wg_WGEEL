@@ -106,4 +106,5 @@ No data to report as no aquaculture so nothing to integrate.
 
 ## Annex 11
 171 new values inserted in the database.
+
 125 values updated in the db.
