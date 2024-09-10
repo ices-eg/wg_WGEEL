@@ -77,3 +77,7 @@
 
 ## Annex 10 biomass
 * 181 new values inserted in the database
+
+## Annex 11 mortality
+* 102 new values inserted in the database
+* 250 values updated in the db
