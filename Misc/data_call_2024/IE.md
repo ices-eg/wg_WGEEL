@@ -52,7 +52,8 @@
 
 ## Annex 6
 
-
+*  14 new values inserted in the database
+*  4 values updated in the db
 
 ## Annex 7
 
