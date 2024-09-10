@@ -946,15 +946,15 @@ load_biomass<-function(path,datasource){
         country =as.character(data_xls$eel_cou_code[1]) #country code is in the 6th column
         
         # check for the file integrity, only 12 column in this file
-        if (ncol(data_xls)!=11 & sheet=="new data" & nrow(data_xls)>0) cat(str_c("new_data: number column wrong should have been 11 in template for country ",country,"\n"))
-        if (ncol(data_xls)!=12 & sheet %in% c("deleted_data","updated_data") & nrow(data_xls)>0) cat(str_c("updated or deleted_data: number column wrong should have been 12 in template for country ",country,"\n"))
+        if (ncol(data_xls)!=12 & sheet=="new_data" & nrow(data_xls)>0) cat(str_c("new_data: number column wrong should have been 11 in template for country ",country,"\n"))
+        if (ncol(data_xls)!=18 & sheet %in% c("deleted_data","updated_data") & nrow(data_xls)>0) cat(str_c("updated or deleted_data: number column wrong should have been 18 in template for country ",country,"\n"))
         data_xls$eel_qal_id <- NA
         data_xls$eel_qal_comment <- NA
         data_xls$eel_datasource <- datasource
         # check column names
         
         if (nrow(data_xls)>0){
-          
+
           if (!all(colnames(data_xls)%in%
                   c(ifelse(sheet %in% c("updated_data","deleted_data"),"eel_id",""),
                       "eel_typ_name", "eel_year", "eel_value", "eel_missvaluequal", "eel_emu_nameshort", 
@@ -973,7 +973,6 @@ load_biomass<-function(path,datasource){
                                     ifelse(sheet %in% c("updated_data","deleted_data"),"eel_lfs_code",""), 
                                     ifelse(sheet %in% c("updated_data","deleted_data"), "eel_datelastupdate",""))],collapse= " & "),
                     " file = ",file,"\n")) 
-          
           
           ###### check_duplicate_rates #############
           data_error=rbind(data_error, check_duplicate_rates(
