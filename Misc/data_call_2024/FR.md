@@ -34,15 +34,16 @@ x new, x updated, x deleted
 ## Annex 3
 
 ### series
+0 new, 0 updated, 0 deleted
 
 ### dataseries
-
+6 new, 12 updated, 0 deleted
 
 ### group metrics
-
+4 and 30 new values inserted, 2 and 14 new values modified, 0 deleted
 
 ### individual metrics
-
+92239 and 253789 new values inserted, 0 updated, 87608 values deleted 
 
 
 ## Annex 4
