@@ -1,12 +1,16 @@
 -----------------------------------------------------------
-# DK (put the code of the country there) 
+# DK 
 -----------------------------------------------------------
 
 ## Annex 1
 
 ### series
+nothing changed
 
 ### dataseries
+
+6 new values inserted
+24 groups and 24 metric (weight) integrated in the db
 
 
 ### group metrics
