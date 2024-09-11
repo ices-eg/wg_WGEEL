@@ -39,11 +39,11 @@ convert2boolean <- function(myvec, name){
 #
 
 
-readxlTemplate <- function(path, sheet, dict=dictionary){
+readxlTemplate <- function(path, sheet, dict=dictionary, skip=0){
   headers <- suppressWarnings(read_excel(
     path=path,
     sheet=sheet,
-    skip=0, 
+    skip=skip, 
     n_max=0))
   if (any(!names(headers) %in% names(dict))){
     stop(paste("column names",
@@ -57,7 +57,7 @@ readxlTemplate <- function(path, sheet, dict=dictionary){
   data_xls <- suppressWarnings(read_excel(
     path=path,
     sheet=sheet,
-    skip=0, 
+    skip=skip, 
     col_types=readed_coltypes))
   data_xls
 }

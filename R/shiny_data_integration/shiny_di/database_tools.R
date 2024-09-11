@@ -2010,7 +2010,7 @@ delete_dataseries <- function(path, conn) {
 
 #path<-"C:\\Users\\cedric.briand\\Downloads\\modified_dataseries_2020-08-24_FR.xlsx"
 update_dataseries <- function(path, conn) {
-  updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+  updated_values_table <- 	readxlTemplate(path = path, sheet = 1, skip = 1)	
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
           updated_values_table$ser_nameshort[1],"';"))$ser_cou_code  
   

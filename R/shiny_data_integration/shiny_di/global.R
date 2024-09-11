@@ -254,8 +254,10 @@ dictionary=c(
   "eel_area_division"="text",
   "eel_qal_id"= "numeric",
   "eel_qal_comment"="text",
-  "eel_comment"="text"
+  "eel_comment"="text",
   
+  ######Others
+  "sheetorigin"="text"
   
 )
 
