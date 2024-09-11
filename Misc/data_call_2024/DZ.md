@@ -43,12 +43,12 @@
 
 
 ## Annex 4
-
+ 4 new values inserted in the database
 
 
 ## Annex 5
 
-
+ 3 new values inserted in the database
 
 ## Annex 6
 
