@@ -5,6 +5,7 @@
 ## Annex 1
 
 ### series
+* integeration tool said there is an update to MiScG, but there is not. We ignored it and did not integrate an update to the series info.
 
 ### dataseries
 
