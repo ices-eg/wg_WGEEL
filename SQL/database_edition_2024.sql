@@ -454,4 +454,6 @@ AS SELECT t_eelstock_eel.eel_id,
      LEFT JOIN ref.tr_emu_emu ON tr_emu_emu.emu_nameshort::text = t_eelstock_eel.eel_emu_nameshort::text AND tr_emu_emu.emu_cou_code = t_eelstock_eel.eel_cou_code::text
   WHERE (t_eelstock_eel.eel_typ_id = ANY (ARRAY[4, 6, 32, 33])) AND (t_eelstock_eel.eel_qal_id = ANY (ARRAY[1, 2, 4]));
 
-
+SELECT * FROM datawg.t_eelstock_eel_percent AS teep WHERE percent_id =513222
+UPDATE datawg.t_eelstock_eel_percent set perc_f=100, perc_t=100,perc_c=0, perc_mo=0 WHERE percent_id =513222
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 513222
