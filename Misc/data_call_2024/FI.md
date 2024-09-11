@@ -68,7 +68,8 @@ No changes (all in Series 1-3)
 
 ## Annex 10
 All values as NC. Cedric will add
-
+ done
+ 104 new values inserted in the database
 ## Annex 11
 All values as NC. Cedric will add
 
