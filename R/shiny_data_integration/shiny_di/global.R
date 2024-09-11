@@ -261,7 +261,17 @@ dictionary=c(
   
 )
 
-
+#since contaminant data are not kept every year, we have a list of variables
+#that should be ignored when contaminant are not collected
+contaminant_names <- c(
+    "muscle_lipid_fatmeter_perc",
+    "muscle_lipid_gravimeter_perc",
+    "sum_6_pcb",
+    "teq",
+    "pb",
+    "hg",
+    "cd",
+    "teq")
 
 dataTypeConvert=function(mydata, columns, col_types){
   tryCatch({

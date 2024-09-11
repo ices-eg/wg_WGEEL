@@ -1457,18 +1457,15 @@ load_mortality_rates<-function(path,datasource){
 # datasource <- the_eel_datasource; stage="glass_eel"
 # 
 # load_series(path,datasource=datasource,stage="glass_eel")
-load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FALSE){
+#' @param use_contaminant_data Do we want to use contaminant in this datacall ?
+#' @param contaminant A vector of contaminant loaded from contaminant_names in global.R
+load_series<-function(path, datasource, stage="glass_eel", use_contaminant_data = FALSE, contaminant){
   #since contaminant data are not kept every year, we have a list of variables
   #that should be ignored when contaminant are not collected
-  contaminant <- vector("character")
-  if (!contaminant_data){
-    contaminant <- c("muscle_lipid_fatmeter_perc",
-                     "muscle_lipid_gravimeter_perc",
-                     "sum_6_pcb",
-                     "teq",
-                     "pb",
-                     "hg",
-                     "cd")
+  if (use_contaminant_data){
+  # if we want to have contaminant data we don't want to remove them using the vector so
+    # replace with an empty vector
+    contaminant <- vector("character")
   }
   
   shinybusy::show_modal_spinner(text = "load series", color="darkgreen")
@@ -1899,7 +1896,7 @@ load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FA
       cat("loading sheet ", sheet,"\n")
       # ignore this
       #nbcol <- length(columns)	
-      #fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
+      fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=length(columns))
       col_types=dictionary[columns] #returns a single value per columns
       # we no longer want to check column length
       #fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
@@ -2301,21 +2298,15 @@ load_series<-function(path, datasource, stage="glass_eel", contaminant_data = FA
 # launch helper_dev_connect
 #  path<-file.choose()
 # datasource <- the_eel_datasource
-# load_dcf(path,datasource="toto")
-load_dcf<-function(path,datasource, contaminant_data = FALSE){
-  #since contaminant data are not kept every year, we have a list of variables
-  #that should be ignored when contaminant are not collected
-  contaminant <- vector("character")
-  if (!contaminant_data){
-    contaminant <- c("muscle_lipid_fatmeter_perc",
-                     "muscle_lipid_gravimeter_perc",
-                     "sum_6_pcb",
-                     "teq",
-                     "pb",
-                     "hg",
-                     "cd")
-  }
+# load_dcf(path,datasource="toto",use_contaminant_data=FALSE,contaminant=contaminant_names)
+#' @param use_contaminant_data : do we want to use contaminant in this datacall ?
+#' @param contaminant a vector of contaminant loaded from contaminant_names in global.R
+load_dcf<-function(path,datasource, use_contaminant_data = FALSE, contaminant){
   
+  if (use_contaminant_data){
+    # this means use_contaminant_data = true, so we put nothing in the contaminant vector used later to remove contaminants from the columns
+    contaminant <- vector("character")
+  }
   shinybusy::show_modal_spinner(text = "load dcf")
   sheets <- excel_sheets(path=path)
   if ("series_info" %in% sheets) stop("There is a series_info tab in your data, you want to use import time series tab")
@@ -2587,10 +2578,8 @@ load_dcf<-function(path,datasource, contaminant_data = FALSE){
     if ((!"fi_year" %in% names(data_xls)) & "fi_year" %in%columns){
       #columns=columns[-which(columns=="fi_year")]
       data_xls$fi_year <- as.numeric(NA)
-    }
-    nbcol <- length(columns)	
-    
-    fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=nbcol)
+    } 
+    fn_check_columns(data=data_xls, columns=columns,	file = file, sheet=sheet, nbcol=length(columns)	)
     col_types=dictionary[columns] #returns a single value per columns
     
     if (any(!columns %in% names(dictionary))) 
@@ -2866,7 +2855,7 @@ load_dcf<-function(path,datasource, contaminant_data = FALSE){
   
   
   #	new_group_metrics <- fn_check_series("new_group_metrics", 
-  #			columns=c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
+  #			columns=c("sai_name", "gr_year",	"grsa_lfs_code", "gr_number", "gr_comment","lengthmm",	"weightg",	"ageyear",	"female_proportion", "differentiated_proportion",
   #					"m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
   #					"anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
   #					"hva_proportion",	"pb",	"hg",	"cd"), 
@@ -2880,29 +2869,29 @@ load_dcf<-function(path,datasource, contaminant_data = FALSE){
     "updated_individual_metrics",
     "deleted_individual_metrics")
   columns <- list(
-    setdiff(c("sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
+    setdiff(c("sai_name",	"gr_year",	"grsa_lfs_code", "gr_number","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
               "differentiated_proportion","m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
       "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)", "muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
       "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
-    setdiff(c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)"
+    setdiff(c("gr_id", "sai_name", 	"gr_year",	"grsa_lfs_code", "gr_number",  "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)"
               , "differentiated_proportion",  "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
       "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
       "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
-      setdiff(c("gr_id", "sai_name", "sai_emu_nameshort",	"gr_year",	"grsa_lfs_code", "gr_number", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
+      setdiff(c("gr_id", "sai_name", 	"gr_year",	"grsa_lfs_code", "gr_number", "gr_last_update", "gr_dts_datasource","lengthmm",	"weightg",	"ageyear",	"female_proportion","method_sex_(1=visual,0=use_length)",
                 "differentiated_proportion","m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age","g_in_gy_proportion",	"s_in_ys_proportion",	
       "anguillicola_proportion",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",	"evex_proportion",	
       "hva_proportion",	"pb",	"hg",	"cd", "gr_comment"),contaminant),
-      setdiff(c("fi_id_cou","sai_name",	"sai_emu_nameshort",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
+      setdiff(c("fi_id_cou","sai_name",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326",
       "fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
       "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
       "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
       "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
-      setdiff(c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      setdiff(c("fi_id","fi_id_cou","sai_name", "fi_date",	"fi_year",	 "fi_lfs_code", "fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
       "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
       "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
       "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
       "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
-      setdiff(c("fi_id","fi_id_cou","sai_name",	"sai_emu_nameshort", "fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      setdiff(c("fi_id","fi_id_cou","sai_name",	"fi_date",	"fi_year", "fi_lfs_code",	"fisa_x_4326",	"fisa_y_4326", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
       "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
       "is_female_(1=female,0=male)","method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
       "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",

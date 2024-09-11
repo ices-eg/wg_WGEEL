@@ -103,7 +103,8 @@ importdcfstep0Server <- function(id,globaldata){
                    
                    message<-capture.output(res <- load_dcf(data$path_step0_dcf, 
                                                            datasource = the_eel_datasource,
-                                                           contaminant_data=FALSE) #put TRUE if we collect contaminant data
+                                                           use_contaminant_data=FALSE,#put TRUE if we collect contaminant data
+                                                           contaminant=contaminant_names) # from global.R
                                            
                    )
                    return(list(res=res,message=message))
