@@ -1453,10 +1453,9 @@ load_mortality_rates<-function(path,datasource){
 
 ############# time series #############################################
 #  path<-file.choose()
-# path <- "C:\\temp\\datacall\\FR\\2023_Eel_Data_Call_Annex1_Time_Series_FR_Recruitment.xlsx"
 # datasource <- the_eel_datasource; stage="glass_eel"
 # 
-# load_series(path,datasource=datasource,stage="glass_eel")
+# load_series(path,datasource=datasource,stage="glass_eel", use_contaminant_data = FALSE, contaminant=contaminant_names)
 #' @param use_contaminant_data Do we want to use contaminant in this datacall ?
 #' @param contaminant A vector of contaminant loaded from contaminant_names in global.R
 load_series<-function(path, datasource, stage="glass_eel", use_contaminant_data = FALSE, contaminant){
@@ -2229,30 +2228,35 @@ load_series<-function(path, datasource, stage="glass_eel", use_contaminant_data 
       setdiff(c("ser_nameshort",	 "gr_year",	"gr_number", "gr_comment",  "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),		
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion","method_sex_(1=visual,0=use_length)",
+        "method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant),		
       setdiff(c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),	
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion",
+            "method_sex_(1=visual,0=use_length)","method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant),	
       setdiff(c("gr_id","ser_nameshort", "gr_year",	"gr_number", "gr_comment", "gr_last_update", "gr_dts_datasource", "lengthmm",	"weightg",	"ageyear",	"female_proportion","differentiated_proportion",
         "m_mean_lengthmm","m_mean_weightg","m_mean_ageyear","f_mean_lengthmm","f_mean_weightg","f_mean_age",
         "anguillicola_proportion",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion"),contaminant),
-      setdiff(c("ser_nameshort",	"fi_date", "fi_year", "fi_lfs_code","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
-        "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
-        "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
+        "evex_proportion","hva_proportion",	"pb",	"hg",	"cd","g_in_gy_proportion","s_in_ys_proportion",
+        "method_sex_(1=visual,0=use_length)","method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant),
+      setdiff(c("fi_id_cou","ser_nameshort",	"fi_date", "fi_year", "fi_lfs_code","fi_comment",  "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
+        "is_female_(1=female,0=male)", "method_sex_(1=visual,0=use_length)","is_differentiated_(1=differentiated,0_undifferentiated)",
+        "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity","method_anguillicola_(1=stereomicroscope,0=visual_obs)",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
         "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
-      setdiff(c("fi_id","ser_nameshort",	"fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
+      setdiff(c("fi_id","ser_nameshort","fi_id_cou","fi_date", "fi_year","fi_lfs_code", "fi_comment", "fi_last_update",	"fi_dts_datasource",
         "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
         "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
         "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant),
+        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd",
+        "method_sex_(1=visual,0=use_length)","method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant),
       # TODO 2023 change name fiser_year to fi_year the template has been updated
-      setdiff(c("fi_id","ser_nameshort", "fi_date",	"fiser_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
+      setdiff(c("fi_id","ser_nameshort","fi_id_cou", "fi_date",	"fi_year", "fi_lfs_code", "fi_comment",  "fi_last_update",	"fi_dts_datasource", 
         "lengthmm",	"weightg",	"ageyear",	"eye_diam_meanmm", "pectoral_lengthmm",
         "is_female_(1=female,0=male)","is_differentiated_(1=differentiated,0_undifferentiated)",
         "anguillicola_presence_(1=present,0=absent)",	"anguillicola_intensity",	"muscle_lipid_fatmeter_perc", "muscle_lipid_gravimeter_perc",	"sum_6_pcb", "teq",
-        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd"),contaminant))
+        "evex_presence_(1=present,0=absent)","hva_presence_(1=present,0=absent)",	"pb",	"hg",	"cd",
+        "method_sex_(1=visual,0=use_length)","method_anguillicola_(1=stereomicroscope,0=visual_obs)"),contaminant))
     #	col_types=list(
     #			c("text", "numeric", "numeric", "text", "numeric","numeric", "text"),
     #			c("text","numeric", "numeric", "numeric","numeric",	"text",	"numeric",	"numeric", "text", "text"),
