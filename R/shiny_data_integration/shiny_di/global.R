@@ -257,9 +257,67 @@ dictionary=c(
   "eel_comment"="text",
   
   ######Others
-  "sheetorigin"="text"
+  "sheetorigin"="text",
+  "eel_datasource"="text",
+  "perc_mo"="numeric",
+  "perc_c"="numeric",
+  "perc_t"="numeric",
+  "perc_f"="numeric",
+  "eel_typ_id"="numeric",
+  "meg_dts_datasource"="text",
+  "id"="numeric",
+  "keep_new_value"="text",
+  "meg_mty_id"="numeric",
+  "meg_id"="numeric",
+  "mei_dts_datasource"="text",
+  "fisa_sai_id"="numeric",
+  "sai_area_division"="text",
+  "sai_hty_code"="text",
+  "sai_samplingobjective"="text",
+  "sai_protocol"="text",
+  "sai_qal_id"="numeric",
+  "sai_comment"="text",
+  "sai_lastupdate"="date",
+  "sai_dts_datasource"="text",
+  "sai_cou_code"="text",
+  "ser_namelong"="text",
+  "ser_typ_id"="numeric",
+  "ser_effort_uni_code"="text",
+  "ser_comment"="text",
+  'ser_uni_code'='text',
+  "ser_lfs_code"="text",
+  "ser_hty_code"="text",
+  "ser_locationdescription"="text",
+  "ser_emu_nameshort"="text",
+  "ser_cou_code"="text",
+  "ser_area_division"="text",
+  "ser_tblcodeid"="numeric",
+  "ser_x"="numeric",
+  "ser_y"="numeric",
+  "ser_sam_id"="numeric",
+  'ser_sam_gear'="numeric",
+  "ser_distanceseakm"="numeric",
+  "ser_method"="text",
+  "ser_restocking"="logical",
+  'ser_dts_datasource'="text",
+  "sai_samplingstrategy"="text",
+  "sai_qal_comment"="text",
+  "grsa_sai_id"="numeric",
+  "meg_value"="numeric",
+  "mei_value"="numeric",
+  "mty_name"="text",
+  "mei_mty_id"="numeric",
+  "ser_ccm_wso_id"="text",
+  "ser_qal_comment"="text",
+  "ser_qal_id"="numeric"
+  
+  
   
 )
+dictionary = c(dictionary,
+               dictionary %>% setNames(paste0(names(dictionary), ".base")),
+               dictionary %>% setNames(paste0(names(dictionary), ".xls")))
+
 
 #since contaminant data are not kept every year, we have a list of variables
 #that should be ignored when contaminant are not collected

@@ -19,15 +19,16 @@
 ## Annex 2
 
 ### series
-x new, x updated, x deleted
+0 new, 0 updated, 0 deleted
 
 ### dataseries
-
+18 new, 1890 updated, 0 deleted
 
 ### group metrics
-
+29 new, 19 updated, 0 deleted
 
 ### individual metrics
+7519 new, 12 updated, 2214 deleted
 
 
 
@@ -48,18 +49,16 @@ x new, x updated, x deleted
 
 ## Annex 4
 
-No duplicates
 20 new, 55 updated, 0 deleted
 
 
 ## Annex 5
 
-No duplicates
 5 new, 20 updated, 0 deleted
 
 ## Annex 6
 
-
+20 new, 0 updated, 0 deleted
 
 ## Annex 7
 
@@ -69,13 +68,23 @@ No duplicates
 
 
 
-## Annex 10
+## Annex 9
 
 ### samplinginfo
-
+0 new, 0 updated, 0 deleted
 
 ### group metrics
-
+66 new, 0 updated, 0 deleted
 
 ### individual metrics
+11758 new, 0 updated, 0 deleted
+
+
+## Annex 10
+572 new, 0 updated, 0 deleted
+
+## Annex 11
+561 new, 0 updated, 0 deleted
+
+
 
