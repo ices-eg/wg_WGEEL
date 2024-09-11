@@ -2304,7 +2304,7 @@ write_new_individual_metrics_show <- function(path, type="series"){
   } else if (names(test) %in% c("ser_nameshort","sai_name")) {
     skip=0
   }else {skip=1}
-  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
+  new <- readxlTemplate(path = path, sheet = 1, skip = skip)	
   shinybusy::remove_modal_spinner() 
   new_wide=pivot_wider(new %>%
               dplyr::select(!!name, fi_date,fi_id_cou,fi_year,fi_lfs_code,mty_name,mei_value,id),
@@ -2338,7 +2338,7 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
   } else if (names(test) %in% c("ser_nameshort","sai_name")) {
     skip=0
   }else {skip=1}
-  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
+  new <- readxlTemplate(path = path, sheet = 1, skip = skip)	
   shinybusy::remove_modal_spinner() 
   
   if (type=="series"){

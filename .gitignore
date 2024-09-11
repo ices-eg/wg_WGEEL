@@ -7,6 +7,6 @@
 wg_WGEEL.Rproj
 /.dbeaver-data-sources.xml
 /connection
-.Rhistory
+**/.Rhistory
 /R/Y_S_series/2023/final
 *.log

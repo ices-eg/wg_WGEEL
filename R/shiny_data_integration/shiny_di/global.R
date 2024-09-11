@@ -301,7 +301,16 @@ dictionary=c(
   "ser_restocking"="logical",
   'ser_dts_datasource'="text",
   "sai_samplingstrategy"="text",
-  "sai_qal_comment"="text"
+  "sai_qal_comment"="text",
+  "grsa_sai_id"="numeric",
+  "meg_value"="numeric",
+  "mei_value"="numeric",
+  "mty_name"="text",
+  "mei_mty_id"="numeric",
+  "ser_ccm_wso_id"="text",
+  "ser_qal_comment"="text",
+  "ser_qal_id"="numeric"
+  
   
   
 )
