@@ -185,7 +185,7 @@ dictionary=c(
   "hg"= "numeric",
   "cd"= "numeric",
   "gr_comment"="text",
-  "gr_last_update" = "date",
+  "gr_lastupdate" = "date",
   "gr_dts_datasource"="text",
   "fi_id_cou"="text",
   "fi_idcou"="text",
@@ -218,7 +218,7 @@ dictionary=c(
   "pb"="numeric",
   "hg"="numeric",
   "cd"="numeric",
-  "fi_last_update"="date",
+  "fi_lastupdate"="date",
   "fi_dts_datasource"="text",
   # series group and indiv
   "grser_ser_id"="numeric",
