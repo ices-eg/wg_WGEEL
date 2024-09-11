@@ -1022,7 +1022,7 @@ compare_with_database_metric_ind <- function(
 #' }
 #' @rdname write_duplicate
 write_duplicates <- function(path, conn, qualify_code) {
-  duplicates2 <- read_excel(path = path, sheet = 1, skip = 1)
+  duplicates2 <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   
   # Initial checks ----------------------------------------------------------------------------------
   
@@ -1344,12 +1344,12 @@ write_new <- function(path, conn) {
   # bug 2021 when a lots of rows without values in eel_missvaluequal reads a logical and converts to NA
   #This functions does not apply to type mortality
   shinybusy::show_modal_spinner(text = "load new data")
-  new <-	read_excel(path = path, sheet = 1, skip = 1)
-  # for the most common format
-  if (ncol(new)==14) {
-    new <- read_excel(path = path, sheet = 1, skip = 1, 
-        col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
-  }
+  new <-	readxlTemplate(path = path, sheet = 1, skip = 1)	
+#  # for the most common format (test removed 2024)
+#  if (ncol(new)==14) {
+#    new <- read_excel(path = path, sheet = 1, skip = 1, 
+#        col_types=c("numeric","text","numeric","numeric",rep("text",6),"numeric",rep("text",3)))
+#  }
   shinybusy::remove_modal_spinner()
   ####when there are no data, new values have incorrect type
   #ew$eel_value <- as.numeric(new$eel_value)
@@ -1454,7 +1454,7 @@ write_new <- function(path, conn) {
 #' this version allows to catch exceptions and sqldf does not
 
 write_updated_values <- function(path, conn, qualify_code) {
-  updated_values_table <- read_excel(path = path, sheet = 1, skip = 1)  
+  updated_values_table <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   validate(need(ncol(updated_values_table) %in% c(27,35), "number column wrong (should be 27 or 35) \n"))
   validate(need(all(colnames(updated_values_table) %in% c("eel_id", "eel_typ_id", "eel_typ_name", 
                   "eel_year.base","eel_year.xls","eel_value.base", "eel_value.xls", 
@@ -1535,7 +1535,7 @@ write_updated_values <- function(path, conn, qualify_code) {
 
 write_deleted_values <- function(path, conn, qualify_code) {
   message <- NULL
-  deleted_values_table <- read_excel(path = path, sheet = 1, skip = 1)
+  deleted_values_table <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   validate(need(ncol(deleted_values_table) %in% c(13,14,18), "number column wrong (should be 14 or 18) \n"))
   validate(need(all(colnames(deleted_values_table) %in% c("eel_id", "eel_typ_id", 
                   "eel_year","eel_value",
@@ -1615,7 +1615,7 @@ write_deleted_values <- function(path, conn, qualify_code) {
 #' @rdname write_new series
 write_new_series <- function(path, conn) {
   message <- NULL
-  new <- read_excel(path = path, sheet = 1, skip = 1)
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   
   ####when there are no data, new values have incorrect type
   new <- new %>% mutate_if(is.logical,list(as.character)) 
@@ -1678,7 +1678,7 @@ write_new_series <- function(path, conn) {
 #write_new_sampling(path)
 
 write_new_sampling <- function(path, conn) {
-  new <- read_excel(path = path, sheet = 1, skip = 1)
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   
   ####when there are no data, new values have incorrect type
   new <- new %>% mutate_if(is.logical, list(as.character)) 
@@ -1776,7 +1776,7 @@ write_new_sampling <- function(path, conn) {
 #' }
 #' @rdname write_new dataseries
 write_new_dataseries <- function(path, conn) {
-  new <- read_excel(path = path, sheet = 1, skip = 1)
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   new$das_qal_id <- as.integer(new$das_qal_id)
   ser_nameshort	 <- new$ser_nameshort	 # these will be dropped later
   ####when there are no data, new values have incorrect type
@@ -1836,7 +1836,7 @@ write_new_dataseries <- function(path, conn) {
 
 update_series <- function(path, conn) {
   
-  updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+  updated_values_table <- 	readxlTemplate(path = path, sheet = 1, skip = 1)	
   cou_code = unique(updated_values_table$ser_cou_code)  
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
   updated_values_table <- updated_values_table %>% mutate_if(is.logical,list(as.character)) 
@@ -1917,7 +1917,7 @@ update_series <- function(path, conn) {
 #' @return message indicating success or failure at data insertion
 update_sampling <- function(path, conn) {
   
-  updated_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+  updated_values_table <- 	readxlTemplate(path = path, sheet = 1, skip = 1)		
   cou_code = unique(updated_values_table$sai_cou_code)  
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
   updated_values_table <- updated_values_table %>% mutate_if(is.logical, list(as.character)) 
@@ -1981,7 +1981,7 @@ update_sampling <- function(path, conn) {
 #path <-file.choose()
 #delete_dataseries(path)
 delete_dataseries <- function(path, conn) {
-  deleted_values_table <- 	read_excel(path = path, sheet = 1, skip = 1)	
+  deleted_values_table <- 	readxlTemplate(path = path, sheet = 1, skip = 1)	
   if (nrow(deleted_values_table) == 0)
     return(list(message="no values to be deleted", cou_code=NULL))
   cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_nameshort='",
@@ -2091,7 +2091,7 @@ write_new_group_metrics <- function(path, conn, type="series") {
   } else{
     fk <- "grsa_sai_id"
   }
-  new <- read_excel(path = path, sheet = 1, skip = 1) %>%
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	 %>%
       mutate(gr_number=as.numeric(gr_number))
   if (nrow(new) == 0){
     message <- "nothing to import"
@@ -2172,7 +2172,7 @@ write_updated_group_metrics <-function(path, conn, type="series"){
   metrics_group <- tr_metrictype_mty %>% 
       filter(mty_group!="individual") %>% select(mty_name,mty_id)
   
-  updated <- read_excel(path = path, sheet = 1, skip = 1)
+  updated <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(updated$gr_id)) ==0 )
@@ -2223,7 +2223,7 @@ write_updated_group_metrics <-function(path, conn, type="series"){
 delete_group_metrics <- function(path, conn, type="series"){
   metrics_group <- tr_metrictype_mty %>% 
       filter(mty_group!="individual") %>% select(mty_name,mty_id)
-  deleted <- read_excel(path = path, sheet = 1, skip = 1)
+  deleted <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   if (nrow(deleted) == 0)
     return(list(datadb = data.frame(), message="empty file", cou_code=NULL))
   if (sum(!is.na(deleted$gr_id)) ==0 )
@@ -2304,7 +2304,7 @@ write_new_individual_metrics_show <- function(path, type="series"){
   } else if (names(test) %in% c("ser_nameshort","sai_name")) {
     skip=0
   }else {skip=1}
-  new <- read_excel(path = path, sheet=1, skip=skip)
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   shinybusy::remove_modal_spinner() 
   new_wide=pivot_wider(new %>%
               dplyr::select(!!name, fi_date,fi_id_cou,fi_year,fi_lfs_code,mty_name,mei_value,id),
@@ -2338,7 +2338,7 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
   } else if (names(test) %in% c("ser_nameshort","sai_name")) {
     skip=0
   }else {skip=1}
-  new <- read_excel(path = path, sheet=1, skip=skip)
+  new <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   shinybusy::remove_modal_spinner() 
   
   if (type=="series"){
@@ -2482,7 +2482,7 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   metrics_ind <- tr_metrictype_mty %>% 
       filter(mty_group!="group") %>% select(mty_name,mty_id)
   
-  updated <- read_excel(path = path, sheet = 1, skip = 1)
+  updated <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(updated$fi_id)) == 0)
@@ -2536,7 +2536,7 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
 delete_individual_metrics <- function(path, conn, type="series"){
   test <- read_excel(path = path, sheet=1, range="A1:A1")
   if (names(test) %in% c("fi_id")) skip=0 else skip=1
-  deleted <- read_excel(path = path, sheet=1, skip=skip)
+  deleted <- readxlTemplate(path = path, sheet = 1, skip = skip)	
   if (nrow(deleted) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(deleted$fi_id)) == 0)
