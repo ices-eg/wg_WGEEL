@@ -64,19 +64,14 @@ No data
 ## Annex 10
 
 6 new values inserted in the database
+Values from yer 2007 -2020 have changes because previsiosly years calculated mortality rates was used only from freshwater data
 
-Issue with updating data
-Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "idx_eelstock_3"
-DETAIL:  Key (eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2007, S, LT_total, 15, AL, 24) already exists.
 
 ## Annex 11
 
 9 new values inserted in the database
 
-Issue with updating data
-Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "idx_eelstock_3"
-DETAIL:  Key (eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2007, S, LT_total, 17, AL, 24) already exists.
-
+For duplicates 42 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id 24)
 
 ### samplinginfo
 
