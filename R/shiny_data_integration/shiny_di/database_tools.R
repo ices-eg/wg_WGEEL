@@ -1049,9 +1049,9 @@ write_duplicates <- function(path, conn, qualify_code) {
   
   duplicates2$keep_new_value[duplicates2$keep_new_value == "1"] <- "true"
   duplicates2$keep_new_value[duplicates2$keep_new_value == "0"] <- "false"
-  duplicates2$keep_new_value <- toupper(duplicates2$keep_new_value)
   duplicates2$keep_new_value[duplicates2$keep_new_value == "YES"] <- "true"
   duplicates2$keep_new_value[duplicates2$keep_new_value == "NO"] <- "false"
+  duplicates2$keep_new_value <- toupper(duplicates2$keep_new_value)
   
   validate( need(all(duplicates2$keep_new_value %in% c("TRUE", "FALSE")), 
           "value in keep_new_value should be false or true"))
