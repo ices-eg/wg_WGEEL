@@ -72,6 +72,7 @@ All values as NC. Cedric will add
  104 new values inserted in the database
 ## Annex 11
 All values as NC. Cedric will add
+ 102 new values inserted in the database
 
 
 
