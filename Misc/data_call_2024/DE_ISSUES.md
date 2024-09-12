@@ -65,19 +65,19 @@
 * 2 new values inserted in the database
 
 ## Annex 9
-* 157 values deleted from group table, cascade delete on metrics
-* 10394 values deleted from fish table, cascade delete on metrics
+
+### samplinginfo
 * 9 values updated in the db (sai_info)
+
+### group metrics
+* 157 values deleted from group table, cascade delete on metrics
 * 147 and 1319 new values inserted in the group and metric tables
+  
+### individual metrics
+* 10394 values deleted from fish table, cascade delete on metrics
 * 10394 and 62214 new values inserted in the fish and metric tables
 
 ## Annex 10
-
-### samplinginfo
-
-
-### group metrics
-
-
-### individual metrics
+* 180 new values inserted in the database
+* 148 values updated in the db
 
