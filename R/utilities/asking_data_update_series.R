@@ -124,7 +124,7 @@ con=dbConnect(RPostgres::Postgres(),
 #' @param name, the name of the file (without .xlsx) used as template and in the destination folders
 #' @param station should we load in the station sheet
 #' country='IE'; name="Eel_Data_Call_2021_Annex_time_series"; ser_typ_id=1
-create_datacall_file_series <- function(country, name, ser_typ_id, type="series", station=FALSE){
+create_datacall_file_series_sampling <- function(country, name, ser_typ_id, type="series", station=FALSE){
   if (!is.numeric(ser_typ_id)) stop("ser_typ_id must be numeric")
   
   # load file -------------------------------------------------------------
@@ -570,7 +570,7 @@ country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","N
 for (country in country_code){
   gc()
   cat("country: ",country,"\n")
-  create_datacall_file_series(country, 
+  create_datacall_file_series_sampling(country, 
                               name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=1)
 }
@@ -583,7 +583,7 @@ for (country in country_code){
 for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
-  create_datacall_file_series(country, 
+  create_datacall_file_series_sampling(country, 
                               name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=2)
 }
@@ -595,7 +595,7 @@ for (country in country_code ){
 for (country in country_code ){
   gc()
   cat("country: ",country,"\n")
-  create_datacall_file_series(country, 
+  create_datacall_file_series_sampling(country, 
                               name="Eel_Data_Call_Annex_Time_Series", 
                               ser_typ_id=3)
 }
@@ -610,7 +610,7 @@ dirs = dirs[-match(c("00template/saved","","00template"),dirs)]
 for (country in dirs ){
   gc()
   cat("country: ",country,"\n")
-  create_datacall_file_series(country, 
+  create_datacall_file_series_sampling(country, 
                               name="Eel_Data_Call_Annex9_Other_Sampling_Data", 
                               ser_typ_id=0,
                               type="other")
@@ -620,7 +620,7 @@ for (country in dirs ){
 for (country in 'HR' ){
   gc()
   cat("country: ",country,"\n")
-  create_datacall_file_series(country, 
+  create_datacall_file_series_sampling(country, 
       name="Eel_Data_Call_Annex9_Other_Sampling_Data", 
       ser_typ_id=0,
       type="other")

@@ -729,121 +729,168 @@ compare_with_database_metric_group <- function(data_from_excel,
     data_from_base, 
     sheetorigin=c("new_group_metrics","updated_group_metrics","deleted_group_metrics"),
     type="series") {
+  
   # data integrity checks
-  if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) stop ("sheetorigin should be one of
-            new_group_metrics, updated_group_metrics, deleted_group_metrics")
+  if (!sheetorigin %in% c("new_group_metrics", "updated_group_metrics", "deleted_group_metrics")) 
+    stop ("sheetorigin should be one of new_group_metrics, updated_group_metrics, deleted_group_metrics")
   if (nrow(data_from_excel) == 0) 
-    validate(need(FALSE,"There are no data coming from the excel file"))
+    validate(need(FALSE, "There are no data coming from the excel file"))
   if (nrow(data_from_base) == 0) {
     warning("No data in the file coming from the database")
   }
+  
   # convert columns with missing data to numeric	  
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
   data_from_excel <- data_from_excel %>% mutate_at(vars("gr_comment", "gr_dts_datasource", 
           ifelse(type=="series","ser_nameshort","sai_name")), list(as.character)) 
-  if (sheetorigin != "new_group_metrics"){
-    if (any(! data_from_excel$gr_id %in% data_from_base$gr_id))
-      stop(paste0(sheetorigin,
-              ": some gr_id are not in the db:",
-              paste(data_from_excel$gr_id[! data_from_excel$gr_id %in% data_from_base$gr_id],collapse=",")))
-  }
   data_from_excel$sheetorigin <- sheetorigin
   data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
-  if (sheetorigin == "new_group_metrics") data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)
-  
-  metrics_group <- tr_metrictype_mty %>% 
-      filter(mty_group!="individual") %>% select(mty_name,mty_id)
-  data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
-      select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
-      tidyr::pivot_wider(names_from=mty_name,
-          values_from=meg_value) 
-  data_from_excel_long <- data_from_excel %>% 
-      tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
-          values_to="meg_value",
-          names_to="mty_name"
-      ) %>%
-      drop_na(meg_value) %>% 
-      left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
-      rename(meg_mty_id=mty_id)
-  #browser()
-  duplicates <- data_from_base_wide %>% 	
-      dplyr::inner_join(
-          data_from_excel, 
-          #by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
-          by = "gr_id",#we only need a junction based on gr_id
-          suffix = c(".base", ".xls"))
-  
-  # Anti join only keeps columns from X
-  if (sheetorigin == "new_group_metrics"){
-    if (type=="series"){
-      new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-          by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_year","meg_mty_id"))
-    } else{
-      new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-          by = c("sai_name", "gr_year","meg_mty_id","grsa_lfs_code"))
-    }
-  } else {
-    new <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-        by = "gr_id")
-  }
-  
-  if (nrow(new)>0)	new$gr_dts_datasource <- the_eel_datasource
-  
-  modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by =c("gr_id", "gr_year", "gr_number", intersect(metrics_group$mty_name,names(data_from_excel))))
-  modified <- modified[!modified$id %in% new$id,]
-  if (sheetorigin=="new_group_metrics" & nrow(modified)>0)
-    modified$gr_comment <- "THIS LINE WAS DETECTED AS A DUPLICATE, IF IT WAS NOT IN DELETED, YOU CAN DELETE THE LINE, OTHERWISE RELOAD"
-  
-  # if (sheetorigin == "new_group_metrics"){
-  #   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-  #                                by =c("gr_year", "ser_nameshort","grsa_lfs_code")[c("gr_year","ser_nameshort","grsa_lfs_code")%in%names(data_from_excel)])
-  # } else {
-  #   modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-  #                                by =names(data_from_excel))
-  # }
-  
-  highlight_change <- duplicates[duplicates$id %in% modified$id,]
-  
-  if (nrow(modified) >0) {	
-    
-    num_common_col <- grep(".xls|.base",colnames(highlight_change))
-    possibly_changed <- colnames(highlight_change)[num_common_col]
-    
-    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
-    for(v in 0:(length(num_common_col)/2-1))
-    {
-      v=v*2+1
-      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
-      mat[,c(v,v+1)]<-test
-      
-    }
-    if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-      # 2023 C\E9dric select only rows where there are true modified 
-      id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
-      modified <- modified[modified$id %in%id_changed ,]	 
-      # show only modifications to the user (any colname modified)	
-      highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-    }
-  }
-  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
-          values_to="meg_value",
-          names_to="mty_name"
-      ) %>% left_join(tr_metrictype_mty %>% select(mty_id, mty_name)) %>%
-      select(-mty_name) %>%
-      rename(meg_mty_id=mty_id) %>%
-      left_join(data_from_base %>%
-              filter(meg_qal_id == 1 | is.na(meg_qal_id)) %>%
-              select(gr_id,meg_mty_id,meg_id)
-      ) %>%
-      filter(!is.na(meg_value))
   
   if (sheetorigin == "deleted_group_metrics") {
+    missing_gr_id_deleted <- data_from_excel$gr_id[!data_from_excel$gr_id %in% data_from_base$gr_id]
+    if (length(missing_gr_id_deleted)>0) warning(sprintf("gr_id %s currently not in db from deleted_group_metrics",
+              ifelse(length(unique(missing_gr_id_deleted))<10,
+                  paste(unique(missing_gr_id_deleted),collapse=','),
+                  paste0(paste(unique(missing_gr_id_deleted)[1:10],collapse=','),"...(>10 values)"))))
+    
     return(list(deleted=data_from_excel))
-  } else {		
-    return(list(new = new, modified=modified_long, highlight_change=highlight_change))
+  } else {    
+    
+    metrics_group <- tr_metrictype_mty %>% 
+        filter(mty_group!="individual") %>% select(mty_name,mty_id)
+    data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
+        select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
+        tidyr::pivot_wider(names_from=mty_name,
+            values_from=meg_value) 
+    data_from_excel_long <- data_from_excel %>% 
+        tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
+            values_to="meg_value",
+            names_to="mty_name") %>%
+        drop_na(meg_value) %>% 
+        left_join(tr_metrictype_mty %>% select(mty_name,mty_id), by="mty_name") %>%
+        rename(meg_mty_id=mty_id)
+    
+
+    
+    if(sheetorigin=="updated_group_metrics"){
+      # new shouldn't exist : here we test if a gr_id is not in the db
+      new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
+          by = "gr_id")
+      
+      # if true we issue a warning
+      if (nrow(new)>0) warning(sprintf("gr_id %s currently not in db from updated_group_metrics, will appear in new group metrics",
+                ifelse(length(unique(new$gr_id))<10,
+                    paste(unique(new$gr_id),collapse=','),
+                    paste0(paste(unique(new$gr_id)[1:10],collapse=','),"...(>10 values)"))))
+      # passing to long format and dropping empty mty_value, paste mty_name for readability
+      new_long <- new %>% 
+          tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
+              values_to="meg_value",
+              names_to="mty_name") %>%   
+          drop_na(meg_value) %>% 
+          left_join(metrics_group %>% select(mty_name,mty_id), by="mty_name") %>%
+          rename(meg_mty_id=mty_id)
+      
+      # modified checks for changes in long format
+    
+    modified_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+        by = c("gr_id",
+            ifelse(type=="series","ser_nameshort","sai_name"), 
+            "gr_year",
+            "meg_mty_id",
+            "gr_number",
+            intersect("grsa_lfs_code",names(data_from_excel))))  
+    
+      modified_long <- modified_long[!modified_long$id %in% new$id,] 
+ 
+      # duplicates is used to get the colums with suffix and the table comparing with content of the db
+      # duplicates will be filtered below to only modified id when creating hightlight change
+      duplicates <- data_from_base_wide %>% 	
+          dplyr::inner_join(
+              data_from_excel, 
+              #by = c(ifelse(type=="series","ser_nameshort","sai_name"), "gr_id","gr_year"),
+              by = "gr_id",#we only need a junction based on gr_id
+              suffix = c(".base", ".xls"))
+      
+    } else { # new_group_metric there
+      
+      data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)      
+      
+      # we use long format, new_long is any data with a change
+      new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+          by = c(ifelse(type=="series","ser_nameshort","sai_name"), 
+              "gr_year",
+              "meg_mty_id",
+              "gr_number",
+              intersect("grsa_lfs_code",names(data_from_excel))))   
+      
+      # values are unique in the db, by constraint
+      # for grsa_gr_id, gr_year, gr_sai_id 
+      #  or   grser_ser_id, gr_year
+      # so this will check duplicates row for sure
+      id_duplicate_rows <- data_from_excel %>% 	
+          dplyr::inner_join(
+              data_from_base_wide, 
+              by = c(ifelse(type=="series","ser_nameshort","sai_name"), 
+                  "gr_year",                   
+                  intersect("grsa_lfs_code",names(data_from_excel))), 
+              suffix = c(".base", ".xls")) %>% pull(id)   
+        
+      
+      # A modified is any data in new_long that corresponds to a duplicate according
+      # to the unique key constraint
+  
+      modified_long <- data_from_excel_long[data_from_excel_long$id %in% new_long$id &
+              data_from_excel_long$id %in% id_duplicate_rows,] 
+      
+      duplicates <- data_from_base_wide %>% 	
+          dplyr::inner_join(
+              data_from_excel, 
+              by = c(ifelse(type=="series","ser_nameshort","sai_name"),
+                  "gr_year",intersect("grsa_lfs_code",names(data_from_excel))),              
+              suffix = c(".base", ".xls"))
+      
+      new_long <- new_long %>% dplyr::filter(! id %in% modified_long$id)
+      
+    } # end new_group_metric
+    
+    
+    
+    # subset the columns for highlight change
+    # duplicates has a format with .xls, and .base needed below, corresponds to all 
+    # lines merge by id or idcou but needs to correspond only modified data
+    highlight_change <- duplicates[duplicates$id %in% modified_long$id,]
+    
+    
+    
+    if (nrow(highlight_change) >0 ) {	
+      
+      num_common_col <- grep(".xls|.base",colnames(highlight_change))
+      possibly_changed <- colnames(highlight_change)[num_common_col]
+      
+      mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+      for(v in 0:(length(num_common_col)/2-1))
+      {
+        v=v*2+1
+        test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
+            mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+            mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+        mat[,c(v,v+1)]<-test
+        
+      }
+      if (nrow(mat)>0){ # fix bug when all lines are returned without new values
+        
+        # show only modifications to the user (any colname modified)	
+        highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+      }
+    } 
+            
+    if (nrow(new_long)>0) new_long$gr_dts_datasource <- the_eel_datasource 
+    if (nrow(modified_long)>0) modified_long$gr_dts_datasource <- the_eel_datasource
+    
+    return(list(new = new_long, 
+            modified=modified_long, 
+            highlight_change=highlight_change))
   }
 }
 
@@ -868,6 +915,7 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
+  
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
             new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -877,121 +925,155 @@ compare_with_database_metric_ind <- function(
     
   }
   
-  if (sheetorigin != "new_individual_metrics"){
-    if (any(! data_from_excel$fi_id %in% data_from_base$fi_id))
-      stop(paste0(sheetorigin,
-              ": some fi_id are not in the db:",
-              paste(data_from_excel$fi_id[! data_from_excel$fi_id %in% data_from_base$fi_id],collapse=",")))
-  }
+  
   
   # convert columns with missing data to numeric	  
   data_from_excel <- data_from_excel %>% mutate_if(is.logical,list(as.numeric)) 
   data_from_excel <- data_from_excel %>% mutate_at(vars(c("fi_comment", ifelse(type=="series","ser_nameshort","sai_name"))),list(as.character)) 	
   data_from_excel <- data_from_excel %>% mutate_at(vars("fi_date"), list(as.Date)) 
   
-  #we add this column since fish needs a year but we don't ask it for other sampling (only for series)
+  #we add this column since fish needs a year (from 2023 we ask for year in both sampling and series so the condition is always true
   if ("fi_year" %in% names(data_from_excel))
     data_from_excel <- data_from_excel %>% mutate_at(vars("fi_year"), list(as.numeric)) 
   
   data_from_excel$sheetorigin <- sheetorigin
   data_from_excel <- mutate(data_from_excel,"id" = row_number()) # this one serves as joining later
-  if (sheetorigin == "new_individual_metrics") data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
-  # only select metrics names in individual metrics :
-  metrics_ind <- tr_metrictype_mty %>% 
-      filter(mty_group!="group") %>% 
-      mutate(mty_name =
-              case_when(
-                  is.na(mty_individual_name) ~ mty_name,
-                  !is.na(mty_individual_name) ~ mty_individual_name
-              )) %>%
-      select(mty_name,mty_id)
   
-  # after pivot wider generates lines with NA so remove with is.na(fi_id)
-  data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
-      tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
-          names_from=mty_name,
-          values_from=mei_value) %>% filter(!is.na(fi_id))
-  
-  data_from_excel_long <- data_from_excel %>% 
-      tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
-          values_to="mei_value",
-          names_to="mty_name"
-      ) %>%
-      drop_na(mei_value) %>% 
-      left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
-      rename(mei_mty_id=mty_id)
-  # use fi_id if updated but length and weight and date if new
-  if ("fi_id" %in% colnames(data_from_excel) ){
-    
-    duplicates <- data_from_base_wide %>% 	
-        dplyr::inner_join(
-            data_from_excel, 
-            by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id"), 
-            suffix = c(".base", ".xls"))
-    
-  } else {
-    
-    
-    duplicates <- data_from_base_wide %>% 	
-        dplyr::inner_join(
-            data_from_excel, 
-            by = c(ifelse(type=="series","ser_nameshort","sai_name"), ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")), 
-            suffix = c(".base", ".xls"))
-  }
-  
-  
-  # Anti join only keeps columns from X
-  new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou")))
-  new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
-      by = c("fi_date","fi_year",ifelse(type=="series","ser_nameshort","sai_name"),ifelse(sheetorigin=="updated_individual_metric","fi_id","fi_id_cou"),"mei_mty_id"))
-  if (nrow(new)>0)	new$fi_dts_datasource <- the_eel_datasource
-  
-  modified <- dplyr::anti_join(data_from_excel, data_from_base_wide, 
-      by =c("fi_id", "fi_date", "fi_comment", "fi_lfs_code", intersect(metrics_ind$mty_name,names(data_from_excel))))
-  modified <- modified[!modified$id %in% new$id,]
-  
-  highlight_change <- duplicates[duplicates$id %in% modified$id,]
-  
-  if (nrow(highlight_change) == 0){
-    modified <- modified %>%
-        slice(0)
-  } else if (nrow(modified) >0 ) {	
-    
-    num_common_col <- grep(".xls|.base",colnames(highlight_change))
-    possibly_changed <- colnames(highlight_change)[num_common_col]
-    
-    mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
-    for(v in 0:(length(num_common_col)/2-1))
-    {
-      v=v*2+1
-      test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
-          mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
-          mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
-      mat[,c(v,v+1)]<-test
-      
-    }
-    if (nrow(mat)>0){ # fix bug when all lines are returned without new values
-      id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
-      modified <- modified[modified$id %in%id_changed ,]	  
-      
-      # show only modifications to the user (any colname modified)	
-      highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
-    }
-  } 
-  modified_long <- modified %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
-          values_to="mei_value",
-          names_to="mty_name") %>% 
-      left_join(metrics_ind %>%
-              select(mty_name,mty_id), by="mty_name") %>%
-      rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
-      dplyr::filter(!is.na(mei_value))
   if (sheetorigin == "deleted_individual_metrics") {
-    return(list(deleted=data_from_excel))
+    missing_fi_id_deleted <- data_from_excel$fi_id[!data_from_excel$fi_id %in% data_from_base$fi_id]
+    if (length(missing_fi_id_deleted)>0) warning(sprintf("fi_id %s currently not in db from deleted_individual_metrics",
+              ifelse(length(unique(missing_fi_id_deleted))<10,
+                  paste(unique(missing_fi_id_deleted),collapse=','),
+                  paste0(paste(unique(missing_fi_id_deleted)[1:10],collapse=','),"...(>10 values)"))))
+    return(list(deleted=data_from_excel)) # we change nothing 
   } else {
-    return(list(new = new_long %>% dplyr::filter(! id %in% modified_long$id),
-            modified=modified_long, 
-            highlight_change=highlight_change))
+    
+    # only select metrics names in individual metrics :
+    metrics_ind <- tr_metrictype_mty %>% 
+        filter(mty_group!="group") %>% 
+        mutate(mty_name =
+                case_when(
+                    is.na(mty_individual_name) ~ mty_name,
+                    !is.na(mty_individual_name) ~ mty_individual_name
+                )) %>%
+        select(mty_name,mty_id)
+    
+    # after pivot wider generates lines with NA so remove with is.na(fi_id)
+    data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
+        tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
+            names_from=mty_name,
+            values_from=mei_value) %>% filter(!is.na(fi_id))
+    
+    data_from_excel_long <- data_from_excel %>% 
+        tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
+            values_to="mei_value",
+            names_to="mty_name"
+        ) %>%
+        drop_na(mei_value) %>% 
+        left_join(metrics_ind %>% select(mty_name,mty_id), by="mty_name") %>%
+        rename(mei_mty_id=mty_id)
+    
+    
+    if(sheetorigin=="updated_individual_metrics"){
+      
+      # new shouldn't exist : here we test if a fi_id is not in the db
+      # fi_id is unique in data_from_base_wide
+      new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
+          by = "fi_id")    
+      
+      if (nrow(new)>0) warning(sprintf("fi_id %s currently not in db from updated_individual_metrics, will appear in new individual metrics",
+                ifelse(length(unique(new$fi_id))<10,
+                    paste(unique(new$fi_id),collapse=','),
+                    paste0(paste(unique(new$fi_id)[1:10],collapse=','),"...(>10 values)"))))
+      
+      new_long <- new %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
+              values_to="mei_value",
+              names_to="mty_name") %>% 
+          left_join(metrics_ind %>%
+                  select(mty_name,mty_id), by="mty_name") %>%
+          rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
+          dplyr::filter(!is.na(mei_value))
+      
+      # tests for any change in the table
+      modified_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+          by = c("fi_date",
+              "fi_year",
+              "fi_lfs_code",
+              "fi_id_cou",
+              ifelse(type=="series","ser_nameshort","sai_name"),            
+              "mei_mty_id"))
+      
+      modified_long <- modified_long[!modified_long$id %in% new$id,] 
+
+      # duplicates will be reduces to modified_long_id later
+      duplicates <- data_from_base_wide %>% 	
+          dplyr::inner_join(
+              data_from_excel, 
+              by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id"), 
+              suffix = c(".base", ".xls"))
+    } else { # new_individual_metric there
+      data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
+  
+      new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
+          by = c("fi_date",
+              "fi_year",
+              "fi_lfs_code",
+              "fi_id_cou",
+              ifelse(type=="series","ser_nameshort","sai_name"),            
+              "mei_mty_id"))      
+    
+     
+      modified_long <- data_from_excel_long[data_from_excel_long$id %in% test_if_anything_changed$id &
+              data_from_excel_long$id %in% new_long$id,]
+      
+      new_long <- new_long %>% dplyr::filter(! id %in% modified_long$id)
+      
+      duplicates <- 
+          data_from_base_wide %>% 	
+          dplyr::inner_join(
+              data_from_excel, 
+              by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id_cou"), 
+              suffix = c(".base", ".xls"))
+    }
+    
+ 
+    
+    # subset the columns for highlight change
+    # duplicates has a format with .xls, and .base needed below, corresponds to all 
+    # lines merge by id or idcou but needs to correspond only modified data
+    highlight_change <- duplicates[duplicates$id %in% modified_long$id,]
+    
+    
+    
+    if (nrow(highlight_change) >0 ) {	
+      
+      num_common_col <- grep(".xls|.base",colnames(highlight_change))
+      possibly_changed <- colnames(highlight_change)[num_common_col]
+      
+      mat <-	matrix(FALSE,nrow(highlight_change),length(num_common_col))
+      for(v in 0:(length(num_common_col)/2-1))
+      {
+        v=v*2+1
+        test <- highlight_change %>% select(all_of(num_common_col))%>%select(v,v+1) %>%
+            mutate_all(as.character) %>%	mutate_all(type.convert, as.is = TRUE) %>%	
+            mutate(test=identical(.[[1]], .[[2]]))%>%pull(test)
+        mat[,c(v,v+1)]<-test
+        
+      }
+      if (nrow(mat)>0){ # fix bug when all lines are returned without new values
+        #FIX2024REMOVE2025 id_changed <- unique(highlight_change[!apply(mat,1,all), "id"])%>% pull(id)
+        #FIX2024REMOVE2025 modified <- modified[modified$id %in%id_changed ,]	  
+        
+        # show only modifications to the user (any colname modified)	
+        highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
+      }
+    } 
+    
+    if (nrow(new_long)>0) new_long$fi_dts_datasource <- the_eel_datasource 	
+    if (nrow(modified_long)>0) modified_long$fi_dts_datasource <- the_eel_datasource 
+    return(list(new = new_long,
+            modified = modified_long, 
+            highlight_change = highlight_change))
   }
 }
 
@@ -1081,10 +1163,10 @@ write_duplicates <- function(path, conn, qualify_code) {
     
     
     query0 <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", qualify_code ,",r.eel_comment) from ", 
-                     "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id returning datawg.t_eelstock_eel.*;")
+        "replaced_temp_", cou_code, " r where t_eelstock_eel.eel_id=r.eel_id returning datawg.t_eelstock_eel.*;")
     
     query0bis <- paste0("select * from datawg.t_eelstock_eel_percent where
-                        percent_id in (select eel_id from replaced_temp_", cou_code,")")
+            percent_id in (select eel_id from replaced_temp_", cou_code,")")
     # this will perform the reverse operation if error in query 1 or 2
     # sqldf will handle this one as it is a several liners
     #		query0_reverse <- paste0("update datawg.t_eelstock_eel set (eel_qal_id,eel_comment)=(", 
@@ -1230,88 +1312,88 @@ write_duplicates <- function(path, conn, qualify_code) {
   
   message <- NULL
   
-        dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-        dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced, temporary=TRUE, row.names=FALSE )
-        dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-        dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
-        # First step, replace values in the database --------------------------------------------------
-        # Second step insert replaced ------------------------------------------------------------------
-        if (nrow(replaced)>0){
+  dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+  dbWriteTable(conn,str_c("not_replaced_temp_", tolower(cou_code)),not_replaced, temporary=TRUE, row.names=FALSE )
+  dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+  dbWriteTable(conn, str_c("replaced_temp_", tolower(cou_code)), replaced, temporary=TRUE, row.names=FALSE )
+  # First step, replace values in the database --------------------------------------------------
+  # Second step insert replaced ------------------------------------------------------------------
+  if (nrow(replaced)>0){
     res0 <-dbGetQuery(conn, query0) # this will be the same count as inserted nr1 
     nr0 <- nrow(res0)
     res1 <-dbGetQuery(conn, query1)
     nr1 <- nrow(res1)
-          #nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
-          if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc						
+    #nr1 <- dbGetQuery(conn, "GET DIAGNOSTICS nbLignes = ROW_COUNT;")
+    if (sum(startsWith(names(replaced),"perc_"))>0) { #we have to update also t_eelsock_eel_perc						
       res0bis <- dbGetQuery(conn, query0bis)
       res0 <- res0 %>%
-        left_join(res0bis, by = c("eel_id" = "percent_id"))
-            # the id has been updated and I need a new temp table with this "new_id"
-            replaced_perc <- replaced%>% select(any_of(c(
-                        "perc_f","perc_t","perc_c", "perc_mo"
-                    )))
-            # the eel_id returned by the db will be in the right order (those of the temp_table which is the same as replaced in R)
-            # So we can simply add a column
+          left_join(res0bis, by = c("eel_id" = "percent_id"))
+      # the id has been updated and I need a new temp table with this "new_id"
+      replaced_perc <- replaced%>% select(any_of(c(
+                  "perc_f","perc_t","perc_c", "perc_mo"
+              )))
+      # the eel_id returned by the db will be in the right order (those of the temp_table which is the same as replaced in R)
+      # So we can simply add a column
       replaced_perc$eel_id_new <- res1$eel_id            
-            dbWriteTable(conn, str_c("replaced_temp_perc", tolower(cou_code)), replaced_perc, temporary=TRUE, row.names=FALSE )        
+      dbWriteTable(conn, str_c("replaced_temp_perc", tolower(cou_code)), replaced_perc, temporary=TRUE, row.names=FALSE )        
       res1bis <- dbGetQuery(conn,query1bis)
       nr1bis <- nrow(res1bis)
       res1 <- res1 %>%
-        left_join(res1bis, by = c("eel_id" = "percent_id"))
-          } else {
-            nr1bis <- 0
-          }
-        } else {
-          showNotification(				
-              "You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
-              duration = 20,	
-              type = "warning"
-          )
-          nr1 <- 0
-          nr1bis <- 0
-        }
-        # Third step insert not replaced values into the database with qal id 22-----------------------------------------
-        if (nrow(not_replaced)>0){
+          left_join(res1bis, by = c("eel_id" = "percent_id"))
+    } else {
+      nr1bis <- 0
+    }
+  } else {
+    showNotification(				
+        "You don't have any lines in sheet duplicated marked with true in column 'keep new values?', have you forgotten to indicate which lines you want to add in the database ?",
+        duration = 20,	
+        type = "warning"
+    )
+    nr1 <- 0
+    nr1bis <- 0
+  }
+  # Third step insert not replaced values into the database with qal id 22-----------------------------------------
+  if (nrow(not_replaced)>0){
     res2 <- dbGetQuery(conn, query2)
     nr2 <- nrow(res2)
-          #nr2 <- dbGetQuery(conn, "get diagnostics nbLignes = ROW_COUNT")
-          if (sum(startsWith(names(not_replaced),"perc_"))>0) { 
-            #we have to update also t_eelsock_eel_perc
-            not_replaced_perc <- not_replaced%>% select(any_of(c(
-                        "perc_f","perc_t","perc_c", "perc_mo"
-                    )))
-            # the eel_id returned by the db will be in the right order (those of the temp_table which is the same as replaced in R)
-            # So we can simply add a column
+    #nr2 <- dbGetQuery(conn, "get diagnostics nbLignes = ROW_COUNT")
+    if (sum(startsWith(names(not_replaced),"perc_"))>0) { 
+      #we have to update also t_eelsock_eel_perc
+      not_replaced_perc <- not_replaced%>% select(any_of(c(
+                  "perc_f","perc_t","perc_c", "perc_mo"
+              )))
+      # the eel_id returned by the db will be in the right order (those of the temp_table which is the same as replaced in R)
+      # So we can simply add a column
       not_replaced_perc$eel_id_new <- res2$eel_id            
-            dbWriteTable(conn, str_c("not_replaced_temp_perc", tolower(cou_code)), not_replaced_perc, temporary=TRUE, row.names=FALSE ) 
+      dbWriteTable(conn, str_c("not_replaced_temp_perc", tolower(cou_code)), not_replaced_perc, temporary=TRUE, row.names=FALSE ) 
       res2bis <- dbGetQuery(conn,query2bis) # nrow not replaced
       nr2bis <- nrow(res2bis)
       res2 <-res2 %>%
-        left_join(res2bis, by = c("eel_id" = "percent_id"))
-          } else {
-            nr2bis <- 0
-          }
-        }  else {
-          showNotification(				
-              "All values had TRUE in 'keep new values', all values have been replaced in the database",
-              duration = 20,	
-              type = "warning"
-          )
-          nr2 <-0
-          nr2bis <- 0
-        }
-        dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
-        dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
-        dbExecute(conn,str_c("drop table if exists replaced_temp_perc",cou_code) )
-        message <- sprintf(
-            "For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
-                %s values not replaced (values from current datacall stored with code eel_qal_id %s),", nr1,  qualify_code,  nr2, qualify_code)
-        if (nr1bis+nr2bis>0) {
-          message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
-                      %s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
-                  nr1bis,  qualify_code,  nr2bis,  qualify_code))
-        }
-        
+          left_join(res2bis, by = c("eel_id" = "percent_id"))
+    } else {
+      nr2bis <- 0
+    }
+  }  else {
+    showNotification(				
+        "All values had TRUE in 'keep new values', all values have been replaced in the database",
+        duration = 20,	
+        type = "warning"
+    )
+    nr2 <-0
+    nr2bis <- 0
+  }
+  dbExecute(conn,str_c("drop table if exists not_replaced_temp_",cou_code) )
+  dbExecute(conn,str_c("drop table if exists replaced_temp_",cou_code) )
+  dbExecute(conn,str_c("drop table if exists replaced_temp_perc",cou_code) )
+  message <- sprintf(
+      "For duplicates %s values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id %s)\n,								
+          %s values not replaced (values from current datacall stored with code eel_qal_id %s),", nr1,  qualify_code,  nr2, qualify_code)
+  if (nr1bis+nr2bis>0) {
+    message <- str_c(message,  sprintf("\n In addition, %s values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=%s)\n,
+                %s values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id %s)",
+            nr1bis,  qualify_code,  nr2bis,  qualify_code))
+  }
+  
   
   
   return(list(datadb=bind_rows(res1, res0, res2), message = message, cou_code = cou_code, eel_typ_id = eel_typ_id))
@@ -1415,20 +1497,20 @@ write_new <- function(path, conn) {
   # if fails replaces the message with this trycatch !  I've tried many ways with
   # sqldf but trycatch failed to catch the error Hence the use of DBI
   message <- NULL
-        if(nrow(new)>0){
-          res <- dbGetQuery(conn, query)
-          if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
-            new$eel_id_perc <- res$eel_id
-            dbExecute(conn,"drop table if exists new_temp ")
-            dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
-            resbis <- dbGetQuery(conn, querybis)
-            res <- res %>%
-                left_join(resbis, by = c("eel_id"= "percent_id"))
-          }
-        }
-      
-        
-        dbExecute(conn,"drop table if exists new_temp ")
+  if(nrow(new)>0){
+    res <- dbGetQuery(conn, query)
+    if (sum(startsWith(names(new),"perc_"))>0){#we have to insert into t_eelstock_eel_percent
+      new$eel_id_perc <- res$eel_id
+      dbExecute(conn,"drop table if exists new_temp ")
+      dbWriteTable(conn,"new_temp",new,row.names=FALSE,temporary=TRUE)
+      resbis <- dbGetQuery(conn, querybis)
+      res <- res %>%
+          left_join(resbis, by = c("eel_id"= "percent_id"))
+    }
+  }
+  
+  
+  dbExecute(conn,"drop table if exists new_temp ")
   
   shinybusy::remove_modal_spinner()
   if (is.null(message))   
@@ -1471,7 +1553,7 @@ write_updated_values <- function(path, conn, qualify_code) {
                   "eel_datasource.base", "eel_datasource.xls")), 
           "Error in updated dataset : column name changed, have you removed the empty line on top of the dataset ?"))
   validate(need(all(!is.na(updated_values_table$eel_qal_id.xls)), "There are still lines without eel_qal_id, please check your file"))
-
+  
   eel_typ_id = paste(unique(updated_values_table$eel_typ_id), collapse=",")
   cou_code = unique(updated_values_table$eel_cou_code.xls)  
   validate(need(length(cou_code) == 1, "There is more than one country code, please check your file"))
@@ -1500,21 +1582,21 @@ write_updated_values <- function(path, conn, qualify_code) {
   
   
   updated <- dbGetQuery(conn, paste0("update datawg.t_eelstock_eel d set eel_qal_id=", qualify_code," ,
-  eel_qal_comment = coalesce(d.eel_qal_comment,'') || ' updated to eel_id ' || o.new_eel_id::text || ' in ' || date_part('year', now())::text from updated_values_after o where o.eel_id=d.eel_id returning d.*"))
+              eel_qal_comment = coalesce(d.eel_qal_comment,'') || ' updated to eel_id ' || o.new_eel_id::text || ' in ' || date_part('year', now())::text from updated_values_after o where o.eel_id=d.eel_id returning d.*"))
   
   
   if (sum(startsWith(names(updated_values_table),"perc_"))>0){
     updatedbis <- dbGetQuery(conn, "select * from datawg.t_eelstock_eel_percent where percent_id in (select eel_id from updated_temp)")
     updated <- updated %>%
-      left_join(updatedbis, by=c("eel_id"="percent_id"))
+        left_join(updatedbis, by=c("eel_id"="percent_id"))
     newbis <- dbGetQuery(conn, "insert into  datawg.t_eelstock_eel_percent  (percent_id, perc_f,perc_t,perc_c,perc_mo)  (select new_eel_id, perc_f_xls, perc_t_xls, perc_c_xls, perc_mo_xls from updated_values_after) returning *")
     new <- new %>%
-      left_join(newbis, by=c("eel_id"="percent_id"))
+        left_join(newbis, by=c("eel_id"="percent_id"))
   }
   
   
   message <- NULL
-        dbExecute(conn,"drop table if exists updated_temp;")
+  dbExecute(conn,"drop table if exists updated_temp;")
   dbExecute(conn,"drop table if exists updated_values_after;")
   
   if (is.null(message))   
@@ -1564,18 +1646,18 @@ write_deleted_values <- function(path, conn, qualify_code) {
   dbWriteTable(conn,"deleted_temp",deleted_values_table,row.names=FALSE,temporary=TRUE)
   res <- data.frame()
   query <- paste("update datawg.t_eelstock_eel t set eel_qal_id=",
-                 qualify_code,
-                 ", eel_qal_comment=o.eel_qal_comment from deleted_temp o
-              where o.eel_id=t.eel_id returning t.*")
+      qualify_code,
+      ", eel_qal_comment=o.eel_qal_comment from deleted_temp o
+          where o.eel_id=t.eel_id returning t.*")
   updated <- dbGetQuery(conn, query)
   
   if (sum(startsWith(names(deleted_values_table),"perc_"))>0){
     updatedbis <- dbGetQuery(conn, "select * from datawg.t_eelstock_eel_percent where percent_id in (select eel_id from deleted_temp)")
     updated <- updated %>%
-      left_join(updatedbis, by=c("eel_id"="percent_id"))
+        left_join(updatedbis, by=c("eel_id"="percent_id"))
   }
   
-        dbExecute(conn,"drop table if exists deleted_temp;")
+  dbExecute(conn,"drop table if exists deleted_temp;")
   
   
   
@@ -2385,11 +2467,11 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
     ind_key <- ifelse(type=="series","fiser_ser_id","fisa_sai_id")
     metric_table <- ifelse(type=="series","t_metricindseries_meiser","t_metricindsamp_meisa")	
     addcol0 <- ifelse(type=="series",
-                      "",
-                      ",fisa_x_4326,fisa_y_4326")
+        "",
+        ",fisa_x_4326,fisa_y_4326")
     addcol1 <- ifelse(type=="series",
-                      "",
-                      ",i.fisa_x_4326,i.fisa_y_4326")
+        "",
+        ",i.fisa_x_4326,i.fisa_y_4326")
     
     if (type=="series"){
       cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
@@ -2755,7 +2837,7 @@ log_datacall <- function(step, cou_code, message, file_type, main_assessor, seco
       date = Sys.Date(), 
       .con = pool)
   out_data <- dbGetQuery(pool, query)
- return(out_data)
+  return(out_data)
 }
 
 
