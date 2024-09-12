@@ -22,14 +22,15 @@
 ### series
 
 ### dataseries
-
+* 6 new values inserted in the database
 
 ### group metrics
-
+* 2 and 4 new values inserted in the group and metric tables
+* 2 and 4 new values modified in the group and metric tables (yes, it is by coincidence exactly the same;)
 
 ### individual metrics
-
-
+* 548 values deleted from fish table, cascade delete on metric
+* 652 and 3331 new values inserted in the fish and metric tables
 
 ## Annex 3
 
