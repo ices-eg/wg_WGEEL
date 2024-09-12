@@ -8,6 +8,8 @@ tableEditUI <- function(id){
   ns <- NS(id)
   tagList(useShinyjs(),
           h2("Data correction table"),
+          fluidRow(textOutput(ns("message"))),
+          br(),
           fluidRow(
             column(width=3,
                    pickerInput(inputId = ns("edit_datatype"), 
@@ -83,6 +85,9 @@ tableEditServer <- function(id,globaldata){
                    
                  )
                  
+                 output$message <- renderText("filters: the filters are automatic restricted to possible combinations. For exemple, if AaY is selected only life stage Y and country FR can be selected. If you want to select French series of silver eels, you have to unselect AaY first. If you want to select series from another country, you have to unselect AaY and FR first.
+                                              Don't forget to click on OK!
+                                              ")
                  selectedvalues <- reactiveValues(editpicker_cou = NULL,
                                                   editpicker_stage = NULL,
                                                   editpicker_typ_series = NULL,
@@ -420,7 +425,8 @@ tableEditServer <- function(id,globaldata){
                      other_series <- sort(setdiff(unique(dico$editpicker_typ_series), selected_typ_series))
                      selected_lfs <- dico$editpicker_stage[irow]
                      other_lfs <- sort(setdiff(unique(dico$editpicker_stage), selected_lfs))
-                     label <- ifelse(input$edit_datatype %in% c("t_series_ser","t_samplinginfo_sai"),
+                     label <- ifelse(!startsWith(input$edit_datatype ,
+                                                "t_eelstock"),
                                      "Select series :",
                                      "Select type :")
                      updatePickerInput(session=session,
