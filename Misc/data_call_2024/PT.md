@@ -43,7 +43,7 @@
 
 
 ### individual metrics
-
+* 164 values deleted from fish table, cascade delete on metrics
 
 
 ## Annex 4
