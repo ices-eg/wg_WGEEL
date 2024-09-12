@@ -54,7 +54,7 @@
 
 
 ## Annex 6
-
+* not pertinent
 
 
 ## Annex 7
@@ -80,4 +80,8 @@
 ## Annex 10
 * 180 new values inserted in the database
 * 148 values updated in the db
+
+## Annex 11
+* 54 new values inserted in the database
+* 201 values updated in the db
 
