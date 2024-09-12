@@ -64,6 +64,9 @@
 ## Annex 8
 * 2 new values inserted in the database
 
+## Annex 9
+* 157 values deleted from group table, cascade delete on metrics
+* 10394 values deleted from fish table, cascade delete on metrics
 
 ## Annex 10
 
