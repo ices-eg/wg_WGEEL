@@ -37,10 +37,10 @@
 ### series
 
 ### dataseries
-
+* 6 new values inserted in the database
 
 ### group metrics
-
+* 1 and 2 new values inserted in the group and metric tables
 
 ### individual metrics
 * 164 values deleted from fish table, cascade delete on metrics
