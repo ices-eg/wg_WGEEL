@@ -110,14 +110,21 @@ importdcfstep0Server <- function(id,globaldata){
                    return(list(res=res,message=message))
                  }
                  # TODO adapt plotsampling_info to plotDCF
-                 plotsampling_info <- function(sampling_info){
+                 plotfishes <- function(fishes){
                    output$maps_dcf<- renderLeaflet({
                      leaflet() %>% addTiles() %>%
-                       addMarkers(data=sampling_info,lat=~sai_y,lng=~sai_x,label=~sai_name) %>%
-                       fitBounds(min(sampling_info$sai_x,na.rm=TRUE)-.1,
-                                 min(sampling_info$sai_y,na.rm=TRUE)-.1,
-                                 max(sampling_info$sai_x,na.rm=TRUE)+.1,
-                                 max(sampling_info$sai_y,na.rm=TRUE)+.1)
+                       addCircleMarkers(data=fishes,
+                                        radius = 3,
+                                        color = NA,
+                                        lat=~fisa_y_4326,
+                                        lng=~fisa_x_4326,
+                                        fillColor=~type,
+                                        clusterOptions = markerClusterOptions(),
+                                        popup=~fi_id_cou,) %>%
+                       fitBounds(min(fishes$fisa_x_4326,na.rm=TRUE)-.1,
+                                 min(fishes$fisa_y_4326,na.rm=TRUE)-.1,
+                                 max(fishes$fisa_x_4326,na.rm=TRUE)+.1,
+                                 max(fishes$fisa_y_4326,na.rm=TRUE)+.1)
                      
                    })
                  }
@@ -160,9 +167,31 @@ importdcfstep0Server <- function(id,globaldata){
                          if(length(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]))>1) stop(paste("More than one country there :",
                                                                                                                                          paste(unique(rls$res$sampling_info$sai_cou_code[!is.na(rls$res$sampling_info$sai_cou_code)]),collapse=";"), ": while there should be only one country code"))
                          cou_code <- rls$res$sampling_info$sai_cou_code[1]
-                         if (!is.null(rls$res$sampling_info)){
-                           if (nrow(rls$res$sampling_info)>0) plotsampling_info(rls$res$sampling_info)
+                         
+                         fishes <- data.frame(fisa_x_4326 = numeric(),
+                                              fisa_y_4326 = numeric(),
+                                              type = character(),
+                                              fi_id_cou = character())
+                         if (nrow(isolate(rls$res$new_individual_metrics)) >0){
+                           fishes <- fishes %>% 
+                             bind_rows(isolate(rls$res$new_individual_metrics) %>%
+                                         select(fisa_x_4326,fisa_y_4326,fi_id_cou) %>%
+                                         mutate(type="new"))
                          }
+                         if (nrow(isolate(rls$res$updated_individual_metrics)) > 0){
+                           fishes <- fishes %>% 
+                             bind_rows(isolate(rls$res$updated_individual_metrics) %>%
+                                       select(fisa_x_4326,fisa_y_4326,fi_id_cou) %>%
+                                       mutate(type="updated"))
+                         }
+                         if (nrow(isolate(rls$res$deleted_individual_metrics)) > 0){
+                           fishes <- fishes %>% 
+                             bind_rows(isolate(rls$res$deleted_individual_metrics) %>%
+                                         select(fisa_x_4326,fisa_y_4326,fi_id_cou) %>%
+                                         mutate(type="deleted"))
+                         }
+                         
+                         if (nrow(fishes)>0) plotfishes(fishes)
 
                          # this will fill the log_datacall file (database_tools.R)
                          log_datacall( "check data sampling info",
