@@ -68,6 +68,12 @@
 
 
 ## Annex 10
+* For duplicates 2 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id 24),								
+                39 values not replaced (values from current datacall stored with code eel_qal_id 24),
+ In addition, 2 values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=24),
+                      39 values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id 24) - THIS IS EXACTLY WHAT WE WANTED
+
+* 101 new values inserted in the database
 
 ### samplinginfo
 
