@@ -78,6 +78,7 @@
 
 ## Annex 11
 * 69 new values inserted in the database
+* 74 values updated in the db
 
 
 
