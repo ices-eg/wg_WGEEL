@@ -53,6 +53,7 @@
 1 new values inserted in the database
 
 ## Annex 9
+ 765 and 5319 new values inserted in the fish and metric tables
 
 ## Annex 10
 30 values deleted in the db
