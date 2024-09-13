@@ -176,6 +176,7 @@ importstep1Server <- function(id,globaldata, loaded_data){
 											
 											output$dt_duplicates <-DT::renderDataTable({
 														validate(need(globaldata$connectOK,"No connection"))
+											  if (nrow(duplicates)>0){
 														datatable(duplicates,
 																rownames=FALSE,                                                    
 																extensions = "Buttons",
@@ -190,8 +191,17 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																		dom= "Blfrtip",
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("duplicates_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
+																						filename = paste0("duplicates_",
+																						                  ifelse(loaded_data$file_type == 'catch_landings',
+																						                         unique(duplicates$eel_typ_name),
+																						                         loaded_data),
+																						                  "_",
+																						                  Sys.Date(),
+																						                  current_cou_code))) 
 																))
+											  } else {
+											    datatable()
+											  }
 														
 													})
 											
@@ -215,7 +225,8 @@ importstep1Server <- function(id,globaldata, loaded_data){
 											
 											output$dt_new <-DT::renderDataTable({ 
 														validate(need(globaldata$connectOK,"No connection"))
-														datatable(new,
+														if (nrow(new >0)) {
+														  datatable(new,
 																rownames=FALSE,          
 																extensions = "Buttons",
 																option=list(
@@ -229,8 +240,16 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																		scrollX = T, 
 																		buttons=list(
 																				list(extend="excel",
-																						filename = paste0("new_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
-																))
+																						filename = paste0("new_",
+																						                  ifelse(loaded_data$file_type == 'catch_landings',
+																						                         unique(new$eel_typ_name),
+																						                         loaded_data$file_type),
+																						                  "_",
+																						                  Sys.Date(),
+																						                  current_cou_code))) 
+																))} else{
+																  datatable(data.frame())
+																}
 													})
 											######
 											#Missing data
@@ -261,23 +280,36 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																)))                 
 												globaldata$updated_values_table <- compare_with_database_updated_values(updated_from_excel,data_from_base) 
 												if (nrow(globaldata$updated_values_table)==0) stop("step1 compare_wih_database_updated_values did not return any values")
-												output$dt_updated_values <- DT::renderDataTable(
-														globaldata$updated_values_table,
-														rownames=FALSE,
-														extensions = "Buttons",
-														option=list(
-																scroller = TRUE,
-																scrollX = TRUE,
-																scrollY = "500px",
-																order=list(3,"asc"),
-																lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-																"pagelength"=-1,
-																dom= "Blfrtip",
-																scrollX = T, 
-																buttons=list(
-																		list(extend="excel",
-																				filename = paste0("updated_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
-														))
+												  output$dt_updated_values <- DT::renderDataTable({
+												    if (nrow(globaldata$updated_values_table) > 0){
+												      datatable(  
+												        globaldata$updated_values_table,
+												        rownames=FALSE,
+												        extensions = "Buttons",
+												        option=list(
+												          scroller = TRUE,
+												          scrollX = TRUE,
+												          scrollY = "500px",
+												          order=list(3,"asc"),
+												          lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+												          "pagelength"=-1,
+												          dom= "Blfrtip",
+												          scrollX = T, 
+												          buttons=list(
+												            list(extend="excel",
+												                 filename = paste0("updated_",
+												                                   ifelse(loaded_data$file_type == 'catch_landings',
+												                                          unique(globaldata$updated_values_table$eel_typ_name),
+												                                          loaded_data$file_type),
+												                                   "_",
+												                                   Sys.Date(),
+												                                   current_cou_code))) 
+												        )) 
+												    } else {
+												      datatable(data.frame())
+												    }}
+												  )
+												
 											}else{
 												output$"step1_message_updated" <- renderUI("No data")
 											} 
@@ -292,8 +324,10 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																))) 
                         
 												globaldata$deleted_values_table <- compare_with_database_deleted_values(deleted_from_excel,data_from_base) 
-												output$dt_deleted_values <- DT::renderDataTable(
-														globaldata$deleted_values_table,
+												output$dt_deleted_values <- DT::renderDataTable({
+												  browser()
+												  if (nrow(globaldata$deleted_values_table) > 0){
+														datatable(globaldata$deleted_values_table,
 														rownames=FALSE,
 														extensions = "Buttons",
 														option=list(
@@ -307,8 +341,17 @@ importstep1Server <- function(id,globaldata, loaded_data){
 																scrollX = T, 
 																buttons=list(
 																		list(extend="excel",
-																				filename = paste0("deleted_",loaded_data$file_type,"_",Sys.Date(),current_cou_code))) 
+																				filename = paste0("deleted_",
+																				                  ifelse(loaded_data$file_type == 'catch_landings',
+																				                         data_from_excel$eel_typ_name,
+																				                         loaded_data$file_type),
+																				                  "_",
+																				                  Sys.Date(),
+																				                  current_cou_code))) 
 														))
+												    }else {
+												      datatable(data.frame())
+												    }})
 											}else{
 												output$"step1_message_deleted"<-renderUI("No data")
 											}

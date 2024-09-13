@@ -46,7 +46,7 @@
 
 ## Annex 4
 * 230 values inserted (manually counted integration file due to disconnect right after integration)
-* ISSUE: falty "updated data", waiting for response from provider
+* 174 values updated in the db (SOLVED: falty "updated data", waiting for response from provider)
 
 ## Annex 5
 *  180 new values inserted in the database
@@ -54,7 +54,7 @@
 
 
 ## Annex 6
-
+* not pertinent
 
 
 ## Annex 7
@@ -64,14 +64,24 @@
 ## Annex 8
 * 2 new values inserted in the database
 
-
-## Annex 10
+## Annex 9
 
 ### samplinginfo
-
+* 9 values updated in the db (sai_info)
 
 ### group metrics
-
-
+* 157 values deleted from group table, cascade delete on metrics
+* 147 and 1319 new values inserted in the group and metric tables
+  
 ### individual metrics
+* 10394 values deleted from fish table, cascade delete on metrics
+* 10394 and 62214 new values inserted in the fish and metric tables
+
+## Annex 10
+* 180 new values inserted in the database
+* 148 values updated in the db
+
+## Annex 11
+* 54 new values inserted in the database
+* 201 values updated in the db
 

@@ -38,13 +38,14 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                  proceedmessage <- ""
                  data <- reactiveValues()
                  
-                 
                  observeEvent(input$ok,{
                    output$newind <- renderDT(data.frame())
                    shinyjs::hide("ok")
                    shinyjs::hide("cancel")
                    shinyjs::hide("newind")
                    tryCatch({
+                     browser()
+                     
                      conn <- poolCheckout(pool)
                      dbBegin(conn)
                      getFilePath <- reactive({
@@ -61,7 +62,6 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      datadb <- rls$datadb
                      cou_code <- rls$cou_code
                      proceedmessage <- rls$message
-                     dbCommit(conn)
                      if ("eel_typ_id" %in% names(rls$datadb)) {
                        file_type <- paste("integration eel_typ_id:",
                                           paste(unique(rls$datadb$eel_typ_id),
@@ -73,6 +73,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                      log_datacall(log_message, cou_code = rls$cou_code, message = sQuote(proceedmessage),
                                   file_type = file_type, main_assessor = globaldata$main_assessor,
                                   secondary_assessor = globaldata$secondary_assessor)
+                     dbCommit(conn)
                    }, error = function(e) {
                      proceedmessage <<- e
                      dbRollback(conn)
