@@ -758,7 +758,7 @@ compare_with_database_metric_group <- function(data_from_excel,
     
     metrics_group <- tr_metrictype_mty %>% 
         filter(mty_group!="individual") %>% select(mty_name,mty_id)
-    data_from_base_wide <- data_from_base %>% right_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
+    data_from_base_wide <- data_from_base %>% left_join( metrics_group, by=c("meg_mty_id"="mty_id")) %>%
         select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
         tidyr::pivot_wider(names_from=mty_name,
             values_from=meg_value) 
@@ -955,7 +955,7 @@ compare_with_database_metric_ind <- function(
         select(mty_name,mty_id)
     
     # after pivot wider generates lines with NA so remove with is.na(fi_id)
-    data_from_base_wide <- data_from_base %>% right_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
+    data_from_base_wide <- data_from_base %>% left_join( metrics_ind, by=c("mei_mty_id"="mty_id")) %>%
         tidyr::pivot_wider(id_cols=c(starts_with("fi"),ifelse(type=="series","ser_nameshort","sai_name")),
             names_from=mty_name,
             values_from=mei_value) %>% filter(!is.na(fi_id))
