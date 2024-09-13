@@ -75,11 +75,10 @@
 
 * 101 new values inserted in the database
 
-### samplinginfo
+
+## Annex 11
+* 69 new values inserted in the database
 
 
-### group metrics
 
-
-### individual metrics
 
