@@ -1,6 +1,7 @@
 -----------------------------------------------------------
 # FI / Finland
 -----------------------------------------------------------
+# Annex 1 - DONE
 
 ### series
 No changes made (no recruitment data)
@@ -14,7 +15,7 @@ No changes made (no recruitment data)
 ### individual metrics
 No changes made (no recruitment data)
 
-# Annex 2 - DONE (missing only changes for individual data )
+# Annex 2 - DONE
 
 ### series
 No new series
@@ -23,10 +24,9 @@ No changes - data updated previously
 ### group metrics
 No changes - data updated previously
 ### individual metrics
-Will add changes on Thursday. These are not IMPORTANT additions: basically integration is done 
+1 and 4210 new values updated in the group and metric tables
 
-
-## Annex 3 - DONE (missing only changes for individual data)
+## Annex 3 - DONE
 
 ### series
 no new series
@@ -39,7 +39,8 @@ no new series
 
 ### individual metrics
 543 and 2171 new values inserted in the fish and metric tables
-Will add changes on Thursday. These are not IMPORTANT additions: basically integration is done 
+
+1 and 23294 new values updated in the group and metric tables
 
 
 ## Annex 4 _ DONE
@@ -66,12 +67,9 @@ Will add changes on Thursday. These are not IMPORTANT additions: basically integ
 ## Annex 9 - DONE
 No changes (all in Series 1-3)
 
-## Annex 10
-All values as NC. Cedric will add
- done
+## Annex 10 - DONE
  104 new values inserted in the database
-## Annex 11
-All values as NC. Cedric will add
+## Annex 11 - DONE
  102 new values inserted in the database
 
 

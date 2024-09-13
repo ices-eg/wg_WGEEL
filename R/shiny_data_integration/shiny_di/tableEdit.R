@@ -8,6 +8,8 @@ tableEditUI <- function(id){
   ns <- NS(id)
   tagList(useShinyjs(),
           h2("Data correction table"),
+          fluidRow(textOutput(ns("message"))),
+          br(),
           fluidRow(
             column(width=3,
                    pickerInput(inputId = ns("edit_datatype"), 
@@ -83,6 +85,9 @@ tableEditServer <- function(id,globaldata){
                    
                  )
                  
+                 output$message <- renderText("filters: the filters are automatic restricted to possible combinations. For exemple, if AaY is selected only life stage Y and country FR can be selected. If you want to select French series of silver eels, you have to unselect AaY first. If you want to select series from another country, you have to unselect AaY and FR first.
+                                              Don't forget to click on OK!
+                                              ")
                  selectedvalues <- reactiveValues(editpicker_cou = NULL,
                                                   editpicker_stage = NULL,
                                                   editpicker_typ_series = NULL,
@@ -127,7 +132,6 @@ tableEditServer <- function(id,globaldata){
                    req(globaldata$connectOK)
                    req(input$edit_datatype!="NULL")
                    validate(need(globaldata$connectOK,"No connection"))
-                   
                    query = switch (input$edit_datatype,
                                    "t_dataseries_das" = glue_sql(str_c("SELECT ser_cou_code,ser_nameshort,ser_lfs_code,min(das_year) minyear, max(das_year) maxyear  from datawg.t_dataseries_das das join datawg.t_series_ser on das_ser_id=ser_id 
                                                               group by ser_cou_code,ser_nameshort,ser_lfs_code"), 
@@ -299,10 +303,10 @@ tableEditServer <- function(id,globaldata){
                                    "t_dataseries_das" = glue_sql(str_c("SELECT das.*,ser_nameshort as ser_nameshort_ref,ser_emu_nameshort as ser_emu_nameshort_ref,ser_lfs_code as ser_lfs_code_ref from datawg.t_dataseries_das das join datawg.t_series_ser on das_ser_id=ser_id where ser_nameshort in ({pick_typ_series*}) and ser_cou_code in ({pick_country*}) and ser_lfs_code in ({pick_stage*}) and das_year>={minyear} and das_year<={maxyear}"), 
                                                                  minyear = the_years[1], maxyear = the_years[2], 
                                                                  .con = globaldata$pool),
-                                   "t_eelstock_eel" =  query <- glue_sql("SELECT *,typ_name as typ_name_ref from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id where eel_cou_code in ({pick_country*}) and eel_typ_id in ({pick_typ_series*}) and eel_lfs_code in ({pick_stage*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+                                   "t_eelstock_eel" =  query <- glue_sql("SELECT *,typ_name as typ_name_ref from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id where eel_cou_code in ({pick_country*}) and typ_name in ({pick_typ_series*}) and eel_lfs_code in ({pick_stage*}) and eel_year>={minyear} and eel_year<={maxyear}", 
                                                                          minyear = the_years[1], maxyear = the_years[2], 
                                                                          .con = globaldata$pool),
-                                   "t_eelstock_eel_perc" =  query <- glue_sql("SELECT percent_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick_country*}) and eel_typ_id in ({pick_typ_series*}) and eel_year>={minyear} and eel_year<={maxyear}", 
+                                   "t_eelstock_eel_perc" =  query <- glue_sql("SELECT percent_id,eel_year eel_year_ref,eel_emu_nameshort as eel_emu_nameshort_ref,eel_cou_code as eel_cou_code_ref,typ_name as typ_name_ref, perc_f, perc_t, perc_c,perc_mo from datawg.t_eelstock_eel join ref.tr_typeseries_typ on typ_id=eel_typ_id left join datawg.t_eelstock_eel_percent on percent_id=eel_id where eel_cou_code in ({pick_country*}) and typ_name in ({pick_typ_series*}) and eel_year>={minyear} and eel_year<={maxyear}", 
                                                                               minyear = the_years[1], maxyear = the_years[2], 
                                                                               .con = globaldata$pool),
                                    "t_series_ser" =  glue_sql("SELECT * from datawg.t_series_ser where ser_nameshort in ({pick_typ_series*}) and ser_lfs_code in ({pick_stage*}) and ser_cou_code in ({pick_country*})", # ser_ccm_wso_id is an array to deal with series being part of serval basins ; here we deal until 3 basins
@@ -421,7 +425,8 @@ tableEditServer <- function(id,globaldata){
                      other_series <- sort(setdiff(unique(dico$editpicker_typ_series), selected_typ_series))
                      selected_lfs <- dico$editpicker_stage[irow]
                      other_lfs <- sort(setdiff(unique(dico$editpicker_stage), selected_lfs))
-                     label <- ifelse(input$edit_datatype %in% c("t_series_ser","t_samplinginfo_sai"),
+                     label <- ifelse(!startsWith(input$edit_datatype ,
+                                                "t_eelstock"),
                                      "Select series :",
                                      "Select type :")
                      updatePickerInput(session=session,
