@@ -828,27 +828,23 @@ compare_with_database_metric_group <- function(data_from_excel,
       # for grsa_gr_id, gr_year, gr_sai_id 
       #  or   grser_ser_id, gr_year
       # so this will check duplicates row for sure
-      id_duplicate_rows <- data_from_excel %>% 	
-          dplyr::inner_join(
-              data_from_base_wide, 
-              by = c(ifelse(type=="series","ser_nameshort","sai_name"), 
-                  "gr_year",                   
-                  intersect("grsa_lfs_code",names(data_from_excel))), 
-              suffix = c(".base", ".xls")) %>% pull(id)   
-        
+  
+  duplicates <- data_from_base_wide %>% 	
+      dplyr::inner_join(
+          data_from_excel, 
+          by = c(ifelse(type=="series","ser_nameshort","sai_name"),
+              "gr_year",
+              intersect("grsa_lfs_code",names(data_from_excel))),              
+          suffix = c(".base", ".xls"))
+
       
       # A modified is any data in new_long that corresponds to a duplicate according
       # to the unique key constraint
   
       modified_long <- data_from_excel_long[data_from_excel_long$id %in% new_long$id &
-              data_from_excel_long$id %in% id_duplicate_rows,] 
+              data_from_excel_long$id %in% duplicates$id,] 
       
-      duplicates <- data_from_base_wide %>% 	
-          dplyr::inner_join(
-              data_from_excel, 
-              by = c(ifelse(type=="series","ser_nameshort","sai_name"),
-                  "gr_year",intersect("grsa_lfs_code",names(data_from_excel))),              
-              suffix = c(".base", ".xls"))
+
       
       new_long <- new_long %>% dplyr::filter(! id %in% modified_long$id)
       
@@ -991,8 +987,9 @@ compare_with_database_metric_ind <- function(
               names_to="mty_name") %>% 
           left_join(metrics_ind %>%
                   select(mty_name,mty_id), by="mty_name") %>%
-          rename(mei_mty_id=mty_id)%>% select(-mty_name) %>%
+          rename(mei_mty_id=mty_id)%>% 
           dplyr::filter(!is.na(mei_value))
+      # %>% select(-mty_name) normally don't need this
       
       # tests for any change in the table
       modified_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
@@ -1020,20 +1017,26 @@ compare_with_database_metric_ind <- function(
               "fi_lfs_code",
               "fi_id_cou",
               ifelse(type=="series","ser_nameshort","sai_name"),            
-              "mei_mty_id"))      
-    
-     
-      modified_long <- data_from_excel_long[data_from_excel_long$id %in% test_if_anything_changed$id &
-              data_from_excel_long$id %in% new_long$id,]
+              "mei_mty_id"))  
       
-      new_long <- new_long %>% dplyr::filter(! id %in% modified_long$id)
-      
+      # values are unique in the db, by constraint
+      # for grsa_gr_id, gr_year, gr_sai_id 
+      #  or   grser_ser_id, gr_year
+      # so this will check duplicates row for sure
       duplicates <- 
           data_from_base_wide %>% 	
           dplyr::inner_join(
               data_from_excel, 
               by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id_cou"), 
               suffix = c(".base", ".xls"))
+   
+     
+      modified_long <- data_from_excel_long[data_from_excel_long$id %in% duplicates$id &
+              data_from_excel_long$id %in% new_long$id,]
+      
+      new_long <- new_long %>% dplyr::filter(! id %in% modified_long$id)
+      
+
     }
     
  
@@ -1068,7 +1071,19 @@ compare_with_database_metric_ind <- function(
         highlight_change <- highlight_change[!apply(mat,1,all),num_common_col[!apply(mat,2,all)]]
       }
     } 
-    
+    # reordering hightlight change
+
+#    cols <- 1:ncol(highlight_change)
+#    nbxls <- grep(".xls",colnames(highlight_change))
+#    nbbase <- grep(".base",colnames(highlight_change))
+#    firstnum <- setdiff(cols,c(nbxls,nbbase))
+#    other <- NULL
+#     for (i in 1:length(nbxls)){
+#       other=c(other,nbxls[i], nbbase[i])
+#    }
+#    highlight_change <- highlight_change[c(firstnum,other),]
+
+
     if (nrow(new_long)>0) new_long$fi_dts_datasource <- the_eel_datasource 	
     if (nrow(modified_long)>0) modified_long$fi_dts_datasource <- the_eel_datasource 
     return(list(new = new_long,
