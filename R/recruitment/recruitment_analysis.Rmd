@@ -21,7 +21,7 @@ Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY <- 2023 # current year ==> dont forget to update the graphics path below
+CY <- 2024 # current year ==> dont forget to update the graphics path below
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
 
@@ -33,6 +33,7 @@ options(width=90) # this sets the width of the output
 library(flextable)
 if(!require(officedown)) install.packages("officedown") ; require(officedown)
 if(!require(officer)) install.packages("officer") ; require(officer)
+if(!require(prettymapr)) install.packages("prettymapr") ; require(prettymapr)
 
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
@@ -79,7 +80,7 @@ getUsername <- function(){
 wddata <- getwd()
 #<TAF_REMOVE>
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/recruitment") 
-if (getUsername() == "hilaire.drouineau") setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment") 
+if (getUsername() %in% c("hilaire.drouineau", "hdrouineau") ) setwd("/home/hilaire.drouineau/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/recruitment") 
 if (getUsername() == "hamme005") setwd("C:/Tessa/wg_WGEEL/R/recruitment") 
 #baseODBC=c("wgeel","wgeel",passwordwgeel) #"w3.eptb-vilaine.fr" "localhost" "wgeel" "wgeel_distant" 
 cred=read_yaml("../../credentials.yml")
@@ -271,7 +272,6 @@ print(xstatseriesY,
     table.placement = "htbp",
     caption.placement = "top",
     sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
     include.rownames=FALSE
 )
 
@@ -296,7 +296,7 @@ print(xseries_prob,
 if (nrow(series_prob)>15){
   xseries_prob1 <- xtable(x = series_prob[15:30,],
       label = "table_series_prob1",
-      caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY," having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+      caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY,"  having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
               2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
       align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
   )
@@ -1995,8 +1995,8 @@ knitr::include_graphics(paste0(imgwd,"figure2.png"))
 ```
 
 ```{r figure2b, fig.cap="Series selection and analysis. Series less than 10 years are not used in the analysis. Y yellow eel series, G + GY glass and young yellow eel series. NS North Sea, EE Elsewhere Europe", fig.width=16/254, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-if (file.exists(paste0(imgwd,"series_selection.png")))
-  knitr::include_graphics(paste0(imgwd,"series_selection.png"))
+if (file.exists(paste0(imgwd,"series_no_area.png")))
+  knitr::include_graphics(paste0(imgwd,"series_no_area.png"))
 ```
 
 
@@ -2067,8 +2067,8 @@ link: $glass eel \sim year:area + site$, where :
  * $glass eel$ is individual glass eel time-series including both pure G
    series and those identified as a mixture of glass and yellow eel (G+Y),
  * $site$ is the site monitored for recruitment, 
- * $area$$ is either the continental North Sea or Elsewhere Europe, and
- * $year$$ is the year coded as a categorical value. 
+ * $area$ is either the continental North Sea or Elsewhere Europe, and
+ * $year$ is the year coded as a categorical value. 
  For yellow eel time-series, only one estimate is
 provided: $yellow~eel \sim year + site$. 
 
@@ -2093,13 +2093,13 @@ Thus, in the case of the glass eel series, the recruitment of `r CY-1`
 has been recalculated from [PASTE VALUE FROM PREVIOUS REPORT HERE] to
 `r round(100*synthesis[nrow(synthesis)-1,"Elsewhere Europe"], digits= 1)`% in the Elsewhere Europe series
 (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). For the North
-Sea, recruitment for 2022 has been recalculated from
+Sea, recruitment for `r CY-1` has been recalculated from
 [PASTE VALUE FROM PREVIOUS REPORT HERE] to
 `r round(100*synthesis[nrow(synthesis)-1,"North Sea"], digits =1)`%.  
 
 Analyses of provisional `r CY` data show recruitment as a percentage of
-1960-1979 levels at 0.4 % in the North Sea, reaching its historical minimum, and
-8.8 % in elsewhere Europe (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). Data are **only
+1960-1979 levels at `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)` % in the North Sea~~, reaching its historical minimum,~~ and
+`r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits =1)` % in elsewhere Europe (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). Data are **only
 provisional** and give estimates at  
   `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% in the
 North Sea and
@@ -2108,7 +2108,7 @@ Elsewhere Europe (Figure
 \@ref(fig:figure5) \@ref(fig:figure5withlogscale), Tables
 \@ref(tab:tableglmglasseel)).
 
-```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
+```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("GLM 'glass eel ~ year:area + site'  geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period.")}
 columns = names(gg)
 years = rep(196:202,each=2)*10
 autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
@@ -2289,7 +2289,8 @@ autofit(flextable(data = series_CYm1)%>%
 ```
 
 ```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost")}
-autofit(flextable(data = series_lost)%>%
+autofit(flextable(data = series_lost %>%
+                    setNames(str_match(names(.), "^\\\\scshape\\{(.*?)\\}$")[,2]))%>%
           bold(bold = TRUE, part = "header"))
 ```
 
@@ -2299,7 +2300,7 @@ By dividing glass eel declared landing by the time series of abundance, we an de
 
 
 
-```{r fishingmortalitydata,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r fishingmortalitydata,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 pwd = passwordwgeel = password = cred$password
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=passwordwgeel)
 query="select sum(eel_value),eel_year,eel_emu_nameshort,eel_cou_code from datawg.t_eelstock_eel where eel_typ_id=4 and eel_qal_id=1 and eel_lfs_code in ('G','GY') and eel_year >= 2000 group by eel_year, eel_emu_nameshort,eel_cou_code "
@@ -2341,7 +2342,7 @@ dbDisconnect(con)
 
 
 
-```{r fishingmortality, eval=FALSE, fig.cap=paste("Reported G and GY commerical landings divided by recruitment index for EE (including landings reported in EMUs",emusEE,". The resulting ratio is a relative proxy of the exploitation rate that inform on trends in fishing mortality. The graph is restricted to the post Eel Regulation period since landings data are thought to be of better quality since then. Note that 2000 landings data is not available for GB. Year 2009 was removed since French, which accounts for a significant part of the landings, have not reported data for this year."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r fishingmortality, eval=TRUE, fig.cap=paste("Reported G and GY commerical landings divided by recruitment index for EE (including landings reported in EMUs",emusEE,". The resulting ratio is a relative proxy of the exploitation rate that inform on trends in fishing mortality. The graph is restricted to the post Eel Regulation period since landings data are thought to be of better quality since then. Note that 2000 landings data is not available for GB. Year 2009 was removed since French, which accounts for a significant part of the landings, have not reported data for this year."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
 ggplot(rates,aes(x=year_f)) +geom_ribbon(aes(ymin=landings/p_std_1960_1979_max, 
                                              ymax=landings/p_std_1960_1979_min),
@@ -2359,14 +2360,12 @@ ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
 ```
  
 <!-- TAF_REMOVE -->
-```{r TAF,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r TAF,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 source(TAFgeneration/taf_generation_script)
 ```
 
 
-```{r retrospective}
-library(yaml)
-
+```{r retrospective,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 series=dbReadTable(con,Id(schema="datawg",table="t_series_ser"))
@@ -2374,82 +2373,15 @@ inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year
   mutate(intro_year=ifelse(intro_year==2018,"≤2018",intro_year))
 
 #####First we draw retrospective plots with the data as they were when the model was run
-compute_retro_year <- function(y,model="glm_yoy",exclude_run_id=NULL, update_data =FALSE){
-  data=dbGetQuery(con,paste0("select * from datawg.t_modelrun_run left join datawg.t_modeldata_dat on dat_run_id=run_id where extract(year from run_date)=",y, " and run_mod_nameshort='",model,"'"))
-  runids=unique(data$run_id)
-  do.call(bind_rows,lapply(runids,function(rid){
-    subdata=data %>%
-      filter(run_id==rid) %>%
-      dplyr::rename(ser_id="dat_ser_id")
-    subdata <- subdata %>%
-      dplyr::rename(das_value="dat_das_value")
-    dbWriteTable(con,"temp_table",subdata[,c("ser_id","dat_ser_year")],temporary=TRUE)
-    newvalues=dbGetQuery(con,"select das_ser_id ser_id, dat_ser_year, das_value new_val, das_year from temp_table  full join datawg.t_dataseries_das on  ser_id=das_ser_id and dat_ser_year=das_year where (das_qal_id is null or das_qal_id in (1,2,4)) and das_ser_id in (select ser_id from temp_table) and das_ser_id is not null")
-    dbGetQuery(con,"drop table temp_table")
-    
-    updatedvalues = newvalues %>% #this is a data that might have been updated after the assessment
-      filter(das_year<=y)
-    lattervalues = newvalues %>% #this is a data in year after the assessment
-      filter(das_year>y)
-
-    if (update_data){
-      subdata <- subdata %>%
-        merge(updatedvalues,all.x=TRUE) %>%
-        mutate(das_value = new_val)
-    } 
-    subdata <- subdata %>%
-      bind_rows(lattervalues %>%
-                  dplyr::select(ser_id,das_year,new_val) %>%
-                  dplyr::rename(dat_ser_year="das_year",
-                         das_value="new_val"))
-    
-    
-
-
-    
-    subdata <- subdata %>%
-      left_join(R_stations)
-    meanseries = subdata %>%
-      dplyr::group_by(ser_nameshort) %>%
-      dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
-      ungroup()
-    
-    subdata <- subdata %>%
-      inner_join(meanseries) %>%
-      mutate(value_std=das_value/mean,
-             year_f=as.factor(dat_ser_year)) %>%
-      dplyr::rename(site="ser_nameshort") %>%
-      mutate(area=as.factor(area),
-             site=as.factor(site))
-      
-    if(model=="glm_yoy"){
-      mymodel <- update(model_ge_area,data=subdata %>%
-                     filter(value_std>0 & dat_ser_year>1959))
-    } else {
-      mymodel <- update(model_older,data=subdata %>%
-                     filter(value_std>0 & dat_ser_year>1949))
-    }
-    res <- predict_model(mymodel,reference=1960:1979)
-    res$run_id=y
-    res <- bind_rows(res %>% 
-                       filter(year<=y) %>%
-                       mutate(proj=FALSE),
-                     res %>% 
-                       filter(year>=y) %>%
-                       mutate(proj=TRUE))
-    res
-    
-  }))
-}
-
 
 
 #######retrospective plot model_yoy
 
-retro_yoy_notupdated=do.call(bind_rows,lapply(2018:2022,compute_retro_year)) %>%
+retro_yoy_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
-  mutate(run_id=ifelse(is.na(run_id),"current",run_id))
+  mutate(run_id=ifelse(is.na(run_id),CY,run_id))
+
 
 ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
        aes(x=year,y=p_std_1960_1979)) + 
@@ -2463,7 +2395,7 @@ ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
 
 #######retrospective plot model_yoy
 
-retro_older_notupdated=do.call(bind_rows,lapply(2018:2022,compute_retro_year,model="glm_older")) %>%
+retro_older_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year,model="glm_older")) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),"current",run_id)) 

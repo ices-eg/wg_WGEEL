@@ -344,7 +344,7 @@ select_series <- function(wger_init, R_stations){
   selection_summary$stat_discarded_series$span_sup_10 <- list()
   selection_summary$stat_discarded_series$span_sup_10$text <- "Series with qal_id = 0 and spanning more than ten years, along with their true length"
   selection_summary$stat_discarded_series$span_sup_10$table <-
-      left_join(
+      left_join(left_join(
           wger_init %>% dplyr::group_by(ser_id, site, ser_qal_id) %>%
               dplyr::summarize(span=max(year)-min(year)+1) %>% 
               mutate(sup10=span>=10) %>%
@@ -354,7 +354,11 @@ select_series <- function(wger_init, R_stations){
               filter(!is.na(value)) %>% 
               dplyr::summarize(len=n()) %>% 
               dplyr::select(site, len)
-      )
+      ),
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+        filter(!is.na(value) & das_qal_id == 1) %>% 
+        dplyr::summarize(len_qal_id1=n()) %>% 
+        dplyr::select(site, len_qal_id1))
   selection_summary$stat_discarded_series$span_less_10 <- list()
   selection_summary$stat_discarded_series$span_less_10$text <-
       "Series with ser_qal_id 1 or 4 and spanning less than ten years, number consecutive years ?. SHOULD BE NO SERIES"
@@ -1015,3 +1019,86 @@ createReportTableFromPred <- function(predtable){
   predtable
   
 }
+
+
+
+#' compute_retro_year
+#' This function is used to carry out retrospective analysis, i.e. compute the 
+#' glm models as if we were in year y, either with the time series used at that
+#' time or with current time series, and either including data revisions or not
+#' @param y the consider year of assessment
+#' @param model either "glm_yoy" (default) or "older
+#' @param exclude_run_id potential run_id to exclude
+#' @param update_data should we include revision of data that have occured since
+#' y or not
+#'
+#' @return a dataframe with previous results
+compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, update_data = FALSE){
+  data=dbGetQuery(con,paste0("select * from datawg.t_modelrun_run left join datawg.t_modeldata_dat on dat_run_id=run_id where extract(year from run_date)=",y, " and run_mod_nameshort='",model,"'"))
+  runids=unique(data$run_id)
+  do.call(bind_rows,lapply(runids,function(rid){
+    subdata=data %>%
+      filter(run_id == rid) %>%
+      dplyr::rename(ser_id = "dat_ser_id")
+    subdata <- subdata %>%
+      dplyr::rename(das_value = "dat_das_value")
+    dbWriteTable(con,"temp_table",subdata[,c("ser_id","dat_ser_year")],temporary=TRUE)
+    newvalues=dbGetQuery(con,"select das_ser_id ser_id, dat_ser_year, das_value new_val, das_year from temp_table  full join datawg.t_dataseries_das on  ser_id=das_ser_id and dat_ser_year=das_year where (das_qal_id is null or das_qal_id in (1,2,4)) and das_ser_id in (select ser_id from temp_table) and das_ser_id is not null")
+    dbGetQuery(con,"drop table temp_table")
+    
+    updatedvalues = newvalues %>% #this is a data that might have been updated after the assessment
+      filter(das_year <= y)
+    lattervalues = newvalues %>% #this is a data in year after the assessment
+      filter(das_year > y)
+    
+    if (update_data){
+      subdata <- subdata %>%
+        merge(updatedvalues, all.x = TRUE) %>%
+        mutate(das_value = new_val)
+    } 
+    subdata <- subdata %>%
+      bind_rows(lattervalues %>%
+                  dplyr::select(ser_id,das_year,new_val) %>%
+                  dplyr::rename(dat_ser_year="das_year",
+                                das_value="new_val"))
+    
+    
+    
+    
+    
+    subdata <- subdata %>%
+      left_join(R_stations)
+    meanseries = subdata %>%
+      dplyr::group_by(ser_nameshort) %>%
+      dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
+      ungroup()
+    
+    subdata <- subdata %>%
+      inner_join(meanseries) %>%
+      mutate(value_std=das_value/mean,
+             year_f=as.factor(dat_ser_year)) %>%
+      dplyr::rename(site="ser_nameshort") %>%
+      mutate(area=as.factor(area),
+             site=as.factor(site))
+    
+    if(model=="glm_yoy"){
+      mymodel <- update(model_ge_area,data=subdata %>%
+                          filter(value_std>0 & dat_ser_year>1959))
+    } else {
+      mymodel <- update(model_older,data=subdata %>%
+                          filter(value_std>0 & dat_ser_year>1949))
+    }
+    res <- predict_model(mymodel,reference=1960:1979)
+    res$run_id=y
+    res <- bind_rows(res %>% 
+                       filter(year<=y) %>%
+                       mutate(proj=FALSE),
+                     res %>% 
+                       filter(year>y) %>%
+                       mutate(proj=TRUE))
+    res
+    
+  }))
+}
+
+
