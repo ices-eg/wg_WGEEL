@@ -2393,6 +2393,9 @@ ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
   xlim(CY-10,CY)
 
 
+#####Now we draw retrospective plots with the data with data as they are now
+
+
 #######retrospective plot model_yoy
 
 retro_older_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year,model="glm_older")) %>%
@@ -2414,10 +2417,11 @@ ggretro_older_notupdated <- ggplot(retro_older_notupdated,
 
 #######retrospective plot model_yoy
 
-retro_yoy_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year, update_data=TRUE)) %>%
+retro_yoy_updated=do.call(bind_rows,
+                          lapply(2018:CY, compute_retro_year, update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
-  mutate(run_id=ifelse(is.na(run_id),"current",run_id))
+  mutate(run_id=ifelse(is.na(run_id), CY, run_id))
 
 ggretro_yoy_updated <- ggplot(retro_yoy_updated,
        aes(x=year,y=p_std_1960_1979)) + 
@@ -2431,10 +2435,11 @@ ggretro_yoy_updated <- ggplot(retro_yoy_updated,
 
 #######retrospective plot model_yoy
 
-retro_older_updated=do.call(bind_rows,lapply(2018:2022,compute_retro_year,model="glm_older", update_data=TRUE)) %>%
+retro_older_updated=do.call(bind_rows,
+                            lapply(2018:CY,compute_retro_year,model="glm_older", update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
-  dplyr::mutate(run_id=ifelse(is.na(run_id),"current",run_id)) 
+  dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id)) 
 
 ggretro_older_updated <- ggplot(retro_older_updated,
        aes(x=year,y=p_std_1960_1979)) + 
@@ -2453,7 +2458,7 @@ dbDisconnect(con)
 
 
 ```{r influenceseries, eval=FALSE}
-compute_discrepancy=function(si,model=model_ge_area,years=2010:2024){
+compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
          print(si)
   if ("area" %in% colnames(model$model))
     current_area <- R_stations$area[R_stations$ser_nameshort==si]

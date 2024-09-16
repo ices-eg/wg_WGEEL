@@ -1024,8 +1024,8 @@ createReportTableFromPred <- function(predtable){
 
 #' compute_retro_year
 #' This function is used to carry out retrospective analysis, i.e. compute the 
-#' glm models as if we were in year y, either with the time series used at that
-#' time or with current time series, and either including data revisions or not
+#' glm models as if we were in year y, with the time series used at that time,
+#' either including data revisions or not
 #' @param y the consider year of assessment
 #' @param model either "glm_yoy" (default) or "older
 #' @param exclude_run_id potential run_id to exclude
