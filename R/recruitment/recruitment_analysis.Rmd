@@ -2360,12 +2360,17 @@ ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
 ```
  
 <!-- TAF_REMOVE -->
-```{r TAF,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-source(TAFgeneration/taf_generation_script)
+```{r TAF,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+source("TAFgeneration/taf_generation_script.R")
 ```
 
 
+## Quality analysis
+### Retrospective analysis
+The following diagrams show the influence of new time series integration and data revision on the assessment. Each line corresponds to the GLM based on the time series used in year indicated by the color. The panel "not updated" stands for a GLM in which the data available at the time of the assessment are used. In "updated panel", potential revisions of data are integrated.
+
 ```{r retrospective,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+cred=read_yaml("../../credentials.yml")
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 series=dbReadTable(con,Id(schema="datawg",table="t_series_ser"))
@@ -2380,17 +2385,8 @@ inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year
 retro_yoy_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
-  mutate(run_id=ifelse(is.na(run_id),CY,run_id))
-
-
-ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id),lty=proj)) +
-  facet_wrap(~area, scales="free") +
-  scale_y_log10(expression(frac(p,bar(p)[1960-1979])))+ 
-  theme_bw()+ 
-  scale_color_viridis_d("")+ guides(lty = "none") + 
-  xlim(CY-10,CY)
+  mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
+  mutate(model="yoy",type="not updated")
 
 
 #####Now we draw retrospective plots with the data with data as they are now
@@ -2401,16 +2397,8 @@ ggretro_yoy_notupdated <- ggplot(retro_yoy_notupdated,
 retro_older_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year,model="glm_older")) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
-  dplyr::mutate(run_id=ifelse(is.na(run_id),"current",run_id)) 
-
-ggretro_older_notupdated <- ggplot(retro_older_notupdated,
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id),lty=proj)) +
-#  facet_wrap(~area) +
-  scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
-  theme_bw() + 
-  scale_color_viridis_d("")+ guides(lty = "none") + 
-  xlim(CY-10,CY)
+  dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
+  mutate(model="yellow",type="not updated")
 
 
 
@@ -2421,16 +2409,8 @@ retro_yoy_updated=do.call(bind_rows,
                           lapply(2018:CY, compute_retro_year, update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
-  mutate(run_id=ifelse(is.na(run_id), CY, run_id))
-
-ggretro_yoy_updated <- ggplot(retro_yoy_updated,
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id),lty=proj)) +
-  facet_wrap(~area, scales="free") +
-  scale_y_log10(expression(frac(p,bar(p)[1960-1979])))+ 
-  theme_bw()+ 
-  scale_color_viridis_d("")+ guides(lty = "none") + 
-  xlim(CY-10,CY)
+  mutate(run_id=ifelse(is.na(run_id), CY, run_id)) %>%
+  mutate(model="yoy",type="updated")
 
 
 #######retrospective plot model_yoy
@@ -2439,25 +2419,33 @@ retro_older_updated=do.call(bind_rows,
                             lapply(2018:CY,compute_retro_year,model="glm_older", update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
-  dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id)) 
+  dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id))  %>%
+  mutate(model="yellow",type="updated")
 
-ggretro_older_updated <- ggplot(retro_older_updated,
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id),lty=proj)) +
-#  facet_wrap(~area) +
-  scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
-  theme_bw() + 
-  scale_color_viridis_d("")+ guides(lty = "none") + 
-  xlim(CY-10,CY)
 
 dbDisconnect(con)
 
+ggplot(bind_rows(retro_older_updated,
+                 retro_older_notupdated,
+                 retro_yoy_notupdated,
+                 retro_yoy_updated) %>%
+         filter(!proj) %>%
+         mutate(area=ifelse(is.na(area), "", as.character(area))),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(run_id))) +
+#  facet_wrap(~area) +
+  scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
+  theme_bw() +
+  facet_grid(type ~ model + area) +
+  scale_color_viridis_d("")+ guides(lty = "none") + 
+  xlim(CY-10,CY)
 
 ```
 
+### Sensitivity to individual time series
+The following figures show how the index would change in case the corresponding time-series was discared from the dataset. The colour code indicates the year in which the time series was integrated into the GLM.
 
-
-```{r influenceseries, eval=FALSE}
+```{r influenceseries,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
          print(si)
   if ("area" %in% colnames(model$model))
@@ -2507,4 +2495,47 @@ ggplot(disc_older %>% arrange(desc(diff)),aes(x=sites,y=diff,fill=intro_year))+
 
 ```
 
+
+### Residuals plots
+The residual plots per series are used to detect potential patterns in time series or possible outliers.
+
+```{r resdiualsyoy,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+datares <- data.frame(obs = names(residuals(model_ge_area)),
+                      res = residuals(model_ge_area)) %>%
+  right_join(model_ge_area$data %>%
+               tibble::rownames_to_column("obs"))
+
+for (i in na.omit(unique(datares$site))){
+  print(ggplot(datares %>% filter(site == i),
+         aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
+    geom_bar(stat = "identity", show.legend=FALSE) + 
+    facet_wrap(~site, ncol = 2) +
+    ggtitle(i) + 
+    scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
+    theme_bw() + 
+    geom_hline(aes(yintercept=-3), lty = 2) +
+    geom_hline(aes(yintercept = 3), lty = 2))
+}
+```
+
+
+
+```{r resdiualsolder,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+datares <- data.frame(obs = names(residuals(model_older)),
+                      res = residuals(model_older)) %>%
+  right_join(model_older$data %>%
+               tibble::rownames_to_column("obs"))
+
+for (i in na.omit(unique(datares$site))){
+  print(ggplot(datares %>% filter(site == i),
+         aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
+    geom_bar(stat = "identity", show.legend=FALSE) + 
+    facet_wrap(~site, ncol = 2) +
+    ggtitle(i) + 
+    scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
+    theme_bw() + 
+    geom_hline(aes(yintercept=-3), lty = 2) +
+    geom_hline(aes(yintercept=3), lty = 2))
+}
+```
 <!-- END_TAF_REMOVE -->
