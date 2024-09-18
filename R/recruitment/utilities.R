@@ -1039,9 +1039,8 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
   do.call(bind_rows,lapply(runids,function(rid){
     subdata=data %>%
       filter(run_id == rid) %>%
-      dplyr::rename(ser_id = "dat_ser_id")
-    subdata <- subdata %>%
-      dplyr::rename(das_value = "dat_das_value")
+      dplyr::rename(ser_id = "dat_ser_id",
+                    das_value = "dat_das_value")
     dbWriteTable(con,"temp_table",subdata[,c("ser_id","dat_ser_year")],temporary=TRUE)
     newvalues=dbGetQuery(con,"select das_ser_id ser_id, dat_ser_year, das_value new_val, das_year from temp_table  full join datawg.t_dataseries_das on  ser_id=das_ser_id and dat_ser_year=das_year where (das_qal_id is null or das_qal_id in (1,2,4)) and das_ser_id in (select ser_id from temp_table) and das_ser_id is not null")
     dbGetQuery(con,"drop table temp_table")
@@ -1056,6 +1055,13 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
         merge(updatedvalues, all.x = TRUE) %>%
         mutate(das_value = new_val)
     } 
+    
+    #In the GLM data are standardised by their mean across the period (till y)
+    meanseries = subdata %>%
+      dplyr::group_by(ser_id) %>%
+      dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
+      ungroup()
+    
     subdata <- subdata %>%
       bind_rows(lattervalues %>%
                   dplyr::select(ser_id,das_year,new_val) %>%
@@ -1068,10 +1074,7 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
     
     subdata <- subdata %>%
       left_join(R_stations)
-    meanseries = subdata %>%
-      dplyr::group_by(ser_nameshort) %>%
-      dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
-      ungroup()
+
     
     subdata <- subdata %>%
       inner_join(meanseries) %>%
