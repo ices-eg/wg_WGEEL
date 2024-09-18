@@ -262,7 +262,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                  # this will render a datatable containing rows
                  # with duplicates values
                  #############################
-                 observeEvent(input$check_duplicate_button_dcf, {
+                 observeEvent(input$check_duplicate_button_dcf, {                       
                    shinyCatch({
                      
                      # see step0load_data returns a list with res and messages
@@ -401,7 +401,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                            type="other")
                      } else {
                        list_comp_individual_metrics$new <- data.frame()
-                     }
+                     }                     
                      if (nrow(updated_individual_metrics)>0){
                        list_comp_updated_individual_metrics <- 
                          compare_with_database_metric_ind(
@@ -455,7 +455,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                      
                      #cat("step1")
                      # step1 new sampling -------------------------------------------------------------
-                     
+               
                      if (nrow(list_comp_sampling$new)==0) {
                        output$step1_message_new_sampling <- renderUI(
                          HTML(
@@ -967,7 +967,7 @@ importdcfstep1Server <- function(id,globaldata,loaded_data_dcf,globaldcfpanel){
                          )
                        }
                      }
-                   })
+                   }) #shinyCatch
                    remove_modal_spinner()	
                  }, ignoreInit = TRUE)
                  return (mydcfpanel)
