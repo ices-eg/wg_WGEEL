@@ -457,3 +457,11 @@ AS SELECT t_eelstock_eel.eel_id,
 SELECT * FROM datawg.t_eelstock_eel_percent AS teep WHERE percent_id =513222
 UPDATE datawg.t_eelstock_eel_percent set perc_f=100, perc_t=100,perc_c=0, perc_mo=0 WHERE percent_id =513222
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 513222
+
+
+
+update datawg.t_series_ser set ser_qal_id=1, ser_qal_comment = 'now reaches the 10 years thresholds, validated by Ciara O''Leary'
+ where ser_nameshort = 'CorGY';
+
+update datawg.t_series_ser set ser_qal_id=1, ser_qal_comment = 'now reaches the 10 years thresholds, validated by Jan-Dag Pohlman'
+ where ser_nameshort = 'EmsHG';
