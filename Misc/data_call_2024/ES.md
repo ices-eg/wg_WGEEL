@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# ES
+# 00 (put the code of the country there) 
 -----------------------------------------------------------
 
 ## Annex 1
@@ -49,9 +49,14 @@ We need to upadte some individual metrics and there is a problem, waiting to Ced
 
 ## Annex 4
 
+
 72 new values inserted in the database
 
 5 values updated in the db
+LAter corrected: 
+32 values deleted in the db
+ 4 new values inserted in the database
+12 values updated in the db
 
 ## Annex 5
 
@@ -63,8 +68,8 @@ We need to upadte some individual metrics and there is a problem, waiting to Ced
 10 values deleted in the db because we realized: But please make your life easy, if you are simply transporting eels arround a dam, same place, don't report" and this was the case it ther
 
 ## Annex 7
-
-37505
+2 values deleted in the db
+20 values updated in the db
 
 
 ## Annex 8
@@ -84,6 +89,9 @@ We need to upadte some individual metrics and there is a problem, waiting to Ced
  3970 and 11272 new values inserted in the fish and metric tables
 
 ## Annex 10
-we have not uploaded this annex as we have detected errors in some EMUs (Bbest greater than BO) for this reason we will wait for corrections to be sent to us.
+ 271 new values inserted in the database
+115 values updated in the db
+115 values updated in the db
 ## Annex 11
-we have not uploaded this annex because we have detected errors in some EMUs, we believe that they are not well calculated, for this reason we will wait for the corrections to be sent to us.
+ 108 new values inserted in the database
+131 values updated
