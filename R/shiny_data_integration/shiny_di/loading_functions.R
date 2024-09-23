@@ -688,10 +688,19 @@ load_release<-function(path,datasource){
           
         } else { #  if nrow 
           data_xls$eel_datasource <- datasource
-          release_tot <- data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
-                                     "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
-                                     "eel_comment","eel_datasource")
-          ]
+          if (sheet != "new_data"){
+            release_tot <- data_xls[,c("eel_id","eel_typ_name", "eel_year","eel_value","eel_missvaluequal","eel_emu_nameshort",
+                                       "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+                                       "eel_comment","eel_datasource")
+            ]
+          } else {
+            release_tot <- data_xls[,c("eel_typ_name", "eel_year","eel_missvaluequal","eel_emu_nameshort",
+                                       "eel_cou_code", "eel_lfs_code", "eel_hty_code","eel_area_division",
+                                       "eel_comment","eel_datasource")
+            ]
+            release_tot$eel_value <- numeric(0)
+            release_tot$eel_id <- numeric(0)
+            }
         }
       } # end else
     }# end else
