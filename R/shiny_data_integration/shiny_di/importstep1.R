@@ -325,7 +325,6 @@ importstep1Server <- function(id,globaldata, loaded_data){
                         
 												globaldata$deleted_values_table <- compare_with_database_deleted_values(deleted_from_excel,data_from_base) 
 												output$dt_deleted_values <- DT::renderDataTable({
-												  browser()
 												  if (nrow(globaldata$deleted_values_table) > 0){
 														datatable(globaldata$deleted_values_table,
 														rownames=FALSE,
