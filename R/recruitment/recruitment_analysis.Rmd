@@ -13,10 +13,10 @@ output:
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 library(knitr)
 opts_knit$set(eval.after = "fig.cap",
-		echo=FALSE,
-		warning = FALSE,
-		message = FALSE,
-		error=FALSE)
+              echo=FALSE,
+              warning = FALSE,
+              message = FALSE,
+              error=FALSE)
 Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
@@ -73,8 +73,8 @@ purpletext <- fp_text(color = 'purple', bold = TRUE)
 # get your current name 
 #--------------------------------
 getUsername <- function(){
-	name <- Sys.info()[["user"]]
-	return(name)
+  name <- Sys.info()[["user"]]
+  return(name)
 }
 
 wddata <- getwd()
@@ -170,162 +170,162 @@ printstatseriesGEE <- series_tables$printstatseriesGEE
 printstatseriesGY <- series_tables$printstatseriesGY
 
 xseries_CY <- xtable(x = series_CY,
-    label = "table_seriesCY",
-    caption = str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South"),
-    align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}", "p{1cm}","p{1.4cm}"))
+                     label = "table_seriesCY",
+                     caption = str_c("Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division. Series ordered by stage and from North to South"),
+                     align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}", "p{1cm}","p{1.4cm}"))
 print(xseries_CY, file = str_c(	tabwd,"/table_seriesCY.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    tabular.environment="tabularx",
-    width="\\textwidth",
-    include.rownames=FALSE
+      table.placement = "htbp",
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      tabular.environment="tabularx",
+      width="\\textwidth",
+      include.rownames=FALSE
 )
 
 #------------------------------------------------------
 # xtable of series current year minus one
 #------------------------------------------------------
 xseries_CYm1 <- xtable(x = series_CYm1,
-    label = str_c("table_seriesCYm1"),
-    caption = str_c("Series updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered from North to South"),
-    align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}"))
+                       label = str_c("table_seriesCYm1"),
+                       caption = str_c("Series updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered from North to South"),
+                       align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}"))
 
 print(xseries_CYm1, 
-    file = str_c(tabwd,"/table_seriesCYm1.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    tabular.environment="tabularx",
-    width="\\textwidth",
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_seriesCYm1.tex"),
+      table.placement = "htbp",
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      tabular.environment="tabularx",
+      width="\\textwidth",
+      include.rownames=FALSE
 )
 #------------------------------------------------------
 # xtable of series that have not been updated
 #------------------------------------------------------
 xseries_lost <- xtable(x = series_lost,
-    label = str_c("table_serieslost"),
-    caption = str_c("Series stopped or not updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered by last year"),
-    align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}","p{1.2cm}"))
+                       label = str_c("table_serieslost"),
+                       caption = str_c("Series stopped or not updated to ",CY-1, " see table \\ref{table_seriesCY)} for codes. Series ordered by last year"),
+                       align=c("p{0cm}","p{1.3cm}","p{6.5cm}","p{1cm}","p{1cm}","p{1cm}","p{1.4cm}","p{1.2cm}"))
 print(xseries_lost, 
-    file = str_c(tabwd,"/table_serieslost.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    tabular.environment="tabularx",
-    width="\\textwidth",
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_serieslost.tex"),
+      table.placement = "htbp",
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      tabular.environment="tabularx",
+      width="\\textwidth",
+      include.rownames=FALSE
 )
 
 
 xstatseriesGNS <- xtable(x = printstatseriesGNS, 
-    label = str_c("statseriesG"),
-    caption = str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-    align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
-    digits=0)
+                         label = str_c("statseriesG"),
+                         caption = str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
+                         align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+                         digits=0)
 
 print(xstatseriesGNS , 
-    file = str_c(tabwd,"/table_statseriesGNS.tex"),
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_statseriesGNS.tex"),
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      include.rownames=FALSE
 )
 
 xstatseriesGEE <- xtable(x = printstatseriesGEE, 
-    label = str_c("statseriesG"),
-    caption = str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
-    align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
-    digits=0)
+                         label = str_c("statseriesG"),
+                         caption = str_c("Short description of the sampling sites for European eel recruitment data for Elsewhere Europe. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses."),
+                         align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+                         digits=0)
 
 print(xstatseriesGEE , 
-    file = str_c(tabwd,"/table_statseriesGEE.tex"),
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_statseriesGEE.tex"),
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      include.rownames=FALSE
 )
 
 xstatseriesGY <- xtable(x = printstatseriesGY, 
-    label = str_c("statseriesGY"),
-    caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
-    align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
-    digits=0)
+                        label = str_c("statseriesGY"),
+                        caption = str_c("Short description of the recruitment sites (continued : stage glass eel and yellow eel)"),
+                        align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+                        digits=0)
 print(xstatseriesGY , 
-    file = str_c(tabwd,"/table_statseriesGY.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_statseriesGY.tex"),
+      table.placement = "htbp",
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      NA.string = ".",
+      include.rownames=FALSE
 )
 
 xstatseriesY <- xtable(x = printstatseriesY, 
-    label = str_c("statseriesY"),
-    caption = str_c("Short description of the recruitment sites (continued : yellow eel series) "),
-    align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
-    digits=0)
+                       label = str_c("statseriesY"),
+                       caption = str_c("Short description of the recruitment sites (continued : yellow eel series) "),
+                       align=c("p{0cm}","p{1cm}","p{1cm}","p{1cm}","p{1cm}","p{0.8cm}","p{0.8cm}","p{1cm}","p{2cm}","p{2cm}","p{1cm}","p{1cm}"),
+                       digits=0)
 print(xstatseriesY, 
-    file = str_c(tabwd,"/table_statseriesY.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    include.rownames=FALSE
+      file = str_c(tabwd,"/table_statseriesY.tex"),
+      table.placement = "htbp",
+      caption.placement = "top",
+      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+      include.rownames=FALSE
 )
 
 ################################################################
 # Table of the problem in series for this year
 ################################################################
 xseries_prob <- xtable(x = series_prob[1:15,],
-    label = "table_series_prob",
-    caption = str_c("Data in " ,CY-1, " and ", CY, " having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+                       label = "table_series_prob",
+                       caption = str_c("Data in " ,CY-1, " and ", CY, " having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
             2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-    align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+            align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
 )
 print(xseries_prob,
-    file = str_c(	tabwd,"/table_series_prob.tex"),
-    table.placement = "htbp",
-    caption.placement = "top",
-    sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-    NA.string = ".",
-    #tabular.environment="longtable",
-    include.rownames=FALSE
-)
-if (nrow(series_prob)>15){
-  xseries_prob1 <- xtable(x = series_prob[15:30,],
-      label = "table_series_prob1",
-      caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY,"  having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
-              2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-      align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
-  )
-  print(xseries_prob1,
-      file = str_c(	tabwd,"/table_series_prob1.tex"),
+      file = str_c(	tabwd,"/table_series_prob.tex"),
       table.placement = "htbp",
       caption.placement = "top",
       sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
       NA.string = ".",
       #tabular.environment="longtable",
       include.rownames=FALSE
+)
+if (nrow(series_prob)>15){
+  xseries_prob1 <- xtable(x = series_prob[15:30,],
+                          label = "table_series_prob1",
+                          caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY,"  having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+              2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
+              align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+  )
+  print(xseries_prob1,
+        file = str_c(	tabwd,"/table_series_prob1.tex"),
+        table.placement = "htbp",
+        caption.placement = "top",
+        sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+        NA.string = ".",
+        #tabular.environment="longtable",
+        include.rownames=FALSE
   )
 }
 
 if (nrow(series_prob)>30){
   xseries_prob2 <- xtable(x = series_prob[30:nrow(series_prob),],
-      label = "table_series_prob2",
-      caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY," having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
+                          label = "table_series_prob2",
+                          caption = str_c("Table \\ref{table_series_prob} continued. Data in ",CY-1," and ",CY," having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality,
               2 = wgeel has modified the data, 3 = not used due to poor quality, 4 =	data is used, but there are warnings on its quality"),
-      align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
+              align=c("p{0cm}","p{1.5cm}","p{1.5cm}","p{1.5cm}","p{1cm}","p{1cm}","p{1cm}","p{8cm}")
   )
   print(xseries_prob2,
-      file = str_c(	tabwd,"/table_series_prob2.tex"),
-      table.placement = "htbp",
-      caption.placement = "top",
-      sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
-      NA.string = ".",
-      #tabular.environment="longtable",
-      include.rownames=FALSE
+        file = str_c(	tabwd,"/table_series_prob2.tex"),
+        table.placement = "htbp",
+        caption.placement = "top",
+        sanitize.colnames.function=function(x){x}, # otherwise \\ are escaped
+        NA.string = ".",
+        #tabular.environment="longtable",
+        include.rownames=FALSE
   )
 }
 
@@ -350,14 +350,14 @@ if (nrow(series_prob)>30){
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 dd <- as.data.frame(table(year=wger$year,lifestage=wger$lifestage))
 dd$lifestage <- ifelse(dd$lifestage == "glass eel + yellow eel",
-                        "mixed glass and yellow eels", as.character(dd$lifestage))
+                       "mixed glass and yellow eels", as.character(dd$lifestage))
 figure2 <- ggplot(dd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
-		theme(text=element_text(size=12))+
-		scale_x_continuous(limits=c(1900,CY))+
-		theme_bw()+
-		theme(text = element_text(size=20),
-				axis.text.x = element_text(angle=0, hjust=1))+
-		theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 20))
+  theme(text=element_text(size=12))+
+  scale_x_continuous(limits=c(1900,CY))+
+  theme_bw()+
+  theme(text = element_text(size=20),
+        axis.text.x = element_text(angle=0, hjust=1))+
+  theme(legend.position = c(0.25,0.75), legend.text = element_text( size = 20))
 
 
 print(figure2)
@@ -368,14 +368,14 @@ ddd$lifestage <- ifelse(ddd$lifestage == "glass eel + yellow eel",
                         "mixed glass and yellow eels", as.character(ddd$lifestage))
 
 figure2.1 <- ggplot(ddd, aes(x=as.numeric(as.character(year)), y=Freq, group=lifestage, col=lifestage)) + geom_point() + geom_line(lwd=2) + ylab('number of series') +xlab('year')+
-		facet_wrap(~factor(ddd$area), ncol=2) +
-		theme(text=element_text(size=10))+
-		scale_x_continuous(limits=c(1900,CY))+
-		theme_bw()+
-		theme(text = element_text(size=25),
-				axis.text.x = element_text(angle=0, hjust=1))+
-		# theme(legend.position = c(0.15,0.88), legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
-		theme(legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
+  facet_wrap(~factor(ddd$area), ncol=2) +
+  theme(text=element_text(size=10))+
+  scale_x_continuous(limits=c(1900,CY))+
+  theme_bw()+
+  theme(text = element_text(size=25),
+        axis.text.x = element_text(angle=0, hjust=1))+
+  # theme(legend.position = c(0.15,0.88), legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
+  theme(legend.text = element_text( size = 15),axis.text.x = element_text(angle = 45, size=16))
 
 
 
@@ -408,23 +408,23 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 
 #<TAF_REMOVE>
 if (!file.exists(paste0(datawd,"fao.rdata"))){
-con <- dbConnect(Postgres(),host=cred$host,password=cred$password,dbname=cred$dbname,user=cred$user)
-fao <- st_read(con,query="select * from ref.tr_faoareas")
-fao <- st_crop(fao, xmin = -13, xmax = 27,
-		ymin = 35, ymax = 65)
-fao <- st_transform(fao,3857)
-fao$zone <- 
-		ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
-				"North Sea",
-				"Elsewhere Europe")
-# this is not used but just in case
-fao$zoneyellow <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
+  con <- dbConnect(Postgres(),host=cred$host,password=cred$password,dbname=cred$dbname,user=cred$user)
+  fao <- st_read(con,query="select * from ref.tr_faoareas")
+  fao <- st_crop(fao, xmin = -13, xmax = 27,
+                 ymin = 35, ymax = 65)
+  fao <- st_transform(fao,3857)
+  fao$zone <- 
     ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
-        "North Sea",
-        ifelse(startsWith(fao$f_code,"37"), "Mediterranean_sea",
-        "Elsewhere Europe")))
-
-save(fao, file=paste0(datawd,"fao.Rdata"))
+           "North Sea",
+           "Elsewhere Europe")
+  # this is not used but just in case
+  fao$zoneyellow <- ifelse(fao$f_code %in% c("27.3.d",'27.3.b, c'),"Baltic",
+                           ifelse(startsWith(fao$f_code,"27.4.") | startsWith(fao$f_code,"27.3."),
+                                  "North Sea",
+                                  ifelse(startsWith(fao$f_code,"37"), "Mediterranean_sea",
+                                         "Elsewhere Europe")))
+  
+  save(fao, file=paste0(datawd,"fao.Rdata"))
 }
 #<END_TAF_REMOVE>
 
@@ -460,85 +460,85 @@ stations$Y = st_coordinates(stations)[,"Y"]
 mapG <- ggplot() +
   annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
   geom_sf(data=fao %>% filter(zone %in% c("North Sea","Elsewhere Europe")), inherit.aes = FALSE, aes(fill=zone)) +
-#		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
-		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE, aes(label=f_code),cex=1.5) +
-#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
-#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
-#				inherit.aes=FALSE) +
-#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
-#				inherit.aes=FALSE) +
-		geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("G", "GY")),aes(x=X,y=Y,
-						color=ser_lfs_code,stroke=0),shape=19,size=3)+
-		 geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("G", "GY")),
-		 		color = 'black', 
-		 		size=3, 
-		 		shape = 21,
-		 		stroke=1,
-		 		aes(x=X,y=Y)) +
-		guides(fill = guide_legend(override.aes = list(shape = 21))) +
-		scale_fill_manual("Area",values=c("#33b1c4","#1a81db","#30ff8a")) +
-		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
-		guides(alpha=guide_legend("Recruitment series",
-						legend.background = element_blank(),
-						title.theme=element_text(face="bold"),
-						keyheight=0,
-						label.theme=element_text(size=0,lineheight=0),
-						order=1, 
-						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
-		theme(
-				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
-				legend.background = element_blank(),
-				legend.position = c(.995, .3),
-				legend.justification = c("right", "center"),
-				legend.box.just = "left",
-				legend.box.margin = margin(1, 1, 1, 1),
-				legend.margin = margin(1, 1, 1, 1),
-				legend.key = element_rect(colour = "transparent", fill = "transparent"),
-				axis.text=element_text(size=8),
-				plot.margin=margin(0.,0.1,0.1,0.1, "cm")
-		
-		) + xlab("")+ylab("")
+  #		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+  geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE, aes(label=f_code),cex=1.5) +
+  #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+  #		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+  #				inherit.aes=FALSE) +
+  #		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+  #				inherit.aes=FALSE) +
+  geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("G", "GY")),aes(x=X,y=Y,
+                                                                                            color=ser_lfs_code,stroke=0),shape=19,size=3)+
+  geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("G", "GY")),
+             color = 'black', 
+             size=3, 
+             shape = 21,
+             stroke=1,
+             aes(x=X,y=Y)) +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
+  scale_fill_manual("Area",values=c("#33b1c4","#1a81db","#30ff8a")) +
+  scale_color_manual("Life stage",values=c("white","grey","yellow"))+
+  guides(alpha=guide_legend("Recruitment series",
+                            legend.background = element_blank(),
+                            title.theme=element_text(face="bold"),
+                            keyheight=0,
+                            label.theme=element_text(size=0,lineheight=0),
+                            order=1, 
+                            override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+  theme(
+    legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+    legend.background = element_blank(),
+    legend.position = c(.995, .3),
+    legend.justification = c("right", "center"),
+    legend.box.just = "left",
+    legend.box.margin = margin(1, 1, 1, 1),
+    legend.margin = margin(1, 1, 1, 1),
+    legend.key = element_rect(colour = "transparent", fill = "transparent"),
+    axis.text=element_text(size=8),
+    plot.margin=margin(0.,0.1,0.1,0.1, "cm")
+    
+  ) + xlab("")+ylab("")
 
 mapY <- ggplot()+
   annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
-		coord_sf(crs = st_crs(3857)) + # force it to be 3857
-		geom_sf(data=fao, inherit.aes = FALSE, fill=NA) +
-		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
-#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
-#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
-#				inherit.aes=FALSE) +
-#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
-#				inherit.aes=FALSE) +
-		geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("Y")),aes(x=X,y=Y,
-						color=ser_lfs_code,stroke=0),shape=17,size=3)+
-		 geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("Y")),
-		 		color = 'black', 
-		 		size=3, 
-		 		shape = 24,
-		 		stroke=1,
-		 		aes(x=X,y=Y)) +
-		guides(fill = guide_legend(override.aes = list(shape = 21))) +
-		scale_color_manual("Life stage",values=c("white","grey","yellow"))+
-		guides(alpha=guide_legend("Recruitment series",
-						legend.background = element_blank(),
-						title.theme=element_text(face="bold"),
-						keyheight=0,
-						label.theme=element_text(size=0,lineheight=0),
-						order=1, 
-						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
-		theme(
-				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
-				legend.background = element_blank(),
-				legend.position = c(.995, .3),
-				legend.justification = c("right", "center"),
-				legend.box.just = "left",
-				legend.box.margin = margin(1, 1, 1, 1),
-				legend.margin = margin(1, 1, 1, 1),
-				legend.key = element_rect(colour = "transparent", fill = "transparent"),
-				axis.text=element_text(size=8),
-				plot.margin=margin(0.,0.1,0.1,0.1, "cm") 
-		
-		) + xlab("")+ylab("")
+  coord_sf(crs = st_crs(3857)) + # force it to be 3857
+  geom_sf(data=fao, inherit.aes = FALSE, fill=NA) +
+  geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+  #		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+  #		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+  #				inherit.aes=FALSE) +
+  #		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+  #				inherit.aes=FALSE) +
+  geom_point(data=stations %>% filter(ser_qal_id == 1 & ser_lfs_code %in% c("Y")),aes(x=X,y=Y,
+                                                                                      color=ser_lfs_code,stroke=0),shape=17,size=3)+
+  geom_point(data=subset(stations,ser_qal_id==1&  ser_lfs_code %in% c("Y")),
+             color = 'black', 
+             size=3, 
+             shape = 24,
+             stroke=1,
+             aes(x=X,y=Y)) +
+  guides(fill = guide_legend(override.aes = list(shape = 21))) +
+  scale_color_manual("Life stage",values=c("white","grey","yellow"))+
+  guides(alpha=guide_legend("Recruitment series",
+                            legend.background = element_blank(),
+                            title.theme=element_text(face="bold"),
+                            keyheight=0,
+                            label.theme=element_text(size=0,lineheight=0),
+                            order=1, 
+                            override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+  theme(
+    legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+    legend.background = element_blank(),
+    legend.position = c(.995, .3),
+    legend.justification = c("right", "center"),
+    legend.box.just = "left",
+    legend.box.margin = margin(1, 1, 1, 1),
+    legend.margin = margin(1, 1, 1, 1),
+    legend.key = element_rect(colour = "transparent", fill = "transparent"),
+    axis.text=element_text(size=8),
+    plot.margin=margin(0.,0.1,0.1,0.1, "cm") 
+    
+  ) + xlab("")+ylab("")
 
 figure1 <- ggpubr::ggarrange(plotlist=list(mapG,mapY),nrow=1)
 print(figure1)
@@ -572,15 +572,15 @@ tab1 <- rbind(first_line,tab1)
 
 
 openxlsx::write.xlsx(x=list("recruitment_series"=tab1,
-				"series_description"=statseries, 
-        "stat_G_EE"=printstatseriesGEE,
-        "stat_G_NS"=printstatseriesGNS,
-        "stat_GY"=printstatseriesGY,
-        "stat_Y"=printstatseriesY,
-        "t_series_ser"=t_series_ser),file=str_c(outputdatawd,"table_rec", CY, ".xlsx"))
+                            "series_description"=statseries, 
+                            "stat_G_EE"=printstatseriesGEE,
+                            "stat_G_NS"=printstatseriesGNS,
+                            "stat_GY"=printstatseriesGY,
+                            "stat_Y"=printstatseriesY,
+                            "t_series_ser"=t_series_ser),file=str_c(outputdatawd,"table_rec", CY, ".xlsx"))
 
 openxlsx::write.xlsx(x=list("wger_init"=wger_init,
-				"older"=older, "wger"=wger),file=str_c(outputdatawd,"table_long", CY, ".xlsx"))
+                            "older"=older, "wger"=wger),file=str_c(outputdatawd,"table_long", CY, ".xlsx"))
 
 ```
 
@@ -605,110 +605,110 @@ openxlsx::write.xlsx(x=list("wger_init"=wger_init,
 ###################################################
 sgeomean.cl.boot <- function (x, conf.int = 0.95, B = 1000, na.rm = TRUE, reps = FALSE) 
 {
-	if (na.rm)    x <- x[!is.na(x)]
-	n <- length(x)
-	# geomean returns a dataframe, convert it to vector
-	xbar <- as.numeric(geomean(x))
-	if (n < 2L) # 2L is an integer
-		return(c(Mean = xbar, Lower = NA, Upper = NA))
-	z <- unlist(lapply(seq_len(B), function(i, x, N) sum(x[sample.int(N, 
-												N, TRUE, NULL)]), x = x, N = n))/n
-	quant <- quantile(z, c((1 - conf.int)/2, (1 + conf.int)/2))
-	names(quant) <- NULL
-	res <- c(Geomean = xbar, Lower = quant[1L], Upper = quant[2L])
-	if (reps) 
-		attr(res, "reps") <- z
-	res
+  if (na.rm)    x <- x[!is.na(x)]
+  n <- length(x)
+  # geomean returns a dataframe, convert it to vector
+  xbar <- as.numeric(geomean(x))
+  if (n < 2L) # 2L is an integer
+    return(c(Mean = xbar, Lower = NA, Upper = NA))
+  z <- unlist(lapply(seq_len(B), function(i, x, N) sum(x[sample.int(N, 
+                                                                    N, TRUE, NULL)]), x = x, N = n))/n
+  quant <- quantile(z, c((1 - conf.int)/2, (1 + conf.int)/2))
+  names(quant) <- NULL
+  res <- c(Geomean = xbar, Lower = quant[1L], Upper = quant[2L])
+  if (reps) 
+    attr(res, "reps") <- z
+  res
 }
 scal=data.frame("year"=as.numeric(names(tapply(wger$value_std_1979_1994,wger$year,min,na.rm=TRUE))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(wger$value_std_1979_1994,wger$year,min,na.rm=TRUE),
-		"ymax"=tapply(wger$value_std_1979_1994,wger$year,max,na.rm=TRUE),
-		"mean"=tapply(wger$value_std_1979_1994,wger$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(wger$value_std_1979_1994,wger$year,geomean,na.rm=TRUE)))
+                "value_std"=NA,
+                "name"=NA,
+                "lifestage"=NA,
+                "ymin"= tapply(wger$value_std_1979_1994,wger$year,min,na.rm=TRUE),
+                "ymax"=tapply(wger$value_std_1979_1994,wger$year,max,na.rm=TRUE),
+                "mean"=tapply(wger$value_std_1979_1994,wger$year,mean,na.rm=TRUE),
+                "geomean"=unlist(tapply(wger$value_std_1979_1994,wger$year,geomean,na.rm=TRUE)))
 
 
 li_cl_boot=tapply(wger$value_std_1979_1994,wger$year,smean.cl.boot)
 li_cl_boot_geomean=tapply(wger$value_std_1979_1994,wger$year,sgeomean.cl.boot)
 bootscal=data.frame("year"=as.numeric(names(li_cl_boot)),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
-		"ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
-		"ymin_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Lower"])),
-		"ymax_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Upper"])),    
-		"mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
-		"geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Geomean"])))
+                    "value_std"=NA,
+                    "name"=NA,
+                    "lifestage"=NA,
+                    "ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
+                    "ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
+                    "ymin_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Lower"])),
+                    "ymax_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Upper"])),    
+                    "mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
+                    "geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Geomean"])))
 # creating a subset with all data (glass_eel_yoy is limited in its timeframe)
 datageel=subset(wger,wger$lifestage!="yellow eel")
 scalgeel=data.frame(
-		"year"=as.numeric(names(tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE),
-		"ymax"=	tapply(datageel$value_std_1979_1994,datageel$year,max,na.rm=TRUE),
-		"mean"=tapply(datageel$value_std_1979_1994,datageel$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(datageel$value_std_1979_1994,datageel$year,geomean,na.rm=TRUE))
+  "year"=as.numeric(names(tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE))),
+  "value_std"=NA,
+  "name"=NA,
+  "lifestage"=NA,
+  "ymin"= tapply(datageel$value_std_1979_1994,datageel$year,min,na.rm=TRUE),
+  "ymax"=	tapply(datageel$value_std_1979_1994,datageel$year,max,na.rm=TRUE),
+  "mean"=tapply(datageel$value_std_1979_1994,datageel$year,mean,na.rm=TRUE),
+  "geomean"=unlist(tapply(datageel$value_std_1979_1994,datageel$year,geomean,na.rm=TRUE))
 )
 datayellow=subset(wger,wger$lifestage=="yellow eel")
 scalyellow=data.frame(
-		"year"=as.numeric(names(tapply(datayellow$value_std_1979_1994,datayellow$year,min,na.rm=TRUE))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(datayellow$value_std_1979_1994,datayellow$year,min,na.rm=TRUE),
-		"ymax"=	tapply(datayellow$value_std_1979_1994,datayellow$year,max,na.rm=TRUE),	
-		"mean"=tapply(datayellow$value_std_1979_1994,datayellow$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(datayellow$value_std_1979_1994,datayellow$year,geomean,na.rm=TRUE)))
+  "year"=as.numeric(names(tapply(datayellow$value_std_1979_1994,datayellow$year,min,na.rm=TRUE))),
+  "value_std"=NA,
+  "name"=NA,
+  "lifestage"=NA,
+  "ymin"= tapply(datayellow$value_std_1979_1994,datayellow$year,min,na.rm=TRUE),
+  "ymax"=	tapply(datayellow$value_std_1979_1994,datayellow$year,max,na.rm=TRUE),	
+  "mean"=tapply(datayellow$value_std_1979_1994,datayellow$year,mean,na.rm=TRUE),
+  "geomean"=unlist(tapply(datayellow$value_std_1979_1994,datayellow$year,geomean,na.rm=TRUE)))
 scaldata=wger[,c("year","value_std_1979_1994","value_std","site","lifestage")]
 ################################################################
 # With scaling 2000-2010
 ##############################################################
 
 scal_2000_2009=data.frame("year"=as.numeric(names(tapply(wger$value_std_2000_2009,wger$year,min,na.rm=TRUE))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(wger$value_std_2000_2009,wger$year,min,na.rm=TRUE),
-		"ymax"=tapply(wger$value_std_2000_2009,wger$year,max,na.rm=TRUE),  
-		"mean"=tapply(wger$value_std_2000_2009,wger$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(wger$value_std_2000_2009,wger$year,geomean)))
+                          "value_std"=NA,
+                          "name"=NA,
+                          "lifestage"=NA,
+                          "ymin"= tapply(wger$value_std_2000_2009,wger$year,min,na.rm=TRUE),
+                          "ymax"=tapply(wger$value_std_2000_2009,wger$year,max,na.rm=TRUE),  
+                          "mean"=tapply(wger$value_std_2000_2009,wger$year,mean,na.rm=TRUE),
+                          "geomean"=unlist(tapply(wger$value_std_2000_2009,wger$year,geomean)))
 li_cl_boot=tapply(wger$value_std_2000_2009,wger$year,smean.cl.boot)
 bootscal_2000_2009=data.frame("year"=as.numeric(names(li_cl_boot)),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
-		"ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
-		"ymin_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Lower"])),
-		"ymax_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Upper"])),
-		"mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
-		"geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Geomean"])))
+                              "value_std"=NA,
+                              "name"=NA,
+                              "lifestage"=NA,
+                              "ymin"=unlist(lapply(li_cl_boot,function(X)X["Lower"])),
+                              "ymax"=unlist(lapply(li_cl_boot,function(X)X["Upper"])),
+                              "ymin_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Lower"])),
+                              "ymax_geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Upper"])),
+                              "mean"=unlist(lapply(li_cl_boot,function(X)X["Mean"])),
+                              "geomean"=unlist(lapply(li_cl_boot_geomean,function(X)X["Geomean"])))
 
 scalgeel_2000_2009=data.frame(
-		"year"=as.numeric(names(tapply(datageel$value_std_2000_2009,datageel$year,min))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(datageel$value_std_2000_2009,datageel$year,min,na.rm=TRUE),
-		"ymax"=	tapply(datageel$value_std_2000_2009,datageel$year,max,na.rm=TRUE),	
-		"mean"=tapply(datageel$value_std_2000_2009,datageel$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(datageel$value_std_2000_2009,datageel$year,geomean))
+  "year"=as.numeric(names(tapply(datageel$value_std_2000_2009,datageel$year,min))),
+  "value_std"=NA,
+  "name"=NA,
+  "lifestage"=NA,
+  "ymin"= tapply(datageel$value_std_2000_2009,datageel$year,min,na.rm=TRUE),
+  "ymax"=	tapply(datageel$value_std_2000_2009,datageel$year,max,na.rm=TRUE),	
+  "mean"=tapply(datageel$value_std_2000_2009,datageel$year,mean,na.rm=TRUE),
+  "geomean"=unlist(tapply(datageel$value_std_2000_2009,datageel$year,geomean))
 )
 
 scalyellow_2000_2009=data.frame(
-		"year"=as.numeric(names(tapply(datayellow$value_std_2000_2009,datayellow$year,min,na.rm=TRUE))),
-		"value_std"=NA,
-		"name"=NA,
-		"lifestage"=NA,
-		"ymin"= tapply(datayellow$value_std_2000_2009,datayellow$year,min,na.rm=TRUE),
-		"ymax"=	tapply(datayellow$value_std_2000_2009,datayellow$year,max,na.rm=TRUE),	
-		"mean"=tapply(datayellow$value_std_2000_2009,datayellow$year,mean,na.rm=TRUE),
-		"geomean"=unlist(tapply(datayellow$value_std_2000_2009,datayellow$year,geomean,na.rm=TRUE)))
+  "year"=as.numeric(names(tapply(datayellow$value_std_2000_2009,datayellow$year,min,na.rm=TRUE))),
+  "value_std"=NA,
+  "name"=NA,
+  "lifestage"=NA,
+  "ymin"= tapply(datayellow$value_std_2000_2009,datayellow$year,min,na.rm=TRUE),
+  "ymax"=	tapply(datayellow$value_std_2000_2009,datayellow$year,max,na.rm=TRUE),	
+  "mean"=tapply(datayellow$value_std_2000_2009,datayellow$year,mean,na.rm=TRUE),
+  "geomean"=unlist(tapply(datayellow$value_std_2000_2009,datayellow$year,geomean,na.rm=TRUE)))
 scaldata_2000_2009=wger[,c("year","value_std_2000_2009","site","lifestage")]
 
 #########################
@@ -729,14 +729,14 @@ round(unlist(tapply(datayellow$value_std_1979_1994,datayellow$year,geomean)),3)
 # and the dots are the bootstrap means
 g <- ggplot(scaldata)
 g1 <- g+geom_point(aes(x=year, y=value_std_1979_1994,colour=site,shape=lifestage),size=1.5)+
-		geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4)+
-		ylab("scaled 1979-1994 values")+
-		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
-		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
-		theme(legend.position = "none")
+  geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4)+
+  ylab("scaled 1979-1994 values")+
+  geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+  geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
+  theme(legend.position = "none")
 
 figure3withoutlogscale <- g1+	scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
-		scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
+  scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
 
 print(figure3withoutlogscale)
 save_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
@@ -746,14 +746,14 @@ save_figure("figure3withoutlogscale",figure3withoutlogscale,800,600)
 
 g <- ggplot(scaldata)
 g2 <- g+geom_point(aes(x=year, y=value_std_1979_1994,colour=site,shape=lifestage),size=1.5)+
-		geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4)+
-		ylab("scaled 1979-1994 values")+
-		geom_pointrange(data=bootscal,aes(x=year,y=geomean,ymin=ymin_geomean,ymax=ymax_geomean),size=0.5,colour="black")+
-		geom_line(data=scal,aes(x=year,y=mean),colour="#003366",size=1.2)+
-		theme(legend.position = "none")
+  geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4)+
+  ylab("scaled 1979-1994 values")+
+  geom_pointrange(data=bootscal,aes(x=year,y=geomean,ymin=ymin_geomean,ymax=ymax_geomean),size=0.5,colour="black")+
+  geom_line(data=scal,aes(x=year,y=mean),colour="#003366",size=1.2)+
+  theme(legend.position = "none")
 
 figure3withoutlogscale_opt2 <- g2+scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
-		scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
+  scale_y_continuous(limits=c(0,10))+annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
 
 print(figure3withoutlogscale_opt2)
 
@@ -767,25 +767,25 @@ save_figure("figure3withoutlogscale_opt2",figure3withoutlogscale_opt2,800,600)
 #########################################
 
 figure3 <- g1+
-		scale_y_log10(name="scaled 1979-1994 values log scale",limits=c(0.001,30),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
-		#ylab()
-		
-		scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),
-				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
-		annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
+  scale_y_log10(name="scaled 1979-1994 values log scale",limits=c(0.001,30),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+  #ylab()
+  
+  scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),
+                     minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+  annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
 
 print(figure3)
 save_figure(figname="figure3",figure3,800,600)
 
 
 figure3bis <- g1+
-		scale_y_log10(name="scaled 1979-1994 values log scale",
-				limits=c(0.001,30),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%"))+
-		scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),
-				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
-		annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
+  scale_y_log10(name="scaled 1979-1994 values log scale",
+                limits=c(0.001,30),
+                breaks=c(0.01,0.1,1,10),
+                labels=c("1%","10%","100%","1000%"))+
+  scale_x_continuous(breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),
+                     minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2))+
+  annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=30,fill="grey",alpha=0.5)
 
 print(figure3bis)
 
@@ -800,14 +800,14 @@ save_figure(figname="figure3bis",figure3bis,800,600)
 
 g <- ggplot(scaldata)
 figure3black <- g+geom_point(aes(x=year, y=value_std_1979_1994,colour=site,shape=lifestage),size=1.5,show.legend=FALSE)+
-		geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4,show.legend=FALSE)+
-		#ylab("scaled 1979-1994 values")+
-		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
-		geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
-		scale_y_log10(name="percentage of 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
-		scale_x_continuous(breaks=c(1930,1950,1970,1980,1990,2000,2010),
-				minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2),limits=c(1930,CY))+
-		theme_black()
+  geom_line(aes(x=year, y=value_std_1979_1994,colour=site,lty=lifestage),size=0.4,show.legend=FALSE)+
+  #ylab("scaled 1979-1994 values")+
+  geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="beige")+
+  geom_line(data=scal,aes(x=year,y=geomean),colour="red",size=1.2)+
+  scale_y_log10(name="percentage of 1979-1994",limits=c(0.005,10),breaks=c(0.01,0.1,1,10),labels=c("1%","10%","100%","1000%"))+
+  scale_x_continuous(breaks=c(1930,1950,1970,1980,1990,2000,2010),
+                     minor_breaks=seq(from=min(scaldata$year),to=max(scaldata$year),by=2),limits=c(1930,CY))+
+  theme_black()
 
 print(figure3black)
 # {{{{{{{{{{{{{{{{{{{{{{{{{
@@ -835,13 +835,13 @@ scallog[scallog$ymin<1e-2,"ymin"] <- 1e-2
 scallog[scallog$ymax>30,"ymax"] <- 30
 g <- ggplot(scallog)
 figure4 <- g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey",data=scallog)+
-		ylab("scaled 1979-1994 values log scale")+
-		geom_line(aes(x=year,y=mean),data=scalgeel,colour="darkblue",size=1)+
-		geom_line(aes(x=year,y=mean),data=scalyellow,colour="darkorange4",size = 1)+
-		geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
-		scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+
-		annotate("rect",xmin=1930,ymin=0.01,xmax=1960,ymax=30,fill="white",alpha=0.7)+
-		scale_x_continuous(limits=c(1930,CY))
+  ylab("scaled 1979-1994 values log scale")+
+  geom_line(aes(x=year,y=mean),data=scalgeel,colour="darkblue",size=1)+
+  geom_line(aes(x=year,y=mean),data=scalyellow,colour="darkorange4",size = 1)+
+  geom_pointrange(data=bootscal,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+  scale_y_log10(limits=c(0.01,30),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+
+  annotate("rect",xmin=1930,ymin=0.01,xmax=1960,ymax=30,fill="white",alpha=0.7)+
+  scale_x_continuous(limits=c(1930,CY))
 
 print(figure4)
 save_figure(figname="figure4",figure4,800,600)
@@ -855,18 +855,18 @@ scallog[scallog$ymin<1e-1,"ymin"] <- 1e-1
 scallog[scallog$ymax>1000,"ymax"] <- 1000
 g <- ggplot(scallog)
 figure42000_2009 <- g+geom_ribbon(aes(x=year,ymin=ymin,ymax=ymax),fill="grey")+
-		#ggtitle("Recruitment European overview")+
-		ylab("scaled to 2000-2010, log scale")+
-		geom_line(aes(x=year,y=mean),data=scalgeel_2000_2009,colour="darkblue",size=1)+
-		geom_line(aes(x=year,y=mean),data=scalyellow_2000_2009,colour="darkorange4",size = 1)+
-		geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
-		geom_abline( intercept = 0,slope=0,	alpha = .4,col="red")+
-		geom_abline( intercept = 2,slope=0,	alpha = .4,col="red")+
-		scale_y_log10(limits=c(1e-1,1000),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+		
-		scale_x_continuous(limits=c(1930,CY))+
-		annotate("rect",xmin=1930,ymin=1e-1,xmax=1960,ymax=1000,fill="white",alpha=0.7)+
-		annotate("rect", xmin = 2000, xmax = 2009, ymin = 0.3, ymax = 3,
-				alpha = .2,fill="blue")
+  #ggtitle("Recruitment European overview")+
+  ylab("scaled to 2000-2010, log scale")+
+  geom_line(aes(x=year,y=mean),data=scalgeel_2000_2009,colour="darkblue",size=1)+
+  geom_line(aes(x=year,y=mean),data=scalyellow_2000_2009,colour="darkorange4",size = 1)+
+  geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+  geom_abline( intercept = 0,slope=0,	alpha = .4,col="red")+
+  geom_abline( intercept = 2,slope=0,	alpha = .4,col="red")+
+  scale_y_log10(limits=c(1e-1,1000),breaks=c(0.01,0.1,1,10,100,1000),labels=c("0.01","0.1","1","10","100","1000"))+		
+  scale_x_continuous(limits=c(1930,CY))+
+  annotate("rect",xmin=1930,ymin=1e-1,xmax=1960,ymax=1000,fill="white",alpha=0.7)+
+  annotate("rect", xmin = 2000, xmax = 2009, ymin = 0.3, ymax = 3,
+           alpha = .2,fill="blue")
 
 
 print(figure42000_2009)
@@ -883,17 +883,17 @@ rxg <- as.numeric(names(xg))
 xy <- unlist(tapply(datayellow$value_std,datayellow$year,geomean))
 rxy <- as.numeric(names(xy))
 plot(rxg,
-		xg,
-		type="b",
-		main="a simple graph to check that ggplot's running fine")
+     xg,
+     type="b",
+     main="a simple graph to check that ggplot's running fine")
 points(rxy,xy,type="l",col="green")
 legend("topright",legend=c("glass","yellow"),col=c("black","green"),lty=1)
 
 # additional figure to check log scaled
 
 plot(rxy,
-		xy,log="y",
-		type="b",col="green")
+     xy,log="y",
+     type="b",col="green")
 points(rxg,xg,type="l")
 #tapply(wger$value_std,wger$year,mean_cl_boot)
 
@@ -903,19 +903,19 @@ points(rxg,xg,type="l")
 # WITH REFERENCE 2000-2010 !
 ########################################
 figure_check_one_series <- function(site='KatwG',limits=c(1900,CY)){
-	g <- ggplot(scaldata_2000_2009)
-	g <- g+geom_point(aes(x=year, y=value_std_2000_2009),col="grey",size=1.5)+
-			geom_line(aes(x=year, y=value_std_2000_2009),col="grey",size=0.4)+
-			geom_point(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
-			geom_line(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
-			ylab("scaled 2000-2009 values")+
-			geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
-			geom_line(data=scal_2000_2009,aes(x=year,y=geomean),colour="red",size=1.2)+
-			theme(legend.position = "none")+
-			scale_x_continuous(limits=limits,breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata_2000_2009$year),to=max(scaldata_2000_2009$year),by=2))+
-			scale_y_continuous(limits=c(0,20))+
-			annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
-	return(g)
+  g <- ggplot(scaldata_2000_2009)
+  g <- g+geom_point(aes(x=year, y=value_std_2000_2009),col="grey",size=1.5)+
+    geom_line(aes(x=year, y=value_std_2000_2009),col="grey",size=0.4)+
+    geom_point(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
+    geom_line(aes(x=year, y=value_std_2000_2009),colour="blue",size=1,data=scaldata_2000_2009[scaldata_2000_2009$site==site,])+
+    ylab("scaled 2000-2009 values")+
+    geom_pointrange(data=bootscal_2000_2009,aes(x=year,y=mean,ymin=ymin,ymax=ymax),size=0.5,colour="black")+
+    geom_line(data=scal_2000_2009,aes(x=year,y=geomean),colour="red",size=1.2)+
+    theme(legend.position = "none")+
+    scale_x_continuous(limits=limits,breaks=c(1900,1930,1950,1970,1980,1990,2000,2010),minor_breaks=seq(from=min(scaldata_2000_2009$year),to=max(scaldata_2000_2009$year),by=2))+
+    scale_y_continuous(limits=c(0,20))+
+    annotate("rect",xmin=1900,ymin=0,xmax=1960,ymax=10,fill="grey",alpha=0.5)
+  return(g)
 }
 
 figure_check_one_series("KatwG",limits=c(1960,2019))
@@ -927,8 +927,8 @@ figure_check_one_series("KatwG",limits=c(1960,2019))
 glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
-		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log), maxit=300)
+                  data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+                  family=Gamma(link=log), maxit=300)
 
 # lesser fit :
 #model_ge_area1=glm(value_std~year_f:area + as.factor(lfs_code),
@@ -944,10 +944,10 @@ selection_summary$modelge$site <- as.character(model_ge_area$xlevels$site)
 (selection_summary$modelge$nbsite <- length(selection_summary$modelge$site))
 selection_summary$modelge$excluded <- unique(glass_eel_yoy$site)[!unique(glass_eel_yoy$site)%in%selection_summary$modelge$site]
 selection_summary$modelge$value_excluded_zero <- glass_eel_yoy[glass_eel_yoy$value==0&!is.na(glass_eel_yoy$value),
-		c("value_std","site","year","lifestage","das_comment","area")]
+                                                               c("value_std","site","year","lifestage","das_comment","area")]
 
 model_older=glm(value_std~year_f+as.factor(site),data=older,family=Gamma(link=log),
-		subset=older$value>0 & older$year>1949  ,maxit=300)
+                subset=older$value>0 & older$year>1949  ,maxit=300)
 selection_summary$modelolder <- list()
 selection_summary$modelolder$site <- as.numeric(as.character(model_older$xlevels$`as.factor(site)`))
 selection_summary$modelolder$nbsite <- length(selection_summary$modelolder$site)
@@ -955,20 +955,20 @@ selection_summary$modelolder$excluded <- unique(older$site)[!unique(older$site)%
 selection_summary$modelolder$excludedsite <- unique(older[older$site%in%selection_summary$modelolder$excluded,"site"])
 selection_summary$modelolder$excludedsite <- unique(older[older$site%in%selection_summary$modelolder$excluded,"site"])
 selection_summary$modelolder$value_excluded_zero <- older[older$value==0,
-		c("value_std","site","year","lifestage","das_comment","area")]
+                                                          c("value_std","site","year","lifestage","das_comment","area")]
 
 xt_a <- xtable(Anova(model_ge_area,test="F"),
-		caption=c("Anova for glass eel recruitment model",
-				label="table_anova"))
+               caption=c("Anova for glass eel recruitment model",
+                         label="table_anova"))
 
 o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"), 
-		table.placement = "htbp",
-		caption.placement = "top",
-		NA.string = "",
-		include.rownames=TRUE,
-		tabular.environment="tabularx",
-		width="0.8\\textwidth",
-		sanitize.colnames.function=function(x){x})	
+           table.placement = "htbp",
+           caption.placement = "top",
+           NA.string = "",
+           include.rownames=TRUE,
+           tabular.environment="tabularx",
+           width="0.8\\textwidth",
+           sanitize.colnames.function=function(x){x})	
 save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
 #plot(model_ge_area)
 ```
@@ -999,13 +999,13 @@ glass_eel_yoy$location <- as.factor(glass_eel_yoy$location)
 
 # glmer is used to fit generalized (non-Gaussian) linear mixed models
 glmer1 <- glmer(value_std~year_f:area+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                family=Gamma(link=log))
 
 glmer11 <- glmer(value_std~year_f:area+location+(1|site), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                 family=Gamma(link=log))
 
 glmer12 <- glmer(value_std~year_f:area+site+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                 family=Gamma(link=log))
 
 # model_ge_area is the glm, compare it with ANOVA, this should be fine since is ML
 
@@ -1020,7 +1020,7 @@ devglm <- -2*logLik(model_ge_area)
 (delta_df <- attr(devglm,"df")-attr(devglmer1,"df"))
 ## the GLM has a better fit
 cat('Chi-square =', delta_dev, '(df=', delta_df,'), p =', 
-		pchisq(delta_dev,delta_df,lower.tail=FALSE), "\n")
+    pchisq(delta_dev,delta_df,lower.tail=FALSE), "\n")
 # same shown here
 anova( glmer1, model_ge_area,  test="Chisq")
 # So the glm is better than the mixed model
@@ -1030,16 +1030,16 @@ anova( glmer1, model_ge_area,  test="Chisq")
 # Here we compare the mixed structure of the models, so we are using REML
 
 glmer1 <- glmer(value_std~year_f:area+site+(1|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                family=Gamma(link=log))
 
 glass_eel_yoy$year2 <- pmax(year,2011)
 # model with  lfs_code
 
 glmer2 <- glmer(value_std~year_f:area+(1+year|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                family=Gamma(link=log))
 
 glmer3 <- glmer(value_std~year_f:area+(1+year|location) + (1+year2|location), data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		family=Gamma(link=log))
+                family=Gamma(link=log))
 
 anova(glmer2, glmer1, refit=FALSE)
 
@@ -1058,7 +1058,7 @@ save(glmer1, glmer2, glmer3, file=paste0(outputdatawd,glmer.Rdata))
 ########new sets of lines to graph plots with confidence intervals
 # using expand.grid to build a complete grid for predictions
 dat_ge=expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
-		site=model_ge_area$xlevels$site[1])
+                   site=model_ge_area$xlevels$site[1])
 dat_ge$year <- as.numeric(as.character(dat_ge$year_f))
 
 
@@ -1085,19 +1085,19 @@ dat_ge$p_std_1960_1979_maxgraph <- pmin(dat_ge$p_std_1960_1979_max,upperlimit-0.
 g <- ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))
 
 figure5_without_logscale<- g+
-		geom_line(aes(colour=area,lty=area),lwd=1)+ 		
-		scale_colour_brewer(name="area",palette="Set1")+
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
-		coord_cartesian(ylim=c(0,5))+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
-		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position = c(.8, .8))
+  geom_line(aes(colour=area,lty=area),lwd=1)+ 		
+  scale_colour_brewer(name="area",palette="Set1")+
+  geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
+  coord_cartesian(ylim=c(0,5))+
+  scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+  theme_bw()+
+  geom_hline(yintercept=1,linetype=2)+
+  geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  theme(legend.box =NULL,
+        legend.key = element_rect(colour = NA, fill = 'white'),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.background = element_rect(colour = NA, fill = 'white'),
+        legend.position = c(.8, .8))
 
 figure5_without_logscale
 save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
@@ -1105,11 +1105,11 @@ save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 # function similar to theme_dark() but allows legends
 # black and white plot ====
 figure5_without_logscale_black <- g+geom_line(aes(colour=area,lty=area),lwd=1)+
-		scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-		theme_black()+
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
-		scale_fill_manual(name="area",values=c("yellow","lawngreen"))
+  scale_colour_manual(name="area",values=c("yellow","lawngreen"))+
+  scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+  theme_black()+
+  geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)+
+  scale_fill_manual(name="area",values=c("yellow","lawngreen"))
 
 
 figure5_without_logscale_black
@@ -1119,20 +1119,20 @@ save_figure("figure5_without_logscale_black_ribbon",figure5_without_logscale_bla
 #====
 #+geom_smooth(aes(ymin = min, ymax = max,fill=area),stat="identity")+facet_grid( ~ area) 
 figure5 <- g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=area,fill=area,shape=area),size=3)+
-		#ggtitle("Recruitment overview glass eel series")+
-		scale_colour_brewer(name="area",palette="Set1")  +
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
-				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%"))+
-		theme_bw()+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+  #ggtitle("Recruitment overview glass eel series")+
+  scale_colour_brewer(name="area",palette="Set1")  +
+  #annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+  #annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+  scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+                #limits=c(0.005,10),
+                breaks=c(0.01,0.1,1,10),
+                labels=c("1%","10%","100%","1000%"))+
+  theme_bw()+
+  theme(legend.box =NULL,
+        legend.key = element_rect(colour = NA, fill = 'white'),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.background = element_rect(colour = NA, fill = 'white'),
+        legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
 
 
 figure5
@@ -1228,17 +1228,17 @@ gg <- split_per_decade_ge(gg0)
 gg[,1:8] <- 100*round(gg[,1:8],2)
 gg[,9:ncol(gg)] <- 100*round(gg[,9:ncol(gg)],3)
 nothing <- latex(gg,
-		rowlabel="",
-		rowlabel.just="c",
-		where="hptb",
-		cgroup=cgroupdecade,
-		n.cgroup=rep(ncol(gg0),length(cgroupdecade)),
-		collabel.just=strsplit("c c c c c c c c c c c c c c c", " ")[[1]],	
-		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
-		#landscape=TRUE,
-		label="table_glm_glass_eel",
-		caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
-		file= str_c(tabwd,"/table_glm_glass_eel.tex"))
+                 rowlabel="",
+                 rowlabel.just="c",
+                 where="hptb",
+                 cgroup=cgroupdecade,
+                 n.cgroup=rep(ncol(gg0),length(cgroupdecade)),
+                 collabel.just=strsplit("c c c c c c c c c c c c c c c", " ")[[1]],	
+                 col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+                 #landscape=TRUE,
+                 label="table_glm_glass_eel",
+                 caption=str_c("GLM $glass~eel \\sim year:area + site $ geometric means of predicted values for ",selection_summary$nb_series_glass_eel," glass eel series, values given in percentage of the 1960-1979 period."),	
+                 file= str_c(tabwd,"/table_glm_glass_eel.tex"))
 
 
 
@@ -1300,8 +1300,8 @@ trend$lNS <- log(trend$"North Sea")
 # test glm with a breakpoint ----------------------------------------------------
 # this models takes numeric, not factors we assume a log trend
 model_ge_area_b=glm(value_std~year:area+site+pmax(year,2011):area,
-		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=1980,],
-		family=Gamma(link=log), maxit=300)
+                    data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>=1980,],
+                    family=Gamma(link=log), maxit=300)
 ##summary(model_ge_area_b)
 ## plot(model_ge_area_b)
 len <- length(coef(model_ge_area_b))
@@ -1329,11 +1329,11 @@ summary(glht(model_ge_area_b, linfct = Kee, alternative="less",rhs=0.05))
 Kns = matrix(c(rep(0,len-4),0,1,0,1), nrow = 1) # we just add the to coef trend to have the trend after 2011
 summary_coefficient_afterns <- summary(glht(model_ge_area_b, linfct = Kns, alternative="greater"))
 trend_test_for_change_ee <- sprintf("Estimate = %.3f P-value %.4f",
-		summary_coefficient_afteree$test$coefficients,
-		summary_coefficient_afteree$test$pvalues)
+                                    summary_coefficient_afteree$test$coefficients,
+                                    summary_coefficient_afteree$test$pvalues)
 trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
-		summary_coefficient_afterns$test$coefficients,
-		summary_coefficient_afterns$test$pvalues)
+                                    summary_coefficient_afterns$test$coefficients,
+                                    summary_coefficient_afterns$test$pvalues)
 
 
 # back to long format, save for shiny
@@ -1347,7 +1347,7 @@ if(!require(segmented)) install.packages("segmented") ; require(segmented)
 
 
 dat_ge1 <- expand.grid(year=1980:2025,area=as.factor(model_ge_area_b$xlevels$area),
-		site=model_ge_area_b$xlevels$site[1])
+                       site=model_ge_area_b$xlevels$site[1])
 
 dat_ge1$p <- predict(model_ge_area_b,newdata=dat_ge1)
 dat_ge1$se <- predict(model_ge_area_b,newdata=dat_ge1,se.fit=TRUE)[["se.fit"]]
@@ -1366,24 +1366,24 @@ dat_ge1$p_std_1960_1979_max=exp(dat_ge1$p-dat_ge1$mean+1.96*dat_ge1$se)
 
 
 figure51 <-  
-		ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))+
-		geom_line(aes(colour=area,lty=area),lwd=1.3)+
-		geom_point(aes(colour=area,fill=area,shape=area),size=3)+
-		geom_line(data=dat_ge1, aes(x=year,y=p_std_1960_1979,colour=area))+
-		#ggtitle("Recruitment overview glass eel series")+
-		scale_colour_brewer(name="area",palette="Set1")  +
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
-		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
-				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%"))+
-		theme_bw()+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 10, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+  ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))+
+  geom_line(aes(colour=area,lty=area),lwd=1.3)+
+  geom_point(aes(colour=area,fill=area,shape=area),size=3)+
+  geom_line(data=dat_ge1, aes(x=year,y=p_std_1960_1979,colour=area))+
+  #ggtitle("Recruitment overview glass eel series")+
+  scale_colour_brewer(name="area",palette="Set1")  +
+  #annotate("text",x=dat$year[length(dat$year)-2],y=datEE$p_std_1960_1979[length(datEE$p_std_1960_1979)],size=5,label=labelEE)+
+  #annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
+  scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+                #limits=c(0.005,10),
+                breaks=c(0.01,0.1,1,10),
+                labels=c("1%","10%","100%","1000%"))+
+  theme_bw()+
+  theme(legend.box =NULL,
+        legend.key = element_rect(colour = NA, fill = 'white'),
+        legend.text = element_text(size = 10, colour = 'black'), 
+        legend.background = element_rect(colour = NA, fill = 'white'),
+        legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
 
 
 ggplot(dat_ge1) 
@@ -1391,23 +1391,23 @@ ggplot(dat_ge1)
 datNS <- dat_ge %>%filter(area=="North Sea") %>% dplyr::select(year, p_std_1960_1979)
 out.lm<-lm(log(p_std_1960_1979)~year,data=datNS)
 o1<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011,2014)), 
-		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+                 control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
 plot(o1)
 datEE <- dat_ge %>%filter(area=="Elsewhere Europe") %>% dplyr::select(year, p_std_1960_1979)
 out.lm<-lm(log(p_std_1960_1979)~year,data=datEE)
 o2<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011,2014)), 
-		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 500, display=TRUE))
+                 control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 500, display=TRUE))
 plot(o2)
 
 datNS <- dat_ge %>%filter(area=="North Sea") %>% dplyr::select(year, p_std_1960_1979)
 out.lm<-lm(log(p_std_1960_1979)~year,data=datNS)
 o11 <- segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011)), 
-		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+                    control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
 plot(o11)
 datEE <- dat_ge %>%filter(area=="Elsewhere Europe") %>% dplyr::select(year, p_std_1960_1979)
 out.lm<-lm(log(p_std_1960_1979)~year,data=datEE)
 o21<-segmented.lm(out.lm,seg.Z=~year,psi=list(year=c(1980,2011)), 
-		control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
+                  control=seg.control(fix.npsi=FALSE, n.boot=0, tol=1e-7, it.max = 50, K=5, display=TRUE))
 plot(o21)
 AIC(o1, o11, o2, o21)
 ```
@@ -1430,45 +1430,45 @@ plot(model_ge_area,which=1)
 panel.smooth(gey$P,gey$E,col="black",col.smooth="red")
 library(lattice)
 panel.smoother <- function(x, y) {
-	panel.xyplot(x, y) # show points 
-	panel.loess(x, y,col.line="red")  # show smoothed line 
-	panel.abline(h=0)
+  panel.xyplot(x, y) # show points 
+  panel.loess(x, y,col.line="red")  # show smoothed line 
+  panel.abline(h=0)
 }
 panel.smoother2 <- function(x, y) {
-	panel.xyplot(x, y) # show points 
-	panel.loess(x, y,col.line="red")  # show smoothed line 
-	panel.abline(h=-0.2)
+  panel.xyplot(x, y) # show points 
+  panel.loess(x, y,col.line="red")  # show smoothed line 
+  panel.abline(h=-0.2)
 }
 mga_diag <- glm.diag(model_ge_area)
 gey$res <- mga_diag$res
 show.settings()
 
 xyplot(res~P, data=gey,scales=list(cex=.8, col="black"),
-		panel=panel.smoother,
-		xlab="Predicted", ylab="residuals", 
-		main="Jacknife deviance residuals agains the fitted value")
+       panel=panel.smoother,
+       xlab="Predicted", ylab="residuals", 
+       main="Jacknife deviance residuals agains the fitted value")
 xyplot(res~year, data=gey,scales=list(cex=.8, col="black"),
-		panel=panel.smoother2,
-		xlab="Predicted", ylab="residuals", 
-		main="Jacknife deviance residuals agains the fitted value")
+       panel=panel.smoother2,
+       xlab="Predicted", ylab="residuals", 
+       main="Jacknife deviance residuals agains the fitted value")
 abline(h=0)
 xyplot(res~P|area, data=gey,scales=list(cex=.8, col="black"),
-		panel=panel.smoother,
-		xlab="Predicted", ylab="residuals", 
-		main="Jacknife deviance residuals agains the fitted value")
+       panel=panel.smoother,
+       xlab="Predicted", ylab="residuals", 
+       main="Jacknife deviance residuals agains the fitted value")
 xyplot(res~P|site, data=gey,scales=list(cex=.8, col="black"),
-		panel=panel.smoother,
-		xlab="Predicted", ylab="residuals", 
-		main="Jacknife deviance residuals agains the fitted value")
+       panel=panel.smoother,
+       xlab="Predicted", ylab="residuals", 
+       main="Jacknife deviance residuals agains the fitted value")
 # un r�sidu / carte par annee
 
 
 # pour aller chercher les stations en 3035
 options(sqldf.RPostgreSQL.user = cred$user,  
-			sqldf.RPostgreSQL.password = passwordwgeel,
-			sqldf.RPostgreSQL.dbname = cred$dbname,
-			sqldf.RPostgreSQL.host = cred$host, #getInformation("PostgreSQL host: if local ==> localhost"), 
-			sqldf.RPostgreSQL.port = cred$port)
+        sqldf.RPostgreSQL.password = passwordwgeel,
+        sqldf.RPostgreSQL.dbname = cred$dbname,
+        sqldf.RPostgreSQL.host = cred$host, #getInformation("PostgreSQL host: if local ==> localhost"), 
+        sqldf.RPostgreSQL.port = cred$port)
 locxy_3035 <- sqldf("select ser_id,st_x(the_geom) as X, st_y(the_geom) as Y from ts.t_location_loc where loc_tyl_code='Recruit'")
 gey <- merge(gey,locxy_3035,by="ser_id",all.x=TRUE,all.y=FALSE)
 Gey <- gey #spatial data frame
@@ -1491,39 +1491,39 @@ years <- 1960:2019
 bb <- bbox(emusp0)
 # loop to create all the graphs
 for (year in years){
-	#trellis.device(device="png",filename=str_c(imgwd,"/resids/",year,".png"))
-	png(filename=str_c(imgwd,"/resids/",year,".png"),width=600, height=500)
-	bb <- bubble(Gey[Gey@data$year==year,], "E",col=c("red","green"),main=str_c(year),
-			xlab="",ylab="",
-			do.sqrt = FALSE,
-			sp.layout=list("sp.polygons", emusp0,    first = FALSE)
-	) 		
-	print(bb)
-	dev.off()
+  #trellis.device(device="png",filename=str_c(imgwd,"/resids/",year,".png"))
+  png(filename=str_c(imgwd,"/resids/",year,".png"),width=600, height=500)
+  bb <- bubble(Gey[Gey@data$year==year,], "E",col=c("red","green"),main=str_c(year),
+               xlab="",ylab="",
+               do.sqrt = FALSE,
+               sp.layout=list("sp.polygons", emusp0,    first = FALSE)
+  ) 		
+  print(bb)
+  dev.off()
 }
 # 
 model_ge_area <- gls(value_std~year_f:area+site,data=glass_eel_yoy,family=Gamma(link=log),
-		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959 ,maxit=300)
+                     subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959 ,maxit=300)
 
 lmer(value_std~year_f:area+site,data=glass_eel_yoy,family=Gamma(link=log),
-		subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959)
+     subset=glass_eel_yoy$value>0 & glass_eel_yoy$year>1959)
 
 #library(nlme)
 glass_eel_yoy$lvalue_std=log(glass_eel_yoy$value_std)
 M.lm <- gls(lvalue_std~site,data=glass_eel_yoy)
 
 vf1Fixed <- 
-		
-		M.gls1  <- glmmPQL(value_std~year_f:area+site,
-				data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-				random = ~ 1 | site,
-				weights = varIdent (form = ~ 1 | site) ,
-				family=Gamma(link=log)
-		)
+  
+  M.gls1  <- glmmPQL(value_std~year_f:area+site,
+                     data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+                     random = ~ 1 | site,
+                     weights = varIdent (form = ~ 1 | site) ,
+                     family=Gamma(link=log)
+  )
 M.gls1  <- glmmPQL(value_std~year_f:area+site,
-		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
-		random = ~ 1 | site,
-		family=Gamma(link=log)
+                   data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
+                   random = ~ 1 | site,
+                   family=Gamma(link=log)
 )
 # prediction for lough neagh
 # historical data
@@ -1559,11 +1559,11 @@ table(older$geo)
 print("stations selected for analysis")
 unique(older$site)
 model_older=glm(value_std ~ year_f + as.factor(site),
-		data = older,
-		family = Gamma(link=log),
-		subset = older$value >0 &
-				older$year > 1949 & older$year <=CY-1,
-		maxit = 300)
+                data = older,
+                family = Gamma(link=log),
+                subset = older$value >0 &
+                  older$year > 1949 & older$year <=CY-1,
+                maxit = 300)
 # parteen was removed but is no longer among the series
 summary(model_older)
 #plot(model_older)
@@ -1571,7 +1571,7 @@ anova(model_older,test="F")
 
 
 dat_ye=expand.grid(year_f=unique(model_older$xlevels$year_f),
-		site=model_older$xlevels$`as.factor(site`[1])
+                   site=model_older$xlevels$`as.factor(site`[1])
 dat_ye$year=as.numeric(as.character(dat_ye$year))
 
 #predicting --------------------------------------------------------------------------------------------
@@ -1599,14 +1599,14 @@ rownames(yy0) <- dat_ye$year
 yy <- split_per_decade(data=yy0)
 yy <- 100*round(yy,2)
 nothing <- latex(yy,
-		rowlabel="",
-		rowlabel.just="c",
-		where="hptb",
-		col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
-		landscape=FALSE,
-		label="table_glm_yellow",
-		caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",selection_summary$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
-		file= str_c(tabwd,"/table_glm_yellow.tex"))
+                 rowlabel="",
+                 rowlabel.just="c",
+                 where="hptb",
+                 col.just     =strsplit("c c c c c c c c c c c c c c c", " ")[[1]],
+                 landscape=FALSE,
+                 label="table_glm_yellow",
+                 caption=str_c("GLM $yellow~eel \\sim year + site $ geometric means of predicted values for ",selection_summary$nb_series_older, " yellow eel series, values given in percentage of the 1960-1979 period."),	
+                 file= str_c(tabwd,"/table_glm_yellow.tex"))
 
 # Figures -------------------------------------------------------------------------------------------
 
@@ -1614,38 +1614,38 @@ nothing <- latex(yy,
 dat_ye$time =as.Date(strptime(paste(dat_ye$year,"-01-01",sep=""),format="%Y-%m-%d"))
 g <- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979)) 
 figure6_without_log_scale <- g+ geom_line(lwd=1, color="darkolivegreen")+ geom_point(color="khaki3")+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
-		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
-		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.6,fill="darkolivegreen2")+
-		xlab("year")+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 8, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'))#+
+  scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
+  theme_bw()+
+  geom_hline(yintercept=1,linetype=2)+
+  geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.6,fill="darkolivegreen2")+
+  xlab("year")+
+  theme(legend.box =NULL,
+        legend.key = element_rect(colour = NA, fill = 'white'),
+        legend.text = element_text(size = 8, colour = 'black'), 
+        legend.background = element_rect(colour = NA, fill = 'white'))#+
 #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
 save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 figure6_without_log_scale
 figure6_without_log_scale_black <- g+geom_line(lwd=1,color="white")+ 
-		geom_point(color="white")+
-		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
-		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
-		#stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
-		theme_black()
+  geom_point(color="white")+
+  scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+  geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
+  #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="turquoise1") +
+  theme_black()
 figure6_without_log_scale_black
 save_figure("figure6_without_log_scale_black",figure6_without_log_scale_black,600,480)
 figure6 <- g+geom_line(lwd=1,color="darkolivegreen")+geom_point(color="khaki3")+
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
-				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%")) +
-		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
-		xlab("year")+
-		theme_bw()+
-		theme(legend.box =NULL,
-				legend.key = element_rect(colour = NA, fill = 'white'),
-				legend.text = element_text(size = 8, colour = 'black'), 
-				legend.background = element_rect(colour = NA, fill = 'white'))
+  scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' (log scale)'),
+                #limits=c(0.005,10),
+                breaks=c(0.01,0.1,1,10),
+                labels=c("1%","10%","100%","1000%")) +
+  geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max),alpha=.3,fill="darkolivegreen2")+
+  xlab("year")+
+  theme_bw()+
+  theme(legend.box =NULL,
+        legend.key = element_rect(colour = NA, fill = 'white'),
+        legend.text = element_text(size = 8, colour = 'black'), 
+        legend.background = element_rect(colour = NA, fill = 'white'))
 #stat_smooth(method="lm",formula=y ~ ns(x,4), lty=2, size=0.8,alpha=0.3,col="grey20")
 figure6
 save_figure("figure6",figure6,600,480)
@@ -1656,11 +1656,11 @@ write.table(synthesis,file=str_c(outputdatawd,"glm_results_yellow.csv"),sep=";")
 dat_ye <- dat_ye[,c("year","p","se","mean_1960_1979","yellow_eel_min","yellow_eel_max","value_std_1960_1979")]
 selection_summary$five_year_averagey <- dat_ye %>% filter(year>CY-5) %>% dplyr::select(c(year,value_std_1960_1979)) %>% colMeans() %>% round(digits=3)
 selection_summary$dat_ye <- 
-		dat_ye %>% 
-		filter(year<=CY-2,year>CY-7) %>% 
-		dplyr::select(c(year,value_std_1960_1979)) %>% 
-		colMeans() %>% 
-		round(digits=3)
+  dat_ye %>% 
+  filter(year<=CY-2,year>CY-7) %>% 
+  dplyr::select(c(year,value_std_1960_1979)) %>% 
+  colMeans() %>% 
+  round(digits=3)
 
 
 #colnames(dat_ye)  <- c("year","geomean_p_std_1960_1979") 
@@ -1669,19 +1669,19 @@ save(dat_ye,file=paste0(shinywd,"dat_ye.Rdata"))
 
 if (file.exists(str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"))) unlink(str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"))
 openxlsx::write.xlsx(x=list("Glass eel"=data.frame(
-						"year"=synthesis$year,
-						"EE_minCI_percent"=100*synthesis$EEminCI,
-						"EE_percent"=100*synthesis$"Elsewhere Europe",
-						"EE_maxCI_percent"=100*synthesis$EEmaxCI,
-						"NS_minCI_percent"=100*synthesis$NSminCI,
-						"NS_percent"=100*synthesis$"North Sea",
-						"NS_maxCI_percent"=100*synthesis$NSmaxCI
-				), "Yellow eel"= data.frame("year"=dat_ye$year,
-						"Y_minCI_percent"=100*dat_ye$yellow_eel_min,
-						"Y_percent"=100*dat_ye$value_std_1960_1979,
-						"Y_maxCI_percent"=100*dat_ye$yellow_eel_max)),
-		file=str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"),
-		row.names=FALSE)
+  "year"=synthesis$year,
+  "EE_minCI_percent"=100*synthesis$EEminCI,
+  "EE_percent"=100*synthesis$"Elsewhere Europe",
+  "EE_maxCI_percent"=100*synthesis$EEmaxCI,
+  "NS_minCI_percent"=100*synthesis$NSminCI,
+  "NS_percent"=100*synthesis$"North Sea",
+  "NS_maxCI_percent"=100*synthesis$NSmaxCI
+), "Yellow eel"= data.frame("year"=dat_ye$year,
+                            "Y_minCI_percent"=100*dat_ye$yellow_eel_min,
+                            "Y_percent"=100*dat_ye$value_std_1960_1979,
+                            "Y_maxCI_percent"=100*dat_ye$yellow_eel_max)),
+file=str_c(outputdatawd,"glm_results_glass_and_yellow.xlsx"),
+row.names=FALSE)
 
 
 # saving yellow_eel_pred for shiny ---------------------------------------------------------------------
@@ -1704,49 +1704,49 @@ glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 load(file=str_c(shinywd,"inclusion.Rdata"))
 # todo redo this too tired now
 inner_join(glass_eel_yoy, 
-				inclusion %>% filter(sgl_year!=-1), 
-				by=(c("ser_id"="sgl_ser_id"))) %>%
-		dplyr::select(sgl_year,area,site)%>%
-		distinct() %>%
-		mutate(number=1)%>%
-		dplyr::select(-site)%>% 
-		group_by(sgl_year,area)%>%
-		mutate(number=sum(number))
+           inclusion %>% filter(sgl_year!=-1), 
+           by=(c("ser_id"="sgl_ser_id"))) %>%
+  dplyr::select(sgl_year,area,site)%>%
+  distinct() %>%
+  mutate(number=1)%>%
+  dplyr::select(-site)%>% 
+  group_by(sgl_year,area)%>%
+  mutate(number=sum(number))
 #unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in%inclusion$sgl_ser_id  ]
 run_exclude_before <- function(the_year){
-	load(file=str_c(outputdatawd,"dat_ge.Rdata"))
-	dat_ge_reference <- dat_ge
-	glass_eel_yoy_included <- inner_join(glass_eel_yoy, 
-			inclusion %>% filter(sgl_year!=-1), 
-			by=(c("ser_id"="sgl_ser_id"))) 
-	if (!all(unique(glass_eel_yoy$ser_id)%in% unique(glass_eel_yoy_included$ser_id ))){
-		warning("ser_id ",unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in% 
-								unique(glass_eel_yoy_included$ser_id )]," not in inclusion")
-	}
-	glass_eel_yoy_included <- glass_eel_yoy_included	%>% 
-			dplyr::filter(sgl_year <= the_year)
-	model_ge_area <- glm(value_std~year_f:area+site,
-			data=glass_eel_yoy_included[glass_eel_yoy_included$value>0 & glass_eel_yoy_included$year>1959,],
-			family=Gamma(link=log), maxit=300)
-	dat_ge <- expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
-			site=model_ge_area$xlevels$site[1])
-	dat_ge$year <- as.numeric(as.character(dat_ge$year_f))
-	dat_ge$p <- predict(model_ge_area, newdata=dat_ge)
-	dat_ge$se <- predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
-	mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"], 
-			list(dat_ge[dat_ge$year<1980,"area"]),
-			mean)
-	names(mean_1960_1979) <- c("area","mean")	
-	dat_ge <- merge(dat_ge,mean_1960_1979,by="area")
-	dat_ge$p_std_1960_1979 <- exp(dat_ge$p-dat_ge$mean)
-	dat_ge$p_std_1960_1979_min <- exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
-	dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
-	result <- list()
-	result$year <- the_year
-	result$nbsite <- length(model_ge_area$xlevels$site)
-	result$dat_ge <- dat_ge
-	result$delta <- dat_ge_reference$p_std_1960_1979 - dat_ge$p_std_1960_1979
-	return(result)
+  load(file=str_c(outputdatawd,"dat_ge.Rdata"))
+  dat_ge_reference <- dat_ge
+  glass_eel_yoy_included <- inner_join(glass_eel_yoy, 
+                                       inclusion %>% filter(sgl_year!=-1), 
+                                       by=(c("ser_id"="sgl_ser_id"))) 
+  if (!all(unique(glass_eel_yoy$ser_id)%in% unique(glass_eel_yoy_included$ser_id ))){
+    warning("ser_id ",unique(glass_eel_yoy$ser_id)[!unique(glass_eel_yoy$ser_id)%in% 
+                                                     unique(glass_eel_yoy_included$ser_id )]," not in inclusion")
+  }
+  glass_eel_yoy_included <- glass_eel_yoy_included	%>% 
+    dplyr::filter(sgl_year <= the_year)
+  model_ge_area <- glm(value_std~year_f:area+site,
+                       data=glass_eel_yoy_included[glass_eel_yoy_included$value>0 & glass_eel_yoy_included$year>1959,],
+                       family=Gamma(link=log), maxit=300)
+  dat_ge <- expand.grid(year_f=model_ge_area$xlevels$year_f,area=model_ge_area$xlevels$area,
+                        site=model_ge_area$xlevels$site[1])
+  dat_ge$year <- as.numeric(as.character(dat_ge$year_f))
+  dat_ge$p <- predict(model_ge_area, newdata=dat_ge)
+  dat_ge$se <- predict(model_ge_area,newdata=dat_ge,se.fit=TRUE)[["se.fit"]]
+  mean_1960_1979 <- aggregate(dat_ge[dat_ge$year<1980,"p"], 
+                              list(dat_ge[dat_ge$year<1980,"area"]),
+                              mean)
+  names(mean_1960_1979) <- c("area","mean")	
+  dat_ge <- merge(dat_ge,mean_1960_1979,by="area")
+  dat_ge$p_std_1960_1979 <- exp(dat_ge$p-dat_ge$mean)
+  dat_ge$p_std_1960_1979_min <- exp(dat_ge$p-dat_ge$mean-1.96*dat_ge$se)
+  dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
+  result <- list()
+  result$year <- the_year
+  result$nbsite <- length(model_ge_area$xlevels$site)
+  result$dat_ge <- dat_ge
+  result$delta <- dat_ge_reference$p_std_1960_1979 - dat_ge$p_std_1960_1979
+  return(result)
 }
 res <- mapply(run_exclude_before, the_year=c(2010:2020), SIMPLIFY=FALSE)
 require(tidyr)
@@ -1760,9 +1760,9 @@ res_delta <-delta %>% pivot_longer(cols=contains("2"), names_to="year_included",
 
 
 g<- ggplot(res_delta)+
-		geom_line(aes(x=year,y=delta,color=year_included))+
-		facet_wrap( ~area) +
-		theme_bw()
+  geom_line(aes(x=year,y=delta,color=year_included))+
+  facet_wrap( ~area) +
+  theme_bw()
 figure_inclusion_1<- g
 save_figure("figure_inclusion_1",figure_inclusion_1,600,480)
 
@@ -1775,84 +1775,84 @@ pred$area <- dat_ge$area
 res_pred <-pred %>% pivot_longer(cols=contains("2"), names_to="year_included",values_to="pred")
 matplot(pred,ylim=c(0,0.2))
 g<-ggplot(res_pred)+geom_line(aes(x=year,y=pred,color=year_included))+ 
-		facet_wrap( ~area) +
-		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
-				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
-				labels=c("1%","10%","100%","1000%"))+
-		theme_bw()
+  facet_wrap( ~area) +
+  scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
+                #limits=c(0.005,10),
+                breaks=c(0.01,0.1,1,10),
+                labels=c("1%","10%","100%","1000%"))+
+  theme_bw()
 figure_inclusion_2 <- g
 save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 ```
 
-```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r diagramme,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
 if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
 if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
 if(!require(rsvg)) install.packages("rsvg") ; require(rsvg)
 
 node_list <- create_node_df(n=16,		
-		type=rep(c("box",
-						"value"), 16
-		),
-		label=c(
-				str_c("Series available in ", CY),
-				selection_summary$nb_series_init,
-				"used",
-				selection_summary$nb_series_final,
-				"G + GY",
-				selection_summary$nb_series_glass_eel,
-				"Y",
-				selection_summary$nb_series_older,
-				"NS",
-				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
-				"EE",
-				as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
-				"< 10 Y",
-				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
-				"discarded",
-				as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
-                
-		),
-		color=c(rep("green",12),"orange","orange","red","red"),
-		style="filled",
-		shape=rep(c("plaintext","circle"),8),
-		value=1:16,
-		fixedsize =FALSE
+                            type=rep(c("box",
+                                       "value"), 16
+                            ),
+                            label=c(
+                              str_c("Series available in ", CY),
+                              selection_summary$nb_series_init,
+                              "used",
+                              selection_summary$nb_series_final,
+                              "G + GY",
+                              selection_summary$nb_series_glass_eel,
+                              "Y",
+                              selection_summary$nb_series_older,
+                              "NS",
+                              as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+                              "EE",
+                              as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
+                              "< 10 Y",
+                              as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
+                              "discarded",
+                              as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
+                              
+                            ),
+                            color=c(rep("green",12),"orange","orange","red","red"),
+                            style="filled",
+                            shape=rep(c("plaintext","circle"),8),
+                            value=1:16,
+                            fixedsize =FALSE
 )
 
 edge_list<-create_edge_df(
-		from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
-		to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
-		rel="a",
-		label=rep(" ",15),
-		color=rep("grey",15),
-		length=100)
+  from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+  to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+  rel="a",
+  label=rep(" ",15),
+  color=rep("grey",15),
+  length=100)
 
 
 
 igraph1 <- create_graph( attr_theme = NULL)
 
 igraph2 <- igraph1%>%
-		add_nodes_from_table(table = node_list, 
-				type_col=type,
-				label_col=label) 
+  add_nodes_from_table(table = node_list, 
+                       type_col=type,
+                       label_col=label) 
 #igraph2 %>% get_node_df()
 # Add the edges to the graph
 igraph3 <-igraph2 %>%
-		add_edges_from_table(
-				table = edge_list,
-				from_col = from,
-				to_col = to,
-				from_to_map = id_external
-		)
+  add_edges_from_table(
+    table = edge_list,
+    from_col = from,
+    to_col = to,
+    from_to_map = id_external
+  )
 
 
 render_graph(igraph3, layout="tree")
 
 
 render_graph(igraph3, layout="tree") %>% 
-    export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
+  export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))
 
 
 ```
@@ -1868,20 +1868,20 @@ addressed. The time-series data are derived from fishery-dependent sources (i.e.
 catch records) and also from fishery-independent surveys across much of the
 geographic range of European eel. The stages are categorized as : 
 
- * glass eel (G), continental age 0 years, 
- * a mixture of glass eel and  yellow eel dominated by recruits from the same
-   year (GY),
- * and yellow eel (Y) recruiting to continental habitats. 
- 
+* glass eel (G), continental age 0 years, 
+* a mixture of glass eel and  yellow eel dominated by recruits from the same
+year (GY),
+* and yellow eel (Y) recruiting to continental habitats. 
+
 The yellow  eel series might consist of yellow eel of several ages. This is
-   certainly the case for all series from the Baltic (mean age up to 6), some
-   Irish sites, and sites located far upstream. The glass eel recruitment
-   time-series have been grouped into two geographical areas: "continental North
-   Sea" (NS) and "Elsewhere Europe" (EE) (Figure \@ref(fig:figure1)). Previous
-   analyses by the working group (ICES, 2010, p19, Bornarel et al. (2017) have
-   shown a different trend between the two sets. This is mostly due to a more
-   pronounced decline of the North Sea series compared to the Elsewhere Europe
-   area during the 1980s. 
+certainly the case for all series from the Baltic (mean age up to 6), some
+Irish sites, and sites located far upstream. The glass eel recruitment
+time-series have been grouped into two geographical areas: "continental North
+Sea" (NS) and "Elsewhere Europe" (EE) (Figure \@ref(fig:figure1)). Previous
+analyses by the working group (ICES, 2010, p19, Bornarel et al. (2017) have
+shown a different trend between the two sets. This is mostly due to a more
+pronounced decline of the North Sea series compared to the Elsewhere Europe
+area during the 1980s. 
 
 The WGEEL has collated information
 on recruitment from `r selection_summary[["nb_series_init"]]` time-series.
@@ -1907,30 +1907,30 @@ Europe area, \@ref(tab:xstatseriesGNS) - glass eel (G) North Sea,
 call)
 
 1. First, if there are two or more series from the same location, i.e. they are
-      not independent, only one series is kept. For instance, the longer of two
-   series has been kept for the Severn (Severn EA, a total of all the glass eel
-   fisheries for England and Wales) while the second series (Severn HMRC) has
-   been dropped from the list, as it was considered a duplicate being based on
-   the same fishery. The series left out following this rule are :
-   `r selection_summary$sites_summary$qal_3`
-   [TODO SELECT AMONG THOSE with qal_id 3 THE DUPLICATES, you may need to read ser_qal_comment
-   for more information currently  BroGY(GB), EmsBGY(DE), FarpGY(DE), FlaGY(GB), SeHMG(GB)]
-   
+not independent, only one series is kept. For instance, the longer of two
+series has been kept for the Severn (Severn EA, a total of all the glass eel
+fisheries for England and Wales) while the second series (Severn HMRC) has
+been dropped from the list, as it was considered a duplicate being based on
+the same fishery. The series left out following this rule are :
+`r selection_summary$sites_summary$qal_3`
+[TODO SELECT AMONG THOSE with qal_id 3 THE DUPLICATES, you may need to read ser_qal_comment
+for more information currently  BroGY(GB), EmsBGY(DE), FarpGY(DE), FlaGY(GB), SeHMG(GB)]
+
 2. The second rule is to exclude a series from the analysis when it is less than
-   ten years long. The series are, however, still updated in the database until
-   they are long enough to be included. If there are missing years, or years
-   excluded for data quality reasons, the data series will be included when the
-   total number of "good" years of data meets the 10 year criterion. Within any
-   series, individual annual data point or points can be excluded from the
-   analysis where a one-off problem is identified which negates the value as an
-   index for that year, such as a major reduction in effort (e.g. Covid or other
-   effort related restriction). The series left out because they don't meet the
-   10 years criteria are : `r selection_summary$sites_summary$qal_0` 
-   
+ten years long. The series are, however, still updated in the database until
+they are long enough to be included. If there are missing years, or years
+excluded for data quality reasons, the data series will be included when the
+total number of "good" years of data meets the 10 year criterion. Within any
+series, individual annual data point or points can be excluded from the
+analysis where a one-off problem is identified which negates the value as an
+index for that year, such as a major reduction in effort (e.g. Covid or other
+effort related restriction). The series left out because they don't meet the
+10 years criteria are : `r selection_summary$sites_summary$qal_0` 
+
 3. Finally, it was decided to discard recruitment series that were obviously
-   biased by restocking (e.g. Farpener Bach in Germany). The series left out
-   for that reason are `r selection_summary$sites_summary$qal_3` [ TODO among those
-   with qal_id 3 select  HHKGY(DE), MeusY(BE)]
+biased by restocking (e.g. Farpener Bach in Germany). The series left out
+for that reason are `r selection_summary$sites_summary$qal_3` [ TODO among those
+with qal_id 3 select  HHKGY(DE), MeusY(BE)]
 
 
 ***************************************************************
@@ -1960,8 +1960,8 @@ Glass eel and glass eel + young yellow eel time-series available maximum :
 `r selection_summary[["nbmaxglasseel"]]` in `r max(as.numeric(selection_summary[["yearmaxglasseel"]]))`
 `r selection_summary[["nbcurrentglasseel"]]` in `r CY`.
 
- The maximum number of older yellow eel :
- 
+The maximum number of older yellow eel :
+
 time-series has increased to `r selection_summary[["nbmaxyellow"]]` in
 `r max(as.numeric(selection_summary[["yearmaxyellow"]]))` but dropped to
 `r selection_summary[["nbcurrentyellow"]]` (Figure \@ref(fig:figure2)).
@@ -1983,7 +1983,7 @@ from NS and
 from EE (see Annex X table 1). For the calculation of the yellow eel
 recruitment index, 
 `r selection_summary$nb_series_older`
- yellow eel series have been retained, 
+yellow eel series have been retained, 
 `r  selection_summary$nb_series_older_northsea` coming from the North Sea,
 `r  selection_summary$nb_series_older_baltic` from the Baltic Sea,
 `r  selection_summary$nb_series_older_atlantic` from the Atlantic region and
@@ -2000,13 +2000,13 @@ if (file.exists(paste0(imgwd,"series_no_area.png")))
 ```
 
 
- `r format(selection_summary[["nCY"]], scientific = TRUE)` time-series were
+`r format(selection_summary[["nCY"]], scientific = TRUE)` time-series were
 updated to `r CY` (`r format(selection_summary[["nCYG"]], scientific = TRUE)` for
 glass eel, `r format(selection_summary[["nCYGY"]], scientific = TRUE)` for glass
 + yellow eel and `r format(selection_summary[["nCYY"]], scientific=TRUE)` for
-  yellow eel) and `r format(selection_summary[["nCYm1Y"]], scientific = TRUE)` 
- and  `r format(selection_summary[["nCYm1"]],scientific=TRUE)` 
- series (`r format(selection_summary[["nCYm1G"]],scientific=TRUE)` G, `r format(selection_summary[["nCYm1GY"]],scientific=TRUE)`
+yellow eel) and `r format(selection_summary[["nCYm1Y"]], scientific = TRUE)` 
+and  `r format(selection_summary[["nCYm1"]],scientific=TRUE)` 
+series (`r format(selection_summary[["nCYm1G"]],scientific=TRUE)` G, `r format(selection_summary[["nCYm1GY"]],scientific=TRUE)`
 GY, and `r format(selection_summary[["nCYm1Y"]], scientific=TRUE)`) were
 updated only to `r CY-1`.
 
@@ -2030,7 +2030,7 @@ yellow eel (Table \@ref(tab:xserieslost))) but are still included in the
 analysis 
 [end remove these details].
 
- Some have stopped reporting either because
+Some have stopped reporting either because
 of a lack of recruits in the case of the fishery-based surveys (Ems in Germany,
 stopped in 2001; Vidaa in Denmark, stopped in 1990), a lack of financial support
 (the Tiber in Italy, 2006) or the introduction of quota from 2008 to 2011 that
@@ -2043,7 +2043,7 @@ of eel, traditions of fishery and usage of eel, and the history of scientific
 investigation and eel management (Figure \@ref(fig:figure3) &
 \@ref(fig:figure4)). Thus, most of the glass eel series come from the Atlantic
 while the yellow eel series come from the Baltic and the North Sea. 
- 
+
 ***************************************************************************** 
 
 [remove this section - raw data scaling and maps no longer provided]
@@ -2064,12 +2064,12 @@ The WGEEL recruitment index used in the ICES Annual Stock Advice is fitted using
 a GLM with a Gamma distribution and a log
 link: $glass eel \sim year:area + site$, where :
 
- * $glass eel$ is individual glass eel time-series including both pure G
-   series and those identified as a mixture of glass and yellow eel (G+Y),
- * $site$ is the site monitored for recruitment, 
- * $area$ is either the continental North Sea or Elsewhere Europe, and
- * $year$ is the year coded as a categorical value. 
- For yellow eel time-series, only one estimate is
+* $glass eel$ is individual glass eel time-series including both pure G
+series and those identified as a mixture of glass and yellow eel (G+Y),
+* $site$ is the site monitored for recruitment, 
+* $area$ is either the continental North Sea or Elsewhere Europe, and
+* $year$ is the year coded as a categorical value. 
+For yellow eel time-series, only one estimate is
 provided: $yellow~eel \sim year + site$. 
 
 The trend is hindcast using the predictions from 1960 onwards for
@@ -2101,7 +2101,7 @@ Analyses of provisional `r CY` data show recruitment as a percentage of
 1960-1979 levels at `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)` % in the North Sea~~, reaching its historical minimum,~~ and
 `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits =1)` % in elsewhere Europe (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). Data are **only
 provisional** and give estimates at  
-  `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% in the
+`r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% in the
 North Sea and
 `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits= 1)`% in
 Elsewhere Europe (Figure
@@ -2112,13 +2112,13 @@ Elsewhere Europe (Figure
 columns = names(gg)
 years = rep(196:202,each=2)*10
 autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
-  tibble::rownames_to_column(" ")) %>%
-  delete_part(part = "header") %>%
-  add_header_row(values=c("",years),top=FALSE) %>%
-  merge_h(part="header") %>%
-  add_header_row(values=c("",columns),top=FALSE) %>%
-  bold(bold = TRUE, part = "header") %>%
-  theme_booktabs(x, bold_header = FALSE))
+                    tibble::rownames_to_column(" ")) %>%
+          delete_part(part = "header") %>%
+          add_header_row(values=c("",years),top=FALSE) %>%
+          merge_h(part="header") %>%
+          add_header_row(values=c("",columns),top=FALSE) %>%
+          bold(bold = TRUE, part = "header") %>%
+          theme_booktabs(x, bold_header = FALSE))
 ```
 
 
@@ -2242,7 +2242,7 @@ autofit(flextable(data = printstatseriesGEE)%>%
 
 
 ```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the sampling sites for European eel recruitment data in the North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). Kept = 1 means that the dataseries is used in recruitment analyses.")}
-	autofit(flextable(data = printstatseriesGNS)%>%
+autofit(flextable(data = printstatseriesGNS)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
@@ -2322,7 +2322,7 @@ emusEE <-landings %>%
   unique() %>%
   dplyr::pull() %>%
   paste(collapse=", ")
-                
+
 
 landings <- landings %>%
   dplyr::group_by(eel_year,area) %>%
@@ -2358,7 +2358,7 @@ ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
 
 
 ```
- 
+
 <!-- TAF_REMOVE -->
 ```{r TAF,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 source("TAFgeneration/taf_generation_script.R")
@@ -2433,7 +2433,7 @@ ggplot(bind_rows(retro_older_updated,
          mutate(area=ifelse(is.na(area), "", as.character(area))),
        aes(x=year,y=p_std_1960_1979)) + 
   geom_line(aes(col=as.factor(run_id))) +
-#  facet_wrap(~area) +
+  #  facet_wrap(~area) +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
   theme_bw() +
   facet_grid(type ~ model + area) +
@@ -2447,29 +2447,30 @@ The following figures show how the index would change in case the corresponding 
 
 ```{r influenceseries,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
-         print(si)
+  print(si)
   if ("area" %in% colnames(model$model))
     current_area <- R_stations$area[R_stations$ser_nameshort==si]
-         pred_without=predict_model(update(model,data=model$data %>%
-                  filter(site!=si & value_std >0))) %>%
-           filter(year %in% years)
-         pred_with=predict_model(model) %>%
-           filter(year %in% years) 
-         if ("area" %in% colnames(model$model)){
-           pred_with <-
-             pred_with %>%
-             filter(area == current_area)
-           pred_without <-
-             pred_without %>%
-             filter(area == current_area)
-             
-         }
-         sum((pred_with$p_std-pred_without$p_std)^2)
+  pred_without <- predict_model(update(model,data = model$data %>%
+                                      filter(site!=si & value_std >0))) %>%
+    filter(year %in% years)
+  pred_with <- predict_model(model) %>%
+    filter(year %in% years) 
+  
+  if ("area" %in% colnames(model$model)){
+    pred_with <-
+      pred_with %>%
+      filter(area == current_area)
+    pred_without <-
+      pred_without %>%
+      filter(area == current_area)
+    
+  }
+  sum((pred_with$p_std-pred_without$p_std)^2)
 }
-   
+
 
 sites = unique(na.omit(model_ge_area$data$site))
-disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_stations$area[match(sites, R_stations$ser_nameshort)]) %>%
+disc_yoy <- data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_stations$area[match(sites, R_stations$ser_nameshort)]) %>%
   arrange((diff))  %>%
   left_join(inclusion,by=c("sites"="ser_nameshort")) %>%
   mutate(sites=factor(sites,levels=as.character(sites)))
@@ -2507,14 +2508,14 @@ datares <- data.frame(obs = names(residuals(model_ge_area)),
 
 for (i in na.omit(unique(datares$site))){
   print(ggplot(datares %>% filter(site == i),
-         aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
-    geom_bar(stat = "identity", show.legend=FALSE) + 
-    facet_wrap(~site, ncol = 2) +
-    ggtitle(i) + 
-    scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
-    theme_bw() + 
-    geom_hline(aes(yintercept=-3), lty = 2) +
-    geom_hline(aes(yintercept = 3), lty = 2))
+               aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
+          geom_bar(stat = "identity", show.legend=FALSE) + 
+          facet_wrap(~site, ncol = 2) +
+          ggtitle(i) + 
+          scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
+          theme_bw() + 
+          geom_hline(aes(yintercept=-3), lty = 2) +
+          geom_hline(aes(yintercept = 3), lty = 2))
 }
 ```
 
@@ -2528,14 +2529,14 @@ datares <- data.frame(obs = names(residuals(model_older)),
 
 for (i in na.omit(unique(datares$site))){
   print(ggplot(datares %>% filter(site == i),
-         aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
-    geom_bar(stat = "identity", show.legend=FALSE) + 
-    facet_wrap(~site, ncol = 2) +
-    ggtitle(i) + 
-    scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
-    theme_bw() + 
-    geom_hline(aes(yintercept=-3), lty = 2) +
-    geom_hline(aes(yintercept=3), lty = 2))
+               aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
+          geom_bar(stat = "identity", show.legend=FALSE) + 
+          facet_wrap(~site, ncol = 2) +
+          ggtitle(i) + 
+          scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
+          theme_bw() + 
+          geom_hline(aes(yintercept=-3), lty = 2) +
+          geom_hline(aes(yintercept=3), lty = 2))
 }
 ```
 <!-- END_TAF_REMOVE -->

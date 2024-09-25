@@ -1,7 +1,7 @@
 ---
 title: "Trend in fisheries"
 author: "WGEEL"
-date: "25 september 2023"
+date: "23 september 2024"
 output: 
    bookdown::word_document2:
      keep_md: yes
@@ -25,7 +25,7 @@ if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown") 
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
 
-CY=2023 # this should be set to the current year, yellow eel data will be analysed up to CY-1
+CY=2024 # this should be set to the current year, yellow eel data will be analysed up to CY-1
 library(stringr)
 imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
 tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
@@ -44,8 +44,10 @@ render="html"  # html
 
 # to test the output and adapt the type of table
 output <- rmarkdown::metadata$output
-```
 
+# TO RUN THIS SCRIPT YOU FIRST NEED TO UPDATE THE SHINY DV DATA. THERE IS A BUTTON ALSO IN SHINY_DV TO DO THAT
+# wg_WGEEL\R\shiny_data_visualisation\shiny_dv
+```
 
 
 
