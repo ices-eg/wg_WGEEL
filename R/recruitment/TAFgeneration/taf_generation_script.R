@@ -1,5 +1,5 @@
 library(stringr)
-CY <- 2023
+CY <- 2024
 
 # set current year
 
@@ -118,7 +118,7 @@ draft.data(
     period = str_c("1900-",CY),
     access = "Public",
     source = "file",
-    file = "TAF/2023/boot/DATA.bib", 
+    file = paste0("TAF/",CY,"/boot/DATA.bib"), 
     data.files = "R_stations.Rdata",  
     append = FALSE
 )
@@ -130,7 +130,7 @@ draft.data(
   period = str_c("1900-",CY),
   access = "Public",
   source = "file",
-  file = "TAF/2023/boot/DATA.bib", 
+  file = paste0("TAF/",CY,"/boot/DATA.bib"), 
   data.files = "last_years_with_problem.Rdata",  
   append = TRUE
 )
@@ -143,7 +143,7 @@ draft.data(
     period = str_c("1900-",CY),
     access = "Public",
     source = "file",
-    file = "TAF/2023/boot/DATA.bib", 
+    file = paste0("TAF/",CY,"/boot/DATA.bib"), 
     data.files = "statseries.Rdata",  
     append = TRUE
 )
@@ -155,7 +155,7 @@ draft.data(
     period = str_c("1900-",CY),
     access = "Public",
     source = "file",
-    file = "TAF/2023/boot/DATA.bib",
+    file = paste0("TAF/",CY,"/boot/DATA.bib"),
     data.files = "t_series_ser.Rdata",  
     append = TRUE
 )
@@ -167,7 +167,7 @@ draft.data(
     period = str_c("1900-",CY),
     access = "Public",
     source = "file",
-    file = "TAF/2023/boot/DATA.bib",
+    file = paste0("TAF/",CY,"/boot/DATA.bib"),
     data.files = "wger_init.Rdata",  
     append = TRUE
 )
@@ -178,7 +178,7 @@ draft.data(
   title = "FAO statistical areas",
   access = "Public",
   source = "file",
-  file = "TAF/2023/boot/DATA.bib",
+  file = paste0("TAF/",CY,"/boot/DATA.bib"),
   data.files = "fao.Rdata",  
   append = TRUE
 )
