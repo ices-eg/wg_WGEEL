@@ -454,7 +454,53 @@ stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326)
 stations$X = st_coordinates(stations)[,"X"]
 stations$Y = st_coordinates(stations)[,"Y"]
 
-
+singlemap <- ggplot() +
+  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+ 
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone,alpha="1")) +
+		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
+		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
+#		geom_sf(data=stations,aes(color=ser_lfs_code,shape=ser_lfs_code),size=2, inherit.aes = FALSE)+
+#		geom_sf(data=subset(stations,ser_lfs_code!="Y" & ser_qal_id==1),color = 'black',size=2, shape = 21,
+#				inherit.aes=FALSE) +
+#		geom_sf(data=subset(stations,ser_lfs_code=="Y"& ser_qal_id==1),color = 'black',size=2, shape = 24,
+#				inherit.aes=FALSE) +
+		geom_point(data=subset(stations, (ser_qal_id==1 |ser_qal_id==4)) ,aes(x=X,y=Y,
+						color=ser_lfs_code,shape=ser_lfs_code,stroke=0),size=3)+
+		geom_point(data=subset(stations,ser_lfs_code!="Y"& (ser_qal_id==1 |ser_qal_id==4)),
+				color = 'black', 
+				size=3, 
+				shape = 21,
+				stroke=1,
+				aes(x=X,y=Y)) +
+		geom_point(data=subset(stations,ser_lfs_code=="Y"& (ser_qal_id==1 |ser_qal_id==4)),
+				color = 'black',		
+				size= 3, 
+				shape = 24,
+				stroke =1,
+				aes(x=X,y=Y)) +
+		
+		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
+		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
+		scale_fill_manual(NULL,values=c("#33b1c4","#30ff8a","#1a81db")) +
+		guides(alpha=guide_legend("Recruitment series",
+						legend.background = element_blank(),
+						title.theme=element_text(face="bold"),
+						keyheight=0,
+						label.theme=element_text(size=0,lineheight=0),
+						order=1, 
+						override.aes=list(color=NA, shape=NA, alpha=NA, fill=NA))) +
+		theme(
+				legend.box.background = element_rect(fill="#EFD9C1",color=NA),
+				legend.background = element_blank(),
+				legend.position = c(.995, .3),
+				legend.justification = c("right", "center"),
+				legend.box.just = "left",
+				legend.box.margin = margin(1, 1, 1, 1),
+				legend.margin = margin(1, 1, 1, 1),
+				legend.key = element_rect(colour = "transparent", fill = "transparent")
+		
+		)
+print(singlemap)
 
 
 mapG <- ggplot() +
@@ -543,7 +589,7 @@ mapY <- ggplot()+
 figure1 <- ggpubr::ggarrange(plotlist=list(mapG,mapY),nrow=1)
 print(figure1)
 save_figure("figure1",figure1,1100,800)
-
+save_figure("singlemap",singlemap,1100,800)
 
 ```
 
@@ -1785,7 +1831,7 @@ figure_inclusion_2 <- g
 save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 ```
 
-```{r diagramme,echo=FALSE,eval=FALSE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r diagramme,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
 if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
 if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
@@ -1892,6 +1938,7 @@ WGEEL recruitment indices; see details on data selection and processing below.
 
 ```{r figure1, fig.cap="Map of recruitment sampling stations, left (white = Glass eel (G); grey = Glass + Yellow eel (GY), right Yellow eel (Y)).", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure1.png"))
+knitr::include_graphics(paste0(imgwd,"singlemap.png"))
 ```
 
 ##	Details on data selection and processing 
@@ -2056,7 +2103,9 @@ The time-series left out are :
 
 ***********************************************************************************
 
-
+```{r diagramme selection, fig.cap="Schematic showing the recruitment series received by type and region, and numbers selected for analysis. Y= Yellow eel, G= Glass eel, GY= mixed glass and yellow eels. NS= North-Sea, EE= Elsewhere Europe", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+knitr::include_graphics(paste0(imgwd,"series_selection.png"))
+```
 
 ## GLM based trend
 
@@ -2382,11 +2431,11 @@ inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year
 
 #######retrospective plot model_yoy
 
-retro_yoy_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year)) %>%
+retro_yoy_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
   mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
-  mutate(model="yoy",type="not updated")
+  mutate(model="yoy",type="not updated") 
 
 
 #####Now we draw retrospective plots with the data with data as they are now
@@ -2394,11 +2443,11 @@ retro_yoy_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year)) %>%
 
 #######retrospective plot model_yoy
 
-retro_older_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year,model="glm_older")) %>%
+retro_older_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year,model="glm_older")) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
-  mutate(model="yellow",type="not updated")
+  mutate(model="yellow",type="not updated") 
 
 
 
@@ -2406,21 +2455,21 @@ retro_older_notupdated=do.call(bind_rows,lapply(2018:CY,compute_retro_year,model
 #######retrospective plot model_yoy
 
 retro_yoy_updated=do.call(bind_rows,
-                          lapply(2018:CY, compute_retro_year, update_data=TRUE)) %>%
+                          lapply(2018:(CY-1), compute_retro_year, update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
   bind_rows(dat_ge) %>%
   mutate(run_id=ifelse(is.na(run_id), CY, run_id)) %>%
-  mutate(model="yoy",type="updated")
+  mutate(model="yoy",type="updated") 
 
 
 #######retrospective plot model_yoy
 
 retro_older_updated=do.call(bind_rows,
-                            lapply(2018:CY,compute_retro_year,model="glm_older", update_data=TRUE)) %>%
+                            lapply(2018:(CY-1),compute_retro_year,model="glm_older", update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
   bind_rows(dat_ye) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id))  %>%
-  mutate(model="yellow",type="updated")
+  mutate(model="yellow",type="updated") 
 
 
 dbDisconnect(con)
@@ -2447,7 +2496,6 @@ The following figures show how the index would change in case the corresponding 
 
 ```{r influenceseries,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
-         print(si)
   if ("area" %in% colnames(model$model))
     current_area <- R_stations$area[R_stations$ser_nameshort==si]
          pred_without=predict_model(update(model,data=model$data %>%
