@@ -44,6 +44,7 @@
 
 ## Annex 4
 
+32 new values inserted in the database belong to 2023
 
 
 ## Annex 5
