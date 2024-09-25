@@ -296,6 +296,9 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
     cat("writing", str_c(path[i],"t_series_ser.Rdata"),"\n")
     write.table(R_stations, sep=";",file=str_c(path[i],"R_stations.csv"))
     cat("writing", str_c(path[i],"R_stations.csv"),"\n")
+    openxlsx::write.xlsx(x=list("R_stations"=R_stations,
+            "t_series_ser"=t_series_ser, "statseries"=statseries),file=str_c(outputdatawd,"series_description", CY, ".xlsx"))
+    
     
   }
 }
