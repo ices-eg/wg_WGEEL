@@ -465,3 +465,267 @@ update datawg.t_series_ser set ser_qal_id=1, ser_qal_comment = 'now reaches the 
 
 update datawg.t_series_ser set ser_qal_id=1, ser_qal_comment = 'now reaches the 10 years thresholds, validated by Jan-Dag Pohlman'
  where ser_nameshort = 'EmsHG';
+ 
+ 
+ 
+ 
+CREATE OR REPLACE VIEW datawg.bigtable
+AS WITH b0 AS (
+         SELECT b0_1.eel_cou_code,
+            b0_1.eel_emu_nameshort,
+            b0_1.eel_hty_code,
+            b0_1.eel_year,
+            b0_1.eel_lfs_code,
+            round(sum(b0_1.eel_value)) AS b0
+           FROM datawg.b0 b0_1
+          GROUP BY b0_1.eel_cou_code, b0_1.eel_emu_nameshort, b0_1.eel_hty_code, b0_1.eel_year, b0_1.eel_lfs_code
+        ), bbest AS (
+         SELECT bbest_1.eel_cou_code,
+            bbest_1.eel_emu_nameshort,
+            bbest_1.eel_hty_code,
+            bbest_1.eel_year,
+            bbest_1.eel_lfs_code,
+            round(sum(bbest_1.eel_value)) AS bbest
+           FROM datawg.bbest bbest_1
+          GROUP BY bbest_1.eel_cou_code, bbest_1.eel_emu_nameshort, bbest_1.eel_hty_code, bbest_1.eel_year, bbest_1.eel_lfs_code
+        ), bcurrent AS (
+         SELECT bcurrent_1.eel_cou_code,
+            bcurrent_1.eel_emu_nameshort,
+            bcurrent_1.eel_hty_code,
+            bcurrent_1.eel_year,
+            bcurrent_1.eel_lfs_code,
+            round(sum(bcurrent_1.eel_value)) AS bcurrent
+           FROM datawg.bcurrent bcurrent_1
+          GROUP BY bcurrent_1.eel_cou_code, bcurrent_1.eel_emu_nameshort, bcurrent_1.eel_hty_code, bcurrent_1.eel_year, bcurrent_1.eel_lfs_code
+        ), bcurrent_without_stocking AS (
+         SELECT bcurrent_1.eel_cou_code,
+            bcurrent_1.eel_emu_nameshort,
+            bcurrent_1.eel_hty_code,
+            bcurrent_1.eel_year,
+            bcurrent_1.eel_lfs_code,
+            round(sum(bcurrent_1.eel_value)) AS bcurrent_without_stocking
+           FROM datawg.bcurrent_without_stocking bcurrent_1
+          GROUP BY bcurrent_1.eel_cou_code, bcurrent_1.eel_emu_nameshort, bcurrent_1.eel_hty_code, bcurrent_1.eel_year, bcurrent_1.eel_lfs_code
+        ), suma AS (
+         SELECT sigmaa.eel_cou_code,
+            sigmaa.eel_emu_nameshort,
+            sigmaa.eel_hty_code,
+            sigmaa.eel_year,
+            sigmaa.eel_lfs_code,
+            round(
+                CASE
+                    WHEN sigmaa.eel_missvaluequal::text = 'NP'::text THEN 0::numeric
+                    ELSE sigmaa.eel_value
+                END, 3) AS suma
+           FROM datawg.sigmaa
+        ), sumf AS (
+         SELECT sigmaf.eel_cou_code,
+            sigmaf.eel_emu_nameshort,
+            sigmaf.eel_hty_code,
+            sigmaf.eel_year,
+            sigmaf.eel_lfs_code,
+            round(
+                CASE
+                    WHEN sigmaf.eel_missvaluequal::text = 'NP'::text THEN 0::numeric
+                    ELSE sigmaf.eel_value
+                END, 3) AS sumf
+           FROM datawg.sigmaf
+        ), sumh AS (
+         SELECT sigmah.eel_cou_code,
+            sigmah.eel_emu_nameshort,
+            sigmah.eel_hty_code,
+            sigmah.eel_year,
+            sigmah.eel_lfs_code,
+            round(
+                CASE
+                    WHEN sigmah.eel_missvaluequal::text = 'NP'::text THEN 0::numeric
+                    ELSE sigmah.eel_value
+                END, 3) AS sumh
+           FROM datawg.sigmah
+        ), habitat_ha AS (
+         SELECT potential_available_habitat.eel_cou_code,
+            potential_available_habitat.eel_emu_nameshort,
+            potential_available_habitat.eel_hty_code,
+            potential_available_habitat.eel_year,
+            potential_available_habitat.eel_lfs_code,
+            round(potential_available_habitat.eel_value, 3) AS habitat_ha
+           FROM datawg.potential_available_habitat
+        ), countries AS (
+         SELECT tr_country_cou.cou_code,
+            tr_country_cou.cou_country AS country,
+            tr_country_cou.cou_order
+           FROM ref.tr_country_cou
+        ), emu AS (
+         SELECT tr_emu_emu.emu_nameshort,
+            tr_emu_emu.emu_wholecountry
+           FROM ref.tr_emu_emu
+        ), habitat AS (
+         SELECT tr_habitattype_hty.hty_code,
+            tr_habitattype_hty.hty_description AS habitat
+           FROM ref.tr_habitattype_hty
+        ), life_stage AS (
+         SELECT tr_lifestage_lfs.lfs_code,
+            tr_lifestage_lfs.lfs_name AS life_stage
+           FROM ref.tr_lifestage_lfs
+        )
+ SELECT eel_year,
+    eel_cou_code,
+    countries.country,
+    countries.cou_order,
+    eel_emu_nameshort,
+    emu.emu_wholecountry,
+    eel_hty_code,
+    habitat.habitat,
+    eel_lfs_code,
+    life_stage.life_stage,
+    b0.b0,
+    bbest.bbest,
+    bcurrent.bcurrent,
+    suma.suma,
+    sumf.sumf,
+    sumh.sumh,
+    habitat_ha.habitat_ha,
+    bcurrent_without_stocking.bcurrent_without_stocking
+   FROM b0
+     FULL JOIN bbest USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN bcurrent_without_stocking USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN bcurrent USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN suma USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN sumf USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN sumh USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN habitat_ha USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code)
+     FULL JOIN countries ON eel_cou_code::text = countries.cou_code::text
+     JOIN emu ON eel_emu_nameshort::text = emu.emu_nameshort::text
+     JOIN habitat ON eel_hty_code::text = habitat.hty_code::text
+     JOIN life_stage ON eel_lfs_code::text = life_stage.lfs_code::text
+  ORDER BY eel_year, countries.cou_order, eel_emu_nameshort, (
+        CASE
+            WHEN eel_hty_code::text = 'F'::text THEN 1
+            WHEN eel_hty_code::text = 'T'::text THEN 2
+            WHEN eel_hty_code::text = 'C'::text THEN 3
+            WHEN eel_hty_code::text = 'MO'::text THEN 4
+            WHEN eel_hty_code::text = 'AL'::text THEN 5
+            ELSE NULL::integer
+        END), (
+        CASE
+            WHEN eel_lfs_code::text = 'G'::text THEN 1
+            WHEN eel_lfs_code::text = 'QG'::text THEN 2
+            WHEN eel_lfs_code::text = 'OG'::text THEN 3
+            WHEN eel_lfs_code::text = 'GY'::text THEN 4
+            WHEN eel_lfs_code::text = 'Y'::text THEN 5
+            WHEN eel_lfs_code::text = 'YS'::text THEN 6
+            WHEN eel_lfs_code::text = 'S'::text THEN 7
+            WHEN eel_lfs_code::text = 'AL'::text THEN 8
+            ELSE NULL::integer
+        END);
+        
+        
+CREATE OR REPLACE VIEW datawg.bigtable_by_habitat
+AS SELECT eel_year,
+    eel_cou_code,
+    country,
+    cou_order,
+    eel_emu_nameshort,
+    emu_wholecountry,
+    eel_hty_code,
+    habitat,
+    sum(b0) AS b0,
+    sum(bbest) AS bbest,
+    sum(bcurrent) AS bcurrent,
+    sum(suma) AS suma,
+    sum(sumf) AS sumf,
+    sum(sumh) AS sumh,
+    sum(habitat_ha) AS habitat_ha,
+    string_agg(eel_lfs_code::text, ', '::text) AS aggregated_lfs,
+    sum(bcurrent_without_stocking) AS bcurrent_without_stocking
+   FROM datawg.bigtable
+  GROUP BY eel_year, eel_cou_code, country, cou_order, eel_emu_nameshort, emu_wholecountry, eel_hty_code, habitat
+  ORDER BY eel_year, cou_order, eel_emu_nameshort, (
+        CASE
+            WHEN eel_hty_code::text = 'F'::text THEN 1
+            WHEN eel_hty_code::text = 'T'::text THEN 2
+            WHEN eel_hty_code::text = 'C'::text THEN 3
+            WHEN eel_hty_code::text = 'MO'::text THEN 4
+            WHEN eel_hty_code::text = 'AL'::text THEN 5
+            ELSE NULL::integer
+        END);
+        
+CREATE OR REPLACE VIEW datawg.precodata_emu
+AS WITH b0_unique AS (
+         SELECT bigtable_by_habitat_1.eel_emu_nameshort,
+            sum(bigtable_by_habitat_1.b0) AS unique_b0
+           FROM datawg.bigtable_by_habitat bigtable_by_habitat_1
+          WHERE bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat_1.eel_hty_code::text = 'C'::text
+          GROUP BY bigtable_by_habitat_1.eel_emu_nameshort
+        )
+ SELECT bigtable_by_habitat.eel_year,
+    bigtable_by_habitat.eel_cou_code,
+    bigtable_by_habitat.country,
+    bigtable_by_habitat.cou_order,
+    bigtable_by_habitat.eel_emu_nameshort,
+    bigtable_by_habitat.emu_wholecountry,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE COALESCE(b0_unique.unique_b0, sum(bigtable_by_habitat.b0))
+        END AS b0,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bbest)
+        END AS bbest,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bcurrent)
+        END AS bcurrent,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.suma * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.suma)
+        END AS suma,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['ES_Cata'::character varying::text, 'LT_total'::character varying::text]) THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumf * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumf)
+        END AS sumf,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = ANY (ARRAY['IT_Camp'::character varying::text, 'IT_Emil'::character varying::text, 'IT_Frio'::character varying::text, 'IT_Lazi'::character varying::text, 'IT_Pugl'::character varying::text, 'IT_Sard'::character varying::text, 'IT_Sici'::character varying::text, 'IT_Tosc'::character varying::text, 'IT_Vene'::character varying::text, 'IT_Abru'::character varying::text, 'IT_Basi'::character varying::text, 'IT_Cala'::character varying::text, 'IT_Ligu'::character varying::text, 'IT_Lomb'::character varying::text, 'IT_Marc'::character varying::text, 'IT_Moli'::character varying::text, 'IT_Piem'::character varying::text, 'IT_Tren'::character varying::text, 'IT_Umbr'::character varying::text, 'IT_Vall'::character varying::text]) THEN round(sum(bigtable_by_habitat.sumh * bigtable_by_habitat.bbest) / sum(bigtable_by_habitat.bbest), 3)
+            ELSE sum(bigtable_by_habitat.sumh)
+        END AS sumh,
+    'emu'::text AS aggreg_level,
+    bigtable_by_habitat.aggregated_lfs,
+    string_agg(bigtable_by_habitat.eel_hty_code::text, ', '::text) AS aggregated_hty,
+        CASE
+            WHEN bigtable_by_habitat.eel_emu_nameshort::text = 'LT_total'::text THEN NULL::numeric
+            ELSE sum(bigtable_by_habitat.bcurrent_without_stocking)
+        END AS bcurrent_without_stocking
+   FROM datawg.bigtable_by_habitat
+     LEFT JOIN b0_unique USING (eel_emu_nameshort)
+  WHERE bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.aggregated_lfs = 'S'::text AND bigtable_by_habitat.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat.eel_year > 1850 AND bigtable_by_habitat.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat.eel_hty_code::text = 'C'::text
+  GROUP BY bigtable_by_habitat.eel_year, bigtable_by_habitat.eel_cou_code, bigtable_by_habitat.country, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort, bigtable_by_habitat.emu_wholecountry, bigtable_by_habitat.aggregated_lfs, b0_unique.unique_b0
+  ORDER BY bigtable_by_habitat.eel_year, bigtable_by_habitat.cou_order, bigtable_by_habitat.eel_emu_nameshort;
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  drop table datawg.t_modeldata_dat ;
+CREATE TABLE datawg.t_modeldata_dat (
+	dat_id serial4 NOT NULL,
+	dat_run_id int4 NOT NULL,
+	dat_ser_id int4 NOT NULL,
+	dat_ser_year int4 NOT NULL,
+	dat_das_value numeric NULL,
+	dat_das_qal_id int4,
+	CONSTRAINT tr_model_mod_pkey PRIMARY KEY (dat_id),
+	CONSTRAINT c_fk_dat_run_id FOREIGN KEY (dat_run_id) REFERENCES datawg.t_modelrun_run(run_id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT c_fk_dat_ser_id FOREIGN KEY (dat_ser_id) REFERENCES datawg.t_series_ser(ser_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+GRANT REFERENCES, TRIGGER, UPDATE, DELETE, SELECT, INSERT, TRUNCATE ON TABLE datawg.t_modeldata_dat TO wgeel;
+GRANT SELECT ON TABLE datawg.t_modeldata_dat TO wgeel_read;
+GRANT USAGE, UPDATE, SELECT ON SEQUENCE datawg.t_modeldata_dat_dat_id_seq TO wgeel;
+
+        
