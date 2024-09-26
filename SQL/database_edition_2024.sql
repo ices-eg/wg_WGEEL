@@ -728,4 +728,5 @@ GRANT REFERENCES, TRIGGER, UPDATE, DELETE, SELECT, INSERT, TRUNCATE ON TABLE dat
 GRANT SELECT ON TABLE datawg.t_modeldata_dat TO wgeel_read;
 GRANT USAGE, UPDATE, SELECT ON SEQUENCE datawg.t_modeldata_dat_dat_id_seq TO wgeel;
 
+GRANT SELECT ON TABLE datawg.precodata_country TO wgeel_read;
         
