@@ -478,7 +478,7 @@ singlemap <- ggplot() +
 				shape = 24,
 				stroke =1,
 				aes(x=X,y=Y)) +
-
+		
 		scale_color_manual("Life stage",values=c("white","grey","yellow")) +
 		scale_shape_manual("Life stage", values=c(19,19,17)) + xlab("") + ylab("") +
 		scale_fill_manual(NULL,values=c("#33b1c4","#30ff8a","#1a81db")) +
@@ -970,7 +970,7 @@ figure_check_one_series("KatwG",limits=c(1960,2019))
 
 ```{r model_for_glass_eel_and_yellow_eel_datasets, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
-glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
+# glass_eel_yoy$site <- as.factor(glass_eel_yoy$site)
 
 model_ge_area=glm(value_std~year_f:area+site,
 		data=glass_eel_yoy[glass_eel_yoy$value>0 & glass_eel_yoy$year>1959,],
@@ -1145,8 +1145,38 @@ figure5_without_logscale<- g+
 				legend.background = element_rect(colour = NA, fill = 'white'),
 				legend.position = c(.8, .8))
 
-figure5_without_logscale
-save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
+
+figure5_advice_EE<- ggplot(dat_ge %>% filter(area == "Elsewhere Europe"),
+                           aes(x=year,y=p_std_1960_1979)) +
+
+		geom_line(lwd=1, aes(col=area), show.legend=FALSE)+ 		
+		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3, show.legend=FALSE)+
+		coord_cartesian(ylim=c(0,5))+
+		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		theme_bw()+
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+		theme_ICES_plots("Recruitment") + ggtitle("Elsewhere Europe")
+
+figure5_advice_EE
+save_figure("figure5_advice_EE",figure5_advice_EE,600,480, pdf = FALSE)
+
+
+figure5_advice_NS<- ggplot(dat_ge %>% filter(area == "North Sea"),
+                           aes(x=year,y=p_std_1960_1979)) +
+
+		geom_line(lwd=1, aes(col=area))+ 		
+		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3, show.legend=FALSE)+
+		coord_cartesian(ylim=c(0,5))+
+		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
+		theme_bw()+
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+		theme_ICES_plots("Recruitment") + ggtitle("North Sea")
+
+figure5_advice_NS
+save_figure("figure5_advice_NS",figure5_advice_NS,600,480, pdf = FALSE)
+
 
 # function similar to theme_dark() but allows legends
 # black and white plot ====
@@ -1671,6 +1701,21 @@ figure6_without_log_scale <- g+ geom_line(lwd=1, color="darkolivegreen")+ geom_p
 				legend.background = element_rect(colour = NA, fill = 'white'))#+
 #stat_smooth(method="lm",formula=y ~ ns(x,4),lty=2, size=0.8,alpha=0.3,col="grey20")
 save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
+
+
+figure6_advice_YY<- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979))  +
+		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max, fill="area"), show.legend=FALSE, alpha = .3)+
+		geom_line(lwd=1, aes(col="area"), show.legend=FALSE)+ 		
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+		theme_ICES_plots("Recruitment") + ggtitle("Yellow")
+
+figure6_advice_YY
+save_figure("figure6_advice_YY",figure6_advice_YY,600,480, pdf = FALSE)
+
+
+
 figure6_without_log_scale
 figure6_without_log_scale_black <- g+geom_line(lwd=1,color="white")+ 
 		geom_point(color="white")+
@@ -2433,7 +2478,8 @@ inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year
 
 retro_yoy_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
-  bind_rows(dat_ge) %>%
+  bind_rows(dat_ge%>%
+              mutate(proj=FALSE)) %>%
   mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
   mutate(model="yoy",type="not updated") 
 
@@ -2445,7 +2491,9 @@ retro_yoy_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year)) %
 
 retro_older_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year,model="glm_older")) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
-  bind_rows(dat_ye) %>%
+  bind_rows(dat_ye%>%
+              dplyr::mutate(proj=FALSE) %>%
+              dplyr::rename(p_std_1960_1979 = value_std_1960_1979)) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id)) %>%
   mutate(model="yellow",type="not updated") 
 
@@ -2457,7 +2505,8 @@ retro_older_notupdated=do.call(bind_rows,lapply(2018:(CY-1),compute_retro_year,m
 retro_yoy_updated=do.call(bind_rows,
                           lapply(2018:(CY-1), compute_retro_year, update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std")) %>%
-  bind_rows(dat_ge) %>%
+  bind_rows(dat_ge%>%
+              mutate(proj=FALSE)) %>%
   mutate(run_id=ifelse(is.na(run_id), CY, run_id)) %>%
   mutate(model="yoy",type="updated") 
 
@@ -2467,9 +2516,11 @@ retro_yoy_updated=do.call(bind_rows,
 retro_older_updated=do.call(bind_rows,
                             lapply(2018:(CY-1),compute_retro_year,model="glm_older", update_data=TRUE)) %>%
   rename_with(~paste0("p_std",gsub("p_std","_1960_1979",.x)),starts_with("p_std"))%>%
-  bind_rows(dat_ye) %>%
+  bind_rows(dat_ye %>%
+              mutate(proj=FALSE) %>%
+              dplyr::rename(p_std_1960_1979 = value_std_1960_1979)) %>%
   dplyr::mutate(run_id=ifelse(is.na(run_id),CY,run_id))  %>%
-  mutate(model="yellow",type="updated")
+  mutate(model="yellow",type="updated") 
 
 
 dbDisconnect(con)
@@ -2482,12 +2533,141 @@ ggplot(bind_rows(retro_older_updated,
          mutate(area=ifelse(is.na(area), "", as.character(area))),
        aes(x=year,y=p_std_1960_1979)) + 
   geom_line(aes(col=as.factor(run_id))) +
-#  facet_wrap(~area) +
+  facet_wrap(~area) +
   scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
-  theme_bw() +
   facet_grid(type ~ model + area) +
   scale_color_viridis_d("")+ guides(lty = "none") + 
   xlim(CY-10,CY)
+
+
+
+retro_advice_data <- bind_rows(
+                 retro_older_notupdated,
+                 retro_yoy_notupdated) %>%
+         filter(!proj) %>%
+         mutate(area=ifelse(is.na(area), "", as.character(area))) %>%
+  filter(run_id %in% (CY-4):CY) %>%
+  rename(AssessmentYear = run_id)
+
+retro_EE <- ggplot(retro_advice_data %>%
+         filter(area == "Elsewhere Europe"),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("Elsewhere Europe")+
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_EE
+save_figure("retro_EE",retro_EE,600,480, pdf=FALSE)
+
+
+
+retro_NS <- ggplot(retro_advice_data %>%
+         filter(area == "North Sea"),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("North Sea") +
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_NS
+save_figure("retro_NS",retro_NS,600,480, pdf=FALSE)
+
+
+retro_YY <- ggplot(retro_advice_data %>%
+         filter(model == "yellow"),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("Yellow") +
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_YY
+save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
+
+
+getmodel <- function(y, model){
+  tmp <- environment()
+  load(paste0(y,"/data/dat_",ifelse(model=="ge","ge","ye"),".Rdata"), envir = tmp)
+  if (model == "ge")
+    return(tmp$dat_ge %>%
+            mutate(AssessmentYear = y))
+  return(tmp$dat_ye%>%
+            mutate(AssessmentYear = y))
+}
+retro_ge <- bind_rows(dat_ge %>%
+                        mutate(AssessmentYear = CY),
+                      do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ge")))
+
+
+
+retro_EE <- ggplot(retro_ge %>%
+         filter(area == "Elsewhere Europe"),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("Elsewhere Europe")+
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_EE
+save_figure("retro_EE",retro_EE,600,480, pdf=FALSE)
+
+
+
+retro_NS <- ggplot(retro_advice_data %>%
+         filter(area == "North Sea"),
+       aes(x=year,y=p_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("North Sea") +
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_NS
+save_figure("retro_NS",retro_NS,600,480, pdf=FALSE)
+
+
+
+retro_ye <- bind_rows(dat_ye %>%
+                        mutate(AssessmentYear = CY),
+                      do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ye")))
+
+
+
+retro_YY <- ggplot(retro_ye ,
+       aes(x=year,y=value_std_1960_1979)) + 
+  geom_line(aes(col=as.factor(AssessmentYear))) +
+#  facet_wrap(~area) +
+   guides(lty = "none") + 
+  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+  ggtitle("Elsewhere Europe")+
+  theme_ICES_plots("quality_R",retro_advice_data) 
+
+retro_YY
+save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
+
+
 
 ```
 
@@ -2496,13 +2676,12 @@ The following figures show how the index would change in case the corresponding 
 
 ```{r influenceseries,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
-         print(si)
   if ("area" %in% colnames(model$model))
     current_area <- R_stations$area[R_stations$ser_nameshort==si]
-  pred_without <- predict_model(update(model,data = model$data %>%
+         pred_without=predict_model(update(model,data=model$data %>%
                   filter(site!=si & value_std >0))) %>%
            filter(year %in% years)
-  pred_with <- predict_model(model) %>%
+         pred_with=predict_model(model) %>%
            filter(year %in% years) 
          if ("area" %in% colnames(model$model)){
            pred_with <-
@@ -2518,7 +2697,7 @@ compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
    
 
 sites = unique(na.omit(model_ge_area$data$site))
-disc_yoy <- data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_stations$area[match(sites, R_stations$ser_nameshort)]) %>%
+disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_stations$area[match(sites, R_stations$ser_nameshort)]) %>%
   arrange((diff))  %>%
   left_join(inclusion,by=c("sites"="ser_nameshort")) %>%
   mutate(sites=factor(sites,levels=as.character(sites)))
