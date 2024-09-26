@@ -203,7 +203,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
       left join ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
       left join ref.tr_faoareas on ser_area_division=f_division
       left join ref.tr_country_cou on  cou_code=ser_cou_code
-      where ser_typ_id=1'
+      where ser_typ_id=1 and das_qal_id in (0,1,2,3,4)'
   
   wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
   wger_init <- chnames(wger_init,
@@ -1051,8 +1051,8 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
     
     updatedvalues = newvalues %>% #this is a data that might have been updated after the assessment
       filter(das_year <= y)
-    lattervalues = newvalues %>% #this is a data in year after the assessment
-      filter(das_year > y)
+    # lattervalues = newvalues %>% #this is a data in year after the assessment
+    #   filter(das_year > y)
     
     if (update_data){
       subdata <- subdata %>%
@@ -1066,13 +1066,13 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
       dplyr::summarize(mean=mean(das_value, na.rm=TRUE))%>%
       ungroup()
     
-    subdata <- subdata %>%
-      bind_rows(lattervalues %>%
-                  dplyr::select(ser_id,das_year,new_val) %>%
-                  dplyr::rename(dat_ser_year="das_year",
-                                das_value="new_val"))
-    
-    
+    # subdata <- subdata %>%
+    #   bind_rows(lattervalues %>%
+    #               dplyr::select(ser_id,das_year,new_val) %>%
+    #               dplyr::rename(dat_ser_year="das_year",
+    #                             das_value="new_val"))
+    # 
+    # 
     
     
     
