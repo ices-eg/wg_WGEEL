@@ -572,7 +572,7 @@ ka_cor_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pando
 
 ```
     
-```{r corrComGfig, echo=FALSE, warning=FALSE, fig.cap=titleGcor}
+```{r corrComGfig, echo=FALSE, warning=FALSE, fig.cap=titleGcor, fig_height=8, fig_width=8}
 landings3$eel_value <- landings3$eel_value/10^3
 landings3$eel_cou_code <- droplevels(landings3$eel_cou_code)
 color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$eel_cou_code)]
@@ -619,9 +619,9 @@ proportion of "corrected" landings was as high as 50% in the 1950s, but rather
 low since the mid-1980s. The total landings (including reconstructed) of yellow
 and silver eels decreased from 18,000–20,000 t in the 1950s to 2,000–3,500 t
 since 2009. Reported landings from yellow and silver eel commercial fisheries
-(Y, S, YS) add up to `r YS_CY1` t in `r CY-1` and `r YS_CY2`t in `r CY-2`(Number
+(Y, S, YS) add up to `r round(YS_CY1)` t in `r CY-1` and `r round(YS_CY2)`t in `r CY-2`(Number
 of countries reporting `r nb_cou_Y_CY1`). Yellow and silver eel commercial
-fisheries averaged `r YS_meanCY3_CY7` t over the five previous years (from
+fisheries averaged `r round(YS_meanCY3_CY7)` t over the five previous years (from
 `r CY-7` to `r CY-3`).
 
 
@@ -686,7 +686,7 @@ color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$e
 cou_string <- get_country(data=landings3)
 ##Graph
 titleY <- paste0("Time-series of reported commercial yellow (Y), silver (S) and yellow-silver (YS) eel fishery landings (tonnes) 1908-",CY-1,
-    " by country, ", cou_string ," combining information from the Data call", CY, "and the WGEEL database updated to", CY-1)
+    " by country, ", cou_string ," are included, combining information from the Data call", CY, "and the WGEEL database updated to", CY-1)
 
 
 
@@ -769,7 +769,7 @@ color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$e
 cou_string <- get_country(data=landings3)
 ##Graph
 titleYcor <- paste0("Time-series of reported commercial yellow (Y), silver (S) and yellow-silver (YS) eel fishery landings (tonnes)",
-    " by country and a reconstruction of the non-reported countries/years combinations. ", cou_string ," combining information from the Data call ", CY, " and the WGEEL database updated to ", CY-1, " The inset box shows the proportion of reconstructed landings per year")
+    " by country and a reconstruction of the non-reported countries/years combinations. ", cou_string ," are included, combining information from the Data call ", CY, " and the WGEEL database updated to ", CY-1, " The inset box shows the proportion of reconstructed landings per year")
 
 
 g_reconstructed_landings <- ggplot(landings3) + 
