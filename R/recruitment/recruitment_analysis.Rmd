@@ -1417,7 +1417,7 @@ trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 # back to long format, save for shiny
 
 save(dat_ge, file=str_c(outputdatawd,"dat_ge.Rdata"))
-save(dat_ge, file=str_c(outputdatawd,"dat_ge.Rdata"))
+save(dat_ge, file=str_c(shinydatawd,"dat_ge.Rdata"))
 ```
 
 ```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
