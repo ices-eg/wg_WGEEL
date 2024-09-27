@@ -1,7 +1,7 @@
 ---
-title: "Report on developments on the state of the European eel (Anguilla anguilla) stock, the fisheries on it and other anthropogenic impacts"
+title: "Recruitment chapter : Report on developments on the state of the European eel (Anguilla anguilla) stock, fisheries and other anthropogenic impacts"
 author: "WGEEL"
-date: "2022-09-13"
+date: "`r Sys.Date()`"
 documentclass: article
 output: 
   bookdown::word_document2:
@@ -1016,7 +1016,7 @@ o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 		width="0.8\\textwidth",
 		sanitize.colnames.function=function(x){x})	
 save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
-save(model_ge_area,model_older,file=str_c(wddata,"/",CY,"/data/recruitment_models.Rdata"))
+save(model_ge_area,model_older,file=paste0(outputdatawd,"recruitment_models.Rdata"))
 
 #plot(model_ge_area)
 ```
@@ -1417,7 +1417,7 @@ trend_test_for_change_ns <- sprintf("Estimate = %.3f P-value %.4f",
 # back to long format, save for shiny
 
 save(dat_ge, file=str_c(outputdatawd,"dat_ge.Rdata"))
-save(dat_ge, file=str_c(shinydatawd,"dat_ge.Rdata"))
+save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 ```
 
 ```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
