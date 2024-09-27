@@ -402,10 +402,10 @@ knitr::asis_output(paste("Quantity of silver eels (S) released in ",CY-2," = ",r
 This section presents and describes data from commercial, recreational
 and non-commercial fisheries, aquaculture production and restocking of eel. Data
 can be reported by eel life stage (glass, yellow, silver), habitat type
-(freshwater, transitional, marine) and by eel management unit (EMU) where possible.
-Historical series for which these details are not available are reported by
-country. The current database structure will allow aggregation by country or EMU.
-The landings data presented are those reported to the
+(freshwater, transitional, coastal, marine) and by eel management unit (EMU)
+where possible. Historical series for which these details are not available are
+reported by country. The current database structure will allow aggregation by
+country or EMU. The landings data presented are those reported to the
 WGEEL through responses to Data calls. 
 
 ## Commercial fisheries landings
