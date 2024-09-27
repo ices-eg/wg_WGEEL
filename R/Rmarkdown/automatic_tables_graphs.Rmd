@@ -413,9 +413,9 @@ WGEEL through responses to Data calls.
 Care should be taken with the interpretation of the landings as indicators
 of the stock, since the catch statistics now reflect the status of reduced
 activity as well as of stock levels. In summary, reported commercial landings
-are declining, a long-term continuing trend, from a level of around 10,000 t in
-the 1960s, reported commercial landings have now dropped to
-`r YS_CY1 + g_CY1 ` tonnes (glass eel + yellow eel + silver eel) in `r CY-1`. 
+are declining from a level of around 10,000 t in
+the 1960s to
+`r round(YS_CY1 + g_CY1) ` tonnes (glass eel + yellow eel + silver eel) in `r CY-1`. 
 
 #### Glass eel
 
@@ -460,7 +460,7 @@ ka_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),
 ```
 
 Figure \@ref(fig:comlandGfig) presents the time-series up to and including
-`r CY+1` for total commercial glass eel landings as reported by `r ncol(tableComLandG)-2` countries in
+`r CY` for total commercial glass eel landings as reported by `r ncol(tableComLandG)-2` countries in
 the Eel Data call (`r paste(names(tableComLandG)[-c(1,ncol(tableComLandG))], collapse = ", ")`) and Figure \@ref(fig:corrComGfig) presents the time-series including reconstructed data to fill data gaps. 
 
 Glass eel landings show a sharp decline since 1980 from 2,000 t to around
@@ -493,7 +493,7 @@ GCYm1 <- landings3%>%
     pull(s)
 cou_string <- get_country(data=landings3)
 ##Graph
-titleG <- paste("Time-series of reported commercial glass eel fishery landings (tonnes) by country.", cou_string ,"are included combining information from the Data call", CY, "and the WGEEL database updated to", CY, "The Portuguese catches correspond to glass eel catches from the Portuguese side of the Miño river. Catches from the Spanish side of the Miño river are included in the Spanish catches.")
+titleG <- paste("Time-series of reported commercial glass eel fishery landings (tonnes) by country.", cou_string ,"are included combining information from the Data call", CY, "and the WGEEL database updated to", CY, ". The Portuguese catches correspond to glass eel catches from the Portuguese side of the Miño river. Catches from the Spanish side of the Miño river are included in the Spanish catches.")
 #vvv$G_total_CY <- sprintf("%0.2f tons",GCY)
 
 title <- paste("Commercial landings for glass eel in all habitats")
@@ -579,7 +579,7 @@ color_countries2 <- color_countries[names(color_countries)%in%levels(landings3$e
 cou_string <- get_country(data=landings3)
 ##Graph
 titleGcor <- paste0("Time-series of reported or reconstructed commercial glass eel fishery landings (tonnes) by country and a reconstruction of the non-reported countries/years combinations. ", 
-    cou_string ,", combining information from the Data call ", CY, " and the WGEEL database updated to ", CY, " The inset box shows the proportion of reconstructed landings per year.")
+    cou_string ," are included, combining information from the Data call ", CY, " and the WGEEL database updated to ", CY, ". The inset box shows the proportion of reconstructed landings per year.")
 
 
 g_reconstructed_landings <- ggplot(landings3) + 
@@ -614,15 +614,15 @@ print(g_combined_landings_G)
 #### Yellow and silver eel 
 
 Figure \@ref(fig:rawComLandYSfig) presents aggregated landings data for yellow and silver eels coming from 23 countries and Figure \@ref(fig:corrComYS)
-presents the time-series including reconstructed data to fill the gaps. Data
-from Egypt were removed since the proportion of “corrected” landings was as high
-as 50% in the 1950s, but rather low since the mid-1980s. The total landings
-(including reconstructed) of yellow and silver eels decreased from 18,000–20,000 t
-in the 1950s to 2,000–3,500 t since 2009. Reported landings from yellow and silver
-eel commercial fisheries (Y, S, YS) add up to `r YS_CY1` t in `r CY-1` and 
-`r YS_CY2`t in `r CY-2`(Number of countries reporting `r nb_cou_Y_CY1`). Yellow and silver eel commercial fisheries averaged
- `r YS_meanCY3_CY7` t over the five previous years (from  `r CY-7` to
-`r CY-3`).
+presents the time-series including reconstructed data to fill the gaps. The
+proportion of "corrected" landings was as high as 50% in the 1950s, but rather
+low since the mid-1980s. The total landings (including reconstructed) of yellow
+and silver eels decreased from 18,000–20,000 t in the 1950s to 2,000–3,500 t
+since 2009. Reported landings from yellow and silver eel commercial fisheries
+(Y, S, YS) add up to `r YS_CY1` t in `r CY-1` and `r YS_CY2`t in `r CY-2`(Number
+of countries reporting `r nb_cou_Y_CY1`). Yellow and silver eel commercial
+fisheries averaged `r YS_meanCY3_CY7` t over the five previous years (from
+`r CY-7` to `r CY-3`).
 
 
 ```{r rawComLandYSt, echo=FALSE, warning=FALSE}
