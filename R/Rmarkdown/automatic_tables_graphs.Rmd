@@ -361,6 +361,42 @@ knitr::asis_output(paste("Number of silver eels (S) released in ",CY-1," = ",rel
 knitr::asis_output(paste("Number of silver eels (S) released in ",CY-2," = ",rel_CY2_S, "millions , Number of countries reporting: ", paste(cou_CY2_relS,sep="", collapse=","),"<br><br>"))
 ```
 
+
+
+```{r keyNumbersReleasekg, results="asis", eval=TRUE, echo=FALSE}
+rel_kg <- filter_data("release",
+    typ = 8,
+    life_stage = c("G","QG","Y","S"),
+    year=1950:CY-1)%>% dplyr::filter(is.na(eel_missvaluequal))
+
+rel_kg <- rel_kg %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
+select_rel_kg <- aggregate(rel_kg$eel_value,by=list(rel_kg$eel_year,rel_kg$eel_lfs_code),sum,na.rm=T)
+rel_CY_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1==CY & select_rel_kg$Group.2 %in% c("G","QG")])/10^3,2)
+rel_CY1_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1==CY-1 & select_rel_kg$Group.2 %in% c("G","QG")])/10^3,2)
+rel_CY2_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1==CY-2 & select_rel_kg$Group.2 %in% c("G","QG")])/10^3,2)
+rel_CY1_Y_t <- round(select_rel_kg$x[select_rel_kg$Group.1==CY-1 & select_rel_kg$Group.2=="Y"]/10^3,2)
+rel_CY1_S_t <- round(select_rel_kg$x[select_rel_kg$Group.1==CY-1 & select_rel_kg$Group.2=="S"]/10^3,2)
+rel_CY2_Y_t <- round(select_rel_kg$x[select_rel_kg$Group.1==CY-2 & select_rel_kg$Group.2=="Y"]/10^3,2)
+rel_CY2_S_t <- round(select_rel_kg$x[select_rel_kg$Group.1==CY-2 & select_rel_kg$Group.2=="S"]/10^3,2)
+cou_CY_relG_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code %in% c("G","QG")]))
+cou_CY1_relG_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-1 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code %in% c("G","QG")]))
+cou_CY2_relG_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-2 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code %in% c("G","QG")]))
+cou_CY1_relY_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-1 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code=="Y"]))
+cou_CY2_relY_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-2 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code=="Y"]))
+cou_CY1_relS_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-1 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code=="S"]))
+cou_CY2_relS_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-2 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code=="S"]))
+
+knitr::asis_output(paste("Quantity of glass eels (G, QG) released in ",CY-2," = ",rel_CY2_G_t, "t , Number of countries reporting: ", paste(cou_CY2_relG_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of glass eels (G, QG) released in ",CY-1," = ",rel_CY1_G_t, "t , Number of countries reporting: ", paste(cou_CY1_relG_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of glass eels (G, QG) released in ",CY," = ",rel_CY_G_t, "t probably incomplete , Number of countries reporting: ", paste(cou_CY_relG_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of yellow eels (Y) released in ",CY-1," = ",rel_CY1_Y_t, "t , Number of countries reporting: ", paste(cou_CY1_relY_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of yellow eels (Y) released in ",CY-2," = ",rel_CY1_Y_t, "t , Number of countries reporting: ", paste(cou_CY2_relY_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of silver eels (S) released in ",CY-1," = ",rel_CY1_S_t, "t , Number of countries reporting: ", paste(cou_CY1_relS_t,sep="", collapse=","),"<br>"))
+knitr::asis_output(paste("Quantity of silver eels (S) released in ",CY-2," = ",rel_CY2_S_t, "t , Number of countries reporting: ", paste(cou_CY2_relS_t,sep="", collapse=","),"<br><br>"))
+```
+
+
+
 # Trend in fisheries
 
 This section presents and describes data from commercial, recreational
@@ -960,27 +996,25 @@ glass, yellow and silver eel, there are insufficient data available to quantify
 their effect on the total stock size or status with any level of certainty.
 
 
-## Release
+## Releases 
 
-### releases (G + QG) and other landings (G)
-
-Data have been reported on restocking comprising eels released at the glass eel
+Data have been reported on restocking which includes eels released at the glass eel
 phase, either directly (G), or after a quarantine (QG), after a period of some
 months of growth in aquaculture (OG), at the yellow eel (Y) or silver eel (S)
-stage or mixed life stages: Glass + Yellow eel (G+Y) and Yellow + Silver eel
-(Y+S). To futher complicate the matter, displacements of eel can range from a
-few metres within the same waterbody (i.e. assisted migration to bypass an
+stage.There are also some releases of mixed life stages: Glass + Yellow eel (G+Y) and Yellow + Silver eel (Y+S) for Ireland and Spain, but they will not be presented in this report (see country reports for more details). To futher complicate the matter, displacements of eel can range from a
+few meters within the same waterbody (i.e. assisted migration to bypass an
 ob-stacle), to eel being moved between waterbodies and/or EMUs. There are still
 inconsistencies and variations in how countries report these displacements.
-Therefore, the WGEEL broadly categorizes them as "releases", though the term
-"restocking" is still used here in some circumstances. Restocking of glass eel
-peaked during 1980s and was followed by a decline to a low level in 2009
-(Figure \@ref(fig:releaseGQGf) & Table \@ref(tab:releaseGQGt)). The amount of
-restocked glass eels has increase since 2010 with high numbers in 2014, 2018 and
-2019 when the lower market prices guaranteed a larger number of glass eels could
-be purchased for fixed restocking budgets. The number of glass eels (G, QG)
-released in `r CY-2` and `r CY-1` is `r rel_CY2_G` and `r rel_CY1_G`  million
-(Number of countries reporting: `r cou_CY2_relG` and `r cou_CY1_relG`).
+Therefore, the WGEEL broadly categorizes them as "releases". 
+
+### releases (G + QG)
+
+Restocking of glass eel (G + QG) peaked during 1980s and was followed by a decline to a low level in 2009
+(Figure \@ref(fig:releasekgGQGf). The amount of
+restocked glass eels has increase since 2010 with high numbers in 2014, and from 2018 to 2022, when the lower market prices guaranteed a larger number of glass eels could
+be purchased for fixed restocking budgets. The quantity of glass eels (G + QG)
+released in `r CY-2` and `r CY-1` is `r rel_CY2_G_t` and `r rel_CY1_G_t`  tons
+(Number of countries reporting: `r cou_CY2_relG_t` and `r cou_CY1_relG_t`).
 
 
 \newline
@@ -1030,7 +1064,7 @@ ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",
 \newline
 
 
-```{r releaseGQGf, echo=FALSE, warning=FALSE, fig.cap=titleGrel, fig.height=5, fig.width=10}
+```{r releaseGQGf, echo=FALSE, warning=FALSE, fig.cap=titleGrel, fig.height=5, fig.width=10,eval=FALSE}
 
 ##Graph
 release3<-grouped_data
@@ -1041,7 +1075,7 @@ release3$eel_cou_code <- droplevels(release3$eel_cou_code)
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
 ##Graph
-titleGrel <- paste0("Reported releases of glass eel (in millions) per country ", cou_string," Inset shows recent years at greater resolution.")
+titleGrel <- paste0("Reported releases of glass eel (in millions) per country ", cou_string,"Inset shows years since 2009 at greater resolution.")
 g_release_G <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     #ggtitle(title) + 
@@ -1086,7 +1120,7 @@ release3$eel_cou_code <- droplevels(release3$eel_cou_code)
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
 ##Graph
-titleGrelkg <- paste0("Reported releases of glass eel (in tonnes) per country ", cou_string," Inset shows recent years  in greater resolution.")
+titleGrelkg <- paste0("Reported releases of glass eel (G + QG, in tonnes) per country ", cou_string,"Inset shows years since 2009 in greater resolution.2024 and 2023 are provisional data (data are missing from 2024 because not all the countries have reported yet and from 2023 because German data have not been reported yet).")
 
 g_releasekg_G <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1109,9 +1143,11 @@ print(g_releasekg_G<-subplot(g_releasekg_G,
 
 \newline
 
-Translocation within an EMU to mitigate the impact of barriers to migration (Fig
-\@ref(fig:otherlandingsYf) & \@ref(fig:otherlandingskgYf)). were only
-reported by Ireland (since 1959, by numbers and mass) and the United King-dom
+[**********CHOOSE TO REMOVE OR ADD IN A NEW SECTION 2.5. BELOW IS THE CHANGE IN CASE YOU CREATE A 2.5 OTHER LANDINGS]
+
+All other landings, coming neither from professional or recreational fisheries were recorded separately. Most of them concern translocation within an EMU to mitigate the impact of barriers to migration. Glass eels translocation [(Fig
+\@ref(fig:otherlandingskgGf)] (Annex X) were only
+reported by Ireland (since 1959, by numbers and mass) and the United Kingdom
 (since 1996, by mass only).
 
 ```{r otherlandingsGt, echo=FALSE, warning=FALSE}
@@ -1199,7 +1235,7 @@ other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
 cou_string <- get_country(data=other_landings3)
-titleGothkg <- paste0("Other landings of glass eel (glass eel caught for transport operations, so not in formerly reported commercial or recreational fisheries) by mass, in", cou_string,".")
+titleGothkg <- paste0("Other landings of glass eel (glass eel caught for translocation operations, so not in formerly reported commercial or recreational fisheries) by mass, in", cou_string,".")
 g_other_landingskg_G <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     
@@ -1321,27 +1357,21 @@ print(g_releasekg_QG)
 
 
 
-### Yellow eel and ongrown eel releases and other landings
+### Ongrown eel (OG) and yellow eel (Y) releases
 
 
 \newline
 
-Releases of yellow eel are represented in Figures \@ref(fig:releaseYf) and
-\@ref(fig:releasekgYf). Sweden has recorded yellow eel release activity since
-1900. On top of a continuous assisted migration programme for yellow eel, Sweden
-had a restocking programme for yellow eel from the early 20th century up to
-2009. Germany started to stock yellow eels in 1985. Activity declined somewhat
-after 2005 and in recent years has been much reduced. 
+Releases of ongrown eels are presented in Figure \@ref(fig:releasekgOGf). It has constantly increased since 2000 and reached
+a maximum in 2022 (Figure <!--\@ref(fig:releaseOGf)--> \@ref(fig:releasekgOGf)
+).
 
-The number of yellow eels (Y) released in `r CY-2` and `r CY-1` is `r rel_CY2_Y`
-and `r rel_CY1_Y` million (Number of countries reporting: `r cou_CY2_relY` and
-`r cou_CY1_relY`). The number of silver eels (S) released in  `r CY-2` and
-`r CY-1` is  `r rel_CY2_S` and `r rel_CY1_S` million (Number of countries
-reporting: `r cou_CY2_relS` and `r cou_CY1_relS`).
+Releases of yellow eel are represented in Figures \@ref(fig:releasekgYf). Most of the released yellow eels were in Sweden and Germany. Germany started to release yellow eels in 1985 whereas Sweden had a release programme for yellow eel from the early 20th century that is still going on. . This activity declined somewhat after 2005 and in recent years has been much reduced. The quantity of yellow eels (Y) released in `r CY-2` and `r CY-1` is `r rel_CY2_Y_t`
+and `r rel_CY1_Y_t` tons (Number of countries reporting: `r cou_CY2_relY_t` and
+`r cou_CY1_relY_t`). 
 
-The restocking of ongrown eels has constantly increased since 2000 and reached
-a maximum in 2014 (Figures \@ref(fig:releaseOGf), \@ref(fig:releasekgOGf)
-). 
+
+ 
 
 ```{r releaseYt,echo=FALSE, warning=FALSE}
 
@@ -1390,7 +1420,7 @@ release3$eel_cou_code <- droplevels(release3$eel_cou_code)
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
 ##Graph
-titleYrel <- paste0("Reported releases of yellow eel (in millions) per country ", cou_string," Inset shows the last 13 years in more detail.")
+titleYrel <- paste0("Reported releases of yellow eel (in millions) per country ", cou_string," Inset shows the last 15 years in more detail.")
 g_release_Y <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     #ggtitle(title) + 
@@ -1431,7 +1461,7 @@ release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
-titleYrelkg <- paste0("Reported releases of yellow eel (in tonnes) per country. ", cou_string,". Inset shows the last 13 years in more detail.")
+titleYrelkg <- paste0("Reported releases of yellow eel (in tons) per country. ", cou_string,". Inset shows the last 15 years in more detail. Data for recent years are provisional or incomplete and may change in future data calls.")
 g_releasekg_Y <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     xlab("year") + ylab("Release in tonnes")+
@@ -1584,7 +1614,7 @@ release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
-titleOGrel <- paste0(". Reported releases of ongrown glass eel (in thousands) per country, ", cou_string,".")
+titleOGrel <- paste0(". Reported releases of ongrown glass eel (OG, in thousands) per country, ", cou_string,".")
 
 g_release_OG <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1634,7 +1664,12 @@ print(g_releasekg_OG)
 
 
 
-### release and other landings Silver eels
+### Silver eel releases
+
+A certain percentage  of silver eels caught by the fishery, and therefore recorded as landings, are later released in the Mediterranean outside the lagoons in Greece (30% of caught silver eels) and France. These are reported as released silvers (Figure \@ref(fig:titleSrelkg). Spain has made anecdotal releases of silver eels from farms. The quantity of silver eels (S) released in  `r CY-2` and
+`r CY-1` is  `r rel_CY2_S_t` and `r rel_CY1_S_t` tons (Number of countries
+reporting: `r cou_CY2_relS_t` and `r cou_CY1_relS_t`).
+
 
 ```{r releaseSt,echo=FALSE, warning=FALSE}
 
@@ -1712,7 +1747,7 @@ release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
-titleSrelkg <- paste0("Reported releases of silver eel (in tonnes) per country, ", cou_string,".")
+titleSrelkg <- paste0("Reported releases of silver eel (in tons) per country, ", cou_string,".")
 
 g_releasekg_S <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1817,6 +1852,9 @@ print(g_other_landingskg_S)
 
 \newline
 
+## Other landings
+
+All other landings, coming neither from professional or recreational fisheries were recorded separately. Most of them concern tTranslocation within an EMU to mitigate the impact of barriers to migration. Glass eel translocations (Annex XX)Fig 2.150 & 2.16). were only reported by Ireland (since 1959, by numbers and mass) and the United King-dom (since 1996, by mass only). Yellow eel translocations were only reported in Sweden and Ireland (Annex XX) and silver eel translocations in 5 countries: mainly in Sweden, Ireland and Finland, and to a lesser extend in Netherlands and Spain (Annex XX).  
 
 
 
