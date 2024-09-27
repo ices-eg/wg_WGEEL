@@ -1950,6 +1950,15 @@ render_graph(igraph3, layout="tree") %>%
 
 ```
 
+```{r lastyearvalue,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+cred = read_yaml("../../credentials.yml")
+con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
+
+last_year_EE <- compute_retro_year(2023) %>% filter(year==CY-1, area =="Elsewhere Europe") %>% pull(p_std)*100
+last_year_EE <- round(last_year_EE,digits= 1)
+last_year_NS <- compute_retro_year(2023) %>% filter(year==CY-1, area =="North Sea") %>% pull(p_std)*100
+last_year_NS <- round(last_year_NS,digits= 1)
+```
 
 
 # Recruitment
@@ -2140,11 +2149,11 @@ data se-ries on glass and yellow eel recruitment are not complete for this year
 at the date of submis-sion to WGEEL. Therefore, each year the recruitment index
 is updated when the complete data from the previous year is available. 
 Thus, in the case of the glass eel series, the recruitment of `r CY-1`
-has been recalculated from [PASTE VALUE FROM PREVIOUS REPORT HERE] to
+has been recalculated from `r last_year_EE` [CHECK THIS VALUE IN PREVIOUS REPORT] to
 `r round(100*synthesis[nrow(synthesis)-1,"Elsewhere Europe"], digits= 1)`% in the Elsewhere Europe series
 (Figure \@ref(fig:figure5), Table \@ref(tab:tableglmglasseel)). For the North
 Sea, recruitment for `r CY-1` has been recalculated from
-[PASTE VALUE FROM PREVIOUS REPORT HERE] to
+`r last_year_NS` [CHECK THIS VALUE IN PREVIOUS REPORT] to
 `r round(100*synthesis[nrow(synthesis)-1,"North Sea"], digits =1)`%.  
 
 Analyses of provisional `r CY` data show recruitment as a percentage of
@@ -2412,7 +2421,7 @@ source("TAFgeneration/taf_generation_script.R")
 The following diagrams show the influence of new time series integration and data revision on the assessment. Each line corresponds to the GLM based on the time series used in year indicated by the color. The panel "not updated" stands for a GLM in which the data available at the time of the assessment are used. In "updated panel", potential revisions of data are integrated.
 
 ```{r retrospective,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
-cred=read_yaml("../../credentials.yml")
+cred = read_yaml("../../credentials.yml")
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 series=dbReadTable(con,Id(schema="datawg",table="t_series_ser"))
@@ -2546,76 +2555,76 @@ retro_YY
 save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
 
 
-getmodel <- function(y, model){
-  tmp <- environment()
-  load(paste0(y,"/data/dat_",ifelse(model=="ge","ge","ye"),".Rdata"), envir = tmp)
-  if (model == "ge")
-    return(tmp$dat_ge %>%
-            mutate(AssessmentYear = y))
-  return(tmp$dat_ye%>%
-            mutate(AssessmentYear = y))
-}
-retro_ge <- bind_rows(dat_ge %>%
-                        mutate(AssessmentYear = CY),
-                      do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ge")))
-
-
-
-retro_EE <- ggplot(retro_ge %>%
-         filter(area == "Elsewhere Europe"),
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(AssessmentYear))) +
-#  facet_wrap(~area) +
-   guides(lty = "none") + 
-  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
-		geom_hline(yintercept=1,linetype=2)+
-		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Elsewhere Europe")+
-  theme_ICES_plots("quality_R",retro_advice_data) 
-
-retro_EE
-save_figure("retro_EE",retro_EE,600,480, pdf=FALSE)
-
-
-
-retro_NS <- ggplot(retro_advice_data %>%
-         filter(area == "North Sea"),
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(AssessmentYear))) +
-#  facet_wrap(~area) +
-   guides(lty = "none") + 
-  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
-		geom_hline(yintercept=1,linetype=2)+
-		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("North Sea") +
-  theme_ICES_plots("quality_R",retro_advice_data) 
-
-retro_NS
-save_figure("retro_NS",retro_NS,600,480, pdf=FALSE)
-
-
-
-retro_ye <- bind_rows(dat_ye %>%
-                        mutate(AssessmentYear = CY),
-                      do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ye")))
-
-
-
-retro_YY <- ggplot(retro_ye ,
-       aes(x=year,y=value_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(AssessmentYear))) +
-#  facet_wrap(~area) +
-   guides(lty = "none") + 
-  	ylab(expression(frac(p,bar(p)[1960-1979])))+	
-		geom_hline(yintercept=1,linetype=2)+
-		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Elsewhere Europe")+
-  theme_ICES_plots("quality_R",retro_advice_data) 
-
-retro_YY
-save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
-
-
+# getmodel <- function(y, model){
+#   tmp <- environment()
+#   load(paste0(y,"/data/dat_",ifelse(model=="ge","ge","ye"),".Rdata"), envir = tmp)
+#   if (model == "ge")
+#     return(tmp$dat_ge %>%
+#             mutate(AssessmentYear = y))
+#   return(tmp$dat_ye%>%
+#             mutate(AssessmentYear = y))
+# }
+# retro_ge <- bind_rows(dat_ge %>%
+#                         mutate(AssessmentYear = CY),
+#                       do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ge")))
+# 
+# 
+# 
+# retro_EE <- ggplot(retro_ge %>%
+#          filter(area == "Elsewhere Europe"),
+#        aes(x=year,y=p_std_1960_1979)) + 
+#   geom_line(aes(col=as.factor(AssessmentYear))) +
+# #  facet_wrap(~area) +
+#    guides(lty = "none") + 
+#   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+# 		geom_hline(yintercept=1,linetype=2)+
+# 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+#   ggtitle("Elsewhere Europe")+
+#   theme_ICES_plots("quality_R",retro_advice_data) 
+# 
+# retro_EE
+# save_figure("retro_EE",retro_EE,600,480, pdf=FALSE)
+# 
+# 
+# 
+# retro_NS <- ggplot(retro_advice_data %>%
+#          filter(area == "North Sea"),
+#        aes(x=year,y=p_std_1960_1979)) + 
+#   geom_line(aes(col=as.factor(AssessmentYear))) +
+# #  facet_wrap(~area) +
+#    guides(lty = "none") + 
+#   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+# 		geom_hline(yintercept=1,linetype=2)+
+# 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+#   ggtitle("North Sea") +
+#   theme_ICES_plots("quality_R",retro_advice_data) 
+# 
+# retro_NS
+# save_figure("retro_NS",retro_NS,600,480, pdf=FALSE)
+# 
+# 
+# 
+# retro_ye <- bind_rows(dat_ye %>%
+#                         mutate(AssessmentYear = CY),
+#                       do.call(bind_rows,lapply((CY-4):(CY-1), getmodel,model="ye")))
+# 
+# 
+# 
+# retro_YY <- ggplot(retro_ye ,
+#        aes(x=year,y=value_std_1960_1979)) + 
+#   geom_line(aes(col=as.factor(AssessmentYear))) +
+# #  facet_wrap(~area) +
+#    guides(lty = "none") + 
+#   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
+# 		geom_hline(yintercept=1,linetype=2)+
+# 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
+#   ggtitle("Elsewhere Europe")+
+#   theme_ICES_plots("quality_R",retro_advice_data) 
+# 
+# retro_YY
+# save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
+# 
+# 
 
 ```
 
