@@ -1016,6 +1016,8 @@ o <- print(xt_a, file = str_c(tabwd,"/table_anova.tex"),
 		width="0.8\\textwidth",
 		sanitize.colnames.function=function(x){x})	
 save(model_ge_area,model_older,file=paste0(shinywd,"recruitment_models.Rdata"))
+save(model_ge_area,model_older,file=str_c(wddata,"/",CY,"/data/recruitment_models.Rdata"))
+
 #plot(model_ge_area)
 ```
 
