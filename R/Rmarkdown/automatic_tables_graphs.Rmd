@@ -335,7 +335,7 @@ rel <- filter_data("release",
     life_stage = c("G","QG","Y","S"),
     year=1950:CY-1)%>% dplyr::filter(is.na(eel_missvaluequal))
 
-rel <- rel %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
+#rel <- rel %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 select_rel <- aggregate(rel$eel_value,by=list(rel$eel_year,rel$eel_lfs_code),sum,na.rm=T)
 rel_CY_G <- round(sum(select_rel$x[select_rel$Group.1==CY & select_rel$Group.2 %in% c("G","QG")])/10^6,2)
 rel_CY1_G <- round(sum(select_rel$x[select_rel$Group.1==CY-1 & select_rel$Group.2 %in% c("G","QG")])/10^6,2)
@@ -1003,17 +1003,17 @@ phase, either directly (G), or after a quarantine (QG), after a period of some
 months of growth in aquaculture (OG), at the yellow eel (Y) or silver eel (S)
 stage.There are also some releases of mixed life stages: Glass + Yellow eel (G+Y) and Yellow + Silver eel (Y+S) for Ireland and Spain, but they will not be presented in this report (see country reports for more details). To futher complicate the matter, displacements of eel can range from a
 few meters within the same waterbody (i.e. assisted migration to bypass an
-ob-stacle), to eel being moved between waterbodies and/or EMUs. There are still
+obstacle), to eel being moved between waterbodies and/or EMUs. There are still
 inconsistencies and variations in how countries report these displacements.
 Therefore, the WGEEL broadly categorizes them as "releases". 
 
-### releases (G + QG)
+### Glass eel releases (G + QG)
 
 Restocking of glass eel (G + QG) peaked during 1980s and was followed by a decline to a low level in 2009
-(Figure \@ref(fig:releasekgGQGf). The amount of
+(Figure \@ref(fig:releasekgGQGf)). The amount of
 restocked glass eels has increase since 2010 with high numbers in 2014, and from 2018 to 2022, when the lower market prices guaranteed a larger number of glass eels could
 be purchased for fixed restocking budgets. The quantity of glass eels (G + QG)
-released in `r CY-2` and `r CY-1` is `r rel_CY2_G_t` and `r rel_CY1_G_t`  tons
+released in `r CY-2` and `r CY-1` is `r rel_CY2_G_t` and `r rel_CY1_G_t`  tonnes
 (Number of countries reporting: `r cou_CY2_relG_t` and `r cou_CY1_relG_t`).
 
 
@@ -1120,7 +1120,7 @@ release3$eel_cou_code <- droplevels(release3$eel_cou_code)
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
 ##Graph
-titleGrelkg <- paste0("Reported releases of glass eel (G + QG, in tonnes) per country ", cou_string,"Inset shows years since 2009 in greater resolution.2024 and 2023 are provisional data (data are missing from 2024 because not all the countries have reported yet and from 2023 because German data have not been reported yet).")
+titleGrelkg <- paste0("Reported releases of glass eel (G + QG, in tonnes) per country ", cou_string,". Inset shows years since 2009 in greater resolution. 2024 and 2023 are provisional data (data are missing from 2024 because not all the countries have reported yet and from 2023 because German data have not been reported yet).")
 
 g_releasekg_G <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1143,12 +1143,10 @@ print(g_releasekg_G<-subplot(g_releasekg_G,
 
 \newline
 
-[**********CHOOSE TO REMOVE OR ADD IN A NEW SECTION 2.5. BELOW IS THE CHANGE IN CASE YOU CREATE A 2.5 OTHER LANDINGS]
 
-All other landings, coming neither from professional or recreational fisheries were recorded separately. Most of them concern translocation within an EMU to mitigate the impact of barriers to migration. Glass eels translocation [(Fig
-\@ref(fig:otherlandingskgGf)] (Annex X) were only
-reported by Ireland (since 1959, by numbers and mass) and the United Kingdom
-(since 1996, by mass only).
+
+[**********move the figures related to other landings to the annex]
+
 
 ```{r otherlandingsGt, echo=FALSE, warning=FALSE}
 
@@ -1193,7 +1191,7 @@ ka_other_landings_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pan
 \newline
 
 
-```{r otherlandingsGf,echo=FALSE, warning=FALSE, fig.cap=titleGoth, fig.height=5, fig.width=10}
+```{r otherlandingsGf,echo=FALSE, warning=FALSE, fig.cap=titleGoth, fig.height=5, fig.width=10,eval=FALSE}
 
 ##Graph
 other_landings3<-grouped_data
@@ -1216,7 +1214,7 @@ print(g_other_landings_G)
 ```
 
 
-```{r otherlandingskgGf,echo=FALSE, warning=FALSE, fig.cap=titleGothkg, fig.height=5, fig.width=10}
+```{r otherlandingskgGf,echo=FALSE, warning=FALSE, fig.cap=titleGothkg, fig.height=5, fig.width=10,eval=FALSE}
 
 ##Table other_landings (nb) for all the countries for G # 9 is q_other_landings_kg
 
@@ -1248,14 +1246,14 @@ print(g_other_landingskg_G)
 
 \newline
 
-*************************************************************************
+#*************************************************************************
 
-[remove this section, QG are now reported together with G]
-Only Sweden and Finland have reported quarantined glass eel restocking.
-Quarantined glass eel restocking peaked in the 1990s, decreased in the early
-2000s and increased again after the implementation of the Eel Regulation.
+#[remove this section, QG are now reported together with G]
+#Only Sweden and Finland have reported quarantined glass eel restocking.
+#Quarantined glass eel restocking peaked in the 1990s, decreased in the early
+#2000s and increased again after the implementation of the Eel Regulation.
 
-*************************************************************************
+#*************************************************************************
 
 
 ```{r releaseQGt,echo=FALSE, warning=FALSE}
@@ -1299,7 +1297,7 @@ ka_release_QG <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",c
 
 
 
-```{r releaseQGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap=titleQGf , fig.height=5, fig.width=10}
+```{r releaseQGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap=titleQGf , fig.height=5, fig.width=10,eval=FALSE}
 
 ##Graph
 release3<-grouped_data
@@ -1325,7 +1323,7 @@ print(g_release_QG)
 
 
 
-```{r releasekgQGf,echo=FALSE, eval=TRUE, warning=FALSE, fig.cap =titleQGf,fig.height=5, fig.width=10}
+```{r releasekgQGf,echo=FALSE, eval=TRUE, warning=FALSE, fig.cap =titleQGf,fig.height=5, fig.width=10,eval=FALSE}
 
 filtered_data<-filter_data("release",
     typ = 8,
@@ -1362,12 +1360,12 @@ print(g_releasekg_QG)
 
 \newline
 
-Releases of ongrown eels are presented in Figure \@ref(fig:releasekgOGf). It has constantly increased since 2000 and reached
-a maximum in 2022 (Figure <!--\@ref(fig:releaseOGf)--> \@ref(fig:releasekgOGf)
+Releases of ongrown eels are presented in Figure \@ref(fig:releaseOGf). It has constantly increased since 2000 and reached
+a maximum in 2022 (Figure \@ref(fig:releaseOGf) <!--\@ref(fig:releasekgOGf)-->
 ).
 
-Releases of yellow eel are represented in Figures \@ref(fig:releasekgYf). Most of the released yellow eels were in Sweden and Germany. Germany started to release yellow eels in 1985 whereas Sweden had a release programme for yellow eel from the early 20th century that is still going on. . This activity declined somewhat after 2005 and in recent years has been much reduced. The quantity of yellow eels (Y) released in `r CY-2` and `r CY-1` is `r rel_CY2_Y_t`
-and `r rel_CY1_Y_t` tons (Number of countries reporting: `r cou_CY2_relY_t` and
+Releases of yellow eel are represented in Figures \@ref(fig:releasekgYf). The quantity of yellow eels (Y) released in `r CY-2` and `r CY-1` is `r rel_CY2_Y_t`
+and `r rel_CY1_Y_t` tonnes (Number of countries reporting: `r cou_CY2_relY_t` and
 `r cou_CY1_relY_t`). 
 
 
@@ -1409,7 +1407,7 @@ ka_release_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",ca
 \newline
 
 
-```{r releaseYf,echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10}
+```{r releaseYf,echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10,eval=FALSE}
 ##Graph
 
 release3<-grouped_data
@@ -1517,7 +1515,7 @@ ka_other_landings_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pan
 \newline
 
 
-```{r otherlandingsYf, echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10}
+```{r otherlandingsYf, echo=FALSE, warning=FALSE, fig.cap=titleYrel, fig.height=5, fig.width=10,eval=FALSE}
 
 other_landings3<-grouped_data
 other_landings3$eel_value <- as.numeric(other_landings3$eel_value) / 10^6
@@ -1526,7 +1524,7 @@ other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries) %in% levels(other_landings3$eel_cou_code)]
 cou_string <- get_country(data=other_landings3)
-titleYrel <- paste0("Reported releases of yellow eel (in millions) per country. ", cou_string,".")
+titleYrel <- paste0("CHECK THE CAPTION- Reported releases of yellow eel (in millions) per country. ", cou_string,".")
 
 g_other_landings_Y <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1538,7 +1536,7 @@ print(g_other_landings_Y)
 ```
 
 
-```{r otherlandingskgYf,echo=FALSE, warning=FALSE, fig.cap=titleYrelkg, fig.height=5, fig.width=10}
+```{r otherlandingskgYf,echo=FALSE, warning=FALSE, fig.cap=titleYrelkg, fig.height=5, fig.width=10,eval=FALSE}
 
 filtered_data<-filter_data("other_landings",
     typ = 32,
@@ -1557,7 +1555,7 @@ other_landings3$eel_cou_code<-factor(other_landings3$eel_cou_code,levels=country
 other_landings3$eel_cou_code <- droplevels(other_landings3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(other_landings3$eel_cou_code)]
 cou_string <- get_country(data=other_landings3)
-titleYrel <- paste0("Reported releases of yellow eel (in tonnes) per country. ", cou_string,".")
+titleYrel <- paste0("CHECK caption Reported releases of yellow eel (in tonnes) per country. ", cou_string,".")
 
 g_other_landingskg_Y <-  ggplot(other_landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1614,7 +1612,7 @@ release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
-titleOGrel <- paste0(". Reported releases of ongrown glass eel (OG, in thousands) per country, ", cou_string,".")
+titleOGrel <- paste0("Reported releases of ongrown glass eel (OG, in thousands) per country, ", cou_string,". Data for recent years are provisional or incomplete and may change in future data calls.")
 
 g_release_OG <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1629,7 +1627,7 @@ print(g_release_OG)
 
 \newline
 
-```{r releasekgOGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap =titleQGf, height=5, fig.width=10}
+```{r releasekgOGf,echo=FALSE, warning=FALSE, eval=TRUE, fig.cap =titleQGf, height=5, fig.width=10,eval=FALSE}
 
 filtered_data<-filter_data("release",
     typ = 8,
@@ -1647,7 +1645,7 @@ release3$eel_cou_code = as.factor(release3$eel_cou_code)
 release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,ordered=TRUE)
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 cou_string <- get_country(data=release3)
-titleQGf <- paste0("remove me OG in tons are not in the report, countries ", cou_string)
+titleQGf <- paste0("remove me OG in tonnes are not in the report, countries ", cou_string)
 
 
 g_releasekg_OG <-  ggplot(release3) + 
@@ -1666,8 +1664,8 @@ print(g_releasekg_OG)
 
 ### Silver eel releases
 
-A certain percentage  of silver eels caught by the fishery, and therefore recorded as landings, are later released in the Mediterranean outside the lagoons in Greece (30% of caught silver eels) and France. These are reported as released silvers (Figure \@ref(fig:titleSrelkg). Spain has made anecdotal releases of silver eels from farms. The quantity of silver eels (S) released in  `r CY-2` and
-`r CY-1` is  `r rel_CY2_S_t` and `r rel_CY1_S_t` tons (Number of countries
+A certain percentage  of silver eels caught by the fishery, and therefore recorded as landings, are later released in the Mediterranean outside the lagoons in Greece (30% of caught silver eels) and France. These are reported as released silvers (Figure \@ref(fig:releasekgSf). Spain has made anecdotal releases of silver eels from farms. The quantity of silver eels (S) released in  `r CY-2` and
+`r CY-1` is  `r rel_CY2_S_t` and `r rel_CY1_S_t` tonnes (Number of countries
 reporting: `r cou_CY2_relS_t` and `r cou_CY1_relS_t`).
 
 
@@ -1707,7 +1705,7 @@ ka_release_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",ca
 
 
 
-```{r releaseSf,echo=FALSE, warning=FALSE, fig.cap=titleSrel, fig.height=5, fig.width=10}
+```{r releaseSf,echo=FALSE, warning=FALSE, fig.cap=titleSrel, fig.height=5, fig.width=10,eval=FALSE}
 
 ##Graph
 release3<-grouped_data
@@ -1747,7 +1745,7 @@ release3$eel_cou_code<-factor(release3$eel_cou_code,levels=country_ref$cou_code,
 release3$eel_cou_code <- droplevels(release3$eel_cou_code) 
 color_countries2 <-	color_countries[names(color_countries)%in%levels(release3$eel_cou_code)]
 cou_string <- get_country(data=release3)
-titleSrelkg <- paste0("Reported releases of silver eel (in tons) per country, ", cou_string,".")
+titleSrelkg <- paste0("Reported releases of silver eel (in tonnes) per country, ", cou_string,".")
 
 g_releasekg_S <-  ggplot(release3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
@@ -1797,7 +1795,7 @@ ka_other_landings_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pan
 
 
 
-```{r otherlandingsSf,echo=FALSE, warning=FALSE, fig.cap=titleotherlandingsSf , fig.height=5, fig.width=10}
+```{r otherlandingsSf,echo=FALSE, warning=FALSE, fig.cap=titleotherlandingsSf , fig.height=5, fig.width=10,eval=FALSE}
 
 ##Graph
 other_landings3<-grouped_data
@@ -1821,7 +1819,7 @@ print(g_other_landings_S)
 
 
 
-```{r otherlandingskgSf,echo=FALSE, warning=FALSE, fig.cap=titleotherlandingskgSf, fig.height=5, fig.width=10}
+```{r otherlandingskgSf,echo=FALSE, warning=FALSE, fig.cap=titleotherlandingskgSf, fig.height=5, fig.width=10,eval=FALSE}
 
 filtered_data<-filter_data("other_landings",
     typ = 32,
@@ -1854,7 +1852,7 @@ print(g_other_landingskg_S)
 
 ## Other landings
 
-All other landings, coming neither from professional or recreational fisheries were recorded separately. Most of them concern tTranslocation within an EMU to mitigate the impact of barriers to migration. Glass eel translocations (Annex XX)Fig 2.150 & 2.16). were only reported by Ireland (since 1959, by numbers and mass) and the United King-dom (since 1996, by mass only). Yellow eel translocations were only reported in Sweden and Ireland (Annex XX) and silver eel translocations in 5 countries: mainly in Sweden, Ireland and Finland, and to a lesser extend in Netherlands and Spain (Annex XX).  
+All other landings, coming neither from professional or recreational fisheries were recorded separately. Most of them concern translocation within an EMU to mitigate the impact of barriers to migration. Glass eel translocations (Annex XX). were only reported by Ireland (since 1959, by numbers and mass) and the United King-dom (since 1996, by mass only). Yellow eel translocations were only reported in Sweden and Ireland (Annex XX) and silver eel translocations in 5 countries: mainly in Sweden, Ireland and Finland, and to a lesser extend in Netherlands and Spain (Annex XX).  
 
 
 
@@ -1864,7 +1862,7 @@ All other landings, coming neither from professional or recreational fisheries w
 
 ### Release all stage (remove me)
 
-```{r releaseAllStages,echo=FALSE, warning=FALSE, fig.cap="release all stage, remove me", fig.height=5, fig.width=10}
+```{r releaseAllStages,echo=FALSE, warning=FALSE, fig.cap="release all stage, remove me", fig.height=5, fig.width=10,eval=FALSE}
 
 ##Table release of all stages for all the countries
 
@@ -1899,7 +1897,7 @@ print(g_release_all)
 ```
 
 
-```{r releasekgAllStages,echo=FALSE, warning=FALSE, fig.cap="release all stages in kg remove me", fig.height=5, fig.width=10}
+```{r releasekgAllStages,echo=FALSE, warning=FALSE, fig.cap="release all stages in kg remove me", fig.height=5, fig.width=10,eval=FALSE}
 
 ##Table release of all stages for all the countries
 
@@ -1935,7 +1933,7 @@ print(g_releasekg_all)
 
 
 
-```{r otherlandingsAllStages,echo=FALSE, warning=FALSE, fig.cap="remove me, other landings all stages combined G,Y,QG,OG,YS,S", fig.height=5, fig.width=10}
+```{r otherlandingsAllStages,echo=FALSE, warning=FALSE, fig.cap="remove me, other landings all stages combined G,Y,QG,OG,YS,S", fig.height=5, fig.width=10,eval=FALSE}
 
 ##Table other_landings of all stages for all the countries
 
@@ -1970,7 +1968,7 @@ print(g_other_landings_all)
 ```
 
 
-```{r otherlandingskgAllStages,echo=FALSE, warning=FALSE, fig.cap="remove me, other landings kg all stages combined G,Y,QG,OG,YS,S", fig.height=5, fig.width=10}
+```{r otherlandingskgAllStages,echo=FALSE, warning=FALSE, fig.cap="remove me, other landings kg all stages combined G,Y,QG,OG,YS,S", fig.height=5, fig.width=10,eval=FALSE}
 
 ##Table other_landings of all stages for all the countries
 
@@ -2177,4 +2175,3 @@ ggsave(paste0(imgwd,"other_landingskg_G.png"), g_other_landingskg_G, device = "p
 ggsave(paste0(imgwd,"other_landingsG.png"), g_other_landings_G, device = "png", width = 30, height = 20, 
     units = "cm")
 ```
-
