@@ -9,7 +9,7 @@
 # lauch(global.R)
 # set connexion to 5435 in database_connexion
 
-avoid_loading_ref_and_spatial_data <- FALSE # switch to FALSE if you want reload reference, loading EMU and country wih spatial data can take a lot of time
+avoid_loading_ref_and_spatial_data <- TRUE # switch to FALSE if you want reload reference, loading EMU and country wih spatial data can take a lot of time
 source("load_library.R")
 load_library("yaml")
 load_library("RPostgreSQL")
@@ -26,6 +26,18 @@ source("database_precodata.R")
 #cred=read_yaml("../../../credentials.yml")
 
 con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
+
+pool <<- pool::dbPool(drv = RPostgres::Postgres(),
+    dbname=cred$dbname,
+    host=cred$host,
+    port=cred$port,
+    user= cred$user,
+    password= cred$password,
+    bigint="integer",
+   minSize = 0,
+    maxSize = 2)
+
+
 if (avoid_loading_ref_and_spatial_data){
 	load("data/ref_and_eel_data.Rdata")
 	# remove everything that will be loaded next and that does not contain any spatial data
@@ -60,6 +72,7 @@ if (avoid_loading_ref_and_spatial_data){
 	emu_cou<-data.frame(emu_cou,emu_order=1:nrow(emu_cou))
 # Extract data from the database -------------------------------------------------------------------
 }
+
 landings = extract_data("landings",quality =c(1,2,4),quality_check=TRUE)
 # ONLY FOR AQUACULTURE WE HAVE A DATA PROTECTION LAW RESTRICTING THE ACCESS
 aquaculture = extract_data("aquaculture",quality=c(1,2,4),quality_check=TRUE)

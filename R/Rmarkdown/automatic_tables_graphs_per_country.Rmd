@@ -4,7 +4,6 @@ author: "ICES EIFAAC GFCM wgeel - Data Group"
 date: "`r Sys.Date()`"
 documentclass: article
 output: 
-  bookdown::word_document2: default
   bookdown::html_document2:
     keep_md: true
     self_contained: true
@@ -19,7 +18,7 @@ params:
     value: 1960
     input: slider
     min: 1900
-    max: 2020
+    max: 2024
     step: 1
     sep: ""
   country:   
