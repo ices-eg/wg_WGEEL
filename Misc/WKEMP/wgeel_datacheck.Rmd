@@ -17,9 +17,9 @@ library(tidyverse)
 library(yaml)
 cred=read_yaml("../../credentials.yml")
 con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
-load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
-load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
-eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
+load("data/maps_for_shiny.Rdata")
+load("data/ref_and_eel_data.Rdata")
+eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE")
 ```
 
 # Downloading data
@@ -38,8 +38,8 @@ nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(dist
 # Missing countries
 ## not reported country
 ```{r notans}
-not_reported=country_p$cou_code[! country_p$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]
-sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]) 
+not_reported=country_ref$cou_code[! country_ref$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]
+sort(country_ref$cou_country[! country_ref$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]) 
 ```
 
 ## Importance of landings in these countries
@@ -48,14 +48,14 @@ Values of reported landings, averaged over 5 last years:
 ```{r fisheries}
 landings=dbGetQuery(con,paste0("select eel_value,eel_cou_code,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_cou_code in ('",
                                paste(not_reported, collapse="','"),
-                               "') and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2017")) %>%
+                               "') and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
   group_by(eel_year,eel_lfs_code,eel_cou_code) %>%
   summarize(eel_value=sum(eel_value,na.rm=TRUE)) %>%
   group_by(eel_cou_code,eel_lfs_code) %>%
   summarize(landings=mean(eel_value, na.rm=TRUE)/1e3) %>%
   pivot_wider(names_from=eel_lfs_code, values_from=landings)
 
-tot_landings=dbGetQuery(con,paste0("select eel_value,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2017")) %>%
+tot_landings=dbGetQuery(con,paste0("select eel_value,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
   group_by(eel_year,eel_lfs_code) %>%
   summarize(eel_value=sum(eel_value,na.rm=TRUE)) %>%
   group_by(eel_lfs_code) %>%
@@ -66,7 +66,7 @@ tot_landings=dbGetQuery(con,paste0("select eel_value,eel_lfs_code,eel_year from 
 flextable(landings %>%
             filter(eel_cou_code %in%eu_cou_codes) %>%
             bind_rows(tot_landings) %>%
-            select(eel_cou_code,G,Y,YS,S,AL)) %>%
+            select(eel_cou_code,G,Y,YS,S)) %>%
   colformat_double(digits=1)
 
 ```
