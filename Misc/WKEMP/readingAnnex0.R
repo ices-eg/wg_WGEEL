@@ -115,11 +115,3 @@ ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
 
 list_annex0_missing <- filter(provided_all,annex_provided=="No_annex_0")
 
-
-
-
-
-
-# write.csv2(data_avail,"C:/Users/guandre/Documents/WGEEL/data_available.csv")
-
-
