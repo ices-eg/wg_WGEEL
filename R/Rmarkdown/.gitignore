@@ -55,3 +55,7 @@ ref_and_eel_data.Rdata
 /tex2pdf.*/*
 /automatic_tables_graphs.Rmd.tex
 /2024/
+*.docx
+*.md
+*.pdf
+*.odt
