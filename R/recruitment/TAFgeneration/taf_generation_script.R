@@ -185,3 +185,19 @@ draft.data(
 export_report_rmd_to_taf(source_file="recruitment_analysis.Rmd", destination_file=NULL, taf_directory)
 file.copy(paste0(wddata,"/../Rmarkdown/ICES_template.docx"),taf_directory)
 rm(list=ls())
+
+
+
+# test github
+# 
+
+run_dir <- download.analysis("https://codeload.github.com/ices-taf/2023_WGEEL_recruitment/zip/refs/heads/main?token=AKISKFADBIX3AZ3JN73RZF3G7Y7J4")
+ run_dir <- download.analysis("https://github.com/ices-taf/2023_WGEEL_recruitment", dir = getwd())
+# #debug(icesTAF::download.analysis)
+# deps(run_dir)
+# oldwd <- setwd(run_dir)
+# taf.boot()
+# setwd(oldwd)
+# sourceAll()
+# setwd(oldwd)
+# run.analysis(run_dir)
