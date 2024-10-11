@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# 00 (put the code of the country there) 
+# HR.md (put the code of the country there) 
 -----------------------------------------------------------
 
 ## Annex 1
@@ -60,7 +60,9 @@
 
 ## Annex 8
 
-
+## Annex 9
+### individual metrics
+346 and 3470 new values inserted in the fish and metric tables
 
 ## Annex 10
 
@@ -72,3 +74,7 @@
 
 ### individual metrics
 
+
+
+## Annex 11
+HR does not have mortality rate at this moment
