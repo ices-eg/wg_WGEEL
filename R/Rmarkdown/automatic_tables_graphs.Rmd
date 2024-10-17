@@ -113,15 +113,6 @@ if(is.null(options()$sqldf.RPostgreSQL.user)) {
   setwd(wd)
 }
 
-
-
-
-
-
-
-
-
-
 # loading datasets 
 
 # this file is added to the ignore list, so ask for it in your own git before launching the app
