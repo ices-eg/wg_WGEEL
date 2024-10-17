@@ -32,7 +32,8 @@ load_package("writexl")
 load_package("shinybusy")
 load_package("rlang")
 load_package("spsUtil")
-
+load_package("shiny")
+load_package("shinyalert")
 
 #-----------------
 # Data correction table
