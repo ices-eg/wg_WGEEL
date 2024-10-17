@@ -115,6 +115,10 @@ if(is.null(options()$sqldf.RPostgreSQL.user)) {
 
 
 
+# change
+# messing up with git
+
+
 
 # loading datasets 
 
@@ -2205,14 +2209,14 @@ ggsave(paste0(imgwd,"Releases_OG.png"), g_release_OG, device = "png", width = 30
     units = "cm")
 ggsave(paste0(imgwd,"Releases_all.png"),g_release_all, device = "png", width = 30, height = 20, 
     units = "cm")
-ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Corr_com_landings_YS.png"), g_combined_landings_YS, device = "png", width = 30, height = 20, 
     units = "cm")
 # example for svg
 #library(svglite)
 #svglite(filename=paste0(imgwd,"Corr_com_landings_YS.svg"), width = 12, height = 8)
 #print(g_combined_landings_YS)
 #dev.off()
-ggsave(paste0(imgwd,"Raw_Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
+ggsave(paste0(imgwd,"Corr_com_landings_G.png"), g_combined_landings_G, device = "png", width = 30, height = 20, 
     units = "cm")
 #svglite(filename=paste0(imgwd,"Corr_com_landings_G.svg"), width = 8, height = 6)    
 #print(g_combined_landings_G)
