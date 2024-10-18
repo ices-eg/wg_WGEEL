@@ -271,7 +271,7 @@ recruitment_graph <- function(dataset,log_scale=TRUE){
 get_country <- function(data, country_ref_=country_ref){
   string_with_countries <- left_join(data%>%dplyr::select(eel_cou_code)%>%distinct() %>% arrange(match(eel_cou_code, levels(eel_cou_code))) %>% mutate(eel_cou_code=as.character(eel_cou_code)),
       country_ref_%>% select(cou_code, cou_country),
-      by=c("eel_cou_code"="cou_code")) %>% mutate(text =paste0(cou_country,"(",eel_cou_code,")")) %>% pull(text) %>% paste(collapse= ", ")
+      by=c("eel_cou_code"="cou_code")) %>% mutate(text =paste0(cou_country," (",eel_cou_code,")")) %>% pull(text) %>% paste(collapse= ", ")
   string_with_countries <- gsub( "Great Britain", "United Kingdom", string_with_countries)
   return(string_with_countries)
 }

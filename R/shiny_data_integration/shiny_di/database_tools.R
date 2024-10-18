@@ -977,10 +977,15 @@ compare_with_database_metric_ind <- function(
       new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
           by = "fi_id")    
       
-      if (nrow(new)>0) warning(sprintf("fi_id %s currently not in db from updated_individual_metrics, will appear in new individual metrics",
-                ifelse(length(unique(new$fi_id))<10,
-                    paste(unique(new$fi_id),collapse=','),
-                    paste0(paste(unique(new$fi_id)[1:10],collapse=','),"...(>10 values)"))))
+      if (nrow(new)>0) {
+        
+        message <- sprintf("fi_id %s currently not in db from updated_individual_metrics, will appear in new individual metrics",
+            ifelse(length(unique(new$fi_id))<10,
+                paste(unique(new$fi_id),collapse=','),
+                paste0(paste(unique(new$fi_id)[1:10],collapse=','),"...(>10 values)")))
+      }
+        
+        warning(message)
       
       new_long <- new %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
               values_to="mei_value",

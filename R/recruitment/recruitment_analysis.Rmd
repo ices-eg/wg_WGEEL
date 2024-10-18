@@ -1994,6 +1994,9 @@ WGEEL recruitment indices; see details on data selection and processing below.
 
 ```{r figure1, fig.cap="Map of recruitment sampling stations currently used to build the GLM trend models: left (white = Glass eel (G); grey = Glass + Yellow eel (GY), right Yellow eel (Y)).", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure1.png"))
+```
+
+```{r figure1bis, fig.cap="Map of recruitment sampling stations currently used to build the GLM trend models: left (white = Glass eel (G); grey = Glass + Yellow eel (GY), right Yellow eel (Y)).", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"singlemap.png"))
 ```
 
@@ -2084,7 +2087,7 @@ r format(selection_summary[["nseries_lost"]], scientific=TRUE)` time-series have
 Some have stopped reporting either because of a lack of recruits in the case of the  fishery-based surveys (Ems in Germany,stopped in 2001; Vidaa in Denmark, stopped in 1990), a lack of financial support (the Tiber in Italy, 2006) or the introduction of quota from 2008 to 2011 that has disrupted the five fishery-based French time-series.
 
 
-```{r figure2, fig.cap="Schematic showing the recruitment series received (2024 Data Call)  by type and region, and numbers selected for analysis. Y = Yellow eel, G = Glass eel, GY = mixed Glass and yellow eel. NS = North Sea (including Baltic) EE = Else-where Europe regions", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r figure2, fig.cap="Schematic showing the recruitment series received (2024 Data Call)  by type and region, and numbers selected for analysis. Y = Yellow eel, G = Glass eel, GY = mixed Glass and yellow eel. NS = North Sea (including Baltic) EE = Elsewhere Europe regions", fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"series_selection.png"))
 ```
 The number of time series available between regions and life stages does not follow an
@@ -2262,22 +2265,26 @@ recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
 
 # Annex X:	Recruitment additional information
 
-### Series statistics
+Table 1: Summary of the number of series that have been received (2024 Data Call) and incorporated (kept) for the determination of the recruitment index by area and stage.. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel Area: EE = Elsewhere Europe , NS =  North Sea
+INCLUDE the table in excell here
 
-```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table 1: Short description of the ",selection_summary$nb_series_glass_eel," Glass and Glass and eel yellow mixed series that have been used  in the recruitment index calculation in 2023.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: G = glass eel and GY = glass eel and yellow eel, G. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). ")}
+```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table 2: Short description of the ",selection_summary$nb_series_glass_eel," Glass eel  in the recruitment index calculation updated to ", CY,".  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series.Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). ")}
 autofit(flextable(data = printstatseriesGEE)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
+```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("table1 continued")}
 
-```{r xstatseriesGNS, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Short description of the 60 Glass and Glass and eel yellow mixed series that have been used in the recruitment index calculation in 2023.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: G = glass eel and GY = glass eel and yellow eel, G. Unit for the data collected is given (nr = number; index = calculated value following a speci-fied protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salini-ty (according to WFD). ")}
-	autofit(flextable(data = printstatseriesGNS)%>%
+autofit(flextable(data = printstatseriesGNS)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
-```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap=str_c("Table 2: Short description of the 21 yellow series that have been used  in the recruitment in-dex calculation in 2023. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). ")}
+```{r xstatseriesGY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,tab.cap=str_c("Table 3: Short description of the ",selection_summary$nb_series_glass_eel_GY,"  glass and eel yellow mixed series that have been used in the recruitment index calculation updated to ", CY,".  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series.Unit for the data collected is given (nr = number; index = calculated value following a speci-fied protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD).")}
+
 autofit(flextable(data = printstatseriesGY) %>%
           bold(bold = TRUE, part = "header"))
+
+
 ```
 
 
@@ -2286,9 +2293,9 @@ autofit(flextable(data = printstatseriesY)%>%
           bold(bold = TRUE, part = "header"))
 ```
 
-### Missing values at annual level
 
-```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Data in " ,CY, " and ", CY-1, "having problems causing the data in the specific year to be excluded from the analysis. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Division = FAO marine division. Kept: 0 = missing, 1 = good quality, 2 = wgeel has modified the data, 3 = not used due to poor quality, 4 = data is used, but there are warnings on its quality")}
+
+```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table 5: Short description of the sampling sites for European eel recruitment data that have been excluded in the recruitment index calculation in " ,CY, " and ", CY-1, ".  Kept: 0 = excluded because the series was < 10 years, 3 = not used due to poor quality, EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and the values are given in the n+ and n- columns, indicate the number of years with values and the number of years when there are missing data within the series. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD).")}
 autofit(flextable(data = series_prob[1:15,])%>%
           bold(bold = TRUE, part = "header"))
 ```

@@ -59,6 +59,8 @@ nothing changed
 * no delete, no update
 * 740 vakues deleted in the database
 
+* THIS WAS A MISTAKE ... THEY WERE REINTEGRATED DURING WGEEL
+
 ## Annex 6
 
 
