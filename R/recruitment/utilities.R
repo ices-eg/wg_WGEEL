@@ -1447,3 +1447,35 @@ theme_ICES_plots <-
   }
 
 
+
+#' Title
+#'
+#' @param dataset the data frame
+#' @param value_name the name of the column of interest
+#' @param year_name the name of the year columns
+#' @param assessment_year_name the name of the assessment year columns
+#' @param terminalyear the last year of assessement 
+#' @param firstyear the first year to include in the computation
+#'
+#' @return
+#' @export
+#'
+#' @examples
+computeMohnsRho <- function(dataset, value_name, year_name, assessment_year_name,terminalyear, firstyear ){
+  lag <- 0
+  if (max(dataset[,assessment_year_name])> max(dataset[,year_name]))
+    lag <- 1
+   lastassessment = dataset %>%
+     filter(!!as.symbol(assessment_year_name) == terminalyear &
+              !!as.symbol(year_name) >= firstyear - lag) %>%
+     dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
+   oldassessment = dataset %>%
+     filter(!!as.symbol(assessment_year_name) %in% (firstyear:(terminalyear-1)) &
+              (!!as.symbol(assessment_year_name)- lag) == (!!as.symbol(year_name) )) %>%
+     dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
+   
+   mergedata <- merge(lastassessment, oldassessment, by ="year", suffixes=c(".last",".old"))
+   1/nrow(mergedata) * sum((mergedata[,paste0(value_name, ".old")] - mergedata[,paste0(value_name,".last")])/
+                             mergedata[,paste0(value_name,".last")]) * 100
+  
+}
