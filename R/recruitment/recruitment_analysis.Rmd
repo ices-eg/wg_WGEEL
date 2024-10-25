@@ -2546,7 +2546,7 @@ retro_EE <- ggplot(retro_advice_data %>%
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Elsewhere Europe")+
+  ggtitle("Glass eel Elsewhere Europe recruitment index")+
   theme_ICES_plots("quality_R",retro_advice_data) 
 
 
@@ -2582,7 +2582,7 @@ retro_NS <- ggplot(retro_advice_data %>%
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("North Sea") +
+  ggtitle("Glass eel North Sea recruitment index") +
   theme_ICES_plots("quality_R",retro_advice_data) 
 
 
@@ -2618,7 +2618,7 @@ retro_YY <- ggplot(retro_advice_data %>%
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Yellow") +
+  ggtitle("Yellow eel recruitment index") +
   theme_ICES_plots("quality_R",retro_advice_data) 
 
 
