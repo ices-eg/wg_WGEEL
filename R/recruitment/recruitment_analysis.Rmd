@@ -34,6 +34,8 @@ library(flextable)
 if(!require(officedown)) install.packages("officedown") ; require(officedown)
 if(!require(officer)) install.packages("officer") ; require(officer)
 if(!require(prettymapr)) install.packages("prettymapr") ; require(prettymapr)
+if(!require(ggmagnify)) install.packages("ggmagnify", repos = c("https://hughjonesd.r-universe.dev", 
+                 "https://cloud.r-project.org")) ; require(ggmagnify)
 
 if(!require(mgcv)) install.packages("mgcv") ; require(mgcv)
 if(!require(car)) install.packages("car") ; require(car)
@@ -1136,7 +1138,7 @@ figure5_without_logscale<- g+
 		geom_line(aes(colour=area,lty=area),lwd=1)+ 		
 		scale_colour_brewer(name="area",palette="Set1")+
 		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
-		coord_cartesian(ylim=c(0,5))+
+		coord_cartesian(ylim=c(0,500))+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 		theme_bw()+
 		geom_hline(yintercept=1,linetype=2)+
@@ -1149,34 +1151,33 @@ figure5_without_logscale<- g+
 
 
 figure5_advice_EE<- ggplot(dat_ge %>% filter(area == "Elsewhere Europe"),
-                           aes(x=year,y=p_std_1960_1979)) +
+                           aes(x=year,y=p_std_1960_1979*100)) +
 
 		geom_line(lwd=1, aes(col=area), show.legend=FALSE)+ 		
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3, show.legend=FALSE)+
-		coord_cartesian(ylim=c(0,5))+
+		geom_ribbon(aes(ymin=p_std_1960_1979_min*100,ymax=p_std_1960_1979_maxgraph*100,fill=area),alpha=.3, show.legend=FALSE)+
+		coord_cartesian(ylim=c(0,5*100))+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=100,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
 		theme_ICES_plots("Recruitment") + ggtitle("Elsewhere Europe")
 
-figure5_advice_EE
 save_figure("figure5_advice_EE",figure5_advice_EE,600,480, pdf = FALSE)
 
 
 figure5_advice_NS<- ggplot(dat_ge %>% filter(area == "North Sea"),
-                           aes(x=year,y=p_std_1960_1979)) +
+                           aes(x=year,y=p_std_1960_1979*100)) +
 
-		geom_line(lwd=1, aes(col=area))+ 		
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3, show.legend=FALSE)+
-		coord_cartesian(ylim=c(0,5))+
+		geom_line(lwd=1, aes(col=area), show.legend=FALSE)+ 		
+		geom_ribbon(aes(ymin=p_std_1960_1979_min*100,ymax=p_std_1960_1979_maxgraph*100,fill=area),alpha=.3, show.legend=FALSE)+
+		coord_cartesian(ylim=c(0,5*100))+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=100,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
 		theme_ICES_plots("Recruitment") + ggtitle("North Sea")
 
-figure5_advice_NS
+
 save_figure("figure5_advice_NS",figure5_advice_NS,600,480, pdf = FALSE)
 
 
@@ -1648,7 +1649,7 @@ summary(model_older)
 anova(model_older,test="F")
 
 
-dat_ye=expand.grid(year_f=unique(model_older$xlevels$year_f),
+dat_ye=expand.grid(year_f=model_older$xlevels$year_f,
 		site=model_older$xlevels$`as.factor(site`[1])
 dat_ye$year=as.numeric(as.character(dat_ye$year))
 
@@ -1705,17 +1706,16 @@ figure6_without_log_scale <- g+ geom_line(lwd=1, color="darkolivegreen")+ geom_p
 save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 
 
-figure6_advice_YY<- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979))  +
+figure6_advice_YY<- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979 * 100))  +
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+	
-		geom_hline(yintercept=1,linetype=2)+
-		geom_ribbon(aes(ymin=yellow_eel_min,ymax=yellow_eel_max, fill="area"), show.legend=FALSE, alpha = .3)+
+		geom_hline(yintercept=100,linetype=2)+
+		geom_ribbon(aes(ymin=yellow_eel_min*100,ymax=yellow_eel_max*100, fill="area"), show.legend=FALSE, alpha = .3)+
 		geom_line(lwd=1, aes(col="area"), show.legend=FALSE)+ 		
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
 		theme_ICES_plots("Recruitment") + ggtitle("Yellow")
 
 figure6_advice_YY
 save_figure("figure6_advice_YY",figure6_advice_YY,600,480, pdf = FALSE)
-
 
 
 figure6_without_log_scale
@@ -2182,7 +2182,10 @@ autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
 
 
 ```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=str_c(" Annual WGEEL recruitment index for the continental North Sea and Elsewhere Europe updated to ", CY,". The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions p have been scaled to $\\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis.")}
+knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
+
+
 For yellow eel series, the autumn ascent has not been recorded yet and most of
 the series have reported data till the middle of the summer. The `r CY-1` yellow
 eel index is at
@@ -2198,6 +2201,14 @@ autofit(flextable(yy)%>%
 ```{r figure6, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,fig.cap=paste("Geometric mean of estimated (GLM) yellow eel recruitment for Europe updated to ", CY-1,". The GLM (yellow eel ~ year+site) was fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$.")}
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
+
+```{r figure5advice, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=str_c(" Same as other figures but with ICES theme")}
+knitr::include_graphics(paste0(imgwd,"figure5_advice_EE.png"))
+knitr::include_graphics(paste0(imgwd,"figure5_advice_NS.png"))
+knitr::include_graphics(paste0(imgwd,"figure6_advice_YY.png"))
+```
+
+
 
 ## Conclusion
  
@@ -2422,12 +2433,17 @@ ggsave(paste0(imgwd,"rates.png"),width=16/2.54,height=12/2.54,dpi=300)
 source("TAFgeneration/taf_generation_script.R")
 ```
 
-
+# Annex
 ## Quality analysis
 ### Retrospective analysis
-The following diagrams show the influence of new time series integration and data revision on the assessment. Each line corresponds to the GLM based on the time series used in year indicated by the color. The panel "not updated" stands for a GLM in which the data available at the time of the assessment are used. In "updated panel", potential revisions of data are integrated.
+Retrospective analysis assess whether the outcomes of an assessment are sensitive to the inclusion of a new year of data. Figure \@ref(fig:retrospective) shows how the results of the GLM have varied through time. Several causes explain such variations:
+- when the model is run in a given year, the latest values of many time series are not available yet (they are only provided in the following year). As such, the estimate for the terminal year is based on a provisional dataset
+- the values of the time series can be revised, especially the ones for the terminal year
+- new time series are integrated in the GLM from one year to another.
 
-```{r retrospective,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+Despite those potential issues, the retrospective diagrams do not display specific patterns and the trends are very consistent among assessment years, suggesting that the assessment is robust.
+
+```{r retrospective,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap="Retrospective analysis of the assessment model. Each line stands for the results of the assessment in corresponding year"}
 cred = read_yaml("../../credentials.yml")
 con = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
@@ -2488,21 +2504,21 @@ retro_older_updated=do.call(bind_rows,
 
 
 dbDisconnect(con)
-
-ggplot(bind_rows(retro_older_updated,
-                 retro_older_notupdated,
-                 retro_yoy_notupdated,
-                 retro_yoy_updated) %>%
-         filter(!proj) %>%
-         mutate(area=ifelse(is.na(area), "", as.character(area))),
-       aes(x=year,y=p_std_1960_1979)) + 
-  geom_line(aes(col=as.factor(run_id))) +
-  facet_wrap(~area) +
-  scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
-  facet_grid(type ~ model + area) +
-  scale_color_viridis_d("")+ guides(lty = "none") + 
-  xlim(CY-10,CY)
-
+# 
+# ggplot(bind_rows(retro_older_updated,
+#                  retro_older_notupdated,
+#                  retro_yoy_notupdated,
+#                  retro_yoy_updated) %>%
+#          filter(!proj) %>%
+#          mutate(area=ifelse(is.na(area), "", as.character(area))),
+#        aes(x=year,y=p_std_1960_1979)) + 
+#   geom_line(aes(col=as.factor(run_id))) +
+#   facet_wrap(~area) +
+#   scale_y_log10(expression(frac(p,bar(p)[1960-1979]))) + 
+#   facet_grid(type ~ model + area) +
+#   scale_color_viridis_d("")+ guides(lty = "none") + 
+#   xlim(CY-10,CY)
+# 
 
 
 retro_advice_data <- bind_rows(
@@ -2513,54 +2529,112 @@ retro_advice_data <- bind_rows(
   filter(run_id %in% (CY-4):CY) %>%
   rename(AssessmentYear = run_id)
 
+mohn_EE = computeMohnsRho(dataset =retro_advice_data %>%
+                            filter(area == "Elsewhere Europe"),
+                          value_name="p_std_1960_1979",
+                          year_name="year",
+                          assessment_year_name="AssessmentYear",
+                          terminalyear=CY,firstyear=CY-4)
+
+
 retro_EE <- ggplot(retro_advice_data %>%
          filter(area == "Elsewhere Europe"),
-       aes(x=year,y=p_std_1960_1979)) + 
+       aes(x=year,y=p_std_1960_1979 * 100)) + 
   geom_line(aes(col=as.factor(AssessmentYear))) +
 #  facet_wrap(~area) +
    guides(lty = "none") + 
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Elsewhere Europe")+
+  ggtitle("Glass eel Elsewhere Europe recruitment index")+
   theme_ICES_plots("quality_R",retro_advice_data) 
 
-retro_EE
+
 save_figure("retro_EE",retro_EE,600,480, pdf=FALSE)
+save_figure("retro_EE_magnify",retro_EE + geom_magnify(from = list(xmin= CY -9,
+                                                                   xmax = CY,
+                                                                   ymin = 0,
+                                                                   ymax = 20),
+                                               to = list(xmin=CY-30,
+                                                         xmax=CY,
+                                                         ymin=150,
+                                                         ymax=200)),600,480, pdf=FALSE)
+
+
+knitr::include_graphics(paste0(imgwd,"retro_EE.png"))
+knitr::include_graphics(paste0(imgwd,"retro_EE_magnify.png"))
+
+mohn_NS = computeMohnsRho(dataset =retro_advice_data %>%
+                            filter(area == "North Sea"),
+                          value_name="p_std_1960_1979",
+                          year_name="year",
+                          assessment_year_name="AssessmentYear",
+                          terminalyear=CY,firstyear=CY-4)
 
 
 
 retro_NS <- ggplot(retro_advice_data %>%
          filter(area == "North Sea"),
-       aes(x=year,y=p_std_1960_1979)) + 
+       aes(x=year,y=p_std_1960_1979 * 100)) + 
   geom_line(aes(col=as.factor(AssessmentYear))) +
 #  facet_wrap(~area) +
    guides(lty = "none") + 
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("North Sea") +
+  ggtitle("Glass eel North Sea recruitment index") +
   theme_ICES_plots("quality_R",retro_advice_data) 
 
-retro_NS
+
 save_figure("retro_NS",retro_NS,600,480, pdf=FALSE)
+save_figure("retro_NS_magnify",retro_NS + geom_magnify(from = list(xmin= CY -9,
+                                                                   xmax = CY,
+                                                                   ymin = 0,
+                                                                   ymax = 2),
+                                               to = list(xmin=CY-30,
+                                                         xmax=CY,
+                                                         ymin=170,
+                                                         ymax=220)),600,480, pdf=FALSE)
+
+
+knitr::include_graphics(paste0(imgwd,"retro_NS.png"))
+knitr::include_graphics(paste0(imgwd,"retro_NS_magnify.png"))
+
+mohn_YY = computeMohnsRho(dataset =retro_advice_data %>%
+         filter(model == "yellow"),
+                          value_name="p_std_1960_1979",
+                          year_name="year",
+                          assessment_year_name="AssessmentYear",
+                          terminalyear=CY,firstyear=CY-4)
 
 
 retro_YY <- ggplot(retro_advice_data %>%
-         filter(model == "yellow"),
-       aes(x=year,y=p_std_1960_1979)) + 
+         filter(model == "yellow")%>%
+  filter(year < AssessmentYear),
+       aes(x=year,y=p_std_1960_1979 * 100)) + 
   geom_line(aes(col=as.factor(AssessmentYear))) +
 #  facet_wrap(~area) +
    guides(lty = "none") + 
   	ylab(expression(frac(p,bar(p)[1960-1979])))+	
 		geom_hline(yintercept=1,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
-  ggtitle("Yellow") +
+  ggtitle("Yellow eel recruitment index") +
   theme_ICES_plots("quality_R",retro_advice_data) 
 
-retro_YY
-save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
 
+save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
+save_figure("retro_YY_magnify",retro_YY + geom_magnify(from = list(xmin= CY -9,
+                                                                   xmax = CY,
+                                                                   ymin = 0,
+                                                                   ymax = 25),
+                                               to = list(xmin=CY-30,
+                                                         xmax=CY,
+                                                         ymin=300,
+                                                         ymax=450)),600,480, pdf=FALSE)
+
+
+knitr::include_graphics(paste0(imgwd,"retro_YY.png"))
+knitr::include_graphics(paste0(imgwd,"retro_YY_magnify.png"))
 
 # getmodel <- function(y, model){
 #   tmp <- environment()
@@ -2634,11 +2708,17 @@ save_figure("retro_YY",retro_YY,600,480, pdf=FALSE)
 # 
 
 ```
+The Mohn's rho index quantifies this robustness of the assessment to the addition of a new year of data. It was computed for each of the recruitment index using the assessment of WGEEL `r CY-4` to `r CY`:
+- Elsewhere Europe: `r paste0(round(mohn_EE),"%")`
+- North Sea: `r paste0(round(mohn_NS),"%")`
+- Yellow eel: `r paste0(round(mohn_YY),"%")`
+
+The Elsewhere Europe appears to be more stable than the two other indices. This is likely related to the larger number of time series included in the index that buffers potential revision of data points or inclusion of new time series.`The Mohn's rho index of North Sea and Yellow eel are greater than 20%, however, given the limited number of time series included in the two corresponding GLM, this is likely related to the three issues previously mentioned and the trends remain consistent.
 
 ### Sensitivity to individual time series
-The following figures show how the index would change in case the corresponding time-series was discared from the dataset. The colour code indicates the year in which the time series was integrated into the GLM.
+In order to check the influence of each time series in the models, the GLMs were fitted while removing each time series one at a time. The effect of removing the time series was quantified through the sum of square of the model with all time series and the model without the corresponding time series (Figure \@ref(fig:discrepancy)). Unsurprisingly, the longest time series have the largest influence on the model results (e.g. AlbuG or EbroG), but the results are also sensitive to series that were introduced more recently (e.g. MolY or StraGY). This type of analysis might be relevant in the future before integrating any new time series.
 
-```{r influenceseries,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r discrepancy,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap="Influence of each time series on the final index. The influence is quantified as the sum of square difference between a model with all data and a model without the corresponding time series. The colore indicates the year when the time series was used in the assessment for the first time."}
 compute_discrepancy=function(si, model = model_ge_area, years = 2010:2024){
   if ("area" %in% colnames(model$model))
     current_area <- R_stations$area[R_stations$ser_nameshort==si]
@@ -2665,13 +2745,16 @@ disc_yoy=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy), area=R_s
   arrange((diff))  %>%
   left_join(inclusion,by=c("sites"="ser_nameshort")) %>%
   mutate(sites=factor(sites,levels=as.character(sites)))
-ggplot(disc_yoy %>%
-         arrange(desc(diff)),
-       aes(x=sites,y=diff,fill=intro_year))+
-  geom_bar(stat="identity")+
-  coord_flip() + facet_wrap(~area)+
-  scale_fill_viridis_d("inclusion in assessment")
-
+# discrepancy_yoy <-  ggplot(disc_yoy %>%
+#          arrange(desc(diff)),
+#        aes(x=sites,y=diff,fill=intro_year))+
+#   geom_bar(stat="identity")+
+#   coord_flip() + facet_wrap(~area)+
+#   scale_fill_viridis_d("inclusion in assessment") + 
+#   xlab("Sum of squares") +
+#   ylab("Time series") +
+#   theme_bw()
+# 
 sites = unique(na.omit(model_older$data$site))
 disc_older=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy,model=model_older)) %>%
   arrange((diff)) %>%
@@ -2679,11 +2762,20 @@ disc_older=data.frame(sites=sites,diff=sapply(sites,compute_discrepancy,model=mo
   mutate(sites=factor(sites,levels=as.character(sites))) 
 
 
-ggplot(disc_older %>% arrange(desc(diff)),aes(x=sites,y=diff,fill=intro_year))+
+discrepancy_yy <- ggplot(bind_rows(disc_yoy,disc_older %>% mutate(area="yellow")) %>% arrange(desc(diff)) %>% mutate(intro_year=ifelse(is.na(intro_year),CY,intro_year)),aes(x=sites,y=diff,fill=intro_year))+
+  facet_wrap(~area,scales="free") +
   geom_bar(stat="identity")+
   coord_flip()+
-  scale_fill_viridis_d("inclusion in assessment")
+  scale_fill_viridis_d("inclusion in assessment") + 
+  xlab("Sum of squares") +
+  ylab("Time series") +
+  theme_bw()
 
+save_figure("discrepancy", discrepancy_yy,
+            600,480)
+
+
+knitr::include_graphics(paste0(imgwd,"discrepancy.png"))
 
 ```
 

@@ -731,6 +731,11 @@ GRANT USAGE, UPDATE, SELECT ON SEQUENCE datawg.t_modeldata_dat_dat_id_seq TO wge
 GRANT SELECT ON TABLE datawg.precodata_country TO wgeel_read;
 
 
+begin;
+update datawg.t_eelstock_eel set eel_qal_id = 1,
+eel_qal_comment ='those data were incorrectly deleted during dc_2024 so reintegrated back afterwards' 
+where eel_typ_id =4 and eel_qal_id =24 and eel_value is not null and eel_cou_code = 'DK';
+commit;
 -- fix function , should be mty_group not type
 
 CREATE OR REPLACE FUNCTION datawg.mei_mty_is_individual()
@@ -757,4 +762,6 @@ AS $function$
   END  ;
 $function$
 ;
+
+
         
