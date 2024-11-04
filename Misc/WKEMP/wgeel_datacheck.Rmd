@@ -6,7 +6,7 @@ output: word_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(RPostgres)
 library(sf)
 library(getPass)
@@ -15,22 +15,22 @@ library(ggplot2)
 library(flextable)
 library(tidyverse)
 library(yaml)
-cred=read_yaml("../../credentials.yml")
-con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+cred <- read_yaml("../../credentials.yml")
+con <- dbConnect(Postgres(), dbname = cred$dbname, host = cred$host, port = cred$port, user = cred$user, password = getPass())
 load("data/maps_for_shiny.Rdata")
 load("data/ref_and_eel_data.Rdata")
-eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE")
+eu_cou_codes <- c("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE")
 ```
 
 # Downloading data
 
 ```{r download}
-biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
+biomass <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
 
-mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
 
 
-nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel 
+nb_country_emu <- dbGetQuery(con, "select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel
                              where eel_typ_id in (13, 14, 15, 17, 18, 19) and eel_datasource='dc_2021'")
 ```
 
@@ -38,37 +38,38 @@ nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(dist
 # Missing countries
 ## not reported country
 ```{r notans}
-not_reported=country_ref$cou_code[! country_ref$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]
-sort(country_ref$cou_country[! country_ref$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]) 
+not_reported <- country_ref$cou_code[!country_ref$cou_code %in% c(biomass$eel_cou_code, mortality$eel_cou_code)]
+sort(country_ref$cou_country[!country_ref$cou_code %in% c(biomass$eel_cou_code, mortality$eel_cou_code)])
 ```
 
 ## Importance of landings in these countries
 Values of reported landings, averaged over 5 last years:
 
 ```{r fisheries}
-landings=dbGetQuery(con,paste0("select eel_value,eel_cou_code,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_cou_code in ('",
-                               paste(not_reported, collapse="','"),
-                               "') and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
-  group_by(eel_year,eel_lfs_code,eel_cou_code) %>%
-  summarize(eel_value=sum(eel_value,na.rm=TRUE)) %>%
-  group_by(eel_cou_code,eel_lfs_code) %>%
-  summarize(landings=mean(eel_value, na.rm=TRUE)/1e3) %>%
-  pivot_wider(names_from=eel_lfs_code, values_from=landings)
+landings <- dbGetQuery(con, paste0(
+  "select eel_value,eel_cou_code,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_cou_code in ('",
+  paste(not_reported, collapse = "','"),
+  "') and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020"
+)) %>%
+  group_by(eel_year, eel_lfs_code, eel_cou_code) %>%
+  summarize(eel_value = sum(eel_value, na.rm = TRUE)) %>%
+  group_by(eel_cou_code, eel_lfs_code) %>%
+  summarize(landings = mean(eel_value, na.rm = TRUE) / 1e3) %>%
+  pivot_wider(names_from = eel_lfs_code, values_from = landings)
 
-tot_landings=dbGetQuery(con,paste0("select eel_value,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
-  group_by(eel_year,eel_lfs_code) %>%
-  summarize(eel_value=sum(eel_value,na.rm=TRUE)) %>%
+tot_landings <- dbGetQuery(con, paste0("select eel_value,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
+  group_by(eel_year, eel_lfs_code) %>%
+  summarize(eel_value = sum(eel_value, na.rm = TRUE)) %>%
   group_by(eel_lfs_code) %>%
-  summarize(landings=mean(eel_value, na.rm=TRUE)/1e3) %>%
-  mutate(eel_cou_code="OVERALL TOTAL") %>%
-  pivot_wider(names_from=eel_lfs_code, values_from=landings)
+  summarize(landings = mean(eel_value, na.rm = TRUE) / 1e3) %>%
+  mutate(eel_cou_code = "OVERALL TOTAL") %>%
+  pivot_wider(names_from = eel_lfs_code, values_from = landings)
 
 flextable(landings %>%
-            filter(eel_cou_code %in%eu_cou_codes) %>%
-            bind_rows(tot_landings) %>%
-            select(eel_cou_code,G,Y,YS,S)) %>%
-  colformat_double(digits=1)
-
+  filter(eel_cou_code %in% eu_cou_codes) %>%
+  bind_rows(tot_landings) %>%
+  select(eel_cou_code, G, Y, YS, S)) %>%
+  colformat_double(digits = 1)
 ```
 
 France main part of G landings, important for other stages. 
@@ -78,88 +79,113 @@ France main part of G landings, important for other stages.
 ## Spatial coverage
 Maps showings data avaibility. The symbol indicates wether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
 ```{r indicatorsmaps}
-data_avail = rbind.data.frame(mortality,biomass) %>%
-  filter(!(is.na(eel_value) & eel_missvaluequal!="NP")) %>%
+data_avail <- rbind.data.frame(mortality, biomass) %>%
+  filter(!(is.na(eel_value) & eel_missvaluequal != "NP")) %>%
   group_by(eel_emu_nameshort) %>%
-  summarize(b0=sum(eel_typ_id==13)>0,
-         bbest=sum(eel_typ_id==14)>0,
-         bcurrent=sum(eel_typ_id==15)>0,
-         suma=sum(eel_typ_id==17)>0,
-         sumf=sum(eel_typ_id==18)>0,
-         sumh=sum(eel_typ_id==19)>0) %>%
-   mutate(eel_emu_nameshort= ifelse(eel_emu_nameshort=="NL_total","NL_Neth",eel_emu_nameshort))
-data_avail <- merge(emu_c, data_avail, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
-data_avail<- st_transform(data_avail, crs=3035)
-data_avail$x <-st_coordinates(data_avail)[,1]
-data_avail$y <-st_coordinates(data_avail)[,2]
-data_avail$x[data_avail$emu_cou_code=="NO"] = 4172612.3
-data_avail$y[data_avail$emu_cou_code=="NO"] = 4111023.3
-data_avail<- data_avail %>%
-  mutate(bsummary=coalesce(b0+bbest+bcurrent, 0),
-         mortsummary=coalesce(suma+sumf+sumh,0),
-         responded=ifelse(is.na(bsummary) & is.na(mortsummary), FALSE, TRUE))
+  summarize(
+    b0 = sum(eel_typ_id == 13) > 0,
+    bbest = sum(eel_typ_id == 14) > 0,
+    bcurrent = sum(eel_typ_id == 15) > 0,
+    suma = sum(eel_typ_id == 17) > 0,
+    sumf = sum(eel_typ_id == 18) > 0,
+    sumh = sum(eel_typ_id == 19) > 0
+  ) %>%
+  mutate(eel_emu_nameshort = ifelse(eel_emu_nameshort == "NL_total", "NL_Neth", eel_emu_nameshort))
+data_avail <- merge(emu_c, data_avail, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
+data_avail <- st_transform(data_avail, crs = 3035)
+data_avail$x <- st_coordinates(data_avail)[, 1]
+data_avail$y <- st_coordinates(data_avail)[, 2]
+data_avail$x[data_avail$emu_cou_code == "NO"] <- 4172612.3
+data_avail$y[data_avail$emu_cou_code == "NO"] <- 4111023.3
+data_avail <- data_avail %>%
+  mutate(
+    bsummary = coalesce(b0 + bbest + bcurrent, 0),
+    mortsummary = coalesce(suma + sumf + sumh, 0),
+    responded = ifelse(is.na(bsummary) & is.na(mortsummary), FALSE, TRUE)
+  )
 
 
-ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
-  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(bsummary)),shape=21)+
-  scale_fill_viridis_d("Biomass indicators",labels=c("none","one","two","three"))+
-  xlab("")+ylab("")
-ggsave(filename="/tmp/biom.png",width=16/2.54,height=10/2.54,dpi=300)
+ggplot(st_transform(country_p, crs = 3035)) +
+  geom_sf(fill = NA) +
+  theme_bw() +
+  geom_point(data = data_avail, aes(x = x, y = y, fill = as.factor(bsummary)), shape = 21) +
+  scale_fill_viridis_d("Biomass indicators", labels = c("none", "one", "two", "three")) +
+  xlab("") +
+  ylab("")
+ggsave(filename = "/tmp/biom.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 
-ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
-  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(mortsummary)),shape=21)+
-  scale_fill_viridis_d("Mortality indicators",labels=c("none","one","two","three"))+
-  xlab("")+ylab("")
-ggsave(filename="/tmp/mort.png",width=16/2.54,height=10/2.54,dpi=300)
+ggplot(st_transform(country_p, crs = 3035)) +
+  geom_sf(fill = NA) +
+  theme_bw() +
+  geom_point(data = data_avail, aes(x = x, y = y, fill = as.factor(mortsummary)), shape = 21) +
+  scale_fill_viridis_d("Mortality indicators", labels = c("none", "one", "two", "three")) +
+  xlab("") +
+  ylab("")
+ggsave(filename = "/tmp/mort.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 
-data_avail =data_avail %>% select(emu_nameshort,x,y,bsummary,responded,mortsummary,geometry) %>%
-  pivot_longer(cols=ends_with("summary"),names_to="indicator",values_to="nb")
+data_avail <- data_avail %>%
+  select(emu_nameshort, x, y, bsummary, responded, mortsummary, geometry) %>%
+  pivot_longer(cols = ends_with("summary"), names_to = "indicator", values_to = "nb")
 
-ggplot(st_transform(country_p,crs=3035)) + geom_sf(fill=NA)+theme_bw()+
-  geom_point(data=data_avail,aes(x=x,y=y,fill=as.factor(nb)),shape=21)+
-  scale_fill_viridis_d("Number of indicators",labels=c("none","one","two","three"))+
-  xlab("")+ylab("")+facet_wrap(~indicator)
+ggplot(st_transform(country_p, crs = 3035)) +
+  geom_sf(fill = NA) +
+  theme_bw() +
+  geom_point(data = data_avail, aes(x = x, y = y, fill = as.factor(nb)), shape = 21) +
+  scale_fill_viridis_d("Number of indicators", labels = c("none", "one", "two", "three")) +
+  xlab("") +
+  ylab("") +
+  facet_wrap(~indicator)
 
-#ggsave(filename="/tmp/maps.png",width=16/2.54,height=10/2.54)
+# ggsave(filename="/tmp/maps.png",width=16/2.54,height=10/2.54)
 ```
 
 ## Habitat coverage
 This year for the first time, we asked aggregated data at the EMU scale, but asked for habitat coverage within indicator.
 
 ```{r habitatcoverage}
-biomass <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e  left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (13,14,15)")
+biomass <- dbGetQuery(con, "select * from datawg.t_eelstock_eel e  left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (13,14,15)")
 
-mortality <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con, "select * from datawg.t_eelstock_eel e left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (17,18,19)")
 
 
 
-biomass_long <- biomass%>%
+biomass_long <- biomass %>%
   filter(!is.na(eel_value)) %>%
-  select(eel_year,eel_typ_id,eel_emu_nameshort,perc_mo,perc_f,perc_c,perc_t) %>%
-  pivot_longer(cols=c(perc_mo,perc_f,perc_t,perc_c), 
-               names_to="habitat", values_to="perc") %>%
-  mutate(habitat=toupper(gsub("perc_","",habitat)))%>%
-  mutate(type="biomass",
-         eel_typ_id=case_when(eel_typ_id==13~"B0",eel_typ_id==14~"Bbest",eel_typ_id==15~"Bcurrent"))
+  select(eel_year, eel_typ_id, eel_emu_nameshort, perc_mo, perc_f, perc_c, perc_t) %>%
+  pivot_longer(
+    cols = c(perc_mo, perc_f, perc_t, perc_c),
+    names_to = "habitat", values_to = "perc"
+  ) %>%
+  mutate(habitat = toupper(gsub("perc_", "", habitat))) %>%
+  mutate(
+    type = "biomass",
+    eel_typ_id = case_when(eel_typ_id == 13 ~ "B0", eel_typ_id == 14 ~ "Bbest", eel_typ_id == 15 ~ "Bcurrent")
+  )
 
-mortality_long <-mortality%>%
+mortality_long <- mortality %>%
   filter(!is.na(eel_value)) %>%
-  select(eel_year,eel_typ_id,eel_emu_nameshort,perc_mo,perc_f,perc_c,perc_t) %>%
-  pivot_longer(cols=c(perc_mo,perc_f,perc_t,perc_c), 
-               names_to="habitat", values_to="perc") %>%
-  mutate(habitat=toupper(gsub("perc_","",habitat))) %>%
-  mutate(type="mortality",
-         eel_typ_id=case_when(eel_typ_id==17~"sumA",eel_typ_id==18~"sumF",eel_typ_id==19~"sumH"))
+  select(eel_year, eel_typ_id, eel_emu_nameshort, perc_mo, perc_f, perc_c, perc_t) %>%
+  pivot_longer(
+    cols = c(perc_mo, perc_f, perc_t, perc_c),
+    names_to = "habitat", values_to = "perc"
+  ) %>%
+  mutate(habitat = toupper(gsub("perc_", "", habitat))) %>%
+  mutate(
+    type = "mortality",
+    eel_typ_id = case_when(eel_typ_id == 17 ~ "sumA", eel_typ_id == 18 ~ "sumF", eel_typ_id == 19 ~ "sumH")
+  )
 
 indicator <- biomass_long %>%
   bind_rows(mortality_long) %>%
   filter(perc >= 0)
 
 flextable(indicator %>%
-  group_by(type,habitat) %>%
-  summarize(freq100=round(sum(perc==100)/n()*100),
-            freq0=round(sum(perc==0)/n()*100)) %>%
-  pivot_wider(names_from=habitat,values_from=c(freq0,freq100)))
+  group_by(type, habitat) %>%
+  summarize(
+    freq100 = round(sum(perc == 100) / n() * 100),
+    freq0 = round(sum(perc == 0) / n() * 100)
+  ) %>%
+  pivot_wider(names_from = habitat, values_from = c(freq0, freq100)))
 ```
 Marine open and coastal never accounted for. Significant part of transitional waters not accounted for.
 
@@ -169,31 +195,31 @@ Values averages from 2018 to 2020 (3 years)
 ## Data 2021
 ### biomass
 ```{r biomassmap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
-  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
-indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
-indicator = st_transform(indicator,crs=3035)
-indicator$x <-st_coordinates(indicator)[,1]
-indicator$y <-st_coordinates(indicator)[,2]
-indicator$btarget <- .4*indicator$b0
-indicator$bscaled <- indicator$bcurrent/indicator$b0
-prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
-prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
-scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+indicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+  mutate(eel_emu_nameshort = ifelse(eel_cou_code == "NL", "NL_Neth", eel_emu_nameshort))
+indicator <- merge(emu_c, indicator, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
+indicator <- st_transform(indicator, crs = 3035)
+indicator$x <- st_coordinates(indicator)[, 1]
+indicator$y <- st_coordinates(indicator)[, 2]
+indicator$btarget <- .4 * indicator$b0
+indicator$bscaled <- indicator$bcurrent / indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent, na.rm = TRUE), n = 2)
+prettyscale_scaled <- scales::rescale(prettyscale, to = c(40190.79, 200000.00), from = c(661, max(indicator$bcurrent, na.rm = TRUE)))
+scalesb <- data.frame(b = prettyscale, bscale = prettyscale_scaled)
 # indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
- indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+indicator$bcurrent <- scales::rescale(indicator$bcurrent, to = c(40190.79, 200000.00), from = c(661, max(indicator$bcurrent, na.rm = TRUE)))
 # indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
 # indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
 
 # indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
-indicator$suma <- indicator$suma /.92*20000
-indicator$sumf <- indicator$sumf /.92*20000
-indicator$sumh <- indicator$sumh /.92*20000
+indicator$suma <- indicator$suma / .92 * 20000
+indicator$sumf <- indicator$sumf / .92 * 20000
+indicator$sumh <- indicator$sumh / .92 * 20000
 
-indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
-indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+indicator$x[indicator$eel_cou_code == "NO"] <- 4172612.3
+indicator$y[indicator$eel_cou_code == "NO"] <- 4111023.3
 
 # indicator <- indicator %>%
 #   select(-sumh) %>%
@@ -210,100 +236,123 @@ indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
 #                       1,
 #                       0)) %>%
 #   arrange(desc(r))
-#   
-# 
-# 
+#
+#
+#
 # indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
 # indicator = st_transform(indicator,crs=3035)
 # indicator$x <-st_coordinates(indicator)[,1]
 # indicator$y <-st_coordinates(indicator)[,2]
 
-ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
-#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
-#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
-#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
-#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
-   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
-                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
-  
-  xlab("")+ylab("") + 
-  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
-                   end = 2*pi), fill = NA,col="black")+
-  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
-            size=2,hjust="left")+
-  geom_point(data=indicator %>%
-               filter(is.na(bcurrent)),
-             aes(x=x,y=y),pch="x")+
-  scale_fill_viridis_c(expression(B[current]/B[0]))
-  # scale_alpha_manual("",values=c("B0" = 1,
-  #                        "Bcurrent" = .6,
-  #                        "Bbest"= .6,
-  #                        "Btarget" = .6,
-  #                        "sumF" = 1,
-  #                        "sumA" = 1))
+ggplot(st_transform(country_p, 3035)) +
+  geom_sf(fill = NA, size = .1) +
+  theme_bw() +
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+  #                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+  #                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+  #                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+  #                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+  geom_arc_bar(data = indicator, aes(
+    x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+    end = 2 * pi, fill = bscaled
+  ), col = NA, alpha = 1) +
+  xlab("") +
+  ylab("") +
+  geom_arc_bar(data = scalesb, aes(
+    x0 = 3008000, y0 = 4200000, r0 = 0, r = bscale, start = pi,
+    end = 2 * pi
+  ), fill = NA, col = "black") +
+  geom_text(
+    data = scalesb, aes(x = 3050000, y = 4200000 + bscale, label = paste0(b / 1e3, "t")),
+    size = 2, hjust = "left"
+  ) +
+  geom_point(
+    data = indicator %>%
+      filter(is.na(bcurrent)),
+    aes(x = x, y = y), pch = "x"
+  ) +
+  scale_fill_viridis_c(expression(B[current] / B[0]))
+# scale_alpha_manual("",values=c("B0" = 1,
+#                        "Bcurrent" = .6,
+#                        "Bbest"= .6,
+#                        "Btarget" = .6,
+#                        "sumF" = 1,
+#                        "sumA" = 1))
 
-ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
+ggsave(filename = "/tmp/maps_biomass.png", width = 16 / 2.54, height = 10 / 2.54)
 ```
 
 ### mortality
 
 
 ```{r mortalitymap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
-  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
-indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
-indicator = st_transform(indicator,crs=3035)
-indicator$x <-st_coordinates(indicator)[,1]
-indicator$y <-st_coordinates(indicator)[,2]
-indicator$btarget <- .4*indicator$b0
-indicator$bscaled <- indicator$bcurrent/indicator$b0
-indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
-indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+indicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+  mutate(eel_emu_nameshort = ifelse(eel_cou_code == "NL", "NL_Neth", eel_emu_nameshort))
+indicator <- merge(emu_c, indicator, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
+indicator <- st_transform(indicator, crs = 3035)
+indicator$x <- st_coordinates(indicator)[, 1]
+indicator$y <- st_coordinates(indicator)[, 2]
+indicator$btarget <- .4 * indicator$b0
+indicator$bscaled <- indicator$bcurrent / indicator$b0
+indicator$x[indicator$eel_cou_code == "NO"] <- 4172612.3
+indicator$y[indicator$eel_cou_code == "NO"] <- 4111023.3
 # indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$suma <- indicator$suma /.92*40000
 # indicator$sumf <- indicator$sumf /.92*40000
 # indicator$sumh <- indicator$sumh /.92*40000
-prettyscale <- c(0,.92)
-prettyscale_scaled <- scales::rescale(prettyscale,to=c(40000,200000),from=c(0,max(indicator$suma,na.rm=TRUE)))
+prettyscale <- c(0, .92)
+prettyscale_scaled <- scales::rescale(prettyscale, to = c(40000, 200000), from = c(0, max(indicator$suma, na.rm = TRUE)))
 
 
-indicator$sumfsuma <- indicator$sumf/indicator$suma
+indicator$sumfsuma <- indicator$sumf / indicator$suma
 
-indicator$suma <- scales::rescale(indicator$suma,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
+indicator$suma <- scales::rescale(indicator$suma, to = c(40000, 200000), from = c(0, max(indicator$suma, na.rm = TRUE)))
 
-scalesm <-data.frame(m=prettyscale,mscale=prettyscale_scaled,y0=c(4200000,4400000))
+scalesm <- data.frame(m = prettyscale, mscale = prettyscale_scaled, y0 = c(4200000, 4400000))
 
-legend <- data.frame(indicator=c("sumA","sumF"))
+legend <- data.frame(indicator = c("sumA", "sumF"))
 
-ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
-  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
-                   end = 2*pi,fill=sumfsuma),size=.2,col=NA)+
+ggplot(st_transform(country_p, 3035)) +
+  geom_sf(fill = NA, size = .1) +
+  theme_bw() +
+  geom_arc_bar(data = indicator, aes(
+    x0 = x, y0 = y, r0 = 0, r = suma, start = 0,
+    end = 2 * pi, fill = sumfsuma
+  ), size = .2, col = NA) +
   # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
   #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
-  xlab("")+ylab("") + 
-  geom_point(data=indicator %>%
-               filter(is.na(suma) & is.na(sumf)),
-             aes(x=x,y=y),pch="x")+
-    geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 40000, start =0,
-                   end = pi),size=.2, fill = NA,col="black")+
-    geom_arc_bar(data=scalesm,aes(x0 = 3008000, y0 =y0, r0 = 0, r = mscale, start =0,
-                   end = pi), fill = NA,col="black")+
-  geom_text(data=scalesm,aes(x=3000000, y=y0+mscale,label=paste0(m,"~year^{-1}")),
-            size=1,hjust="right", parse=TRUE)+
-#    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+  xlab("") +
+  ylab("") +
+  geom_point(
+    data = indicator %>%
+      filter(is.na(suma) & is.na(sumf)),
+    aes(x = x, y = y), pch = "x"
+  ) +
+  geom_arc_bar(data = scalesb, aes(
+    x0 = 3008000, y0 = 3800000, r0 = 0, r = 40000, start = 0,
+    end = pi
+  ), size = .2, fill = NA, col = "black") +
+  geom_arc_bar(data = scalesm, aes(
+    x0 = 3008000, y0 = y0, r0 = 0, r = mscale, start = 0,
+    end = pi
+  ), fill = NA, col = "black") +
+  geom_text(
+    data = scalesm, aes(x = 3000000, y = y0 + mscale, label = paste0(m, "~year^{-1}")),
+    size = 1, hjust = "right", parse = TRUE
+  ) +
+  #    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
 
-     # scale_color_manual("",values=c("sumF" = "yellow",
-     #                      "sumA" = "blue"))
-  scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
+  # scale_color_manual("",values=c("sumF" = "yellow",
+  #                      "sumA" = "blue"))
+  scale_fill_viridis_c(expression(paste(Sigma, "F") / paste(Sigma, "A")))
 
 
-ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
+ggsave(filename = "/tmp/maps_mortality.png", width = 16 / 2.54, height = 10 / 2.54)
 ```
 
 
@@ -313,77 +362,88 @@ ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 Some of the countries that did not reply to the data call, had replied to the datacall in 2018, it is interesting to look to the values they had reported. The following plots show the 2018 values for these countries alongside lattest values for countries that have reported. 
 
 ```{r pastestimates}
-biomass_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e  where eel_cou_code in ('",
-                               paste(not_reported, collapse="','"),
-                               "') and eel_qal_id=-21 and eel_typ_id in (13,14,15) ")) %>%
-  filter(eel_lfs_code=="S" & (eel_year == 1800 | eel_typ_id != 13)) %>%
-  group_by(eel_year,eel_typ_id,eel_emu_nameshort,eel_cou_code) %>%
-  summarize(eel_value=sum(eel_value, na.rm=TRUE)) %>%
-  mutate(eel_year = ifelse(eel_typ_id==13,0,eel_year))
-  
+biomass_nr <- dbGetQuery(con, paste0(
+  "select e.* from datawg.t_eelstock_eel e  where eel_cou_code in ('",
+  paste(not_reported, collapse = "','"),
+  "') and eel_qal_id=-21 and eel_typ_id in (13,14,15) "
+)) %>%
+  filter(eel_lfs_code == "S" & (eel_year == 1800 | eel_typ_id != 13)) %>%
+  group_by(eel_year, eel_typ_id, eel_emu_nameshort, eel_cou_code) %>%
+  summarize(eel_value = sum(eel_value, na.rm = TRUE)) %>%
+  mutate(eel_year = ifelse(eel_typ_id == 13, 0, eel_year))
 
-mortality_nr <- dbGetQuery(con,paste0("select e.* from datawg.t_eelstock_eel e where eel_cou_code in ('",
-                               paste(not_reported, collapse="','"), 
-                        "') and eel_qal_id=-21 and eel_typ_id in (14,17,18,19)")) %>%
-  select(eel_year,eel_emu_nameshort,eel_typ_id,eel_value,eel_hty_code,eel_cou_code) %>%
-  pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
-  group_by(eel_year,eel_emu_nameshort,eel_cou_code) %>%
-  summarise(`19`=-log(sum(`14`*exp(-`19`))/sum(`14`)),
-            `17`=-log(sum(`14`*exp(-`17`))/sum(`14`)),
-            `18`=-log(sum(`14`*exp(-`18`))/sum(`14`))) 
+
+mortality_nr <- dbGetQuery(con, paste0(
+  "select e.* from datawg.t_eelstock_eel e where eel_cou_code in ('",
+  paste(not_reported, collapse = "','"),
+  "') and eel_qal_id=-21 and eel_typ_id in (14,17,18,19)"
+)) %>%
+  select(eel_year, eel_emu_nameshort, eel_typ_id, eel_value, eel_hty_code, eel_cou_code) %>%
+  pivot_wider(names_from = eel_typ_id, values_from = eel_value) %>%
+  group_by(eel_year, eel_emu_nameshort, eel_cou_code) %>%
+  summarise(
+    `19` = -log(sum(`14` * exp(-`19`)) / sum(`14`)),
+    `17` = -log(sum(`14` * exp(-`17`)) / sum(`14`)),
+    `18` = -log(sum(`14` * exp(-`18`)) / sum(`14`))
+  )
 
 indicator_nr <- mortality_nr %>%
-  merge(biomass_nr %>% 
-          filter(eel_typ_id!=13) %>%
-          pivot_wider(names_from=eel_typ_id,values_from=eel_value) %>%
-          merge(biomass_nr %>%
-                  ungroup() %>%
-                  filter(eel_typ_id==13) %>%
-                  select(eel_emu_nameshort,eel_value) %>%
-                  rename(`13`=eel_value))) %>%
-  rename(b0=`13`,
-         bbest=`14`,
-         bcurrent=`15`,
-         suma=`17`,
-         sumf=`18`,
-         sumh=`19`) %>%
-  group_by(eel_cou_code,eel_emu_nameshort) %>%
-  summarize(sumh=mean(sumh),
-            suma=mean(suma),
-            sumf=mean(sumf),
-            bcurrent=mean(bcurrent),
-            bbest=mean(bbest),
-            b0=mean(b0)) %>%
-  mutate(old=TRUE)
+  merge(biomass_nr %>%
+    filter(eel_typ_id != 13) %>%
+    pivot_wider(names_from = eel_typ_id, values_from = eel_value) %>%
+    merge(biomass_nr %>%
+      ungroup() %>%
+      filter(eel_typ_id == 13) %>%
+      select(eel_emu_nameshort, eel_value) %>%
+      rename(`13` = eel_value))) %>%
+  rename(
+    b0 = `13`,
+    bbest = `14`,
+    bcurrent = `15`,
+    suma = `17`,
+    sumf = `18`,
+    sumh = `19`
+  ) %>%
+  group_by(eel_cou_code, eel_emu_nameshort) %>%
+  summarize(
+    sumh = mean(sumh),
+    suma = mean(suma),
+    sumf = mean(sumf),
+    bcurrent = mean(bcurrent),
+    bbest = mean(bbest),
+    b0 = mean(b0)
+  ) %>%
+  mutate(old = TRUE)
 ```
 ### biomass
 ```{r biomassmapold}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>% bind_rows(indicator_nr) %>%
-  mutate(old=ifelse(is.na(old), FALSE, TRUE)) %>%
-  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
-indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
-indicator = st_transform(indicator,crs=3035)
-indicator$x <-st_coordinates(indicator)[,1]
-indicator$y <-st_coordinates(indicator)[,2]
-indicator$btarget <- .4*indicator$b0
-indicator$bscaled <- indicator$bcurrent/indicator$b0
-prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
-prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
-scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+indicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+  bind_rows(indicator_nr) %>%
+  mutate(old = ifelse(is.na(old), FALSE, TRUE)) %>%
+  mutate(eel_emu_nameshort = ifelse(eel_cou_code == "NL", "NL_Neth", eel_emu_nameshort))
+indicator <- merge(emu_c, indicator, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
+indicator <- st_transform(indicator, crs = 3035)
+indicator$x <- st_coordinates(indicator)[, 1]
+indicator$y <- st_coordinates(indicator)[, 2]
+indicator$btarget <- .4 * indicator$b0
+indicator$bscaled <- indicator$bcurrent / indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent, na.rm = TRUE), n = 2)
+prettyscale_scaled <- scales::rescale(prettyscale, to = c(40190.79, 200000.00), from = c(661, max(indicator$bcurrent, na.rm = TRUE)))
+scalesb <- data.frame(b = prettyscale, bscale = prettyscale_scaled)
 # indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
- indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+indicator$bcurrent <- scales::rescale(indicator$bcurrent, to = c(40190.79, 200000.00), from = c(661, max(indicator$bcurrent, na.rm = TRUE)))
 # indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
 # indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
 
 # indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
-indicator$suma <- indicator$suma /.92*20000
-indicator$sumf <- indicator$sumf /.92*20000
-indicator$sumh <- indicator$sumh /.92*20000
+indicator$suma <- indicator$suma / .92 * 20000
+indicator$sumf <- indicator$sumf / .92 * 20000
+indicator$sumh <- indicator$sumh / .92 * 20000
 
-indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
-indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+indicator$x[indicator$eel_cou_code == "NO"] <- 4172612.3
+indicator$y[indicator$eel_cou_code == "NO"] <- 4111023.3
 
 # indicator <- indicator %>%
 #   select(-sumh) %>%
@@ -400,43 +460,53 @@ indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
 #                       1,
 #                       0)) %>%
 #   arrange(desc(r))
-#   
-# 
-# 
+#
+#
+#
 # indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
 # indicator = st_transform(indicator,crs=3035)
 # indicator$x <-st_coordinates(indicator)[,1]
 # indicator$y <-st_coordinates(indicator)[,2]
 
-ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
-#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
-#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
-#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
-#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
-#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
-   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
-                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
-  
-  xlab("")+ylab("") + 
-  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
-                   end = 2*pi), fill = NA,col="black")+
-  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
-            size=2,hjust="left")+
-  geom_point(data=indicator %>%
-               filter(is.na(bcurrent)),
-             aes(x=x,y=y),pch="x")+
-  scale_fill_viridis_c(expression(B[current]/B[0]))
-  # scale_alpha_manual("",values=c("B0" = 1,
-  #                        "Bcurrent" = .6,
-  #                        "Bbest"= .6,
-  #                        "Btarget" = .6,
-  #                        "sumF" = 1,
-  #                        "sumA" = 1))
+ggplot(st_transform(country_p, 3035)) +
+  geom_sf(fill = NA, size = .1) +
+  theme_bw() +
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+  #                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+  #                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+  #                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+  #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+  #                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+  geom_arc_bar(data = indicator, aes(
+    x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+    end = 2 * pi, fill = bscaled
+  ), col = NA, alpha = 1) +
+  xlab("") +
+  ylab("") +
+  geom_arc_bar(data = scalesb, aes(
+    x0 = 3008000, y0 = 4200000, r0 = 0, r = bscale, start = pi,
+    end = 2 * pi
+  ), fill = NA, col = "black") +
+  geom_text(
+    data = scalesb, aes(x = 3050000, y = 4200000 + bscale, label = paste0(b / 1e3, "t")),
+    size = 2, hjust = "left"
+  ) +
+  geom_point(
+    data = indicator %>%
+      filter(is.na(bcurrent)),
+    aes(x = x, y = y), pch = "x"
+  ) +
+  scale_fill_viridis_c(expression(B[current] / B[0]))
+# scale_alpha_manual("",values=c("B0" = 1,
+#                        "Bcurrent" = .6,
+#                        "Bbest"= .6,
+#                        "Btarget" = .6,
+#                        "sumF" = 1,
+#                        "sumA" = 1))
 
-ggsave(filename="/tmp/maps_biomass.png",width=16/2.54,height=10/2.54)
+ggsave(filename = "/tmp/maps_biomass.png", width = 16 / 2.54, height = 10 / 2.54)
 ```
 
 This highlights the likely importance of some EMUs for which no data have been reported. For example, FR_Rhon would be one of the EMU with the largest $B_{current}$.
@@ -445,59 +515,72 @@ This highlights the likely importance of some EMUs for which no data have been r
 
 
 ```{r mortalitymapold}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
+indicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort") %>%
   bind_rows(indicator_nr) %>%
-  mutate(old=ifelse(is.na(old), TRUE, FALSE)) %>%
-  mutate(eel_emu_nameshort= ifelse(eel_cou_code=="NL","NL_Neth",eel_emu_nameshort))
-indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
-indicator = st_transform(indicator,crs=3035)
-indicator$x <-st_coordinates(indicator)[,1]
-indicator$y <-st_coordinates(indicator)[,2]
-indicator$btarget <- .4*indicator$b0
-indicator$bscaled <- indicator$bcurrent/indicator$b0
-indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
-indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+  mutate(old = ifelse(is.na(old), TRUE, FALSE)) %>%
+  mutate(eel_emu_nameshort = ifelse(eel_cou_code == "NL", "NL_Neth", eel_emu_nameshort))
+indicator <- merge(emu_c, indicator, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
+indicator <- st_transform(indicator, crs = 3035)
+indicator$x <- st_coordinates(indicator)[, 1]
+indicator$y <- st_coordinates(indicator)[, 2]
+indicator$btarget <- .4 * indicator$b0
+indicator$bscaled <- indicator$bcurrent / indicator$b0
+indicator$x[indicator$eel_cou_code == "NO"] <- 4172612.3
+indicator$y[indicator$eel_cou_code == "NO"] <- 4111023.3
 # indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
 # indicator$suma <- indicator$suma /.92*40000
 # indicator$sumf <- indicator$sumf /.92*40000
 # indicator$sumh <- indicator$sumh /.92*40000
-prettyscale <- c(0,.92)
-prettyscale_scaled <- scales::rescale(prettyscale,to=c(40000,200000),from=c(0,max(indicator$suma,na.rm=TRUE)))
+prettyscale <- c(0, .92)
+prettyscale_scaled <- scales::rescale(prettyscale, to = c(40000, 200000), from = c(0, max(indicator$suma, na.rm = TRUE)))
 
 
-indicator$sumfsuma <- indicator$sumf/indicator$suma
+indicator$sumfsuma <- indicator$sumf / indicator$suma
 
-indicator$suma <- scales::rescale(indicator$suma,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
+indicator$suma <- scales::rescale(indicator$suma, to = c(40000, 200000), from = c(0, max(indicator$suma, na.rm = TRUE)))
 
-scalesm <-data.frame(m=prettyscale,mscale=prettyscale_scaled,y0=c(4200000,4400000))
+scalesm <- data.frame(m = prettyscale, mscale = prettyscale_scaled, y0 = c(4200000, 4400000))
 
-legend <- data.frame(indicator=c("sumA","sumF"))
+legend <- data.frame(indicator = c("sumA", "sumF"))
 
-ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
-  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
-                   end = 2*pi,fill=sumfsuma),size=.2,col=NA)+
+ggplot(st_transform(country_p, 3035)) +
+  geom_sf(fill = NA, size = .1) +
+  theme_bw() +
+  geom_arc_bar(data = indicator, aes(
+    x0 = x, y0 = y, r0 = 0, r = suma, start = 0,
+    end = 2 * pi, fill = sumfsuma
+  ), size = .2, col = NA) +
   # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
   #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
-  xlab("")+ylab("") + 
-  geom_point(data=indicator %>%
-               filter(is.na(suma) & is.na(sumf)),
-             aes(x=x,y=y),pch="x")+
-    geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 40000, start =0,
-                   end = pi),size=.2, fill = NA,col="black")+
-    geom_arc_bar(data=scalesm,aes(x0 = 3008000, y0 =y0, r0 = 0, r = mscale, start =0,
-                   end = pi), fill = NA,col="black")+
-  geom_text(data=scalesm,aes(x=3000000, y=y0+mscale,label=paste0(m,"~year^{-1}")),
-            size=1,hjust="right", parse=TRUE)+
-#    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+  xlab("") +
+  ylab("") +
+  geom_point(
+    data = indicator %>%
+      filter(is.na(suma) & is.na(sumf)),
+    aes(x = x, y = y), pch = "x"
+  ) +
+  geom_arc_bar(data = scalesb, aes(
+    x0 = 3008000, y0 = 3800000, r0 = 0, r = 40000, start = 0,
+    end = pi
+  ), size = .2, fill = NA, col = "black") +
+  geom_arc_bar(data = scalesm, aes(
+    x0 = 3008000, y0 = y0, r0 = 0, r = mscale, start = 0,
+    end = pi
+  ), fill = NA, col = "black") +
+  geom_text(
+    data = scalesm, aes(x = 3000000, y = y0 + mscale, label = paste0(m, "~year^{-1}")),
+    size = 1, hjust = "right", parse = TRUE
+  ) +
+  #    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
 
-     # scale_color_manual("",values=c("sumF" = "yellow",
-     #                      "sumA" = "blue"))
-  scale_fill_viridis_c(expression(paste(Sigma,"F")/paste(Sigma,"A")))
+  # scale_color_manual("",values=c("sumF" = "yellow",
+  #                      "sumA" = "blue"))
+  scale_fill_viridis_c(expression(paste(Sigma, "F") / paste(Sigma, "A")))
 
 
-ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
+ggsave(filename = "/tmp/maps_mortality.png", width = 16 / 2.54, height = 10 / 2.54)
 ```
 
 
@@ -506,36 +589,47 @@ ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 Since mortality in Italy and France are fishery dominated, we can have a look to the trends in landings in early years.
 
 ```{r landingsfranceita}
-landings = dbGetQuery(con,paste0("select sum(eel_value) eel_value,eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort from datawg.t_eelstock_eel 
+landings <- dbGetQuery(con, paste0(
+  "select sum(eel_value) eel_value,eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort from datawg.t_eelstock_eel
                       where eel_cou_code in ('",
-                               paste(not_reported[not_reported%in%eu_cou_codes], collapse="','"),
-                               "')
+  paste(not_reported[not_reported %in% eu_cou_codes], collapse = "','"),
+  "')
                       and eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2010
-                      group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort")) 
+                      group by eel_cou_code,eel_lfs_code,eel_year,eel_emu_nameshort"
+))
 
-ggplot(landings,aes(x=eel_year,y=eel_value))+geom_line(aes(col=eel_emu_nameshort), show.legend=FALSE)+
-  scale_y_log10()+
-  facet_grid(eel_lfs_code~eel_cou_code)+ylab("landings (t)")+xlab("")
+ggplot(landings, aes(x = eel_year, y = eel_value)) +
+  geom_line(aes(col = eel_emu_nameshort), show.legend = FALSE) +
+  scale_y_log10() +
+  facet_grid(eel_lfs_code ~ eel_cou_code) +
+  ylab("landings (t)") +
+  xlab("")
 
-ggsave("/tmp/landings.png",height=12/2.54,width=16/2.54,dpi=300)
+ggsave("/tmp/landings.png", height = 12 / 2.54, width = 16 / 2.54, dpi = 300)
 ```
 
 Landings are not decreasing, this suggests that situation has likely not improved in these countries, especially in France and Italy in which fishery is thought to be predominant in anthropogenic mortality.
 
 # Data quality check
 ```{r indicator}
-indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
-indicator<- indicator %>%
-  mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
-                             eel_cou_code,
-                             "ES_Minh")) 
+indicator <- dbGetQuery(con, "select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
+indicator <- indicator %>%
+  mutate(eel_cou_code = ifelse(eel_cou_code == substr(eel_emu_nameshort, 1, 2),
+    eel_cou_code,
+    "ES_Minh"
+  ))
 ```
 
 ## B0 less than Bbest
 Normally, Bbest (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, Bbest is supposed to be smaller than B0 which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
 
 ```{r plotBbestB0}
-ggplot(indicator,aes(x=bbest/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[best]/B[0])) + scale_x_log10() + ylab("frequency")
+ggplot(indicator, aes(x = bbest / b0)) +
+  geom_histogram() +
+  geom_vline(xintercept = 1, slope = 1, lty = 2) +
+  xlab(expression(B[best] / B[0])) +
+  scale_x_log10() +
+  ylab("frequency")
 ```
 
 In a few situations, Bbest is greather than B0.
@@ -543,11 +637,13 @@ In a few situations, Bbest is greather than B0.
 
 ```{r tabbestb0}
 indicator %>%
-  filter(bbest>b0) %>%
-  select(eel_emu_nameshort,eel_year,bbest,b0) %>%
+  filter(bbest > b0) %>%
+  select(eel_emu_nameshort, eel_year, bbest, b0) %>%
   group_by(eel_emu_nameshort) %>%
-  summarize(years=paste0(sort(eel_year),collapse="/"),
-            mean_bbest_b0=mean(bbest/b0))
+  summarize(
+    years = paste0(sort(eel_year), collapse = "/"),
+    mean_bbest_b0 = mean(bbest / b0)
+  )
 ```
 
 For some SE_Inla, this is likely related to using a B0 that is coming from the late 80s situation. For EE, it seems rather due to the inclusion of restocking in Bbest (i.e. overestimation of Bbest). For others, B0 is likely underestimated.
@@ -559,18 +655,24 @@ In countries without (or with limited) restocking, Bcurrent should be less than 
 
 
 ```{r plotBcurrentBbest}
-ggplot(indicator,aes(x=bcurrent/bbest))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[current]/B[best])) + scale_x_log10() + ylab("frequency")
+ggplot(indicator, aes(x = bcurrent / bbest)) +
+  geom_histogram() +
+  geom_vline(xintercept = 1, slope = 1, lty = 2) +
+  xlab(expression(B[current] / B[best])) +
+  scale_x_log10() +
+  ylab("frequency")
 ```
 
 ```{r tabbcurrentbbest}
 indicator %>%
-  filter(bbest<bcurrent) %>%
-  select(eel_emu_nameshort,eel_year,bcurrent,bbest) %>%
+  filter(bbest < bcurrent) %>%
+  select(eel_emu_nameshort, eel_year, bcurrent, bbest) %>%
   group_by(eel_emu_nameshort) %>%
-  summarize(years=paste0(sort(eel_year),collapse="/"),
-            mean_bcurrent_bbest=mean(bcurrent/bbest)) %>%
+  summarize(
+    years = paste0(sort(eel_year), collapse = "/"),
+    mean_bcurrent_bbest = mean(bcurrent / bbest)
+  ) %>%
   arrange(eel_emu_nameshort)
-  
 ```
 For German EMUs, this shows the massive effect of restocking which is also visible in Sweeden or in Poland. For Ireland, the anthropogenic mortality is so low in recent years that Bcurrent and Bbest can be very similar. Results is more doubtful in ES_Anda.
 
@@ -582,65 +684,80 @@ In countries without (or with limited) restocking, Bcurrent should be less than 
 
 
 ```{r plotBcurrentB0}
-ggplot(indicator,aes(x=bcurrent/b0))+geom_histogram()+geom_vline(xintercept=1,slope=1,lty=2)+xlab(expression(B[current]/B[0])) + scale_x_log10() + ylab("frequency")
+ggplot(indicator, aes(x = bcurrent / b0)) +
+  geom_histogram() +
+  geom_vline(xintercept = 1, slope = 1, lty = 2) +
+  xlab(expression(B[current] / B[0])) +
+  scale_x_log10() +
+  ylab("frequency")
 ```
 
 ```{r tabbcurrentb0}
 indicator %>%
-  filter(b0<bcurrent) %>%
-  select(eel_emu_nameshort,eel_year,bcurrent,b0) %>%
+  filter(b0 < bcurrent) %>%
+  select(eel_emu_nameshort, eel_year, bcurrent, b0) %>%
   group_by(eel_emu_nameshort) %>%
-  summarize(years=paste0(sort(eel_year),collapse="/"),
-            mean_bcurrent_bbest=mean(bcurrent/b0)) %>%
+  summarize(
+    years = paste0(sort(eel_year), collapse = "/"),
+    mean_bcurrent_bbest = mean(bcurrent / b0)
+  ) %>%
   arrange(eel_emu_nameshort)
-  
 ```
 This indicates a massive effect of restocking in Sweeden and in DE_Warn, and a likely underestimation of B0 in GB_Scot. From a scientific view, achieving a restocking leading to an escapment greater than pristine escapment probably leads to increase a lot density-dependent natural mortality.
 
 ## Checking B0
 ```{r estimatingB0}
 source("./readingAnnex13.R")
-mor_wise = annexes13_method %>% select(emu_nameshort,mortality_wise)
-emu_sea= emu_p %>%
+mor_wise <- annexes13_method %>% select(emu_nameshort, mortality_wise)
+emu_sea <- emu_p %>%
   filter(emu_cou_code %in% eu_cou_codes) %>%
-  mutate(rec_zone = ifelse(emu_cou_code %in% c("NL","DK","NO","BE","LU", "CZ","SK") |
-                             emu_nameshort %in% c("FR_Rhin","FR_Meus","GB_Tham","GB_Angl","GB_Humb","GB_Nort","GB_Solw",
-                                                  "DE_Ems","DE_Wese","DE_Elbe","DE_Rhei","DE_Eide","DE_Maas") ,
-                           "NS", 
-                           ifelse(emu_cou_code %in% c("EE","FI","SE","LV","LT","AX", "PL","DE"),
-                                  "BA",
-                                  "EE")))
+  mutate(rec_zone = ifelse(emu_cou_code %in% c("NL", "DK", "NO", "BE", "LU", "CZ", "SK") |
+    emu_nameshort %in% c(
+      "FR_Rhin", "FR_Meus", "GB_Tham", "GB_Angl", "GB_Humb", "GB_Nort", "GB_Solw",
+      "DE_Ems", "DE_Wese", "DE_Elbe", "DE_Rhei", "DE_Eide", "DE_Maas"
+    ),
+  "NS",
+  ifelse(emu_cou_code %in% c("EE", "FI", "SE", "LV", "LT", "AX", "PL", "DE"),
+    "BA",
+    "EE"
+  )
+  ))
 
-mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
-mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) %>% 
-  mutate(emu_nameshort=ifelse(emu_nameshort=="NL_Neth","NL_total",emu_nameshort))
+mor_wise <- merge(emu_sea %>% st_drop_geometry(), mor_wise)
+mor_wise <- mor_wise %>%
+  mutate(cohort_wise = grepl("ohort", mortality_wise)) %>%
+  mutate(emu_nameshort = ifelse(emu_nameshort == "NL_Neth", "NL_total", emu_nameshort))
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 
 
 
-estimate_b0 = function(emu, year, mor_wise,precodata){
-  mod = switch(unique(mor_wise$rec_zone[mor_wise$emu_nameshort == emu]),
-               "EE" = dat_ge %>% filter (area == "Elsewhere Europe"),
-               "NS" = dat_ge %>% filter (area == "North Sea"),
-               "BA" = dat_ye)
-  if ("value_std_1960_1979" %in% names(mod)){
-    Rcurrent <- mean(mod$value_std_1960_1979[mod$year %in% ((year-4):year)])
+estimate_b0 <- function(emu, year, mor_wise, precodata) {
+  mod <- switch(unique(mor_wise$rec_zone[mor_wise$emu_nameshort == emu]),
+    "EE" = dat_ge %>% filter(area == "Elsewhere Europe"),
+    "NS" = dat_ge %>% filter(area == "North Sea"),
+    "BA" = dat_ye
+  )
+  if ("value_std_1960_1979" %in% names(mod)) {
+    Rcurrent <- mean(mod$value_std_1960_1979[mod$year %in% ((year - 4):year)])
   } else {
-    Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year-4):year)])
+    Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year - 4):year)])
   }
-  if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort==emu]))
+  if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort == emu])) {
     Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],
-                       "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
-                       "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
-                       "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
-  precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent
+      "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year - 12):(year - 7))]),
+      "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year - 17):(year - 12))]),
+      "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year - 22):(year - 17))])
+    )
+  }
+  precodata$bbest[precodata$eel_emu_nameshort == emu & precodata$eel_year == year] / Rcurrent
 }
 
 indicator_sub <- indicator %>%
   filter(eel_emu_nameshort %in% unique(mor_wise$emu_nameshort))
-indicator_sub$b0_estimated = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indicator_sub$eel_year,
-                                MoreArgs=list(mor_wise=mor_wise,precodata=indicator_sub))
+indicator_sub$b0_estimated <- mapply(estimate_b0, indicator_sub$eel_emu_nameshort, indicator_sub$eel_year,
+  MoreArgs = list(mor_wise = mor_wise, precodata = indicator_sub)
+)
 ```
 The EU regulation states that Member States should implement management measures in order to achieve an escapement equal to 40 % of the pristine recruitment. As such, the standard precautionary diagram show the lifespan anthropogenic mortality against the ratio of Bcurrent over B0. However, the pristine situation is difficult to define and B0 is even harder to estimate. As such, some countries have used observations of past productivity in some water bodies, multiplied by the total water surface to extrapolate pristine escapement. However, the availability of historical data does not allow to go back far in time, rarely before the 80s, which was not a pristine situation. Other countries have used the current escapement, corrected for anthropogenic mortality (i.e. Bbest) and use this to extrapolate Bcurrent. However, the extrapolation methods vary among countries, especially regarding the integration of mortality density dependence or not (accounting for mortality density dependent mortality leads to smaller B0 since it postulates that natural mortality increases with abundance). As such, B0 are hardly comparable among countries, and the status of EMUs with respect to the EU regulation target depends a lot on this estimation of B0.
 To avoid these inconsistencies, we propose here an alternative method. First, let remind that, by definition:
@@ -658,17 +775,30 @@ Since recruitment was assumed to be closed to a pristine situation in the 1980s,
 Some preliminary steps are required. First, it is be required to choose the appropriate recruitment indices (elsewhere Europe, North Sea, yellow eel). Here we associated each EMU with a recruitment index according to Figure 3.1 from latest WGEEL report (ICES, 2021). Then, for countries using a cohort wise estimation of escapment, it is required to account for a lag between recruitment and escapement, corresponding to the lifespan. Since lifespan is not available, we used an ad-hoc rule: for EMUs with a year-wise process, we used the average value of the recruitment indices from latest 5 years as $R_current$. For EMUs associated with the Elsewhere index, we took the average value of the index from 7 to 12 years ago. We took 12 to 17 for North Sea and 17 to 22 for yellow eel indices.
 
 ```{r map_emu}
-ggplot(emu_sea)+geom_sf(data=emu_p,inherit.aes=FALSE,fill="grey")+geom_sf(aes(fill=rec_zone)) + scale_fill_discrete("recruitment index")+
+ggplot(emu_sea) +
+  geom_sf(data = emu_p, inherit.aes = FALSE, fill = "grey") +
+  geom_sf(aes(fill = rec_zone)) +
+  scale_fill_discrete("recruitment index") +
   theme_bw()
-#ggsave("/tmp/emu_rec.png",width=16/2.54,height=10/2.54,dpi=300)
-
+# ggsave("/tmp/emu_rec.png",width=16/2.54,height=10/2.54,dpi=300)
 ```
 ```{r plotb0alternative}
-ggplot(indicator_sub,aes(x=b0,y=b0_estimated))+geom_point(aes(col=eel_cou_code))+xlab(expression("reported B"[0]))+ ylab(expression("adjusted B"[0])) + geom_abline(intercept=0, slope= 1, lty=2) + scale_color_discrete("country")
-ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
+ggplot(indicator_sub, aes(x = b0, y = b0_estimated)) +
+  geom_point(aes(col = eel_cou_code)) +
+  xlab(expression("reported B"[0])) +
+  ylab(expression("adjusted B"[0])) +
+  geom_abline(intercept = 0, slope = 1, lty = 2) +
+  scale_color_discrete("country")
+ggsave("/tmp/reest.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 
-ggplot(indicator_sub,aes(x=b0/b0_estimated))+geom_histogram()+facet_wrap(~eel_cou_code)+scale_x_log10()+geom_vline(xintercept=1,lty=2)+xlab(expression("reported B"[0]/"adjusted B"[0]))+ylab("frequency")
-ggsave("/tmp/reest.png",width=16/2.54,height=10/2.54,dpi=300)
+ggplot(indicator_sub, aes(x = b0 / b0_estimated)) +
+  geom_histogram() +
+  facet_wrap(~eel_cou_code) +
+  scale_x_log10() +
+  geom_vline(xintercept = 1, lty = 2) +
+  xlab(expression("reported B"[0] / "adjusted B"[0])) +
+  ylab("frequency")
+ggsave("/tmp/reest.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 ```
 Results show that the discrepancy between the two indicators is very heterogeneous among countries / EMUs. Unsurprisingly, the reported $B[0]$ are generally less than the estimated ones, but this is not always the case (e.g. SE, ES). More surprisingly, estimated $B[0]$ are highly variable, indicating that reported $B[best]$ are much more variable than variations in recruitment. Finally, the ratio between reported and estimated $B[0]$ are very contrasted among countries, either because of inappropriate accounting of restocking in $B[best]$ or because of inconsistencies in $B[0]$ estimations. Anyway, this questions the comparisons of $B[0]$ among EMUs.
 
@@ -678,13 +808,22 @@ As such, it is worthwhile checking whether is has consequences on the ratio $B_{
 
 ```{r comparisonsratio}
 indicator_sub <- indicator_sub %>%
-  mutate(old=bcurrent/b0,
-         updated=bcurrent/b0_estimated)
-ggplot(indicator_sub %>% filter(eel_year>=2018),aes(x=old,y=updated)) + geom_point(aes(col=eel_cou_code,
-                                                                                      pch=as.factor(eel_year))) +
-  geom_abline(slope=1,intercept=0,lty=2) + facet_wrap(~eel_cou_code) + guides(colour=FALSE) + scale_shape("year")+
-  xlab("reported ratio")+ylab("estimated ratio")
-ggsave("/tmp/ratiob0.png",width=16/2.54,height=10/2.54,dpi=300)
+  mutate(
+    old = bcurrent / b0,
+    updated = bcurrent / b0_estimated
+  )
+ggplot(indicator_sub %>% filter(eel_year >= 2018), aes(x = old, y = updated)) +
+  geom_point(aes(
+    col = eel_cou_code,
+    pch = as.factor(eel_year)
+  )) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
+  facet_wrap(~eel_cou_code) +
+  guides(colour = FALSE) +
+  scale_shape("year") +
+  xlab("reported ratio") +
+  ylab("estimated ratio")
+ggsave("/tmp/ratiob0.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 ```
 
 ## effect of restocking
@@ -693,9 +832,14 @@ Theoretically, $B_{best}$ should not include restocking while B0 should include 
 Here, we see that many countries (except DE, SE and PL) seem to have accounted for restocking both in $B_{best}$ and $B_{current}$, with a possible double banking of restocking (i.e. both increasing escapment and decreasing mortality).
 
 ```{r plotsumA}
-ggplot(indicator,aes(x=suma,y= (-log(bcurrent/bbest)))) +geom_point(aes(col=eel_cou_code),show.legend=FALSE) + facet_wrap(~eel_cou_code,scales="free") + 
-  geom_abline(intercept=0,slope=1,lty=2) + xlab(expression(paste(Sigma,"A")))+scale_color_discrete("")+ylab(expression(-log(B[current]/B[best])))
-ggsave("/tmp/sumAlog.png",width=16/2.54,height=12/2.54,dpi=300)
+ggplot(indicator, aes(x = suma, y = (-log(bcurrent / bbest)))) +
+  geom_point(aes(col = eel_cou_code), show.legend = FALSE) +
+  facet_wrap(~eel_cou_code, scales = "free") +
+  geom_abline(intercept = 0, slope = 1, lty = 2) +
+  xlab(expression(paste(Sigma, "A"))) +
+  scale_color_discrete("") +
+  ylab(expression(-log(B[current] / B[best])))
+ggsave("/tmp/sumAlog.png", width = 16 / 2.54, height = 12 / 2.54, dpi = 300)
 ```
 
 
