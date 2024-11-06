@@ -10,3 +10,7 @@ wg_WGEEL.Rproj
 **/.Rhistory
 /R/Y_S_series/2023/final
 *.log
+.Rprofile
+*.docx
+Misc/WKEMP/data_dependencies/
+
