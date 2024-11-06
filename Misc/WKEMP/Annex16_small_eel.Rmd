@@ -1,0 +1,131 @@
+---
+title: "Annex 16 small eel utilisation"
+author: "WKEMP sg2"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: word_document
+---
+
+
+```{r setup, include=FALSE, eval=TRUE, echo=FALSE}
+library(stringr)
+library(tidyverse)
+library(readxl)
+library(openxlsx)
+```
+```{r load, include=FALSE, eval=FALSE, echo=FALSE}
+datawd <- "W:/annex16-Eelless12"
+setwd(datawd)
+files <- list.files(".")
+# remove comments
+files <- files[!grepl("comments", files)]
+stringr::str_sub(files, -7, -6)
+
+l12 <- read_xlsx(
+  path = file.path(datawd, files[1]),
+  sheet = "new_data_eel_less_12cm",
+  col_types = c(
+    "numeric",
+    "text",
+    "numeric",
+    rep("text", 5)
+  )
+)
+for (i in 2:length(files)) {
+  print(stringr::str_sub(files[i], -7, -6))
+  temp_file <-
+    read_xlsx(
+      path = file.path(datawd, files[i]),
+      sheet = "new_data_eel_less_12cm",
+      col_types = c(
+        "numeric",
+        "text",
+        "numeric",
+        rep("text", 5)
+      )
+    )
+  colnames(temp_file)[8] <- "comments"
+  l12 <- bind_rows(
+    l12,
+    temp_file
+  )
+}
+
+l20 <- read_xlsx(
+  path = file.path(datawd, files[1]),
+  sheet = "new_data_eel_less_20cm",
+  col_types = c(
+    "numeric",
+    "numeric",
+    rep("text", 4)
+  )
+)
+for (i in 2:length(files)) {
+  print(stringr::str_sub(files[i], -7, -6))
+  temp_file <-
+    read_xlsx(
+      path = file.path(datawd, files[i]),
+      sheet = "new_data_eel_less_20cm",
+      col_types = c(
+        "numeric",
+        "numeric",
+        rep("text", 4)
+      )
+    )
+  colnames(temp_file)[8] <- "comments"
+  l20 <- bind_rows(
+    l20,
+    temp_file
+  )
+}
+wgeelwd <- "C:/workspace/wg_WGEEL"
+save(l12, l20, file = file.path(wgeelwd, "Misc", "WKEMP", "data_dependencies", "annex16.RData"))
+openxlsx::write.xlsx(l12, file.path(datawd, "annex16_less_than_12cm.xlsx"))
+openxlsx::write.xlsx(l20, file.path(datawd, "annex16_less_than_20cm.xlsx"))
+```
+
+
+```{r check_proportion, include=TRUE, eval=TRUE, echo=FALSE}
+wgeelwd <- "C:/workspace/wg_WGEEL"
+load(file = file.path(
+  wgeelwd, "Misc",
+  "WKEMP", "data_dependencies", "annex16.RData"
+))
+fr_reserve <- bind_rows(
+  l12 %>%
+    filter(eel_cou_code == "FR" &
+      capture_trade_final_use == "landings_commercial") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "trade only"
+    ),
+  l12 %>%
+    filter(eel_cou_code == "FR") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "Including france restocking"
+    )
+)
+
+
+ggplot(fr_reserve) +
+  geom_point(aes(x = season, y = proportion_restocked, color = category)) +
+  geom_path(aes(
+    x = season, y = proportion_restocked,
+    color = category, group = category
+  )) +
+  ylim(c(0, 1)) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```

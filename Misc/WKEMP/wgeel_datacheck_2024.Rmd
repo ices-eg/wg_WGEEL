@@ -6,6 +6,7 @@ output: word_document
 ---
 
 ```{r setup, include=FALSE}
+# setwd("C:/workspace/wg_WGEEL/Misc/WKEMP")
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(RPostgres)
 library(sf)
@@ -25,13 +26,18 @@ eu_cou_codes <- c("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "D
 # Downloading data
 
 ```{r download}
-biomass <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15,34)")
+biomass <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e
+  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15,34)")
 
-mortality <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e
+where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
 
 
-nb_country_emu <- dbGetQuery(con, "select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel
-                             where eel_typ_id in (13, 14, 15, 17, 18, 19,34) and eel_datasource='dc_2021'")
+nb_country_emu <- dbGetQuery(con, "select count(distinct eel_cou_code),
+count(distinct(eel_emu_nameshort))
+from datawg.t_eelstock_eel
+                             where eel_typ_id in (13, 14, 15, 17, 18, 19,34)
+                              and eel_datasource='dc_2021'")
 ```
 
 # Missing countries
@@ -293,7 +299,11 @@ mortality_long <- mortality %>%
   mutate(habitat = toupper(gsub("perc_", "", habitat))) %>%
   mutate(
     type = "mortality",
-    eel_typ_id = case_when(eel_typ_id == 17 ~ "sumA", eel_typ_id == 18 ~ "sumF", eel_typ_id == 19 ~ "sumH")
+    eel_typ_id = case_when(
+      eel_typ_id == 17 ~ "sumA",
+      eel_typ_id == 18 ~ "sumF",
+      eel_typ_id == 19 ~ "sumH"
+    )
   )
 
 indicator <- biomass_long %>%
