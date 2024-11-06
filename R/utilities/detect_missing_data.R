@@ -1,4 +1,5 @@
-
+require(sqldf)
+require(stringr)
 detect_missing_data <- function(cou="FR",
                                 minyear=2000,
                                 maxyear=2024, #maxyear corresponds to the current year where we have to fill data
