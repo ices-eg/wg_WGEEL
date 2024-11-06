@@ -1,0 +1,781 @@
+---
+title: "Annex12_recreational"
+format: docx
+warning: false
+echo: false
+error: false
+message: false
+
+---
+```{r setup}
+#| include: false
+#| echo: false
+source("../../R/utilities/detect_missing_data.R")
+
+countries <- c("BE","CZ","DE","EE","FI","FR","DE","GR","IE","IT","LV","LT","LU","NL","PL","PT","ES","SE")
+files = list.files(path = "../../../../WKEMP/WKEMP4/Annex 12/",
+                   full.names = TRUE)
+library(readxl)
+datas <- list()
+library(ggplot2)
+library(Kendall)
+library(flextable)
+library(dplyr)
+library(RPostgres)
+library(yaml)
+import <- function(cou_code){
+  file = files[grepl(paste0(cou_code, ".xlsx$"), 
+                     files)]
+  datas <- read_excel(file, sheet = "fisher_data")
+  g <- ggplot(datas %>%
+                filter(!is.na(eel_value)), aes(x=eel_year, y = eel_value, col = eel_typ_name)) +
+    geom_line() + 
+    geom_point() +
+    facet_wrap(~eel_emu_nameshort) +
+    xlab("") + 
+    ylab("fishers") +
+    scale_color_viridis_d("") +
+    theme_bw() + 
+    ggtitle(cou_code)
+  ggsave(paste0("Annex 12_",cou_code,".png"),
+         width = 16/2.54, 
+         height = 12/2.54,
+         dpi = 300)
+  datas
+}
+
+create_tab <- function(cou_code){
+  datas[[cou_code]] %>%
+    group_by(eel_typ_name,eel_emu_nameshort) %>%
+    arrange(eel_year) %>%
+    summarise(tau = round(MannKendall(eel_value)$tau, digits = 2),
+              pvalue=round(MannKendall(eel_value)$sl, digits = 2),
+              n = sum(!is.na(eel_value)),
+              .groups = "keep") %>%
+    ungroup() %>%
+    filter(n > 1) %>%
+    tidyr::pivot_wider(id_cols=eel_emu_nameshort,names_from=eel_typ_name,values_from=all_of(c("tau","pvalue"))) %>% 
+    select(any_of(c("eel_emu_nameshort", "tau_rec_fisher_all", "pvalue_rec_fisher_all","tau_rec_licence_eel","pvalue_rec_licence_eel")))
+}
+cred <- read_yaml("../../credentials.yml")
+con <- dbConnect(Postgres(),
+                 port=cred$port,
+                 user=cred$user,
+                 password=cred$password,
+                 dbname=cred$dbname,
+                 host=cred$host)
+
+emus <- dbGetQuery(con, "select emu_nameshort, emu_cou_code from ref.tr_emu_emu where emu_wholecountry = false")
+landings <- dbGetQuery(con,paste0("select * from datawg.t_eelstock_eel where eel_typ_id=6 and eel_qal_id in (0,1,2,4) and eel_year >=2000 and eel_cou_code in ('", paste(countries,collapse="', '"),"')"))
+
+
+
+create_kendall_table <- function(tab){
+  tab <- tab %>%
+    rename(EMU=eel_emu_nameshort)
+  headers = c(NA, sapply(strsplit(names(tab)[-1], "_"), function(x) paste(x[-1], collapse ="_")))
+flextable(tab) %>%
+  delete_part("header") %>%
+  align(align = "left") %>%
+  add_header_row(values = gsub("(_rec_fisher_all|_rec_licence_eel)","",names(tab))) %>%
+  add_header_row(values = headers) %>%
+  merge_h(part="header") %>%
+  bold (part = "header") %>%
+  hline_top(part="header") %>%
+  hline_top(part="body") %>%
+  autofit()
+}
+
+fig_rec_landings <- function(cou_code){
+  subdata <- landings %>%
+    filter(eel_cou_code == cou_code) %>%
+    mutate(eel_value = ifelse(is.na(eel_value) & eel_missvaluequal == "NP", 0, eel_value)) %>%
+    group_by(eel_emu_nameshort, eel_year, eel_lfs_code) %>%
+    summarise(eel_value = sum(eel_value, na.rm=TRUE), 
+              ncr = sum(eel_missvaluequal %in% c("NC","NR")) > 0,
+              .groups="keep",) %>%
+    ungroup()
+  
+  ggplot(subdata, aes(x=eel_year, y=eel_value, col=eel_emu_nameshort)) +
+    geom_line() +
+    geom_point(aes(shape=ncr)) +
+    xlab("") +
+    ylab("landings (kg)") +
+    scale_color_viridis_d("") +
+    facet_grid(eel_emu_nameshort~eel_lfs_code, scales="free_y") +
+    ylim(0, NA) +
+    scale_shape("presence of NC/NR") +
+    ggtitle(cou_code) +
+    theme_bw() +
+    guides(color = FALSE)
+}
+```
+
+# Foreword
+This document focuses on recreational fisheries. Two types of data are analyses:
+- the number of recreational fisheries that were reported during the specific EC data call (annex 12)
+- recreational landings as reported in yearly WGEEL data call.
+
+For recreational landings, more information is available in WGEEL reports. Even when data are reported, in many situations they are known to be incomplete.
+
+
+# Belgium
+```{r BEgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "BE"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+- no specific licenses for eel reported
+- data at the country level
+- no trend in the number of fishermen
+
+```{r BEtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+```{r BElandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- landings mostly of yellow eel in BE_Schl
+- data in the db appear to be complete
+
+```{r missingdataBE}
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+```
+
+
+
+
+# CZ
+```{r CZgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "CZ"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+- there are no specific licenses for eel reported
+- only data for 2023 at the country level
+- trend is not possible to assess but is said to be increasing
+
+```{r CZlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+- reported landings are decreasing
+- landings data only available for yellow at the country scale, but it is unlikely to have other fisheries there
+
+```{r missingdataCZ}
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+# table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+# DE
+```{r DEgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "DE"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r DEtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- only eel specific licenses are reported
+- Positive trends in DE_Elbe, DE_Oder, DE_Schl, DE_Wese
+- negative trends in DE_Maas
+
+
+
+
+```{r DElandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of mixed yellow and silver eels
+- data appears to be complete
+
+```{r missingdataDE}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# DK
+- data not collected
+- number of recreational fishermen is said to be low in freshwater
+- no landings in the db, likely related to the low amount of landed eels
+
+
+
+
+
+
+```{r missingdataDK}
+cou_code = 'DK'
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+#table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# EE
+```{r EEgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "EE"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r EEtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- only eel specific licenses are reported
+- data at the country level
+- negative trends
+
+```{r EElandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of mixed yellow and silver eels
+- data appears to be complete
+
+```{r missingdataEE}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# ES
+```{r ESgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "ES"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r EStable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- both eel specific licenses and all fishermen are reported
+- weirdly, all fishermen is sometimes smaller than all fishermen
+- negative trends in most reported cases
+- no recreational in ES_Astu, ES_Cata, ES_Murci over the period reported
+- missing emus: `r paste(sort(setdiff(emus$emu_nameshort[emus$emu_cou_code ==cou_code],unique(datas[[cou_code]]$eel_emu_nameshort))), collapse = ", ")`
+
+
+```{r ESlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of mixed yellow and silver eels in ES_Vale and of glass eel in ES_Basq and ES_Cant
+- data appears to be complete
+
+```{r missingdataES}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# FI
+```{r FIgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "FI"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r FItable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- there is no eel specific licenses
+- everyone is allowed to fish, so the number reported is almost the whole population
+- negative trends but large increase in latest value
+
+
+```{r FIlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of mixed yellow and silver eels
+- data appears to be complete
+
+```{r missingdataFI}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# FR
+- no data reported on the number of fishermen
+
+```{r FRlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+cou_code="FR"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of both glass and yellow eels but glass eel recreational fishery is banned in recent years
+- while data are provided for all years, stages and EMUs, the data are known to be partial: the peak in 2006 is due to a more comprehensive survey of the fishermen while only a small subset of fishermen are surveyed in other years
+
+```{r missingdataFR}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# GR
+- no data reported on the number of fishermen
+
+
+
+```{r GRlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+cou_code="GR"
+fig_rec_landings(cou_code)
+```
+- no recreational landings reported for any stages
+- there are a few missing values for glass eels, but those are unlikely to occur
+
+
+
+```{r missingdataGR}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# IE
+- there is no specific eel licenses
+- recreational fisheries primarily target salmon and eel is a very small by catch
+- no data collected
+
+
+```{r IElandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+cou_code="IE"
+fig_rec_landings(cou_code)
+```
+
+
+- null landings reported (see previous comment)
+
+```{r missingdataIE}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+
+# IT
+```{r ITgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "IT"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r ITtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- ban in all since 2024
+- ban in EMUs with no EMP since 2018 or 2019: `r paste(sort(unique(datas[[cou_code]]$eel_emu_nameshort[grepl("National Eel Management Plan 2011",datas[[cou_code]]$eel_comment)])), collapse = ", ")`, at least since 2024
+- a few missing data: `r paste(sort(unique(datas[[cou_code]]$eel_emu_nameshort[datas[[cou_code]]$eel_missvaluequal %in% c("NC","NR")])), collapse = ", ")`
+- no significant trends
+
+
+```{r ITlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of both silver and yellow eels 
+- a few missing values, but very limited in EMUs with small landings
+
+
+
+```{r missingdataIT}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+filter(landings, eel_emu_nameshort %in% unique(datas[[cou_code]]$eel_emu_nameshort[grepl("National Eel Management Plan 2011",datas[[cou_code]]$eel_comment)]) & eel_year > 2011 & !is.na(eel_value))
+```
+
+
+# LT
+```{r LTgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "LT"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r LTtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- no separate license for eel fishing
+- data at the country scale
+- significant increasing trend
+
+
+
+```{r LTlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of yellow or mixture of YS
+- no missing data in the db
+
+
+
+```{r missingdataLT}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# LV
+no data reported
+
+
+```{r LVlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+cou_code = "LV"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of landings of YS
+- database is incomplete: no information of G (though catches of G is unlikely) and a few data points for Y and S
+
+
+
+```{r missingdataLV}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+
+# LU
+no data reported (neither number of fishermen nor landings)
+
+
+# NL
+```{r NLgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "NL"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r NLtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+
+  
+```
+
+
+
+- no separate license for eel fishing before 2007. Since to be one afterwards but eel need to be discarded?
+- no significant trend (but eel need to be discarded)
+
+```{r NLlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of landings of Y
+- database is incomplete: no information of G (though catches of G is unlikely) and a few data points for Y and S
+- data are collected only one every two years in coastal habitats
+- declining trend
+
+
+
+```{r missingdataNL}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+
+
+# PL
+```{r PLgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "PL"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+
+- only data for 2023 at the country scale with all fishermen
+
+```{r PLlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- reported landings of landings of Y or mixed YS
+- some missing data for G, but landings are unlikely there
+
+
+
+```{r missingdataPL}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# PT
+```{r PTgraph}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "trends in the number of recreational fishermen"
+cou_code= "PT"
+
+datas[[cou_code]] <- import(cou_code)
+knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+```
+
+
+```{r PTtable}
+#| echo: false
+#| tab.cap: "Significance of trends in the number of recreational fishermen"
+
+tab <- create_tab(cou_code)
+create_kendall_table(tab)
+```
+
+
+
+- recreational fisheries banned since 2014
+
+
+```{r PTlandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+fig_rec_landings(cou_code)
+```
+
+
+- only NP for landings which is weird since the ban was implemented only in 2014
+
+
+
+```{r missingdataPT}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+
+# SE
+- no collected data
+- Recreational fishing for eel is forbidden in Sweden since 2007, except for inland waters that are upstream of at least three hydropower plants.
+
+
+
+```{r SElandings}
+#| echo: false
+#| fig.width: 6.3
+#| fig.height: 4.8
+#| fig.cap: "reported recreational landings"
+cou_code="SE"
+fig_rec_landings(cou_code)
+```
+
+
+- landings reported for YS and S in old year
+- nothing in recent year, likely related to the low level of landings
+
+
+
+```{r missingdataSE}
+#| eval: false
+tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
+table(tab$eel_emu_nameshort,tab$eel_lfs_code)
+```
+
+# Questions for countries
+- Spain: 
+  - check number of fishers < number of eel fishers
+  - is there fishing in EMUs for which no data is available
+- Italy: are administrative regions covered by the National EMPs?
+- Netherlands: discarding eel is compulsory for all fishers
+- DK: what about brackish/marine water
+- Belgium: is there a specific license for eel?
+- Greece: data were not reported because there is no fishery?
+- Luxembourg: data were not reported because there is no fishery?
+- Portugal: should recreational landings be NP?
+
+```{r}
+annex12 <- do.call(bind_rows,datas) %>%
+  arrange(eel_emu_nameshort, eel_year)
+
+save(annex12,
+  file = "annex12.rdata")
+
+dbDisconnect(con)
+
+```

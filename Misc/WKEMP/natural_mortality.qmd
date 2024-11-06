@@ -1,0 +1,136 @@
+---
+title: "naturalmortality"
+format: docx
+---
+
+# Intro
+In a pristine situation, and assuming an average mortality over the lifespan, escapment can be calculated as
+
+$$
+B_0 = R_0 \cdot e^{-M_0 \cdot \Delta t}
+$${eq_b0}
+with $\Delta t$ the lifespan and $M_0$ the average natural mortality in pristine situation. Since recruitment is depleted, natural mortality is thought to be reduced due to compensatory density dependence mechanisms. The question here is, in the absence of anthropogenic, what would be the reduction of natural moratlity required to achieve an escapement of 40% $B_0.
+
+Current escapement can be calculated as:
+$$
+B = R \cdot e^{-M \cdot \Delta t}
+$$ {eq_b}
+
+
+To achieve the target,  assuming the lifespan hasn't changed, we need:
+$$
+\begin{split}
+&\frac{B}{B_0} \geq 0.4 \\
+& \Leftrightarrow \frac{R \cdot e^{-M \cdot \Delta t}}{R_0 \cdot e^{-M_0 \cdot \Delta t}} \geq 0.4 \\
+& \Leftrightarrow e^{(M_0-M) \cdot \Delta t} \geq 0.4 \cdot \frac{R_0}{R}\\
+& \Leftrightarrow (M_0-M) \cdot \Delta t \geq log \left( 0.4 \cdot \frac{R_0}{R} \right) \\
+& \Leftrightarrow (M_0-M) \geq  \frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)
+
+
+\end{split}
+$$
+
+The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment.
+$\frac{R_0}{R}$ is the ratio of pristine recruitment over current recruitment, corresponding roughly to the WGEEL index.
+
+
+# Mathematical exploration
+Since lifespan vary among regions from few years to decades and since the recruitment might locally vary, we computed $\frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)$ for different levels of $\Delta t$ and $\frac{R}{R_0}$.
+
+
+```{r plot}
+#| echo: false
+#| warning: false
+#| error: false
+#| fig.cap: "reduction of average natural mortality over the lifespan that would be required to achieve the management target given different levels of recruitment (x-axis) and lifespan (facet). The vertical lines indicate the recruitment estimates from the WGEEL glass eel index lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999)."
+#| fig.height = 6.3
+#| fig.widht = 6.3
+library(tidyr)
+library(dplyr)
+rec = read.table("../../R/recruitment/2024/data/glm_results_glass.csv",
+                 header = TRUE,
+                 sep = ";")
+
+rec <- rec %>% 
+  select(all_of(c("year","Elsewhere.Europe","North.Sea"))) %>%
+  pivot_longer(all_of(c("Elsewhere.Europe","North.Sea")), 
+               names_to = "area", 
+               values_to = "RR0") %>%
+  mutate(lifespan = 2024 - year) 
+  
+
+
+rr0=exp(seq(log(0.001), log(1), length.out = 100))
+lifespan=seq(5,30,5)
+comb = expand.grid(RR0=rr0, lifespan=lifespan)
+comb$values =mapply(function(r, dt){
+  1/dt * log(0.4/r)
+}, r=comb$RR0,dt=comb$lifespan)
+library(ggplot2)
+g = ggplot(comb, aes(x=RR0, y=values)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(~lifespan)+
+  xlab(expression(R/R[0])) +
+  ylab(expression(M~reduction~(year^-1))) +
+  geom_vline(data = rec %>%
+              filter(lifespan %in% comb$lifespan), 
+            aes(xintercept= RR0, lty = area),
+            inherit.aes = FALSE) +
+  scale_y_sqrt() +
+  scale_linetype_manual("area", values = c("Elsewhere.Europe"=3,
+                                           "North.Sea"=4))
+ggsave("mortality_1.png", width=16/2.54,height=16/2.54)
+knitr::include_graphics("mortality_1.png")
+
+```
+The required reduction of natural mortality is very large, especially compared to the 0.13 $year^{-1}$ value often used for eel. The reduction in average natural mortality is smaller with increasing lifespan since such a decrease would accumulate every year over the whole life span small reduction. However, area with long lifespan are rather located in the northern part of the distribution area where density are thought to be lower. Moreover, density dependent natural mortality is thought to occur in the first years of the lifespan, and that would require an even more important decrease of natural mortality in those first years. 
+Of course, restocking might contribute to achieve the management target, however, it should be noted that, by artificially increasing the number of young eels in the recipient waterbody, this might locally increase the density dependent natural mortality and moderating the benefit. On the other hand, if restocked glass eel originate from a region with a so-called "surplus of eels" (i.e. a region where density dependent natural is high and preventing any benefit from additional eels), removing eel might not decrease density dependent mortality?
+
+
+
+```{r plot2}
+#| echo: false
+#| warning: false
+#| error: false
+#| fig.cap: "reduction of natural mortality that would be required in the first year of continental life to achieve the management target assuming that density dependence only occurs in the first year given different levels of recruitment (x-axis) and lifespan (facet). The vertical lines indicate the recruitment estimates from the WGEEL glass eel index lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999)." 
+library(tidyr)
+library(dplyr)
+rec = read.table("../../R/recruitment/2024/data/glm_results_glass.csv",
+                 header = TRUE,
+                 sep = ";")
+
+rec <- rec %>% 
+  select(all_of(c("year","Elsewhere.Europe","North.Sea"))) %>%
+  pivot_longer(all_of(c("Elsewhere.Europe","North.Sea")), 
+               names_to = "area", 
+               values_to = "RR0") %>%
+  mutate(lifespan = 2024 - year) 
+  
+
+
+rr0=exp(seq(log(0.001), log(1), length.out = 100))
+lifespan=seq(5,30,5)
+comb = expand.grid(RR0=rr0, lifespan=lifespan)
+comb$values =mapply(function(r, dt){
+  log(0.4/r)
+}, r=comb$RR0,dt=comb$lifespan)
+library(ggplot2)
+g = ggplot(comb, aes(x=RR0, y=values)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(~lifespan)+
+  xlab(expression(R/R[0])) +
+  ylab(expression(M~reduction~(year^-1))) +
+  geom_vline(data = rec %>%
+              filter(lifespan %in% comb$lifespan), 
+            aes(xintercept= RR0, lty = area),
+            inherit.aes = FALSE)+
+  scale_y_sqrt() +
+  scale_linetype_manual("area", values = c("Elsewhere.Europe"=3,
+                                           "North.Sea"=4))
+
+ggsave("mortality_2.png", width=16/2.54,height=16/2.54)
+knitr::include_graphics("mortality_2.png")
+```
+
