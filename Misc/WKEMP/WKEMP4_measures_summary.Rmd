@@ -1,0 +1,179 @@
+---
+title: "WKEMP4_measures_summary"
+author: "none (contact Jani H for questions)"
+date: "`r Sys.Date()`"
+
+output:
+  html_document: default
+  #word_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(knitr)
+library(kableExtra)
+library(officer)
+
+```
+
+
+```{r Import_files, include=FALSE}
+folder_path <- "C:/Users/03224501/OneDrive - Valtion/WGEEL - Ankeriastyöt/WKEMP4/Annex_14"
+
+files <- list.files(path = folder_path, pattern = "\\.xlsx$", full.names = TRUE)
+
+read_and_combine <- function(sheet_name) {
+  data_list <- lapply(files, function(file) {
+    if (sheet_name %in% excel_sheets(file)) {
+      df <- read_excel(file, sheet = sheet_name)
+      df <- mutate_all(df, as.character)  # NOTE ALL COLUMNS ARE AS CHARACTERS
+      return(df)
+    } else {
+      warning(paste("Sheet", sheet_name, "not found in file", file))
+      return(NULL)
+    }
+  })
+  combined_data <- bind_rows(data_list, .id = "source")
+  return(combined_data)
+}
+
+
+measures_2021 <- read_excel("C://Users//03224501//OneDrive - Valtion//WGEEL - Ankeriastyöt//WKEMP4//Annex_14//2024_Eel_Data_Call_Annex_14_Management_measures_BE.xlsx", 
+    sheet = "measures_2021")
+measures_update <- read_and_combine("measures_update")
+measures_new <- read_and_combine("measures_new")
+
+```
+
+
+```{r CreatingTypeTables, include=FALSE}
+create_measure_tables <- function(measures_data, measure_type) {
+  # Filter, summarize, and pivot the data
+  table_data <- measures_data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(country, submeasure_type) %>%
+    summarise(count = n(), .groups = 'drop') %>%
+    pivot_wider(names_from = submeasure_type, values_from = count, values_fill = list(count = 0))
+  
+  # Calculate the number of unique emu_name_short for each country
+  emu_counts <- measures_data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(country) %>%
+    summarise(emu_count = n_distinct(emu_name_short), .groups = 'drop')
+  
+  # Divide the counts by the number of unique emu_name_short
+  table_data <- table_data %>%
+    left_join(emu_counts, by = "country") %>%
+    mutate(across(-country, ~ round(. / emu_count, 1))) %>%
+    select(-emu_count)
+  
+  # Consistency check
+  inconsistent_values <- measures_data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(country, emu_name_short, submeasure_type) %>%
+    summarise(row_count = n(), .groups = 'drop') %>%
+    pivot_wider(names_from = submeasure_type, values_from = row_count, values_fill = list(row_count = 0)) %>%
+    pivot_longer(cols = -c(country, emu_name_short), names_to = "submeasure_type", values_to = "row_count") %>%
+    group_by(country, submeasure_type) %>%
+    summarise(all_same = n_distinct(row_count) == 1, .groups = 'drop') %>%
+    filter(!all_same)
+  
+  inconsistent_details <- measures_data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(country, emu_name_short, submeasure_type) %>%
+    summarise(row_count = n(), .groups = 'drop') %>%
+    pivot_wider(names_from = submeasure_type, values_from = row_count, values_fill = list(row_count = 0)) %>%
+    pivot_longer(cols = -c(country, emu_name_short), names_to = "submeasure_type", values_to = "row_count") %>%
+    semi_join(inconsistent_values, by = c("country", "submeasure_type")) %>%
+    pivot_wider(names_from = submeasure_type, values_from = row_count, values_fill = list(row_count = 0))
+  
+  return(list(main_table = table_data, consistency_check = inconsistent_details))
+}
+
+
+
+```
+
+This table is number of measures per country, put averaged per number of EMUs
+
+```{r Measure_per_country_stocking, echo=FALSE}
+# Select usage
+measure_type <- "Stocking"
+result <- create_measure_tables(measures_2021, measure_type)
+
+# Display the results
+knitr::kable(result$main_table, caption = paste("Number of Measures by Country and Submeasure Type for", measure_type))
+
+knitr::kable(result$consistency_check, caption = "Inconsistent Values by Country, EMU Name Short, and Submeasure Type")
+
+```
+
+This table is number of measures per country, put averaged per number of EMUs
+
+```{r Measure_per_country_ComFish, echo=FALSE}
+# Select usage
+measure_type <- "Commercial_fishery"
+result <- create_measure_tables(measures_2021, measure_type)
+
+# Display the results
+knitr::kable(result$main_table, caption = paste("Number of Measures by Country and Submeasure Type for", measure_type))
+
+knitr::kable(result$consistency_check, caption = "Inconsistent Values by Country, EMU Name Short, and Submeasure Type")
+
+```
+
+
+
+#Then we checked the information per country
+
+```{r CountryTables_html, echo=FALSE}
+
+# Function to create and print the table for each country
+print_country_tables <- function(data, output_format = "html") {
+  # Get all unique measure types to ensure all tables have the same columns
+  all_measure_types <- unique(data$measure_type)
+  
+  countries <- unique(data$country)
+  
+  for (country in countries) {
+    country_data <- data %>%
+      filter(country == !!country) %>%
+      group_by(emu_name_short, measure_type) %>%
+      summarise(count = n(), .groups = 'drop') %>%
+      complete(emu_name_short, measure_type = all_measure_types, fill = list(count = 0)) %>%
+      pivot_wider(names_from = measure_type, values_from = count, values_fill = list(count = 0))
+    
+    cat("\n\n# ", country, "\n\n")
+    
+    # HTML Output: use kable
+    if (output_format == "html") {
+      print(
+        kable(country_data, caption = paste("Count of Measures by EMU Name Short and Measure Type for", country)) %>%
+          kable_styling(full_width = FALSE, position = "left")
+      )
+    }
+    
+    # Word Output: use flextable
+    if (output_format == "word") {
+      ft <- flextable(country_data) %>%
+        compose(j = colnames(country_data), value = as_paragraph(as_text(country_data[[j]])))
+      print(ft)
+    }
+    
+    cat("\\newpage\n")
+  }
+}
+
+
+```
+
+
+```{r CountryTables_htmlprint, results='asis'}
+# Call the function with your data for HTML output
+print_country_tables(measures_2021, output_format = "html")
+```
