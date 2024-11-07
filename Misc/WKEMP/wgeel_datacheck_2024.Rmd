@@ -1,7 +1,7 @@
 ---
-title: "sg1"
-author: "none"
-date: "30/11/2021"
+title: "Analysis of data quality"
+author: "WKEPMP"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: word_document
 ---
 
@@ -41,22 +41,51 @@ from datawg.t_eelstock_eel
 ```
 
 # Missing countries
-## not reported country
+
+The following countries have not responded to the DATA call annexes x- to X:
+Non-EU countries:
+
+*	Albania (AL)
+*	Åland Islands (AX)
+*	Bosnia and Herzegovina (BA)
+*	Algeria (DZ)
+*	Egypt (EG)
+*	Israel (IL)
+*	Iceland (IS)
+*	Libya (LY)
+*	Morocco (MA)
+*	Montenegro (ME)
+*	Russia (RU)
+*	Syria (SY)
+*	Tunisia (TN)
+*	Turkey (TR)
+
+EU countries:
+
+*	Cyprus (CY)
+*	Czech Republic (CZ)
+*	Italy (IT)
+*	Luxembourg (LU)
+*	Malta (MT)
+*	Slovenia (SI)
+
+The only EU country that did not report data was Italy. Italy reported indicators in the past, but during the 2024 WGEEL Italy had no indicators with quality ID 1 in the database, as all Italy indicators were deleted prior to the 2021 datacall. From 2019 onwards no new assessment estimates have been made, so indicator values from 2019 onwards should be NR.
+
 ```{r notans}
 not_reported <- country_p$cou_code[!country_p$cou_code %in% c(biomass$eel_cou_code, mortality$eel_cou_code)] # countries with no reported data on biomass or mortality for any EMU for any year
 
-sort(not_reported)
+sprintf("Countries not reporting (outside EU) : %s.", paste(sort(not_reported[!not_reported %in% eu_cou_codes]), collapse =', '))
 
 # Same, but only EU countries, who are mandated to report biomass and mortality indicators
 not_reported_EU <- not_reported[not_reported %in% eu_cou_codes]
 
-sort(not_reported_EU)
+sprintf("Countries not reporting in the EU : %s.", paste(sort(not_reported_EU), collapse =', '))
 ```
 
-## Importance of landings in non EU 
+## Importance of landings for non reporting countries
 Values of reported landings, averaged over 5 last years:
 
-```{r fisheries}
+```{r fisheriesmissingEU}
 landings <- dbGetQuery(con, paste0(
   "select eel_value,eel_cou_code,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_cou_code in ('",
   paste(not_reported, collapse = "','"),
@@ -71,6 +100,15 @@ landings <- dbGetQuery(con, paste0(
   pivot_wider(names_from = eel_lfs_code, values_from = landings)
 
 # Get total landings reported per year to compare with
+tot_landings_EU <- dbGetQuery(con, paste0("select eel_value,eel_lfs_code,eel_year, eel_cou_code from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
+  filter(eel_cou_code %in% eu_cou_codes) %>%
+  group_by(eel_year, eel_lfs_code) %>%
+  summarize(eel_value = sum(eel_value, na.rm = TRUE)) %>%
+  group_by(eel_lfs_code) %>%
+  summarize(landings = mean(eel_value, na.rm = TRUE) / 1e3) %>%
+  mutate(eel_cou_code = "OVERALL TOTAL EU") %>%
+  pivot_wider(names_from = eel_lfs_code, values_from = landings)
+
 tot_landings <- dbGetQuery(con, paste0("select eel_value,eel_lfs_code,eel_year from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (0,1,4) and eel_year >=2020")) %>%
   group_by(eel_year, eel_lfs_code) %>%
   summarize(eel_value = sum(eel_value, na.rm = TRUE)) %>%
@@ -80,23 +118,26 @@ tot_landings <- dbGetQuery(con, paste0("select eel_value,eel_lfs_code,eel_year f
   pivot_wider(names_from = eel_lfs_code, values_from = landings)
 
 # First, a table for all countries that did not report indicators
-flextable(landings %>%
-  bind_rows(tot_landings) %>%
-  select(eel_cou_code, G, Y, YS, S)) %>%
-  colformat_double(digits = 1)
+# flextable(landings %>%
+#   bind_rows(tot_landings) %>%
+#   select(eel_cou_code, G, Y, YS, S)) %>%
+#   colformat_double(digits = 1)
 
 # Then, a table for all EU countries that did not report indicators
-flextable(landings %>%
+tableit <- landings %>%
   filter(eel_cou_code %in% eu_cou_codes) %>%
+  bind_rows(tot_landings_EU) %>%
   bind_rows(tot_landings) %>%
-  select(eel_cou_code, G, Y, YS, S)) %>%
+  select(eel_cou_code, G, Y, YS, S)
+
+flextable(tableit) %>%
   colformat_double(digits = 1)
 ```
 
-## Italy check
-Italy reported indicators in the past, but during the 2024 WGEEL Italy had no indicators with quality ID 1 in the database, as all Italy indicators were deleted prior to the 2021 datacall. Check these deleted indicators, put them in a readable format to send to Italy for double-checking. From 2019 onwards no new assessment estimates have been made, so indicator values from 2019 onwards should be NR.
+After 2020 on average, total reported landings from yellow and silver eel fisheries across all countries amounted to `r round(sum(tableit[3,c(3:5)]))` tons. In comparison, Italy's reported average landings for 5 years reached `r round(sum(tableit[1,c(3:5)], na.rm =TRUE))` tons, contributing approximately `round(100*sum(tableit[1,c(3:5)], na.rm =TRUE)/ sum(tableit[3,c(3:5)]),1)`% to the total landings.
 
-```{r}
+
+```{r eval=FALSE}
 d.italy <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e where eel_typ_id in (13,14,15,34,17,18,19) and eel_cou_code = 'IT'")
 
 # Organise data to send to Italy for double checking
@@ -147,9 +188,20 @@ test_duplicate <- d.italy %>%
 
 
 # Data availability
-## Spatial coverage
-Maps showings data avaibility. The symbol indicates wether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
-```{r indicatorsmaps}
+
+The following figures summarize the mortality and biomass indicators that were provided as a response to the ICES data call.
+Maps showings data availability. The symbol indicates whether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
+There is a high variability among the indicators reported by the countries (Figure XX):
+
+*	North African countries (Morocco, Algeria, Tunisia, Libya) and the Middle East have mostly no indicators 
+*	The highest concentration of points with multiple indicators (2-4) is in Western and Central Europe.
+*	The United Kingdom and some EMUs of Spain and France show a high share with 4 indicators.
+*	There is a mixed distribution in Italy and the Balkans, with areas having between 1 and 3 indicators
+*	The Nordic and Baltic countries also show a varied participation.
+
+## Biomass
+
+```{r indicatorsmapsbiomass, fig.height=8, fig.width=8, fig.cap= "Biomass indicators ($B_{current}$, $B_{best}$, $B_0$) provided in each EMU. The colour of the points indicates the number of distinct indicators for which estimates were provided (for at least for one year out of all reported years). Where countries report mortality as non-pertinent (NP), this is treated as a reported indicator of zero."}
 data_avail <- rbind.data.frame(mortality, biomass) %>%
   filter(!(is.na(eel_value) & eel_missvaluequal != "NP")) %>%
   group_by(eel_emu_nameshort) %>%
@@ -180,12 +232,18 @@ data_avail <- data_avail %>%
 ggplot(st_transform(country_p, crs = 3035)) +
   geom_sf(fill = NA) +
   theme_bw() +
-  geom_point(data = data_avail, aes(x = x, y = y, fill = as.factor(bsummary)), shape = 21) +
-  scale_fill_viridis_d("Biomass indicators", labels = c("none", "one", "two", "three", "four")) +
+  geom_point(data = data_avail, aes(x = x, y = y, fill = as.factor(bsummary)), shape = 21, cex=2.5) +
+  scale_fill_manual("Biomass indicators", 
+                    labels = c("none", "one", "two", "three", "four"), 
+                    values = c("grey", "yellow","orange","red","purple")) +
   xlab("") +
-  ylab("")
+  ylab("") +
+  theme(legend.position = "bottom")
 ggsave(filename = "2024/image/biom.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 
+```
+
+```{r indicatorsmapsbiomassdetails,fig.height=10, fig.width=10, fig.cap= "Review of biomass indicators that have been reported per EMUS: $B_0$ (top left; $B_{best}$ (top right); $B_{current}$ (bottom left) and $B_{current}$_without_stocking_k (bottom right). Yellow: TRUE (Reported), Purple: FALSE (Not Reported) White NA (Not Available/Not Applicable)"}
 # Each biomass indicator:
 data_avail_ind <- data_avail %>%
   gather(Bindicator, Reported, 5:8)
@@ -195,12 +253,17 @@ data_avail_ind <- data_avail %>%
 ggplot(st_transform(country_p, crs = 3035)) +
   geom_sf(fill = NA) +
   theme_bw() +
-  geom_point(data = data_avail_ind, aes(x = x, y = y, fill = Reported), shape = 21) +
-  scale_fill_viridis_d("Reported", labels = c("FALSE", "TRUE", "NA")) +
+  geom_point(data = data_avail_ind, aes(x = x, y = y, fill = Reported),  shape = 21, cex=2.5) +
+  scale_fill_manual("Reported", labels = c("FALSE", "TRUE", "NA"), values = c("red", "blue", "grey")) +
   xlab("") +
   ylab("") +
-  facet_wrap(~Bindicator)
+  facet_wrap(~Bindicator) +
+  theme(legend.position = "bottom")
+```
 
+## Mortality
+
+```{r indicatorsmapsmortality, fig.height=12, fig.width=12, fig.cap= "Review of  Mortality indicators provided in each EMU. SumA: total anthropogenic mortality, sumf: fishery mortality,  sumh: hydropower mortality. Yellow: TRUE (Reported), Purple: FALSE (Not Reported) White NA (Not Available/Not Applicable)."}
 # Mortality
 
 data_avail_ind <- data_avail %>%
@@ -209,12 +272,15 @@ data_avail_ind <- data_avail %>%
 ggplot(st_transform(country_p, crs = 3035)) +
   geom_sf(fill = NA) +
   theme_bw() +
-  geom_point(data = data_avail_ind, aes(x = x, y = y, fill = Reported), shape = 21) +
-  scale_fill_viridis_d("Reported", labels = c("FALSE", "TRUE", "NA")) +
+  geom_point(data = data_avail_ind, aes(x = x, y = y, fill = Reported), shape = 21, cex=2.5) +
+  scale_fill_manual("Reported", labels = c("FALSE", "TRUE", "NA"), values = c("red", "blue", "grey")) +
   xlab("") +
   ylab("") +
   facet_wrap(~Mindicator)
 
+```
+
+```{r indicatorsall, eval = FALSE}
 ## All indicators:
 
 data_avail_ind <- data_avail %>%
@@ -231,7 +297,7 @@ ggplot(st_transform(country_p, crs = 3035)) +
   geom_sf(fill = NA) +
   theme_bw() +
   geom_point(data = data_avail_ind, aes(x = x, y = y, fill = Reported), shape = 21) +
-  scale_fill_viridis_d("Reported", labels = c("FALSE", "TRUE", "NA")) +
+  scale_fill_manual("Reported", labels = c("FALSE", "TRUE", "NA"), values = c("red", "blue", "grey")) +
   xlab("") +
   ylab("") +
   facet_wrap(~ Indicator_type * Indicator, nrow = 2)
@@ -283,8 +349,7 @@ biomass_long <- biomass %>%
   )
 
 overview_biom_type_perc <- table(biomass_long$eel_typ_id, biomass_long$perc)
-
-unique(biomass_long$eel_emu_nameshort)
+#unique(biomass_long$eel_emu_nameshort)
 # filter(biomass_long, str_sub(biomass_long$eel_emu_nameshort, 4, 8)=="total")
 # filter(biomass_long, biomass_long$eel_cou_code=="LV")
 
@@ -305,10 +370,12 @@ mortality_long <- mortality %>%
       eel_typ_id == 19 ~ "sumH"
     )
   )
-
+overview_mortality_long_perc <- table(mortality_long$eel_typ_id, mortality_long$perc)
 indicator <- biomass_long %>%
   bind_rows(mortality_long) %>%
   filter(perc >= 0)
+
+#mortality_long %>% filter(perc>0 & perc <100)
 
 flextable(indicator %>%
   group_by(type, habitat) %>%
@@ -320,11 +387,17 @@ flextable(indicator %>%
 ```
 Marine open and coastal waters are rarely accounted for in indicator estimates. Some fresh and transitional waters not accounted for.
 
+* [NOTE] LV is only reporting 40 % of habitats in Freshwater. Since annex 13 EMP was not reported it's difficult to assess why ... see questions ...
+
+
 ## Individual EMU indicator data
-Inspect the indicator data of individual EMUs to spot outliers, discrepancies, missing , etc
-Then, check which EMUs had reported indicators three years ago, but failed to report indicators now
+Inspect the indicator data of individual EMUs to spot outliers, discrepancies, missing , etc ... Then, check which EMUs had reported indicators three years ago, but failed to report indicators now.
+
+
 ```{r indicator_ind}
 # Biomass indicator timeseries per EMU
+
+
 d.bcurrent <- biomass %>%
   filter(
     eel_typ_id %in% c(15, 34),
@@ -336,9 +409,11 @@ d.bcurrent <- biomass %>%
     34 ~ "bcurrent_without_restocking"
   ))
 
-ggplot(data = d.bcurrent, aes(x = eel_year, y = eel_value, colour = eel_typ_id)) +
-  geom_line() +
-  facet_wrap(~eel_emu_nameshort, scales = "free_y")
+#This will be done better in the wgeel_indicator_overview so I'm commenting here :
+
+# ggplot(data = d.bcurrent, aes(x = eel_year, y = eel_value, colour = eel_typ_id)) +
+#   geom_line() +
+#   facet_wrap(~eel_emu_nameshort, scales = "free_y")
 
 d.bbest <- biomass %>%
   filter(
@@ -346,9 +421,9 @@ d.bbest <- biomass %>%
     eel_year >= 2007
   )
 
-ggplot(data = d.bbest, aes(x = eel_year, y = eel_value)) +
-  geom_line() +
-  facet_wrap(~eel_emu_nameshort, scales = "free_y")
+# ggplot(data = d.bbest, aes(x = eel_year, y = eel_value)) +
+#   geom_line() +
+#   facet_wrap(~eel_emu_nameshort, scales = "free_y")
 
 # Mortality indicator timeseries per EMU
 d.mortality <- mortality %>%
@@ -363,9 +438,9 @@ d.mortality <- mortality %>%
     19 ~ "sumH"
   ))
 
-ggplot(data = d.mortality, aes(x = eel_year, y = eel_value, colour = eel_typ_id)) +
-  geom_line() +
-  facet_wrap(~eel_emu_nameshort, scales = "free_y")
+# ggplot(data = d.mortality, aes(x = eel_year, y = eel_value, colour = eel_typ_id)) +
+#   geom_line() +
+#   facet_wrap(~eel_emu_nameshort, scales = "free_y")
 
 # Table per country and EMU, showing last year of data (even if reported as NC or NR or NP)
 colformat_double(
@@ -389,8 +464,6 @@ colformat_double(
   big.mark = "" # no thousand seperator in flextable
 )
 ```
-
-## 
 
 # Maps of indicators
 Values averages from 2020 to 2023 (4 years)
@@ -642,20 +715,23 @@ indicator <- indicator %>%
   ))
 ```
 
-## B0 less than Bbest
-Normally, Bbest (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, Bbest is supposed to be smaller than B0 which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
 
-```{r plotBbestB0}
-# A histogram showing frequency distribution of the Bbest/B0 ratio
+## $B_0$ less than Bbest
+A first check consisted of comparing Bbest and $B_0$ (Table 3 2): both indicators refer to the escapement that would occur in the absence of any anthropogenic pressures, but Bbest correspond to the escape-ment with the current recruitment while $B_0$ correspond to the escapement produced with a pristine recruitment. Given the decrease in recruitment since the early 1980s, Bbest should be less than $B_0$. However, this was not consistently the case in the reported data. 
+In a few situations, Bbest is greather than $B_0$ (FIg. x): DE_Warn, EE_Narv, EE_total, ES_Minh, GB_Neag, GB_Scot, GR_CeAe, GR_WePe, PL_Oder, SE_Inla (table x). . For SE_Inla, Bbest estimates are greater than $B_0$ during the late 80s / early 90s, suggesting that $B_0$ might be based on historical data from the 1980s (an option suggested in the Regulation) rather than to a truly pristine situation. In other EMUs, (DE_Warn, EE_Narv, GB_Neag, GB_Scot), some report-ed Bbest from the 2000s or the 2010s were greater than reported $B_0$. Despite possible variations (due to recruitment variability) of Bbest ($B_0$ is an average value which would be expected to be stable), re-cruitment was probably too low in the 2000s to generate escapements greater than the pristine es-capement. In EE_Narv, we can suspect that restocking was inappropriately integrated into Bbest lead-ing to an overestimation of this indicator. In the other EMUs, an underestimation of $B_0$ is probably the reason.
+
+Normally, Bbest (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, Bbest is supposed to be smaller than $B_0$ which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
+
+```{r plotBbestb0, fig.cap="Fig. x.  Histogram showing the frequency distribution of the $B_{best}/B_0$ ratio. Values higher than 1 indicate that Bbest is higher than $B_0$"}
+
+# A histogram showing frequency distribution of the bbest/b0 ratio
 ggplot(indicator, aes(x = bbest / b0)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
   xlab(expression(B[best] / B[0])) +
   scale_x_log10() +
-  ylab("frequency")
+  ylab("frequency") 
 ```
-
-In a few situations, Bbest is greather than B0.
 
 
 ```{r tabbestb0}
@@ -665,19 +741,21 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bbest_b0 = mean(bbest / b0)
-  ))
+    mean_bbest_b0 = round(mean(bbest / b0),2)
+  ) %>% arrange(desc(mean_bbest_b0)))
+check_these_emusbbestb0 <- indicator %>%  filter(bbest > b0) %>%  select(eel_emu_nameshort) %>% unique()%>%pull()
 ```
 
-For some SE_Inla, this is likely related to using a B0 that is coming from the late 80s situation. For EE, it seems rather due to the inclusion of restocking in Bbest (i.e. overestimation of Bbest). For others, B0 is likely underestimated.
+For some EMUs like SE_Inla, this is likely related to using a B_{0} that is coming from the late 80s situation. For EE, it seems rather due to the inclusion of restocking in $B_{best}$ (i.e. overestimation of $B_{best}$). For others, $B_0$ is likely underestimated.
 
 
 
-## Bbest less than Bcurrent
-In countries without (or with limited) restocking, Bcurrent should be less than Bbest
+## $B_{best}$ less than $B_{current}$
+
+In countries without (or with limited) restocking, $B_{current}$ should be less than $B_{best}$
 
 
-```{r plotBcurrentBbest}
+```{r plotbcurrentBbest}
 ggplot(indicator, aes(x = bcurrent / bbest)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
@@ -693,16 +771,19 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrent_bbest = mean(bcurrent / bbest)
+    mean_bcurrent_bbest = round(mean(bcurrent / bbest),2)
   ) %>%
-  arrange(eel_emu_nameshort))
+  arrange(desc(mean_bcurrent_bbest)))
+
+check_these_emusbcurrentbbest <- indicator %>%  filter(bbest < bcurrent & !eel_cou_code %in% c('SE', 'PL', 'DE')) %>%  select(eel_emu_nameshort) %>%  unique()%>%pull()
 ```
-For German EMUs, this shows the massive effect of restocking which is also visible in Sweden or in Poland. For Ireland, the anthropogenic mortality is so low in recent years that Bcurrent and Bbest can be very similar. Results are more doubtful in ES_Anda.
+For German EMUs, this shows the massive effect of restocking which is also visible in Sweden or in Poland. For Ireland, the anthropogenic mortality is so low in recent years that $B_{current}$ and $B_{best}$ can be very similar. Results are more doubtful in ES_Anda.
 
-## Only Bcurrent without restocking reported
-Before looking at EMUs where Bcurrent without restocking exceeds either Bbest or B0, it is worthwhile to look at countries that have only reported Bcurrent without restocking, and no bcurrent which may or may not include restocking.
 
-```{r tabonlyBcurrent_without_restocking}
+## Only $B_{current}$ without restocking reported
+Before looking at EMUs where $B_{current}$ without restocking exceeds either $B_{best}$ or $B_0$, it is worthwhile to look at countries that have only reported $B_{current}$ without restocking, and no bcurrent which may or may not include restocking.
+
+```{r tabonly$B_{current}$_without_restocking}
 flextable(indicator %>%
   filter(
     !is.na(bcurrent_without_stocking),
@@ -712,16 +793,21 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrent_norestock_bbest = mean(bcurrent_without_stocking / bbest, na.rm = T)
+    mean_bcurrent_norestock_bbest = 
+      round(mean(bcurrent_without_stocking / bbest, na.rm = T),2)
   ) %>%
-  arrange(eel_emu_nameshort))
+  arrange(desc(mean_bcurrent_norestock_bbest)))
 ```
-It is mostly French EMUs that have reported an estimate of Bcurrent without restocking, while not having reported on regular Bcurrent. Is there a hidden additional production of restocked silver eel in French EMUs?
+It is mostly French EMUs that have reported an estimate of $B_{current}$ without restocking, while not having reported on regular $B_{current}$. Is there a hidden additional production of restocked silver eel in French EMUs?
+The problem is that the latest report is only based on regions where restocking didn't occur (so as not to biase EDA outputs....) so it was not provided. 
 
-## Bbest less than Bcurrent without restocking
-This year, for the first time, countries were asked to also report Bcurrent values without the effect of restocking, if available. Run the above analysis again with Bcurrent without restocking, for those countries that have reported this.
 
-```{r plotBcurrentBbest_without_restocking}
+
+
+## $B_{best}$ less than $B_{current}$ without restocking
+This year, for the first time, countries were asked to also report $B_{current}$ values without the effect of restocking, if available. Run the above analysis again with $B_{current}$ without restocking, for those countries that have reported this.
+
+```{r plotbcurrentBbest_without_restocking}
 ggplot(indicator, aes(x = bcurrent_without_stocking / bbest)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
@@ -738,26 +824,33 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrent_norestock_bbest = mean(bcurrent_without_stocking / bbest)
+    mean_bcurrent_norestock_bbest = round(mean(bcurrent_without_stocking / bbest),2)
   ) %>%
-  arrange(eel_emu_nameshort))
+  arrange(desc(mean_bcurrent_norestock_bbest)))
+
+check_these_emusbcurrentbbest_without_restocking <- indicator %>%  filter(bbest < bcurrent_without_stocking) %>%  select(eel_emu_nameshort) %>%  unique()%>%pull()
 ```
-Almost all estimates of Bcurrent without the effect of restocking show, as expected, that that Bcurrent estimate is lower than Bbest. There are only three EMU exceptions to this: 
+Almost all estimates of $B_{current}$ without the effect of restocking show, as expected, that that $B_{current}$ estimate is lower than $B_{best}$. There are only three EMU exceptions to this: 
 
-- ES_Nava, which shows strong fluctuations in the ratio between bbest and bcurrent (both with or without restocking). This warrants further investigation to see how these estimates were derived.
+- ES_Nava, which shows strong fluctuations in the ratio between $B_{best}$ and bcurrent (both with or without restocking). This warrants further investigation to see how these estimates were derived.
 
-- ES_Vale, Less extreme fluctuations than ES_Nava, the years that bcurrent without stocking is higher than bbest are also years in which Bcurrent without stocking is equal to Bcurrent. Same as ES_Nava, closer look is needed to how these estimates are derived. 
+- ES_Vale, Less extreme fluctuations than ES_Nava, the years that bcurrent without stocking is higher than $B_{best}$ are also years in which $B_{current}$ without stocking is equal to $B_{current}$. Same as ES_Nava, closer look is needed to how these estimates are derived. 
 
-- IE_SouW, which seems to be a rounding error, and Bcurrent is equal to Bbest.
+- IE_SouW, which seems to be a rounding error, and $B_{current}$ is equal to $B_{best}$.
 
-## Bbest less than Bcurrent without restocking
+
+
+
+
+
+## $B_{best}$ less than $B_{current}$ without restocking
 BUT: not all countries have reported a bcurrent estimate without restocking. 
 
-So, to complete the picture, here we show, for countries that have not reported an indicator for bcurrent without restocking, which years have a bcurrent that is higher than bbest. If these countries actually have a large restocking program, it is encouraged for them to try and work toward an estimate of bcurrent without restocking, if that is possible. If these countries have no restocking, then that warrants a closer look at the methods used to estimate bcurrent/bbest.
+So, to complete the picture, here we show, for countries that have not reported an indicator for bcurrent without restocking, which years have a bcurrent that is higher than $B_{best}$. If these countries actually have a large restocking program, it is encouraged for them to try and work toward an estimate of bcurrent without restocking, if that is possible. If these countries have no restocking, then that warrants a closer look at the methods used to estimate bcurrent/$B_{best}$.
 
  
 ```{r tabbcurrentbbest_norestockestimate}
-# Table showing years where bcurrent is higher than bbest, and no estimate of bcurrent without restocking is available.
+caption <-  "table x Situations in which $B_{current}$ without restocking was reported as lower than $B_{best}$. The years in which this occurs are listed in column 2 and the average value of $B_{current}$ without restocking / $B_{best}$ in those years is presented in column 3"
 flextable(indicator %>%
   filter(
     bbest < bcurrent,
@@ -767,20 +860,23 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrent_bbest = mean(bcurrent / bbest)
+    mean_bcurrent_bbest = round(mean(bcurrent / bbest),2)
   ) %>%
-  arrange(eel_emu_nameshort))
+  arrange(desc(mean_bcurrent_bbest)))%>%
+  set_caption(caption=caption)
+
 ```
 Likely that Germany and Poland are effected by restocking, so for these countries it would be good if the possibility exists to work toward an estimate of bcurrent without restocking. 
 
-For GR_CeAe, indicators are strange. Sometimes Bcurrent is larger or equal to bbest, but at the same time sumA is also high. Sometimes, Bbest and bcurrent are 0, but sumA is also 0. I double-checked with the data provider, and all years with 0 values for biomass indicator estimates should be NC instead, since these are years with no landings (so sumA is 0). It remained unclear why bbest and bcurrent were higher than b0 for years with an estimate. Advise to remove this series from WKEMP analysis until the methods for deriving these estimates are better looked at.
+For GR_CeAe, indicators are strange. Sometimes $B_{current}$ is larger or equal to $B_{best}$, but at the same time $\sum{A}$ is also high. Sometimes, $B_{best}$ and bcurrent are 0, but $\sum{A}$ is also 0. I double-checked with the data provider, and all years with 0 values for biomass indicator estimates should be NC instead, since these are years with no landings (so $\sum{A}$ is 0). It remained unclear why $B_{best}$ and bcurrent were higher than b0 for years with an estimate. Advise to remove this series from WKEMP analysis until the methods for deriving these estimates are better looked at.
 
 
-## B0 less than Bcurrent
-In countries without (or with limited) restocking, Bcurrent should be less than B0
+## $B_0$ less than $B_{current}$
+In countries without (or with limited) restocking, $B_{current}$ should be less than $B_0$
 
 
-```{r plotBcurrentB0}
+```{r plotbcurrentb0, fig.cap=" Fig. x.  Histogram showing frequency distribution of the $B_{current}$/$B_0$. Values higher than 1 indicate that $B_{current}$ is higher than $B_0$ "}
+
 ggplot(indicator, aes(x = bcurrent / b0)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
@@ -790,24 +886,32 @@ ggplot(indicator, aes(x = bcurrent / b0)) +
 ```
 
 ```{r tabbcurrentb0}
+caption = str_c (" table x Situations in which $B_{current}$ without restocking was reported as greater than $B_{best}$. The years in which this occurs are listed in column 2 and the average value of $B_{current}$ without restocking / $B_{best}$ in those years is presented in column 3 ")
 flextable(indicator %>%
   filter(b0 < bcurrent) %>%
   select(eel_emu_nameshort, eel_year, bcurrent, b0) %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrent_bbest = mean(bcurrent / b0)
+    mean_bcurrent_b0 = round(mean(bcurrent / b0),2)
   ) %>%
-  arrange(eel_emu_nameshort))
+  arrange(desc(mean_bcurrent_b0)))%>% set_caption(caption=caption)
+check_these_emusb0lessthanbcurrent <- 
+  indicator %>%
+  filter(b0 < bcurrent & !eel_cou_code %in% c('SE', 'PL', 'DE')) %>%
+  select(eel_emu_nameshort) %>%
+  unique()%>%
+  pull()
+
 ```
-This indicates a massive effect of restocking in DE_Warn, and a likely underestimation of B0 in GB_Scot. From a scientific view, achieving a restocking leading to an escapment greater than pristine escapment probably leads to increase a lot density-dependent natural mortality (assuming a correct estimate of b0).
+This indicates a massive effect of restocking in DE_Warn, and a likely underestimation of $B_0$ in GB_Scot. From a scientific view, achieving a restocking leading to an escapment greater than pristine escapment probably leads to increase a lot density-dependent natural mortality (assuming a correct estimate of b0).
 
-Again, as mentioned above already, for GR_CeAe, indicators are strange. Sometimes Bcurrent is larger or equal to bbest, but at the same time sumA is also high. Sometimes, Bbest and bcurrent are 0, but sumA is also 0. I double-checked with the data provider, and all years with 0 values for biomass indicator estimates should be NC instead, since these are years with no landings (so sumA is 0). It remained unclear why bbest and bcurrent were higher than b0 for years with an estimate. Advise to remove this series from WKEMP analysis until the methods for deriving these estimates are better looked at.
+Again, as mentioned above already, for GR_CeAe, indicators are strange. Sometimes $B_{current}$ is larger or equal to $B_{best}$, but at the same time $\sum{A}$ is also high. Sometimes, $B_{best}$ and bcurrent are 0, but $\sum{A}$ is also 0. I double-checked with the data provider, and all years with 0 values for biomass indicator estimates should be NC instead, since these are years with no landings (so $\sum{A}$ is 0). It remained unclear why $B_{best}$ and bcurrent were higher than b0 for years with an estimate. Advise to remove this series from WKEMP analysis until the methods for deriving these estimates are better looked at.
 
-## B0 less than Bcurrent without restocking
-This year, for the first time, countries were asked to also report Bcurrent values without the effect of restocking, if available. Run the above analysis again with Bcurrent without restocking, for those countries that have reported this.
+## $B_0$ less than $B_{current}$ without restocking
+This year, for the first time, countries were asked to also report $B_{current}$ values without the effect of restocking, if available. Run the above analysis again with $B_{current}$ without restocking, for those countries that have reported this.
 
-```{r plotBcurrentnorestockB0}
+```{r plotbcurrentnorestockb0}
 ggplot(indicator, aes(x = bcurrent_without_stocking / b0)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
@@ -823,20 +927,27 @@ flextable(indicator %>%
   group_by(eel_emu_nameshort) %>%
   summarize(
     years = paste0(sort(eel_year), collapse = "/"),
-    mean_bcurrentnorestock_bbest = mean(bcurrent_without_stocking / b0)
+    mean_bcurrentnorestock_b0 = mean(bcurrent_without_stocking / b0)
   ) %>%
-  arrange(eel_emu_nameshort))
+    arrange(desc(mean_bcurrentnorestock_b0)))
+
+check_these_emusb0lessthanbcurrentwithout <- 
+  indicator %>%
+  filter(b0 < bcurrent & !eel_cou_code %in% c('SE', 'PL', 'DE')) %>%
+  select(eel_emu_nameshort) %>%
+  unique()%>%
+  pull()
 ```
 
 As already mentioned above, without any restocking effects, bcurrent for GB_Scot is still estimated as higher than b0. This likely indicates an underestimate of b0.
 
-## Check irregularities in combinations of Bcurrent, Bbest, and sumA
-As found above, for GR_CeAe, indicators are strange. Sometimes Bcurrent is larger or equal to bbest, but at the same time sumA is also high. Sometimes, Bbest and bcurrent are 0, but sumA is also 0. 
+## Check irregularities in combinations of $B_{current}$, $B_{best}$, and $\sum{A}$
+In this section, we investigate these unusual combinations: cases where $B_{current}$ exceeds $B_{best}$ while $\sum{A}$ is high, as well as instances where both $B_{current}$ and $B_{best}$ are low, corresponding to a low $\sum{A}$.
 
-Here, we check for such unusual combinations of high Bcurrent vs Bbest while also having a high sumA, or the reverse of a low Bcurrent or Bbest while also having a low sumA
+Here, we check for such unusual combinations of high $B_{current}$ vs $B_{best}$ while also having a high $\sum{A}$, or the reverse of a low $B_{current}$ or $B_{best}$ while also having a low $\sum{A}$
 
 ```{r plothighindicators}
-# First, compare Bcurrent to estimated Bcurrent for all series with no estimate for bcurrent without restock. Keep in mind, that this may still be effected by restocking.
+# First, compare $B_{current}$ to estimated $B_{current}$ for all series with no estimate for bcurrent without restock. Keep in mind, that this may still be effected by restocking.
 indicator %>%
   filter(is.na(bcurrent_without_stocking)) %>%
   mutate(
@@ -850,7 +961,7 @@ indicator %>%
   scale_x_log10() +
   ylab("frequency")
 
-# Then, look at Bcurrent without restocking vs expected bcurrent
+# Then, look at $B_{current}$ without restocking vs expected bcurrent
 indicator %>%
   mutate(
     bcurrent_expected = bbest * exp(-suma),
@@ -865,7 +976,7 @@ indicator %>%
 ```
 
 ```{r tablehighindicators}
-# Compare Bcurrent to estimated Bcurrent for all series with no estimate for bcurrent without restock. Keep in mind, that this may still be effected by restocking.
+# Compare $B_{current}$ to estimated $B_{current}$ for all series with no estimate for bcurrent without restock. Keep in mind, that this may still be effected by restocking.
 flextable(indicator %>%
   filter(is.na(bcurrent_without_stocking)) %>%
   mutate(
@@ -881,7 +992,7 @@ flextable(indicator %>%
   ) %>%
   arrange(eel_emu_nameshort))
 
-# Then, look at Bcurrent without restocking vs expected bcurrent
+# Then, look at $B_{current}$ without restocking vs expected bcurrent
 flextable(indicator %>%
   mutate(
     bcurrent_expected = bbest * exp(-suma),
@@ -897,18 +1008,18 @@ flextable(indicator %>%
   arrange(eel_emu_nameshort))
 ```
 
-For EMUs which have no estimate for Bcurrent without restocking, only EMUs from Germany, Greece, and Poland had a Bcurrent that differed more than 10% from the expected Bcurrent. For Germany and Poland, this is likely the result of restocking. For Greece, could it also be restocking?
+For EMUs which have no estimate for $B_{current}$ without restocking, only EMUs from Germany, Greece, and Poland had a $B_{current}$ that differed more than 10% from the expected $B_{current}$. For Germany and Poland, this is likely the result of restocking. For Greece, could it also be restocking?
 
-For EMUs that did have an estimate for Bcurrent without restocking, only the ES_Vale EMU had Bcurrent estimates that differed more than 10% to the expected Bcurrent. This needs further investigation.
+For EMUs that did have an estimate for $B_{current}$ without restocking, only the ES_Vale EMU had $B_{current}$ estimates that differed more than 10% to the expected $B_{current}$. This needs further investigation.
 
 
-## Checking B0
+## Checking $B_0$
 
  ALL CODE BELOW STILL NEEDS REWRITING AFTER WGEEL 2024
  
-```{r estimatingB0}
+```{r estimatingb0}
 #| eval: FALSE
-source("./readingAnnex13.R")
+source("data_dependencies/annex13_method.Rdata")
 mor_wise <- annexes13_method %>% select(emu_nameshort, mortality_wise)
 emu_sea <- emu_p %>%
   filter(emu_cou_code %in% eu_cou_codes) %>%
@@ -960,7 +1071,7 @@ indicator_sub$b0_estimated <- mapply(estimate_b0, indicator_sub$eel_emu_nameshor
   MoreArgs = list(mor_wise = mor_wise, precodata = indicator_sub)
 )
 ```
-The EU regulation states that Member States should implement management measures in order to achieve an escapement equal to 40 % of the pristine recruitment. As such, the standard precautionary diagram show the lifespan anthropogenic mortality against the ratio of Bcurrent over B0. However, the pristine situation is difficult to define and B0 is even harder to estimate. As such, some countries have used observations of past productivity in some water bodies, multiplied by the total water surface to extrapolate pristine escapement. However, the availability of historical data does not allow to go back far in time, rarely before the 80s, which was not a pristine situation. Other countries have used the current escapement, corrected for anthropogenic mortality (i.e. Bbest) and use this to extrapolate Bcurrent. However, the extrapolation methods vary among countries, especially regarding the integration of mortality density dependence or not (accounting for mortality density dependent mortality leads to smaller B0 since it postulates that natural mortality increases with abundance). As such, B0 are hardly comparable among countries, and the status of EMUs with respect to the EU regulation target depends a lot on this estimation of B0.
+The EU regulation states that Member States should implement management measures in order to achieve an escapement equal to 40 % of the pristine recruitment. As such, the standard precautionary diagram show the lifespan anthropogenic mortality against the ratio of $B_{current}$ over $B_0$. However, the pristine situation is difficult to define and $B_0$ is even harder to estimate. As such, some countries have used observations of past productivity in some water bodies, multiplied by the total water surface to extrapolate pristine escapement. However, the availability of historical data does not allow to go back far in time, rarely before the 80s, which was not a pristine situation. Other countries have used the current escapement, corrected for anthropogenic mortality (i.e. $B_{best}$) and use this to extrapolate $B_{current}$. However, the extrapolation methods vary among countries, especially regarding the integration of mortality density dependence or not (accounting for mortality density dependent mortality leads to smaller $B_0$ since it postulates that natural mortality increases with abundance). As such, $B_0$ are hardly comparable among countries, and the status of EMUs with respect to the EU regulation target depends a lot on this estimation of $B_0$.
 To avoid these inconsistencies, we propose here an alternative method. First, let remind that, by definition:
 $${B}_{current} = {R}_{current} ⋅ {exp} ^ {\left (− Σ A − Σ M \right)}$$
 
@@ -968,10 +1079,10 @@ and that if we do not account for any density dependence, we also have
 $${B}_{best} = {R}_{current} ⋅ {exp} ^ {\left (− Σ M \right )}$$
 $${B}_{0} = {R}_{0} ⋅ {exp} ^ {\left (− Σ M \right )}$$
 
-As such, we can get an estimate of B0 as:
-$${B}_{0} \sim {{{R}_{0}} \over {{R}_{current}}} \cdot {B}_{best}$$
+As such, we can get an estimate of $B_0$ as:
+$${B}_{0} \sim \frac{R_0}{R_{current}} \cdot {B}_{best}$$
 
-Since recruitment was assumed to be closed to a pristine situation in the 1980s, we can directly use the WGEEL recruitment indices to get ${R}_{0} / {R}_{current}$ and to have a standard and consistent estimates of B0 using Bbest reported by countries. Moreover, since these estimates are based on Bbest, they are more comparable with Bcurrent (Bbest and Bcurrent are generally based on a same method), instead of having a ratio based on a value based on current observations mixed with value based on historical values or on extra-assumptions. Those new estimates would not account for mortality dependence, as such they would be seen as a upper bound for B0.
+Since recruitment was assumed to be closed to a pristine situation in the 1980s, we can directly use the WGEEL recruitment indices to get ${R}_{0} / {R}_{current}$ and to have a standard and consistent estimates of $B_0$ using $B_{best}$ reported by countries. Moreover, since these estimates are based on $B_{best}$, they are more comparable with $B_{current}$ ($B_{best}$ and $B_{current}$ are generally based on a same method), instead of having a ratio based on a value based on current observations mixed with value based on historical values or on extra-assumptions. Those new estimates would not account for mortality dependence, as such they would be seen as a upper bound for $B_0$.
 
 Some preliminary steps are required. First, it is be required to choose the appropriate recruitment indices (elsewhere Europe, North Sea, yellow eel). Here we associated each EMU with a recruitment index according to Figure 3.1 from latest WGEEL report (ICES, 2021). Then, for countries using a cohort wise estimation of escapment, it is required to account for a lag between recruitment and escapement, corresponding to the lifespan. Since lifespan is not available, we used an ad-hoc rule: for EMUs with a year-wise process, we used the average value of the recruitment indices from latest 5 years as $R_current$. For EMUs associated with the Elsewhere index, we took the average value of the index from 7 to 12 years ago. We took 12 to 17 for North Sea and 17 to 22 for yellow eel indices.
 
@@ -1030,8 +1141,8 @@ ggplot(indicator_sub %>% filter(eel_year >= 2018), aes(x = old, y = updated)) +
 ggsave("2024/image/ratiob0.png", width = 16 / 2.54, height = 10 / 2.54, dpi = 300)
 ```
 
-## effect of restocking
-Theoretically, $B_{best}$ should not include restocking while B0 should include restocking. In the absence of restocking $\Sigma A \sim -log(B_{best}/B_{current})$, but this equation should not be valid in the presence of restocking since $B_{best}$ and $\Sigma A$ should not include restocking while $B_current$ should include restocking.
+## Effect of restocking
+Theoretically, $B_{best}$ should not include restocking while $B_0$ should include restocking. In the absence of restocking $\Sigma A \sim -log(B_{best}/B_{current})$, but this equation should not be valid in the presence of restocking since $B_{best}$ and $\Sigma A$ should not include restocking while $B_current$ should include restocking.
 
 Here, we see that many countries (except DE, SE and PL) seem to have accounted for restocking both in $B_{best}$ and $B_{current}$, with a possible double banking of restocking (i.e. both increasing escapment and decreasing mortality).
 
@@ -1047,4 +1158,17 @@ ggplot(indicator, aes(x = suma, y = (-log(bcurrent / bbest)))) +
 ggsave("2024/image/sumAlog.png", width = 16 / 2.54, height = 12 / 2.54, dpi = 300)
 ```
 
+# Questions for countries
 
+* LV please provide annex 13 and explain why only 40 % of the habitat is covered for biomass
+* LV why is the percentage of habitat covered different between mortality and biomass estimates (40 and 50 % respectively) (2021 -2023)
+* IT ask for biomass and mortality indicators
+* France : please provide a calculation of $B_{current}$ with restocking. 
+
+```{r questions, results='asis'}
+for (i in 1:length(check_these_emusbbestb0)) cat(sprintf("- %s $B_{best}$ reported is larger than $B_0$, this is unexpected. Please note that the calculation of $B_{best}$ should not include restocking. \n", check_these_emusbbestb0[i]))
+for (i in 1:length(check_these_emusbcurrentbbest)) cat(sprintf("- %s $B_{current}$ reported is larger than $B_{best}$, this is unexpected in the absence of restocking. Please note that the calculation of $B_{best}$ should not include restocking. \n", check_these_emusbcurrentbbest[i]))
+for (i in 1:length(check_these_emusbcurrentbbest_without_restocking)) cat(sprintf("- %s $B_{current without restocking}$ reported is larger than $B_{best}$, this is unexpected in the absence of restocking. Please note that the calculation of $B_{best}$ should not include restocking \n", check_these_emusbcurrentbbest_without_restocking[i]))
+for (i in 1:length(check_these_emusb0lessthanbcurrent)) cat(sprintf("- %s $B_{current}$ reported is larger than $B_{0}$. In the absence of a massive restocking this is unexpected \n", check_these_emusb0lessthanbcurrent[i]))
+for (i in 1:length(check_these_emusb0lessthanbcurrentwithout)) cat(sprintf("- %s $B_{currentwithoutrestocking}$ reported is larger than $B_{0}$.", check_these_emusb0lessthanbcurrentwithout[i]))
+```
