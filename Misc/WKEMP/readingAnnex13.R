@@ -31,14 +31,15 @@ readWorksheetWithNull=function(wb, s, startRow, startCol, endRow, endCol,header=
 # If you want to load the data yourself from the Excel annexes, then you need to input your own data directory where they are located
 
 read.data = FALSE # Set this to false as a standard, so that it can be sourced by other R files and load the already-compiled data
-
+datawd <- "C:/Users/rbva0001/Dropbox//Rob/SLU/ICES/Workshops/WKEMP4/data/annex13/"
+datawd <- "W:/annex13-EMP"
 if(read.data == TRUE){
 
-datawd <- "C:/Users/rbva0001/Dropbox//Rob/SLU/ICES/Workshops/WKEMP4/data/annex13/"
 
-#filename <- filenames[1]
-read_annex13 <- function(filename){
-	wb = loadWorkbook(str_c(datawd,filename))
+
+#filepath <- filepath[1]
+read_annex13 <- function(filepath){
+	wb = loadWorkbook(filepath)
 	sheet=getSheets(wb)
 	sheet = sheet[-c(grep("metadata",sheet),grep("tr_emu",sheet),grep("readme", sheet))]
 	do.call(rbind.data.frame,lapply(sheet,function(s){
@@ -341,6 +342,8 @@ read_annex13 <- function(filename){
 filenames=list.files(str_c(datawd))
 filenames <- filenames[grep("xlsx", filenames)] # only extract xlsx
 filenames <- filenames[!grepl("~", filenames)] 
+filenames <- filenames[!grepl("compiled", filenames)] 
+filenames <- file.path(datawd,filenames)
 annexes13_table_raw = do.call(rbind.data.frame,lapply(filenames, function(f) read_annex13(f)))
 
 annexes13_table = annexes13_table_raw %>%
