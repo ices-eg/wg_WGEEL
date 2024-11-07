@@ -25,7 +25,7 @@ landings_releases <- dbGetQuery(con, "select typ_name,eel_year,eel_emu_nameshort
 load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
-eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
+eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE")
 
 emu_sea= emu_p %>%
 		filter(emu_cou_code %in% eu_cou_codes) %>%
