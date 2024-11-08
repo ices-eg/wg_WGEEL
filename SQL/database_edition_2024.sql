@@ -1169,6 +1169,7 @@ AS WITH all_level AS (
                   WHERE precodata.bbest IS NOT NULL AND precodata.bcurrent IS NOT NULL AND precodata.suma IS NOT NULL
                   GROUP BY precodata.eel_emu_nameshort
                 )
+         
          SELECT p.eel_year,
             p.eel_cou_code,
             p.eel_emu_nameshort,
@@ -1184,6 +1185,37 @@ AS WITH all_level AS (
            FROM datawg.precodata p
              LEFT JOIN last_year_emu USING (eel_emu_nameshort)
              LEFT JOIN datawg.b0 USING (eel_emu_nameshort))
+        UNION ( WITH last_year_emu AS (
+                 SELECT precodata.eel_emu_nameshort,
+                    max(precodata.eel_year) AS last_year
+                   FROM datawg.precodata
+                  WHERE precodata.bbest IS NOT NULL AND precodata.bcurrent IS NOT NULL AND precodata.suma IS NOT NULL
+                  GROUP BY precodata.eel_emu_nameshort
+                )
+         
+         SELECT p.eel_year,
+            p.eel_cou_code,
+            p.eel_emu_nameshort,
+            NULL::text AS aggreg_comment,
+            b0.eel_value AS b0,
+            p.bbest,
+            p.bcurrent,
+            p.suma,
+            p.sumf,
+            p.sumh,
+            'emu'::text AS aggreg_level,
+            last_year_emu.last_year
+           FROM datawg.precodata p
+             LEFT JOIN last_year_emu USING (eel_emu_nameshort)
+             LEFT JOIN datawg.b0 USING (eel_emu_nameshort))
+        
+        
+        
+        
+        
+        
+        
+        
         UNION
         ( WITH last_year_country AS (
                  SELECT precodata_country.eel_cou_code,
