@@ -858,7 +858,7 @@ load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 
 
 
-estimate_b0 = function(emu, year, mor_wise,precodata){
+estimate_b0 = function(emu, year, mor_wise,precodata, correctM = FALSE){
   mod = switch(unique(mor_wise$rec_zone[mor_wise$emu_nameshort == emu]),
                "EE" = dat_ge %>% filter (area == "Elsewhere Europe"),
                "NS" = dat_ge %>% filter (area == "North Sea"),
@@ -873,7 +873,8 @@ estimate_b0 = function(emu, year, mor_wise,precodata){
                        "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year-12):(year-7))]),
                        "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year-17):(year-12))]),
                        "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year-22):(year-17))]))
-  precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent
+  if (!correctM)
+   return(precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent)
 }
 
 indicator <- indicator %>% left_join(

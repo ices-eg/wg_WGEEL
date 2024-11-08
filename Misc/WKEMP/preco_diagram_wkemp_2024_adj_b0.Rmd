@@ -74,8 +74,11 @@ background2<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 trace_precodiag3 = function(precodata, 
                             precodata_choice=c("emu","country","all"), 
                             last_year=TRUE,
-                            years)
+                            years,
+                            stocking = TRUE)
 {  
+  bcurr <- "bcurrent_without_stocking"
+  if (stocking) bcurr <- "bcurrent"
   ###############################
   # Data selection
   # this in done on precodata which is filtered by the app using filter_data
@@ -99,8 +102,8 @@ trace_precodiag3 = function(precodata,
   ############################
   mylimits=c(0,1000)
   precodata$pSpR=exp(-precodata$suma)
-  precodata$pbiom=precodata$ratio_bcurrent_b0 <- precodata$bcurrent/precodata$b0
-  if (any(precodata$bcurrent>precodata$b0,na.rm=TRUE)){
+  precodata$pbiom=precodata$ratio_bcurrent_b0 <- precodata[, bcurr]/precodata$b0
+  if (any(precodata[, bcurr]>precodata$b0,na.rm=TRUE)){
     cat("You  have Bbest larger than B0, you should check \n")
     Bmaximum<-max(precodata$pbiom,na.rm=TRUE)
   } else Bmaximum=1
@@ -203,8 +206,9 @@ trace_precodiag3(precodata_all, "country", last_year = FALSE, years = 2021)
 
 ```
 
+# EMU Bcurr/B0
 
-## Precautionary diagrams for emu's in 2023
+## 2023
 
 ```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
@@ -213,7 +217,7 @@ trace_precodiag3(precodata_all,"emu",last_year=2023,years=2023)
 ```
 
 
-## Precautionary diagrams for emu's in 2022
+## 2022
 
 ```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
@@ -222,7 +226,7 @@ trace_precodiag3(precodata_all,"emu",last_year=FALSE,years=2022)
 ```
 
 
-## Precautionary diagrams for emu's in 2021
+## 2021
 
 ```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
@@ -230,6 +234,33 @@ trace_precodiag3(precodata_all, "emu", last_year = FALSE, years = 2021)
 
 ```
 
+# EMU Bcurr_without_stocking/B0
+
+## 2023
+
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
+
+trace_precodiag3(precodata_all,"emu",last_year=2023,years=2023, stocking = FALSE)
+
+```
+
+
+## 2022
+
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
+
+trace_precodiag3(precodata_all,"emu",last_year=FALSE,years=2022, stocking = FALSE)
+
+```
+
+
+## 2021
+
+```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
+
+trace_precodiag3(precodata_all, "emu", last_year = FALSE, years = 2021, stocking = FALSE)
+
+```
 
 
 ## Precautionary diagrams for adjusted B0.
