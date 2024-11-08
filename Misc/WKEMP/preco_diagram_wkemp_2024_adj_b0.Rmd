@@ -6,7 +6,7 @@ output: word_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE, error=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE, error=FALSE, fig.height=16/2.54,fig.width=16/2.54)
 ```
 
 
@@ -453,8 +453,8 @@ trace_precodiag3 = function(precodata,
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2020)
-ggsave("2020.png",width=30/2.54,height=18/2.54 )
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2023)
+ggsave("2023.png",width=30/2.54,height=18/2.54 )
 
 ```
 
@@ -463,8 +463,8 @@ ggsave("2020.png",width=30/2.54,height=18/2.54 )
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
 
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2019)
-ggsave("2019.png",width=30/2.54,height=18/2.54 )
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2022)
+ggsave("2022.png",width=30/2.54,height=18/2.54 )
 
 ```
 
@@ -473,8 +473,8 @@ ggsave("2019.png",width=30/2.54,height=18/2.54 )
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54, fig.height=12/2.54}
 
-trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2018)
-ggsave("2018.png",width=30/2.54,height=18/2.54 )
+trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2021)
+ggsave("2021.png",width=30/2.54,height=18/2.54 )
 
 ```
 
@@ -498,7 +498,7 @@ flextable(table_precodata %>%
                              ifelse(bcurrent/b0>.4, "orange1",
                                     ifelse(suma< .92 *((bcurrent/b0)/.4), "orange2",
                                            "red")))) %>%
-  filter(eel_year>=2018) %>%
+  filter(eel_year>=2021) %>%
   select(eel_year,eel_emu_nameshort,zonereported) %>%
   pivot_longer(cols=c(zonereported),names_to="type") %>%
   pivot_wider(id_cols=eel_emu_nameshort,names_from=c(type,eel_year),values_from=value) %>%
