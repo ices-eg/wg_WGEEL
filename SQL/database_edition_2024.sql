@@ -764,4 +764,521 @@ $function$
 ;
 
 
+
+
+
+CREATE OR REPLACE VIEW datawg.precodata
+AS WITH b0 AS (
+         SELECT b0_1.eel_cou_code,
+            b0_1.eel_emu_nameshort,
+            b0_1.eel_hty_code,
+            b0_1.eel_year,
+            b0_1.eel_lfs_code,
+            b0_1.eel_qal_id,
+            b0_1.eel_value AS b0
+           FROM datawg.b0 b0_1
+          WHERE (b0_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR b0_1.eel_qal_id = 0 AND b0_1.eel_missvaluequal::text = 'NP'::text
+        ), bbest AS (
+         SELECT bbest_1.eel_cou_code,
+            bbest_1.eel_emu_nameshort,
+            bbest_1.eel_hty_code,
+            bbest_1.eel_year,
+            bbest_1.eel_lfs_code,
+            bbest_1.eel_qal_id,
+            bbest_1.eel_value AS bbest
+           FROM datawg.bbest bbest_1
+          WHERE (bbest_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bbest_1.eel_qal_id = 0 AND bbest_1.eel_missvaluequal::text = 'NP'::text
+        ), bcurrent AS (
+         SELECT bcurrent_1.eel_cou_code,
+            bcurrent_1.eel_emu_nameshort,
+            bcurrent_1.eel_hty_code,
+            bcurrent_1.eel_year,
+            bcurrent_1.eel_lfs_code,
+            bcurrent_1.eel_qal_id,
+            bcurrent_1.eel_value AS bcurrent
+           FROM datawg.bcurrent bcurrent_1
+          WHERE (bcurrent_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bcurrent_1.eel_qal_id = 0 AND bcurrent_1.eel_missvaluequal::text = 'NP'::text
+        ), bcurrent_without_stocking AS (
+         SELECT bcurrent_without_stocking_1.eel_cou_code,
+            bcurrent_without_stocking_1.eel_emu_nameshort,
+            bcurrent_without_stocking_1.eel_hty_code,
+            bcurrent_without_stocking_1.eel_year,
+            bcurrent_without_stocking_1.eel_lfs_code,
+            bcurrent_without_stocking_1.eel_qal_id,
+            bcurrent_without_stocking_1.eel_value AS bcurrent_without_stocking
+           FROM datawg.bcurrent_without_stocking bcurrent_without_stocking_1
+          WHERE (bcurrent_without_stocking_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bcurrent_without_stocking_1.eel_qal_id = 0 AND bcurrent_without_stocking_1.eel_missvaluequal::text = 'NP'::text
+        ), suma AS (
+         SELECT sigmaa.eel_cou_code,
+            sigmaa.eel_emu_nameshort,
+            sigmaa.eel_hty_code,
+            sigmaa.eel_year,
+            sigmaa.eel_lfs_code,
+            sigmaa.eel_qal_id,
+            round(sigmaa.eel_value, 3) AS suma
+           FROM datawg.sigmaa
+          WHERE (sigmaa.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmaa.eel_qal_id = 0 AND sigmaa.eel_missvaluequal::text = 'NP'::text
+        ), sumf AS (
+         SELECT sigmaf.eel_cou_code,
+            sigmaf.eel_emu_nameshort,
+            sigmaf.eel_hty_code,
+            sigmaf.eel_year,
+            sigmaf.eel_lfs_code,
+            sigmaf.eel_qal_id,
+            round(sigmaf.eel_value, 3) AS sumf
+           FROM datawg.sigmaf
+          WHERE (sigmaf.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmaf.eel_qal_id = 0 AND sigmaf.eel_missvaluequal::text = 'NP'::text
+        ), sumh AS (
+         SELECT sigmah.eel_cou_code,
+            sigmah.eel_emu_nameshort,
+            sigmah.eel_hty_code,
+            sigmah.eel_year,
+            sigmah.eel_lfs_code,
+            sigmah.eel_qal_id,
+            round(sigmah.eel_value, 3) AS sumh
+           FROM datawg.sigmah
+          WHERE (sigmah.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmah.eel_qal_id = 0 AND sigmah.eel_missvaluequal::text = 'NP'::text
+        ), countries AS (
+         SELECT tr_country_cou.cou_code,
+            tr_country_cou.cou_country AS country,
+            tr_country_cou.cou_order
+           FROM ref.tr_country_cou
+        ), emu AS (
+         SELECT tr_emu_emu.emu_nameshort,
+            tr_emu_emu.emu_wholecountry
+           FROM ref.tr_emu_emu
+        ), life_stage AS (
+         SELECT tr_lifestage_lfs.lfs_code,
+            tr_lifestage_lfs.lfs_name AS life_stage
+           FROM ref.tr_lifestage_lfs
+        )
+ SELECT eel_year,
+    eel_cou_code,
+    countries.country,
+    countries.cou_order,
+    eel_emu_nameshort,
+    emu.emu_wholecountry,
+    eel_hty_code,
+    eel_lfs_code,
+    life_stage.life_stage,
+    eel_qal_id,
+    b0.b0,
+    bbest.bbest,
+    bcurrent.bcurrent,
+    suma.suma,
+    sumf.sumf,
+    sumh.sumh,
+    bcurrent_without_stocking.bcurrent_without_stocking
+   FROM b0
+     FULL JOIN bbest USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN bcurrent USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN bcurrent_without_stocking USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN suma USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN sumf USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN sumh USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN countries ON eel_cou_code::text = countries.cou_code::text
+     JOIN emu ON eel_emu_nameshort::text = emu.emu_nameshort::text
+     JOIN life_stage ON eel_lfs_code::text = life_stage.lfs_code::text
+  ORDER BY eel_year, countries.cou_order, eel_emu_nameshort, eel_qal_id;
+  
+  
+  
+  
+  CREATE OR REPLACE VIEW datawg.precodata_country
+as
+
+WITH 
+ nr_emu_per_country AS (
+         SELECT tr_emu_emu.emu_cou_code,
+            sum((NOT tr_emu_emu.emu_wholecountry)::integer) AS nr_emu
+           FROM ref.tr_emu_emu
+          GROUP BY tr_emu_emu.emu_cou_code
+        ), mimimun_met AS (
+         SELECT precodata.eel_year,
+            precodata.eel_cou_code,
+            precodata.country,
+            precodata.eel_emu_nameshort,
+            precodata.bbest,
+            precodata.bcurrent,
+            precodata.bcurrent_without_stocking,
+            precodata.suma,
+            precodata.sumf,
+            precodata.sumh,
+            precodata.bbest IS NOT NULL AS bbestt,
+            precodata.bcurrent IS NOT NULL AS bcurrentt,
+            precodata.bcurrent_without_stocking IS NOT NULL AS bcurrentt_without_stocking,
+            precodata.suma IS NOT NULL AS sumat,
+            precodata.sumf IS NOT NULL AS sumft,
+            precodata.sumh IS NOT NULL AS sumht
+           FROM datawg.precodata
+          WHERE precodata.eel_qal_id <> 0 AND NOT precodata.emu_wholecountry
+        ), analyse_emu_total AS (
+         SELECT precodata.eel_year,
+            precodata.eel_cou_code,
+            precodata.country,
+            precodata.bbest,
+            precodata.bcurrent,
+            precodata.bcurrent_without_stocking,
+            precodata.suma,
+            precodata.sumf,
+            precodata.sumh,
+            (precodata.bbest IS NOT NULL)::integer AS bbest_total,
+            (precodata.bcurrent IS NOT NULL)::integer AS bcurrent_total,
+            (precodata.bcurrent_without_stocking IS NOT NULL)::integer AS bcurrent_total_without_stocking,
+            (precodata.suma IS NOT NULL)::integer AS suma_total,
+            (precodata.sumf IS NOT NULL)::integer AS sumf_total,
+            (precodata.sumh IS NOT NULL)::integer AS sumh_total
+           FROM datawg.precodata
+          WHERE precodata.eel_qal_id <> 0 AND precodata.emu_wholecountry
+        ), analyse_emu AS (
+         SELECT mimimun_met.eel_year,
+            mimimun_met.eel_cou_code,
+            mimimun_met.country,
+            count(*) AS counted_emu,
+            sum(mimimun_met.bbestt::integer) AS bbest_emu,
+            sum(mimimun_met.bcurrentt::integer) AS bcurrent_emu,
+            sum(mimimun_met.bcurrentt_without_stocking::integer) AS bcurrent_emu_without_stocking,
+            sum(mimimun_met.sumat::integer) AS suma_emu,
+            sum(mimimun_met.sumft::integer) AS sumf_emu,
+            sum(mimimun_met.sumht::integer) AS sumh_emu,
+            sum(mimimun_met.bbest) AS bbest,
+            sum(mimimun_met.bcurrent) AS bcurrent,
+            sum(mimimun_met.bcurrent_without_stocking) AS bcurrent_without_stocking,
+            round(sum(mimimun_met.suma * mimimun_met.bbest) / sum(mimimun_met.bbest), 3) AS suma,
+            round(sum(mimimun_met.sumf * mimimun_met.bbest) / sum(mimimun_met.bbest), 3) AS sumf,
+            round(sum(mimimun_met.sumh * mimimun_met.bbest) / sum(mimimun_met.bbest), 3) AS sumh
+           FROM mimimun_met
+          GROUP BY mimimun_met.eel_year, mimimun_met.eel_cou_code, mimimun_met.country
+        ),  analyse_b0 as(
+               select sum(eel_value) b0, emu_cou_code  eel_cou_code, count(*) b0_emu 
+                     from datawg.b0 left join ref.tr_emu_emu on eel_emu_nameshort = emu_nameshort where not emu_wholecountry and eel_value is not null group by emu_cou_code),
+        analyse_b0_total as(select eel_value b0, emu_cou_code  eel_cou_code, b0 is not null b0_total 
+                     from datawg.b0 left join ref.tr_emu_emu on eel_emu_nameshort = emu_nameshort where emu_wholecountry
+
+        )
+         SELECT eel_year,
+            eel_cou_code::character varying(2),
+            country,
+            nr_emu_per_country.nr_emu,
+            'country'::text AS aggreg_level,
+            NULL::character varying(20) AS eel_emu_nameshort,
+                CASE
+                    WHEN analyse_b0_total.b0_total THEN analyse_b0_total.b0
+                    ELSE analyse_b0.b0
+                END AS b0,
+                CASE
+                    WHEN analyse_emu_total.bbest_total = 1 THEN analyse_emu_total.bbest
+                    ELSE analyse_emu.bbest
+                END AS bbest,
+                CASE
+                    WHEN analyse_emu_total.bcurrent_total = 1 THEN analyse_emu_total.bcurrent
+                    ELSE analyse_emu.bcurrent
+                END AS bcurrent,
+                CASE
+                    WHEN analyse_emu_total.suma_total = 1 THEN analyse_emu_total.suma
+                    ELSE analyse_emu.suma
+                END AS suma,
+                CASE
+                    WHEN analyse_emu_total.sumf_total = 1 THEN analyse_emu_total.sumf
+                    ELSE analyse_emu.sumf
+                END AS sumf,
+                CASE
+                    WHEN analyse_emu_total.sumh_total = 1 THEN analyse_emu_total.sumh
+                    ELSE analyse_emu.sumh
+                END AS sumh,
+                CASE
+                    WHEN analyse_b0_total.b0_total  THEN 'EMU_Total'::text
+                    WHEN analyse_b0.b0_emu = nr_emu_per_country.nr_emu THEN 'Sum of all EMU'::text
+                    WHEN analyse_b0.b0_emu > 0 THEN (('Sum of '::text || analyse_b0.b0_emu) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_b0,
+                CASE
+                    WHEN analyse_emu_total.bbest_total = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bbest_emu = nr_emu_per_country.nr_emu THEN 'Sum of all EMU'::text
+                    WHEN analyse_emu.bbest_emu > 0 THEN (('Sum of '::text || analyse_emu.bbest_emu) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_bbest,
+                CASE
+                    WHEN analyse_emu_total.bcurrent_total = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bcurrent_emu = nr_emu_per_country.nr_emu THEN 'Sum of all EMU'::text
+                    WHEN analyse_emu.bcurrent_emu > 0 THEN (('Sum of '::text || analyse_emu.bcurrent_emu) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_bcurrent,
+                CASE
+                    WHEN analyse_emu_total.suma_total = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bbest_emu = nr_emu_per_country.nr_emu AND analyse_emu.suma_emu = nr_emu_per_country.nr_emu THEN 'Weighted average by Bbest of all EMU'::text
+                    WHEN analyse_emu.bbest_emu < nr_emu_per_country.nr_emu AND analyse_emu.suma_emu < nr_emu_per_country.nr_emu AND analyse_emu.suma_emu > 0 THEN (('Weighted average by Bbest of '::text || LEAST(analyse_emu.bbest_emu, analyse_emu.suma_emu)) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_suma,
+                CASE
+                    WHEN analyse_emu_total.sumf_total = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bbest_emu = nr_emu_per_country.nr_emu AND analyse_emu.sumf_emu = nr_emu_per_country.nr_emu THEN 'Weighted average by Bbest of all EMU'::text
+                    WHEN analyse_emu.bbest_emu < nr_emu_per_country.nr_emu AND analyse_emu.sumf_emu < nr_emu_per_country.nr_emu AND analyse_emu.sumf_emu > 0 THEN (('Weighted average by Bbest of '::text || LEAST(analyse_emu.bbest_emu, analyse_emu.sumf_emu)) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_sumf,
+                CASE
+                    WHEN analyse_emu_total.sumh_total = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bbest_emu = nr_emu_per_country.nr_emu AND analyse_emu.sumh_emu = nr_emu_per_country.nr_emu THEN 'Weighted average by Bbest of all EMU'::text
+                    WHEN analyse_emu.bbest_emu < nr_emu_per_country.nr_emu AND analyse_emu.sumh_emu < nr_emu_per_country.nr_emu AND analyse_emu.sumh_emu > 0 THEN (('Weighted average by Bbest of '::text || LEAST(analyse_emu.bbest_emu, analyse_emu.sumh_emu)) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_sumh,
+                CASE
+                    WHEN analyse_emu_total.bcurrent_total_without_stocking = 1 THEN analyse_emu_total.bcurrent_without_stocking
+                    ELSE analyse_emu.bcurrent_without_stocking
+                END AS bcurrent_without_stocking,
+                CASE
+                    WHEN analyse_emu_total.bcurrent_total_without_stocking = 1 THEN 'EMU_Total'::text
+                    WHEN analyse_emu.bcurrent_emu_without_stocking = nr_emu_per_country.nr_emu THEN 'Sum of all EMU'::text
+                    WHEN analyse_emu.bcurrent_emu_without_stocking > 0 THEN (('Sum of '::text || analyse_emu.bcurrent_emu_without_stocking) || ' EMU out of '::text) || nr_emu_per_country.nr_emu
+                    ELSE NULL::text
+                END AS method_bcurrent_without_stocking
+                
+           FROM analyse_emu_total
+             FULL JOIN analyse_emu USING (eel_year, eel_cou_code, country)
+             full join analyse_b0 using(eel_cou_code)
+             full join analyse_b0_total using (eel_cou_code)
+             JOIN nr_emu_per_country ON eel_cou_code::text = nr_emu_per_country.emu_cou_code
+     JOIN ref.tr_country_cou ON eel_cou_code::text = tr_country_cou.cou_code::text
+  ORDER BY eel_year, tr_country_cou.cou_order;
         
+-- datawg.precodata source
+CREATE OR REPLACE VIEW datawg.precodata
+as
+ WITH b0 AS (
+         SELECT b0_1.eel_cou_code,
+            b0_1.eel_emu_nameshort,
+            b0_1.eel_hty_code,
+            b0_1.eel_lfs_code,
+            b0_1.eel_qal_id,
+            b0_1.eel_value AS b0
+           FROM datawg.b0 b0_1
+          WHERE (b0_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR b0_1.eel_qal_id = 0 AND b0_1.eel_missvaluequal::text = 'NP'::text
+        ), bbest AS (
+         SELECT bbest_1.eel_cou_code,
+            bbest_1.eel_emu_nameshort,
+            bbest_1.eel_hty_code,
+            bbest_1.eel_year,
+            bbest_1.eel_lfs_code,
+            bbest_1.eel_qal_id,
+            bbest_1.eel_value AS bbest
+           FROM datawg.bbest bbest_1
+          WHERE (bbest_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bbest_1.eel_qal_id = 0 AND bbest_1.eel_missvaluequal::text = 'NP'::text
+        ), bcurrent AS (
+         SELECT bcurrent_1.eel_cou_code,
+            bcurrent_1.eel_emu_nameshort,
+            bcurrent_1.eel_hty_code,
+            bcurrent_1.eel_year,
+            bcurrent_1.eel_lfs_code,
+            bcurrent_1.eel_qal_id,
+            bcurrent_1.eel_value AS bcurrent
+           FROM datawg.bcurrent bcurrent_1
+          WHERE (bcurrent_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bcurrent_1.eel_qal_id = 0 AND bcurrent_1.eel_missvaluequal::text = 'NP'::text
+        ), bcurrent_without_stocking AS (
+         SELECT bcurrent_without_stocking_1.eel_cou_code,
+            bcurrent_without_stocking_1.eel_emu_nameshort,
+            bcurrent_without_stocking_1.eel_hty_code,
+            bcurrent_without_stocking_1.eel_year,
+            bcurrent_without_stocking_1.eel_lfs_code,
+            bcurrent_without_stocking_1.eel_qal_id,
+            bcurrent_without_stocking_1.eel_value AS bcurrent_without_stocking
+           FROM datawg.bcurrent_without_stocking bcurrent_without_stocking_1
+          WHERE (bcurrent_without_stocking_1.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR bcurrent_without_stocking_1.eel_qal_id = 0 AND bcurrent_without_stocking_1.eel_missvaluequal::text = 'NP'::text
+        ), suma AS (
+         SELECT sigmaa.eel_cou_code,
+            sigmaa.eel_emu_nameshort,
+            sigmaa.eel_hty_code,
+            sigmaa.eel_year,
+            sigmaa.eel_lfs_code,
+            sigmaa.eel_qal_id,
+            round(sigmaa.eel_value, 3) AS suma
+           FROM datawg.sigmaa
+          WHERE (sigmaa.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmaa.eel_qal_id = 0 AND sigmaa.eel_missvaluequal::text = 'NP'::text
+        ), sumf AS (
+         SELECT sigmaf.eel_cou_code,
+            sigmaf.eel_emu_nameshort,
+            sigmaf.eel_hty_code,
+            sigmaf.eel_year,
+            sigmaf.eel_lfs_code,
+            sigmaf.eel_qal_id,
+            round(sigmaf.eel_value, 3) AS sumf
+           FROM datawg.sigmaf
+          WHERE (sigmaf.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmaf.eel_qal_id = 0 AND sigmaf.eel_missvaluequal::text = 'NP'::text
+        ), sumh AS (
+         SELECT sigmah.eel_cou_code,
+            sigmah.eel_emu_nameshort,
+            sigmah.eel_hty_code,
+            sigmah.eel_year,
+            sigmah.eel_lfs_code,
+            sigmah.eel_qal_id,
+            round(sigmah.eel_value, 3) AS sumh
+           FROM datawg.sigmah
+          WHERE (sigmah.eel_qal_id = ANY (ARRAY[1, 2, 4])) OR sigmah.eel_qal_id = 0 AND sigmah.eel_missvaluequal::text = 'NP'::text
+        ), countries AS (
+         SELECT tr_country_cou.cou_code,
+            tr_country_cou.cou_country AS country,
+            tr_country_cou.cou_order
+           FROM ref.tr_country_cou
+        ), emu AS (
+         SELECT tr_emu_emu.emu_nameshort,
+            tr_emu_emu.emu_wholecountry
+           FROM ref.tr_emu_emu
+        ), life_stage AS (
+         SELECT tr_lifestage_lfs.lfs_code,
+            tr_lifestage_lfs.lfs_name AS life_stage
+           FROM ref.tr_lifestage_lfs
+        )
+ SELECT eel_year,
+    eel_cou_code,
+    countries.country,
+    countries.cou_order,
+    eel_emu_nameshort,
+    emu.emu_wholecountry,
+    eel_hty_code,
+    eel_lfs_code,
+    life_stage.life_stage,
+    eel_qal_id,
+    b0.b0,
+    bbest.bbest,
+    bcurrent.bcurrent,
+    suma.suma,
+    sumf.sumf,
+    sumh.sumh,
+    bcurrent_without_stocking.bcurrent_without_stocking
+   FROM b0
+     FULL JOIN bbest USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_lfs_code, eel_qal_id)
+     FULL JOIN bcurrent USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN bcurrent_without_stocking USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN suma USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN sumf USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN sumh USING (eel_cou_code, eel_emu_nameshort, eel_hty_code, eel_year, eel_lfs_code, eel_qal_id)
+     FULL JOIN countries ON eel_cou_code::text = countries.cou_code::text
+     JOIN emu ON eel_emu_nameshort::text = emu.emu_nameshort::text
+     JOIN life_stage ON eel_lfs_code::text = life_stage.lfs_code::text
+  ORDER BY eel_year, countries.cou_order, eel_emu_nameshort, eel_qal_id;
+  
+  
+  
+  -- datawg.precodata_all source
+
+CREATE OR REPLACE VIEW datawg.precodata_all
+AS WITH all_level AS (
+        ( WITH last_year_emu AS (
+                 SELECT precodata.eel_emu_nameshort,
+                    max(precodata.eel_year) AS last_year
+                   FROM datawg.precodata
+                  WHERE precodata.bbest IS NOT NULL AND precodata.bcurrent IS NOT NULL AND precodata.suma IS NOT NULL
+                  GROUP BY precodata.eel_emu_nameshort
+                )
+         
+         SELECT p.eel_year,
+            p.eel_cou_code,
+            p.eel_emu_nameshort,
+            NULL::text AS aggreg_comment,
+            b0.eel_value AS b0,
+            p.bbest,
+            p.bcurrent,
+            p.suma,
+            p.sumf,
+            p.sumh,
+            'all'::text AS aggreg_level,
+            last_year_emu.last_year
+           FROM datawg.precodata p
+             LEFT JOIN last_year_emu USING (eel_emu_nameshort)
+             LEFT JOIN datawg.b0 USING (eel_emu_nameshort))
+        UNION ( WITH last_year_emu AS (
+                 SELECT precodata.eel_emu_nameshort,
+                    max(precodata.eel_year) AS last_year
+                   FROM datawg.precodata
+                  WHERE precodata.bbest IS NOT NULL AND precodata.bcurrent IS NOT NULL AND precodata.suma IS NOT NULL
+                  GROUP BY precodata.eel_emu_nameshort
+                )
+         
+         SELECT p.eel_year,
+            p.eel_cou_code,
+            p.eel_emu_nameshort,
+            NULL::text AS aggreg_comment,
+            b0.eel_value AS b0,
+            p.bbest,
+            p.bcurrent,
+            p.suma,
+            p.sumf,
+            p.sumh,
+            'emu'::text AS aggreg_level,
+            last_year_emu.last_year
+           FROM datawg.precodata p
+             LEFT JOIN last_year_emu USING (eel_emu_nameshort)
+             LEFT JOIN datawg.b0 USING (eel_emu_nameshort))
+        
+        
+        
+        
+        
+        
+        
+        
+        UNION
+        ( WITH last_year_country AS (
+                 SELECT precodata_country.eel_cou_code,
+                    max(precodata_country.eel_year) AS last_year
+                   FROM datawg.precodata_country
+                  WHERE precodata_country.bbest IS NOT NULL AND precodata_country.bcurrent IS NOT NULL AND precodata_country.suma IS NOT NULL
+                  GROUP BY precodata_country.eel_cou_code
+                )
+         SELECT p.eel_year,
+            p.eel_cou_code,
+            p.eel_emu_nameshort,
+            ((((((((((('<B0>'::text || p.method_b0) || '<\B0><Bbest>'::text) || p.method_bbest) || '<\Bbest><Bcurrent>'::text) || p.method_bcurrent) || '<\Bcurrent><suma>'::text) || p.method_suma) || '<\suma><sumf>'::text) || p.method_sumf) || '<\sumf><sumh>'::text) || p.method_sumh) || '<\sumah>'::text AS aggreg_comment,
+            b0,
+            p.bbest,
+            p.bcurrent,
+            p.suma,
+            p.sumf,
+            p.sumh,
+            p.aggreg_level,
+            last_year_country.last_year
+           FROM datawg.precodata_country p
+             LEFT JOIN last_year_country USING (eel_cou_code))
+        UNION
+         SELECT precodata_country.eel_year,
+            NULL::character varying AS eel_cou_code,
+            NULL::character varying AS eel_emu_nameshort,
+            ((('All ('::text || count(*)) || ' countries: '::text) || string_agg(precodata_country.eel_cou_code::text, ','::text)) || ')'::text AS aggreg_comment,
+            sum(precodata_country.b0) AS b0,
+            sum(precodata_country.bbest) AS bbest,
+            sum(precodata_country.bcurrent) AS bcurrent,
+            round(sum(precodata_country.suma * precodata_country.bbest) / sum(precodata_country.bbest), 3) AS suma,
+                CASE
+                    WHEN count(precodata_country.sumf) < count(*) THEN NULL::numeric
+                    ELSE round(sum(precodata_country.sumf * precodata_country.bbest) / sum(precodata_country.bbest), 3)
+                END AS sumf,
+                CASE
+                    WHEN count(precodata_country.sumh) < count(*) THEN NULL::numeric
+                    ELSE round(sum(precodata_country.sumh * precodata_country.bbest) / sum(precodata_country.bbest), 3)
+                END AS sumf,
+            'all'::text AS aggreg_level,
+            NULL::integer AS last_year
+           FROM datawg.precodata_country
+          WHERE precodata_country.b0 IS NOT NULL AND precodata_country.bbest IS NOT NULL AND precodata_country.bcurrent IS NOT NULL AND precodata_country.suma IS NOT NULL
+          GROUP BY precodata_country.eel_year
+        )
+ SELECT all_level.eel_year,
+    all_level.eel_cou_code,
+    all_level.eel_emu_nameshort,
+    all_level.aggreg_comment,
+    all_level.b0,
+    all_level.bbest,
+    all_level.bcurrent,
+    all_level.suma,
+    all_level.sumf,
+    all_level.sumh,
+    all_level.aggreg_level,
+    all_level.last_year
+   FROM all_level
+     LEFT JOIN ref.tr_country_cou ON all_level.eel_cou_code::text = tr_country_cou.cou_code::text
+  ORDER BY all_level.eel_year, (
+        CASE
+            WHEN all_level.aggreg_level = 'emu'::text THEN 1
+            WHEN all_level.aggreg_level = 'country'::text THEN 2
+            WHEN all_level.aggreg_level = 'all'::text THEN 3
+            ELSE NULL::integer
+        END), tr_country_cou.cou_order, all_level.eel_emu_nameshort;

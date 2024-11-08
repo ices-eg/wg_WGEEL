@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 	message = FALSE,
 	warning = FALSE
 )
+eu_cou_codes=eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE")
 library(RPostgres)
 library(sf)
 library(getPass)
@@ -23,6 +24,7 @@ library(ggplot2)
 library(flextable)
 library(tidyverse)
 library(yaml)
+startYear=2021
 cred=read_yaml("../../credentials.yml")
 con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
@@ -42,13 +44,15 @@ color_countries = setNames(values,country_ref$cou_code)
 # Downloading data
 
 ```{r download}
-biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15, 34)")
+biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15, 34)") %>%
+  filter(eel_cou_code %in% eu_cou_codes)
 
-mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")%>%
+  filter(eel_cou_code %in% eu_cou_codes)
 
 
 nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(distinct(eel_emu_nameshort)) from datawg.t_eelstock_eel 
-                             where eel_typ_id in (13, 14, 15, 17, 18, 19) and eel_datasource='dc_2021'")
+                             where eel_typ_id in (13, 14, 15, 17, 18, 19) and eel_datasource='dc_2024'")
 ```
 
 # Data availability
@@ -71,7 +75,9 @@ flextable(biomass %>%
             arrange(eel_emu_nameshort) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE)) %>% autofit()
+                        names_sort=TRUE)) %>% 
+  autofit() %>% set_table_properties(layout = "autofit") %>%
+  set_table_properties(layout = "autofit")
 ```
 
 
@@ -96,7 +102,7 @@ flextable(mortality %>%
             arrange(eel_emu_nameshort) %>%
             pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
                         names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE)) %>% autofit()
+                        names_sort=TRUE)) %>% autofit() %>% set_table_properties(layout = "autofit")
   
         
           
@@ -105,7 +111,7 @@ flextable(mortality %>%
 
 
 ```{r notans}
-sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)]) 
+sort(intersect(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code , mortality$eel_cou_code)],eu_cou_codes)) 
 ```
 
 ## Spatial coverage
@@ -120,7 +126,9 @@ data_avail = rbind.data.frame(mortality,biomass) %>%
          suma=sum(eel_typ_id==17)>0,
          sumf=sum(eel_typ_id==18)>0,
          sumh=sum(eel_typ_id==19)>0)
-data_avail <- merge(emu_c, data_avail, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
+data_avail <- merge(emu_c, data_avail, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE) %>%
+  filter(substr(emu_nameshort,1,2) %in% eu_cou_codes) 
+
 data_avail<- st_transform(data_avail, crs=3035)
 data_avail$x <-st_coordinates(data_avail)[,1]
 data_avail$y <-st_coordinates(data_avail)[,2]
@@ -158,13 +166,15 @@ knitr::include_graphics("data_avail.png")
 This year for the first time, we asked aggregated data at the EMU scale, but asked for habitat coverage within indicator.
 
 ```{r habitatcoverage}
-biomass <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e  left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (13,14,15, 34)")
+biomass <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e  left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (13,14,15, 34)") %>%
+  filter(eel_cou_code %in% eu_cou_codes)
 
-mortality <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con,"select * from datawg.t_eelstock_eel e left join datawg.t_eelstock_eel_percent on eel_id=percent_id where eel_qal_id=1 and eel_typ_id in (17,18,19)") %>%
+  filter(eel_cou_code %in% eu_cou_codes)
 
 
 
-biomass_long <- biomass%>%
+biomass_long <- biomass %>%
   filter(!is.na(eel_value)) %>%
   select(eel_year,eel_typ_id,eel_emu_nameshort,perc_mo,perc_f,perc_c,perc_t) %>%
   pivot_longer(cols=c(perc_mo,perc_f,perc_t,perc_c), 
@@ -190,7 +200,7 @@ flextable(indicator %>%
   group_by(type,habitat) %>%
   summarize(freq100=round(sum(perc==100)/n()*100),
             freq0=round(sum(perc==0)/n()*100)) %>%
-  pivot_wider(names_from=habitat,values_from=c(freq0,freq100))) %>% autofit()
+  pivot_wider(names_from=habitat,values_from=c(freq0,freq100))) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 Marine open and coastal never accounted for. Significant part of transitional waters not accounted for.
 
@@ -201,7 +211,7 @@ Values averages from 2018 to 2020 (3 years)
 
 
 ```{r rasta}
-# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=startYear group by eel_cou_code,eel_emu_nameshort")
 # indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
 # indicator = st_transform(indicator,crs=3035)
 # indicator$x <-st_coordinates(indicator)[,1]
@@ -293,7 +303,8 @@ Values averages from 2018 to 2020 (3 years)
 
 ### biomass
 ```{r biomassmap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort")) %>%
+  filter(eel_cou_code %in% eu_cou_codes)
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
@@ -372,12 +383,99 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 #ggsave(filename="C:/Users/pohlmann/Desktop/Home_Office/ICES/WKEPEMP3/Graphs/maps_biomass.png",width=16/2.54,height=10/2.54)
 ```
 
+
+
+
+### biomass
+```{r biomassmap_withoutstocking}
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent_without_stocking) bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
+indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE) %>%
+  filter(eel_cou_code %in% eu_cou_codes)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$btarget <- .4*indicator$b0
+indicator$bscaled <- indicator$bcurrent/indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+# indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
+ indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
+# indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
+
+# indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
+indicator$suma <- indicator$suma /.92*20000
+indicator$sumf <- indicator$sumf /.92*20000
+indicator$sumh <- indicator$sumh /.92*20000
+
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+
+# indicator <- indicator %>%
+#   select(-sumh) %>%
+#   pivot_longer(cols=c(suma,sumf,b0,btarget,bcurrent,bbest),names_to="indicator",values_to="r") %>%
+#   mutate(start=ifelse(startsWith(indicator,"b"),pi,0),
+#          end=ifelse(startsWith(indicator,"b"),2*pi,pi),
+#          fill=case_when(indicator=="b0" ~ "grey",
+#                         indicator=="bcurrent" ~ "green",
+#                         indicator=="bbest" ~ "orange",
+#                         indicator=="btarget" ~ "red",
+#                         indicator=="sumf" ~ "yellow",
+#                         indicator=="suma" ~ "blue"),
+#          alpha=ifelse(indicator %in% c("b0","suma"),
+#                       1,
+#                       0)) %>%
+#   arrange(desc(r))
+#   
+# 
+# 
+# indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort")
+# indicator = st_transform(indicator,crs=3035)
+# indicator$x <-st_coordinates(indicator)[,1]
+# indicator$y <-st_coordinates(indicator)[,2]
+
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
+  
+  xlab("")+ylab("") + 
+  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
+                   end = 2*pi), fill = NA,col="black")+
+  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
+            size=2,hjust="left")+
+  geom_point(data=indicator %>%
+               filter(is.na(bcurrent)),
+             aes(x=x,y=y),pch="x")+
+  scale_fill_viridis_c(expression(B[current]/B[0]))
+  # scale_alpha_manual("",values=c("B0" = 1,
+  #                        "Bcurrent" = .6,
+  #                        "Bbest"= .6,
+  #                        "Btarget" = .6,
+  #                        "sumF" = 1,
+  #                        "sumA" = 1))
+
+#ggsave(filename="C:/Users/pohlmann/Desktop/Home_Office/ICES/WKEPEMP3/Graphs/maps_biomass.png",width=16/2.54,height=10/2.54)
+```
+
+
 ### mortality
 
 
 ```{r mortalitymap}
-indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
-indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
+indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)%>%
+  filter(eel_cou_code %in% eu_cou_codes)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
 indicator$y <-st_coordinates(indicator)[,2]
@@ -435,20 +533,12 @@ Here, biomasses are summed over available EMUs and mortality are average (weight
 
 ### biomass
 ```{r biomassmapcountry}
-# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
-indicator <- precodata_country %>%
-  filter(eel_year >=2018) %>%
-  group_by(eel_cou_code) %>%
-  summarize(b0=mean(b0,na.rm=TRUE),
-            bcurrent=mean(bcurrent,na.rm=TRUE),
-            bcurrent_b0_emu=mean(ratio_bcurrent_b0,na.rm=TRUE))
-indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
+indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)%>%
+  filter(cou_code %in% eu_cou_codes)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
 indicator$y <-st_coordinates(indicator)[,2]
-indicator$x[indicator$cou_code=="NO"] = 4172612.3
-indicator$y[indicator$cou_code=="NO"] = 4111023.3
-
 indicator$btarget <- .4*indicator$b0
 indicator$bscaled <- indicator$bcurrent/indicator$b0
 prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
@@ -456,9 +546,15 @@ prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=
 scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
 # indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
  indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
+# indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
 
- 
+# indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
 
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
  
  
 ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
@@ -471,13 +567,13 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 #  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
 #                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
    geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
-                   end = 2*pi, fill = bcurrent_b0_emu),col=NA,alpha=1)+
+                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
   
   xlab("")+ylab("") + 
   geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
                    end = 2*pi), fill = NA,col="black")+
   geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
-            size=1,hjust="left")+
+            size=2,hjust="left")+
   geom_point(data=indicator %>%
                filter(is.na(bcurrent)),
              aes(x=x,y=y),pch="x")+
@@ -489,28 +585,79 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   #                        "sumF" = 1,
   #                        "sumA" = 1))
 
-#ggsave(filename="/tmp/maps_biomass_country.png",width=16/2.54,height=10/2.54)
+```
+
+```{r biomassmapcountrywithoutstocking}
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent_without_stocking)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear,"group by eel_cou_code,eel_emu_nameshort"))
+indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)%>%
+  filter(cou_code %in% eu_cou_codes)
+indicator = st_transform(indicator,crs=3035)
+indicator$x <-st_coordinates(indicator)[,1]
+indicator$y <-st_coordinates(indicator)[,2]
+indicator$btarget <- .4*indicator$b0
+indicator$bscaled <- indicator$bcurrent/indicator$b0
+prettyscale <- pretty(range(indicator$bcurrent,na.rm=TRUE),n=2)
+prettyscale_scaled <- scales::rescale(prettyscale,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+scalesb <-data.frame(b=prettyscale,bscale=prettyscale_scaled)
+# indicator$btarget <- scales::rescale(indicator$btarget,to=c(40190.79,200000.00),from=c(661,10400000))
+ indicator$bcurrent <- scales::rescale(indicator$bcurrent,to=c(40190.79,200000.00),from=c(661,max(indicator$bcurrent,na.rm=TRUE)))
+# indicator$bbest <- scales::rescale(indicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
+# indicator$b0 <- scales::rescale(indicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
+
+# indicator$bcurrent <- log(indicator$bcurrent)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$bbest <- log(indicator$bbest)/log(max(indicator$b0,na.rm=TRUE))*100000
+# indicator$b0 <- log(indicator$b0)/log(max(indicator$b0,na.rm=TRUE))*100000
+
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
+ 
+ 
+ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = b0, start =pi,
+#                   end = 2*pi), fill = "grey",col=NA,alpha=1)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = btarget, start =pi,
+#                   end = 2*pi), fill = "red",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bbest, start = pi,
+#                   end = 2*pi ), fill = "orange",col=NA,alpha=.6)+
+#  geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = pi,
+#                   end = 2*pi), fill = "green",col=NA,alpha=.6)+
+   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = bcurrent, start = 0,
+                   end = 2*pi, fill = bscaled),col=NA,alpha=1)+
+  
+  xlab("")+ylab("") + 
+  geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =4200000, r0 = 0, r = bscale, start =pi,
+                   end = 2*pi), fill = NA,col="black")+
+  geom_text(data=scalesb,aes(x=3050000, y=4200000+bscale,label=paste0(b/1e3,"t")),
+            size=2,hjust="left")+
+  geom_point(data=indicator %>%
+               filter(is.na(bcurrent)),
+             aes(x=x,y=y),pch="x")+
+  scale_fill_viridis_c(expression(B[current]/B[0]))
+  # scale_alpha_manual("",values=c("B0" = 1,
+  #                        "Bcurrent" = .6,
+  #                        "Bbest"= .6,
+  #                        "Btarget" = .6,
+  #                        "sumF" = 1,
+  #                        "sumA" = 1))
+
 ```
 
 ### mortality
 
 
 ```{r mortalitymapcountry}
-# indicator <- dbGetQuery(con,"select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=2018 group by eel_cou_code,eel_emu_nameshort")
-indicator <- precodata_country %>%
-  filter(eel_year >=2018) %>%
-  group_by(eel_cou_code) %>%
-  summarize(suma=mean(suma,na.rm=TRUE),
-            sumf=mean(sumf,na.rm=TRUE),
-            sumfsuma_emu=mean(ratio_sumfsuma,na.rm=TRUE))
-indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)
+indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
+indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE) %>%
+  filter(cou_code %in% eu_cou_codes)
 indicator = st_transform(indicator,crs=3035)
 indicator$x <-st_coordinates(indicator)[,1]
 indicator$y <-st_coordinates(indicator)[,2]
-indicator$x[indicator$cou_code=="NO"] = 4172612.3
-indicator$y[indicator$cou_code=="NO"] = 4111023.3
+indicator$x[indicator$eel_cou_code=="NO"] = 4172612.3
+indicator$y[indicator$eel_cou_code=="NO"] = 4111023.3
 
 prettyscale <- c(0,.92)
+indicator$sumfsuma <- indicator$sumf/indicator$suma
+
 prettyscale_scaled <- scales::rescale(prettyscale,to=c(40000,200000),from=c(0,max(indicator$suma,na.rm=TRUE)))
 
 indicator$sumf <- scales::rescale(indicator$sumf,to=c(40000,200000), from=c(0,max(indicator$suma,na.rm=TRUE)))
@@ -520,18 +667,19 @@ indicator$suma <- scales::rescale(indicator$suma,to=c(40000,200000), from=c(0,ma
 scalesm <-data.frame(m=prettyscale,mscale=prettyscale_scaled,y0=c(4200000,4500000))
 
 
-
 legend <- data.frame(indicator=c("sumA","sumF"))
 
 ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
   geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = suma, start =0,
-                   end = 2*pi,fill=sumfsuma_emu),size=.2,col=NA)+
+                   end = 2*pi,fill=sumfsuma),size=.2,col=NA)+
   # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
   #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
   xlab("")+ylab("") + 
   geom_point(data=indicator %>%
                filter(is.na(suma) & is.na(sumf)),
              aes(x=x,y=y),pch="x")+
+    geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 40000, start =0,
+                   end = pi),size=.2, fill = NA,col="black")+
     geom_arc_bar(data=scalesm,aes(x0 = 3008000, y0 =y0, r0 = 0, r = mscale, start =0,
                    end = pi), fill = NA,col="black")+
   geom_text(data=scalesm,aes(x=3000000, y=y0+mscale,label=paste0(m,"~year^{-1}")),
@@ -551,14 +699,15 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 # Time trends
 ## Biomass visualisation
 Each line represents an EMU.
-
 ```{r trendbiomass, fig.height=16/2.54,fig.height=16/2.54}
+if (!dir.exists("trendbiomassplots"))
+dir.create("trendbiomassplots")
 indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, bcurrent_without_stocking,suma,sumf, sumh from datawg.precodata_emu")
 indicator<- indicator %>%
   mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
                              eel_cou_code,
                              "INT")) %>%
-  filter(eel_cou_code!="IE" | eel_year !=2008)
+  filter(eel_cou_code %in% eu_cou_codes)
 
 
 g = ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) +
@@ -574,18 +723,63 @@ theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") + xlim(2007,2020)+facet_
 ggsave(g,filename="trend_biomass.png", width=16/2.54, height=16/2.54,dpi=300)
 knitr::include_graphics("trend_biomass.png")
 
+for (emu in unique(indicator$eel_emu_nameshort)){
+  g = ggplot(indicator %>% filter(!is.na(bcurrent/b0)& 
+               eel_emu_nameshort == emu),
+             aes(x=eel_year,y=bcurrent/b0) ) +
+    geom_hline(yintercept=.4,col="red")+
+    geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+    #  scale_y_log10()+
+    scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+    guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+    #  scale_y_sqrt()+
+    
+    theme_bw() + ylab(expression(B[current]/B[0]))+xlab("") +
+    xlim(2007,2020) + ggtitle(emu)
+  
+  ggsave(g,filename=paste0("trendbiomassplots/trend_biomass_",emu,".png"), width=16/2.54, height=16/2.54,dpi=300)
+  
+
+}
+
+
+```
+
+same without stocking
+```{r trendbiomasswithoutstocking, fig.height=16/2.54,fig.height=16/2.54}
+indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent_without_stocking bcurrent, bcurrent_without_stocking,suma,sumf, sumh from datawg.precodata_emu")
+indicator<- indicator %>%
+  mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
+                             eel_cou_code,
+                             "INT")) %>%
+  filter(eel_cou_code %in% eu_cou_codes)
+
+
+g = ggplot(indicator %>% filter(!is.na(bcurrent/b0)),aes(x=eel_year,y=bcurrent/b0)) +
+  geom_hline(yintercept=.4,col="red")+
+  geom_line(aes(col=eel_cou_code,group=eel_emu_nameshort))+
+#  scale_y_log10()+
+  scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
+  guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
+#  scale_y_sqrt()+
+  
+theme_bw() + ylab(expression(B[current_without_stocking]/B[0]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+  
+ggsave(g,filename="trend_biomass_without_stocking.png", width=16/2.54, height=16/2.54,dpi=300)
+knitr::include_graphics("trend_biomass_without_stocking.png")
+
 
 ```
 
 ## Mortalities visualization
 
 ```{r trendmortasuma, fig.height=16/2.54,fig.width=16/2.54}
-indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, suma,sumf, sumh from datawg.precodata_emu")
+indicator <- dbGetQuery(con,"select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, bcurrent_without_stocking,suma,sumf, sumh from datawg.precodata_emu")
 indicator<- indicator %>%
   mutate(eel_cou_code=ifelse(eel_cou_code == substr(eel_emu_nameshort,1,2),
                              eel_cou_code,
                              "INT")) %>%
-  filter(eel_cou_code!="IE" | eel_year !=2008)
+  filter(eel_cou_code %in% eu_cou_codes)
 
 color_countries = c(color_countries,"INT"="#ff5733")            
 
@@ -643,7 +837,7 @@ library(Kendall)
 #source("readingAnnex13.R") run this if you don't have Rdata below
 load( file=file.path(getwd(),"data_dependencies","annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
 
-eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
+eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE")
 
 emu_sea= emu_p %>%
   filter(emu_cou_code %in% eu_cou_codes) %>%
@@ -658,8 +852,7 @@ emu_sea= emu_p %>%
 
 mor_wise = annexes13_method %>% select(emu_nameshort,mortality_wise)
 mor_wise = merge(emu_sea %>% st_drop_geometry(),mor_wise)
-mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) %>%
-  mutate(emu_nameshort = ifelse(emu_nameshort == "NL_Neth","NL_total",emu_nameshort))
+mor_wise <- mor_wise %>% mutate(cohort_wise=grepl("ohort",mortality_wise)) 
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
 load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
 
@@ -683,6 +876,14 @@ estimate_b0 = function(emu, year, mor_wise,precodata){
   precodata$bbest[precodata$eel_emu_nameshort==emu & precodata$eel_year==year] / Rcurrent
 }
 
+indicator <- indicator %>% left_join(
+  emu_sea %>%
+    st_drop_geometry() %>%
+    select(emu_nameshort,rec_zone) %>%
+    rename(eel_emu_nameshort= emu_nameshort)
+)
+
+
 indicator_sub <- indicator %>%
   filter(eel_emu_nameshort %in% unique(mor_wise$emu_nameshort))
 indicator_sub$b0_adj = mapply(estimate_b0,indicator_sub$eel_emu_nameshort, indicator_sub$eel_year,
@@ -696,6 +897,7 @@ indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_
 ```
 
 ## B0_adjusted visualisation
+B0 adjusted takes current level of recruitment expressed a a fraction of pre-80s values (from WGEEL indices, considering that pre-80s is close to R0), and use Bbest (escapment that would have occured given current recruitment in the absence of anthropogenic mortality) to estimate a theoretical B0. This could be repeated for every year for which Bbest and recruitment indices are available. In the absence of any density dependent natural mortality, those adjusted B0 are expected to be stable through time. In period of decling recruitment, natural mortality is expected to decrease and consequently, adjusted B0 to increase. On the contrary, adjusted B0 is expected to decrease in periods of decreasing recruitment. In the last years, recruitment have been rather stable, so adjusted B0 were expected to be rather stable, but interestingly, we observe significant and contrasted trends depending on countries. This is likely related to heterogeneties in the methods to compute indicators.
 
 ```{r plotB0_adj, fig.height=16/2.54,fig.width=16/2.54}
 
@@ -706,13 +908,59 @@ b0trend <- ggplot(indicator %>% filter(!is.na(b0_adj)),aes(x=eel_year,y=b0_adj/1
   scale_color_manual("country",values=color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)],)+
   guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
 #  scale_y_sqrt()+
-theme_bw() + ylab(expression(B[0-adj]~"in mio"))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
-ggsave(b0trend, "b0_trend.png",height=16/2.54,width=16/2.54)
+theme_bw() + ylab(expression(B[0-adj]~"in 1000t"))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
+ggsave(b0trend, file="b0_trend.png",height=16/2.54,width=16/2.54)
 knitr::include_graphics("b0_trend.png")
 
 ```
 
 
+In the absence of density dependence $B_{adj0}$ over $B_0$ is expected to be close to 1. In the presence of density dependent mortality, given the current recruitment decline, $B_{adj0}$/$B_0$ might be higher than 1. This is observed in most EMUs.
+
+In Elsewhere Europe area, most of the ratio are between 1 and 10, the order of magnitudes appear to be roughty constant among countries. The only exception is ES_Anda with very low ratio, this would suggest either very strong values of B0 or very pessimistic values of Bcurrent. Ireland appears to have larger values than other countries, this is likely related to their difficulties in extrapolating $b_0$ mentioned in their annex 13.
+
+```{r B0adjoverB0EE}
+ggplot(indicator %>%
+         filter(eel_cou_code %in%eu_cou_codes & rec_zone=="EE"), aes(x=b0_adj/b0)) +
+  geom_histogram(aes(fill=eel_emu_nameshort), show.legend=FALSE) +
+  geom_vline(aes(xintercept=1), lty=3) +
+  facet_wrap(~eel_emu_nameshort) + 
+  scale_x_log10() +
+  xlab(expression(B[adj0]/B[0])) +
+  ylab("") +
+  theme_bw()
+
+```
+
+EMUs connected to the North Sea display very high values of ratios compared to what is observed in Elsewhere Europe. This is surprising since recruitment (and consequently density dependent natural mortality) is supposed to be lower in this area. A possible common reason is the WGEEL North Sea index that might be overpessimistic, indicating overly low current recruitment and leading to overestimated $B_{adj0}$. This was discussed in WGEEL 2024. However, the level of variations amoung countries, and among EMUs withing countries is still rather large.
+
+```{r B0adjoverB0NS}
+ggplot(indicator %>%
+         filter(eel_cou_code %in%eu_cou_codes & rec_zone=="NS"), aes(x=b0_adj/b0)) +
+  geom_histogram(aes(fill=eel_emu_nameshort), show.legend=FALSE) +
+  geom_vline(aes(xintercept=1), lty=3) +
+  facet_wrap(~eel_emu_nameshort) + 
+  scale_x_log10() +
+  xlab(expression(B[adj0]/B[0])) +
+  ylab("") +
+  theme_bw()
+
+```
+
+In the Baltic region, the situation is similar to Elsewhere Europe. Here, two EMUs display negative ratio that could be surprising: DE_Oder and SE_Inla, questionning a possible overestimation of $B_0$.
+
+```{r B0adjoverB0BA}
+ggplot(indicator %>%
+         filter(eel_cou_code %in%eu_cou_codes & rec_zone=="BA"), aes(x=b0_adj/b0)) +
+  geom_histogram(aes(fill=eel_emu_nameshort), show.legend=FALSE) +
+  geom_vline(aes(xintercept=1), lty=3) +
+  facet_wrap(~eel_emu_nameshort) + 
+  scale_x_log10() +
+  xlab(expression(B[adj0]/B[0])) +
+  ylab("") +
+  theme_bw()
+
+```
 
 ```{r plotB0ratio, fig.height=16/2.54,fig.width=16/2.54}
 
@@ -724,10 +972,74 @@ b0ratio <- ggplot(indicator %>% filter(!is.na(bcurrent/b0_adj)),aes(x=eel_year,y
   guides(lty=FALSE,col=FALSE)+ #geom_hline(yintercept=1)+
 #  scale_y_sqrt()+
 theme_bw() + ylab(expression(B[current]/B[0-adj]))+xlab("") + xlim(2007,2020)+facet_wrap(~eel_cou_code,drop=TRUE,scales="free_y")
-ggsave(b0ratio, "b0_ratio.png",height=16/2.54,width=16/2.54)
+ggsave(b0ratio, file="b0_ratio.png",height=16/2.54,width=16/2.54)
 knitr::include_graphics("b0_ratio.png")
 ```
 
+
+
+```{r allgraphrperemu}
+sub <- indicator %>%
+  mutate(ratio=bcurrent/b0,
+         ratio_without_stocking=bcurrent_without_stocking/b0,
+         ratio_mort=sumf/suma) %>%
+  select(eel_year,eel_emu_nameshort,bcurrent,bcurrent_without_stocking,b0_adj,bbest,suma,sumf,sumh, ratio_mort,ratio_without_stocking,ratio) %>%
+  rename("EMU"=eel_emu_nameshort#,
+         # `b[curr]`=bcurrent,
+         # `b[curr_without_stocking]`=bcurrent_without_stocking,
+         # `b[0adj]`=b0_adj,
+         # `b[best]`=bbest,
+         # `sumf/suma`=ratio_mort,
+         # `b[curr_without_stocking]/b[0]`=ratio_without_stocking,
+         # `b[curr}/b[0]`=ratio
+         )
+
+
+refpoints=data.frame(indicator=c("ratio","ratio_without_stocking",
+                                  "suma"),
+                      indval=c(rep(0.4,2),.92))
+var.lab3 = c(
+  "ratio_without_stocking" = bquote(b[curr_ws]/b[0]), 
+  "ratio" = bquote(b[curr]/b[0]), 
+  "ratio_mort" = bquote(sumf/suma),
+  "bbest"=bquote(b[best]),
+  
+  'bcurrent'=bquote(b[curr]),
+  
+   "bcurrent_without_stocking"=bquote(b[curr_ws]),
+   "b0_adj"=bquote(badj[0]),
+  "sumf"=bquote(sumf),
+  "suma"=bquote(suma),
+  "sumh"=bquote(sumh)
+)
+
+vlabeller <- function (variable, value) {
+  return(var.lab3[value])
+}
+
+if (!dir.exists("trendsfig"))
+  dir.create("trendsfig")
+
+for (emu in unique(sub$EMU)){
+  subemu <- sub %>%
+    filter(EMU==emu) %>%
+    pivot_longer(!all_of(c("EMU","eel_year")),
+                 names_to="indicator",
+                 values_to="indval")
+  if (nrow(subemu) > 0){
+  g = ggplot(subemu,aes(x=eel_year,y=indval))+
+    geom_line()+
+    geom_point()+
+    facet_wrap(~indicator, labeller=vlabeller,
+               scales="free")+
+    xlab("")+ylab("") +
+    geom_hline(data=refpoints,aes(yintercept=indval),col=2,lty=3)
+  ggsave(paste0("trendsfig/trends_indicator_",
+                emu,
+                ".png"),
+         height=16/2.54, width = 16/2.54, dpi = 300)}
+}
+```
 ## Data availability
 
 ```{r visualize_datagaps}
@@ -811,7 +1123,7 @@ Tab XX Summary of implementation progress and related effects in all reporting E
 ### Kendall_test biomass & Formatting of biomass tables
 
 
-######Kendall bio_bo
+######Kendall bio_b0
 invisible(capture.output(Kendall_bio_b0 <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
                   mutate(ratio = bcurrent/b0) %>%
                   filter(eel_year >= 2007) %>%
@@ -841,122 +1153,192 @@ invisible(capture.output(Kendall_bio_b0_without_stocking <- rownames_to_column(a
 
 
 
-######Kendall bio_bo_adj
-
-invisible(capture.output(Kendall_bio_b0_adj <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
-                      mutate(ratio = bcurrent/b0_adj) %>%
-                      filter(eel_year >= 2007) %>%
-                      select(eel_emu_nameshort, eel_year, ratio) %>%
-                      drop_na(ratio)%>%
-                      group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
-                      pivot_wider(names_from = eel_emu_nameshort, values_from = ratio) %>%
-                      arrange(eel_year) %>%
-                      select(-eel_year), 
-                      function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
-
-
-
-######Kendall bio_bo_adj without stocking
-
-
-invisible(capture.output(Kendall_bio_b0_adj_without_stocking <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
-                      mutate(ratio_without_stocking=bcurrent_without_stocking/b0_adj) %>%
-                      filter(eel_year >= 2007) %>%
-                      select(eel_emu_nameshort, eel_year, ratio_without_stocking) %>%
-                      drop_na(ratio_without_stocking)%>%
-                      group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
-                      pivot_wider(names_from = eel_emu_nameshort, values_from = ratio_without_stocking) %>%
-                      arrange(eel_year) %>%
-                      select(-eel_year), 
-                      function(y) unlist(MannKendall(y)) %>% setNames(paste0(names(.),"_without_stocking")))))),
-                      "eel_emu_nameshort")))
-
-
+# ######Kendall bio_bo_adj
+# 
+# invisible(capture.output(Kendall_bio_b0_adj <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+#                       mutate(ratio = bcurrent/b0_adj) %>%
+#                       filter(eel_year >= 2007) %>%
+#                       select(eel_emu_nameshort, eel_year, ratio) %>%
+#                       drop_na(ratio)%>%
+#                       group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+#                       pivot_wider(names_from = eel_emu_nameshort, values_from = ratio) %>%
+#                       arrange(eel_year) %>%
+#                       select(-eel_year), 
+#                       function(y) unlist (MannKendall(y)))))), "eel_emu_nameshort")))
+# 
+# 
+# 
+# ######Kendall bio_bo_adj without stocking
+# 
+# 
+# invisible(capture.output(Kendall_bio_b0_adj_without_stocking <- rownames_to_column(as.data.frame(t(as.data.frame(lapply(indicator %>%
+#                       mutate(ratio_without_stocking=bcurrent_without_stocking/b0_adj) %>%
+#                       filter(eel_year >= 2007) %>%
+#                       select(eel_emu_nameshort, eel_year, ratio_without_stocking) %>%
+#                       drop_na(ratio_without_stocking)%>%
+#                       group_by(eel_emu_nameshort) %>% filter(n()>= 5) %>% ungroup() %>%
+#                       pivot_wider(names_from = eel_emu_nameshort, values_from = ratio_without_stocking) %>%
+#                       arrange(eel_year) %>%
+#                       select(-eel_year), 
+#                       function(y) unlist(MannKendall(y)) %>% setNames(paste0(names(.),"_without_stocking")))))),
+#                       "eel_emu_nameshort")))
+# 
+# 
 
 
 ######Kendall bio_b0 table
 
 Kendall_b0_tab <-  indicator %>%
-                    group_by(eel_emu_nameshort) %>%
-                    filter(eel_year >= 2007 & !is.na(b0) & !is.na(bcurrent)) %>% 
-                    mutate(ratio_b0 = bcurrent/b0,
-                           ratio_b0_without_stocking = bcurrent_without_stocking/b0) %>%
-                    mutate(Period_b0 = paste(min(eel_year), max(eel_year), sep = "-"),
-                      n_b0 = length(ratio_b0[!is.na(ratio_b0)]),
-                      n_b0_without_stocking = length(ratio_b0_without_stocking[!is.na(ratio_b0_without_stocking)]),
-                      Esc_perc_b0_initial = round(ratio_b0[which.min(eel_year)], 3),
-                      Esc_perc_b0_initial_without_stocking = round(ratio_b0_without_stocking[which.min(eel_year)], 3),
-                      Esc_perc_b0_current = round(ratio_b0[which.max(eel_year)], 3),
-                      Esc_perc_b0_current_without_stocking = round(ratio_b0_without_stocking[which.max(eel_year)], 3),
-                      Delta_b0 = ratio_b0[which.max(eel_year)] - ratio_b0[which.min(eel_year)],
-                      Delta_b0_without_stocking = ratio_b0_without_stocking[which.max(eel_year)] - ratio_b0_without_stocking[which.min(eel_year)]) %>%
-                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
-                    select(eel_emu_nameshort, Period_b0, n_b0,n_b0_without_stocking, Esc_perc_b0_initial, Esc_perc_b0_initial_without_stocking, Esc_perc_b0_current,Esc_perc_b0_current_without_stocking, Delta_b0, Delta_b0_without_stocking) %>%
-                    unique() %>%
-                    ungroup() %>%
-                    arrange(eel_emu_nameshort) %>%
-                    left_join(Kendall_bio_b0, by = "eel_emu_nameshort") %>%
+  group_by(eel_emu_nameshort) %>%
+  filter(eel_year >= 2007 & !is.na(b0) & !is.na(bcurrent)) %>% 
+  mutate(ratio_b0 = bcurrent/b0) %>%
+  mutate(Period_b0 = paste(min(eel_year), max(eel_year), sep = "-"),
+         n_b0 = length(ratio_b0[!is.na(ratio_b0)]),
+         Esc_perc_b0_initial = round(ratio_b0[which.min(eel_year)], 3),
+         Esc_perc_b0_current = round(ratio_b0[which.max(eel_year)], 3),
+         Delta_b0 = ratio_b0[which.max(eel_year)] - ratio_b0[which.min(eel_year)]) %>%
+  filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+  select(eel_emu_nameshort, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current,Delta_b0) %>%
+  unique() %>%
+  ungroup() %>%
+  full_join(indicator  %>% group_by(eel_emu_nameshort) %>%
+              filter(eel_year >= 2007 & !is.na(b0) & !is.na(bcurrent_without_stocking)) %>% 
+              mutate(ratio_b0_without_stocking = bcurrent_without_stocking/b0) %>%
+              mutate(Period_b0_without_stocking = paste(min(eel_year), max(eel_year), sep = "-"),
+                     n_b0_without_stocking = length(ratio_b0_without_stocking[!is.na(ratio_b0_without_stocking)]),
+                     Esc_perc_b0_initial_without_stocking = round(ratio_b0_without_stocking[which.min(eel_year)], 3),
+                     Esc_perc_b0_current_without_stocking = round(ratio_b0_without_stocking[which.max(eel_year)], 3),
+                     Delta_b0_without_stocking = ratio_b0_without_stocking[which.max(eel_year)] - ratio_b0_without_stocking[which.min(eel_year)]) %>%
+              filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+              select(eel_emu_nameshort, Period_b0_without_stocking, n_b0_without_stocking, Esc_perc_b0_initial_without_stocking, Esc_perc_b0_current_without_stocking, Delta_b0_without_stocking) %>%
+              unique() %>%
+              ungroup()) %>%
+  arrange(eel_emu_nameshort) %>%
+  left_join(Kendall_bio_b0, by = "eel_emu_nameshort") %>%
   left_join(Kendall_bio_b0_without_stocking, by = "eel_emu_nameshort") %>%
-                    rename(p_b0 = sl,
-                      Tau_b0 = tau,
-                      Denominator_b0 = D,
-                      Score_b0 = S,
-                      VarScore_b0 = varS,
-                      p_b0_without_stocking = sl_without_stocking,
-                      Tau_b0_without_stocking = tau_without_stocking,
-                      Denominator_b0_without_stocking = D_without_stocking,
-                      Score_b0_without_stocking = S_without_stocking,
-                      VarScore_b0_without_stocking = varS_without_stocking) %>%
-                    mutate(Delta_b0 = round(Delta_b0, 3),
-                           Delta_b0_without_stocking = round(Delta_b0, 3),
-                      p_b0 = round(p_b0, 3),
-                      p_b0_without_stocking = round(p_b0_without_stocking, 3),
-                      Tau_b0 = round(Tau_b0, 3),
-                      Tau_b0 = round(Tau_b0, 3),
-                      Denominator_b0 = round(Denominator_b0, 0),
-                      Denominator_b0_without_stocking = round(Denominator_b0_without_stocking, 0),
-                      VarScore_b0 = round(VarScore_b0, 3),
-                      VarScore_b0_without_stocking = round(VarScore_b0_without_stocking, 3)) #%>%
-                     
+  rename(p_b0 = sl,
+         Tau_bcurr = tau,
+         Denominator_b0 = D,
+         Score_b0 = S,
+         VarScore_b0 = varS,
+         p_b0_without_stocking = sl_without_stocking,
+         Tau_bcurr_without_stocking = tau_without_stocking,
+         Denominator_b0_without_stocking = D_without_stocking,
+         Score_b0_without_stocking = S_without_stocking,
+         VarScore_b0_without_stocking = varS_without_stocking) %>%
+  mutate(Delta_b0 = round(Delta_b0, 3),
+         Delta_b0_without_stocking = round(Delta_b0, 3),
+         p_b0 = round(p_b0, 3),
+         p_b0_without_stocking = round(p_b0_without_stocking, 3),
+         Tau_bcurr = round(Tau_bcurr, 3),
+         Tau_bcurr_without_stocking  = round(Tau_bcurr_without_stocking , 3),
+         Denominator_b0 = round(Denominator_b0, 0),
+         Denominator_b0_without_stocking = round(Denominator_b0_without_stocking, 0),
+         VarScore_b0 = round(VarScore_b0, 3),
+         VarScore_b0_without_stocking = round(VarScore_b0_without_stocking, 3)) #%>%
+
 
 
 ######Kendall bio_b0_adj table
-Kendall_b0_adj_tab <-  indicator %>%
-                    group_by(eel_emu_nameshort) %>%
-                    filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
-                    mutate(ratio_b0_adj = bcurrent/b0_adj) %>%
-                    mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
-                      n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
-                      Esc_perc_b0_adj_initial = round(ratio_b0_adj[which.min(eel_year)], 3),
-                      Esc_perc_b0_adj_current = round(ratio_b0_adj[which.max(eel_year)], 3),
-                      Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
-                    filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
-                    select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj) %>%
-                    unique() %>%
-                    ungroup() %>%
-                    arrange(eel_emu_nameshort) %>%
-                    left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
-  left_join(Kendall_bio_b0_adj_without_stocking, by = "eel_emu_nameshort") %>%
-                    rename(p_b0_adj = sl,
-                      Tau_b0_adj = tau,
-                      Denominator_b0_adj = D,
-                      Score_b0_adj = S,
-                      VarScore_b0_adj = varS,
-                      p_b0_adj_without_stocking = sl_without_stocking,
-                      Tau_b0_adj_without_stocking = tau_without_stocking,
-                      Denominator_b0_adj_without_stocking = D_without_stocking,
-                      Score_b0_adj_without_stocking = S_without_stocking,
-                      VarScore_b0_adj_without_stocking = varS_without_stocking) %>%
-                    mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
-                      p_b0_adj = round(p_b0_adj, 3),
-                      Tau_b0_adj = round(Tau_b0_adj, 3),
-                      Denominator_b0_adj = round(Denominator_b0_adj, 0),
-                      VarScore_b0_adj = round(VarScore_b0_adj, 3),
-                      Delta_b0_adj_without_stocking = round(Delta_b0_adj_without_stocking, 3),
-                      p_b0_adj_without_stocking = round(p_b0_adj_without_stocking, 3),
-                      Tau_b0_adj_without_stocking = round(Tau_b0_adj_without_stocking, 3),
-                      Denominator_b0_adj_without_stocking = round(Denominator_b0_adj_without_stocking, 0),
-                      VarScore_b0_adj_without_stocking = round(VarScore_b0_adj_without_stocking, 3))
+# Kendall_b0_adj_tab <-  indicator %>%
+#                     group_by(eel_emu_nameshort) %>%
+#                     filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
+#                     mutate(ratio_b0_adj = bcurrent/b0_adj) %>%
+#                     mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
+#                       n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
+#                       Esc_perc_b0_adj_initial = round(ratio_b0_adj[which.min(eel_year)], 3),
+#                       Esc_perc_b0_adj_current = round(ratio_b0_adj[which.max(eel_year)], 3),
+#                       Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
+#                     filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+#                     select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj) %>%
+#                     unique() %>%
+#                     ungroup() %>%
+#                     arrange(eel_emu_nameshort) %>%
+#                     left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+#   left_join(Kendall_bio_b0_adj_without_stocking, by = "eel_emu_nameshort") %>%
+#                     rename(p_b0_adj = sl,
+#                       Tau_b0_adj = tau,
+#                       Denominator_b0_adj = D,
+#                       Score_b0_adj = S,
+#                       VarScore_b0_adj = varS) %>%
+#                     mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
+#                       p_b0_adj = round(p_b0_adj, 3),
+#                       Tau_b0_adj = round(Tau_b0_adj, 3),
+#                       Denominator_b0_adj = round(Denominator_b0_adj, 0),
+#                       VarScore_b0_adj = round(VarScore_b0_adj, 3))
+# 
+
+######Kendall bio b0 adjusted without stocking
+
+# 
+# Kendall_b0_adj_tab_without_stocking <-  indicator %>%
+#                     group_by(eel_emu_nameshort) %>%
+#                     filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
+#                     mutate(ratio_b0_adj_without_stocking = bcurrent_without_stocking/b0_adj) %>%
+#                     mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
+#                       n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
+#                       Esc_perc_b0_adj_initial_without_stocking = round(ratio_b0_adj_without_stocking[which.min(eel_year)], 3),
+#                       Esc_perc_b0_adj_current_without_stocking = round(ratio_b0_adj_without_stocking[which.max(eel_year)], 3),
+#                       Delta_b0_adj_without_stocking = ratio_b0_adj_without_stocking[which.max(eel_year)] - ratio_b0_adj_without_stocking[which.min(eel_year)]) %>%
+#                     filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+#                     select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial_without_stocking, Esc_perc_b0_adj_current_without_stocking, Delta_b0_adj_without_stocking) %>%
+#                     unique() %>%
+#                     ungroup() %>%
+#                     arrange(eel_emu_nameshort) %>%
+#   left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+#                     left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+#   left_join(Kendall_bio_b0_adj_without_stocking, by = "eel_emu_nameshort") %>%
+#                     rename(p_b0_adj = sl,
+#                       Tau_b0_adj = tau,
+#                       Denominator_b0_adj = D,
+#                       Score_b0_adj = S,
+#                       VarScore_b0_adj = varS) %>%
+#                     mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
+#                       p_b0_adj = round(p_b0_adj, 3),
+#                       Tau_b0_adj = round(Tau_b0_adj, 3),
+#                       Denominator_b0_adj = round(Denominator_b0_adj, 0),
+#                       VarScore_b0_adj = round(VarScore_b0_adj, 3))
+# 
+# 
+# 
+# Kendall_b0_adj_tab <-  indicator %>%
+#                     group_by(eel_emu_nameshort) %>%
+#                     filter(b0_adj > 0 & eel_year >= 2007 & !is.na(b0_adj) & !is.na(bcurrent)) %>% 
+#                     mutate(ratio_b0_adj = bcurrent/b0_adj,
+#                            ratio_b0_adj_without_stocking = bcurrent_without_stocking/b0_adj) %>%
+#                     mutate(Period_b0_adj = paste(min(eel_year), max(eel_year), sep = "-"),
+#                       n_b0_adj = length(ratio_b0_adj[!is.na(ratio_b0_adj)]),
+#                       Esc_perc_b0_adj_initial = round(ratio_b0_adj[which.min(eel_year)], 3),
+#                       Esc_perc_b0_adj_current = round(ratio_b0_adj[which.max(eel_year)], 3),
+#                       Delta_b0_adj = ratio_b0_adj[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)],
+#                       Delta_b0_adj_without_stocking = ratio_b0_adj_without_stocking[which.max(eel_year)] - ratio_b0_adj[which.min(eel_year)]) %>%
+#                     filter(eel_year == max(eel_year) | eel_year == min(eel_year)) %>%
+#                     select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, EsDelta_b0_adj_without_stocking) %>%
+#                     unique() %>%
+#                     ungroup() %>%
+#                     arrange(eel_emu_nameshort) %>%
+#                     left_join(Kendall_bio_b0_adj, by = "eel_emu_nameshort") %>%
+#   left_join(Kendall_bio_b0_adj_without_stocking, by = "eel_emu_nameshort") %>%
+#                     rename(p_b0_adj = sl,
+#                       Tau_b0_adj = tau,
+#                       Denominator_b0_adj = D,
+#                       Score_b0_adj = S,
+#                       VarScore_b0_adj = varS,
+#                       p_b0_adj_without_stocking = sl_without_stocking,
+#                       Tau_b0_adj_without_stocking = tau_without_stocking,
+#                       Denominator_b0_adj_without_stocking = D_without_stocking,
+#                       Score_b0_adj_without_stocking = S_without_stocking,
+#                       VarScore_b0_adj_without_stocking = varS_without_stocking) %>%
+#                     mutate(Delta_b0_adj = round(Delta_b0_adj, 3),
+#                       p_b0_adj = round(p_b0_adj, 3),
+#                       Tau_b0_adj = round(Tau_b0_adj, 3),
+#                       Denominator_b0_adj = round(Denominator_b0_adj, 0),
+#                       VarScore_b0_adj = round(VarScore_b0_adj, 3),
+#                       Delta_b0_adj_without_stocking = round(Delta_b0_adj_without_stocking, 3),
+#                       p_b0_adj_without_stocking = round(p_b0_adj_without_stocking, 3),
+#                       Tau_b0_adj_without_stocking = round(Tau_b0_adj_without_stocking, 3),
+#                       Denominator_b0_adj_without_stocking = round(Denominator_b0_adj_without_stocking, 0),
+#                       VarScore_b0_adj_without_stocking = round(VarScore_b0_adj_without_stocking, 3))
 
 
 ###Kendall Test for mortalities and formatting of tables
@@ -1069,8 +1451,7 @@ Kendall_mort_tab_h <- indicator %>%
 
 Kendall_table <- as.data.frame(unique(indicator$eel_emu_nameshort)) %>%
   rename(eel_emu_nameshort = "unique(indicator$eel_emu_nameshort)") %>%
-  left_join(Kendall_b0_tab %>% select(eel_emu_nameshort, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0, p_b0), by = "eel_emu_nameshort") %>%
-  left_join(Kendall_b0_adj_tab %>% select(eel_emu_nameshort, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj, p_b0_adj), by = "eel_emu_nameshort") %>%
+  left_join(Kendall_b0_tab %>% select(eel_emu_nameshort, Period_b0,Period_b0_without_stocking, n_b0, n_b0_without_stocking, Esc_perc_b0_initial, Esc_perc_b0_initial_without_stocking, Esc_perc_b0_current,Esc_perc_b0_current_without_stocking, Delta_b0, Delta_b0_without_stocking, Tau_bcurr,Tau_bcurr_without_stocking, p_b0, p_b0_without_stocking), by = "eel_emu_nameshort")  %>%
   left_join(Kendall_mort_tab_a %>% select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, n_suma, Delta_suma, Tau_suma, p_suma), by = "eel_emu_nameshort") %>%
   left_join(Kendall_mort_tab_f %>% select(eel_emu_nameshort, Period_sumf, sumf_initial, sumf_current, n_sumf, Delta_sumf, Tau_sumf, p_sumf), by = "eel_emu_nameshort") %>%         
   left_join(Kendall_mort_tab_h %>% select(eel_emu_nameshort, Period_sumh, sumh_initial, sumh_current, n_sumh, Delta_sumh, Tau_sumh, p_sumh), by = "eel_emu_nameshort") %>%
@@ -1089,13 +1470,15 @@ Kendall_summary <- Kendall_table %>%
                      ifelse(Tau_sumh<0, "negative","positive"))),
          b0=ifelse(n_b0 < 5, "less_than_5",
                      ifelse(p_b0>.1,"no_trend",
-                     ifelse(Tau_b0<0, "negative","positive"))),
-         b0_adj=ifelse(n_b0_adj < 5, "less_than_5", 
-                     ifelse(p_b0_adj>.1,"no_trend",
-                     ifelse(Tau_b0_adj<0, "negative","positive"))),
+                     ifelse(Tau_bcurr<0, "negative","positive"))),
+         b0_without_stocking=ifelse(n_b0_without_stocking < 5, "less_than_5", 
+                     ifelse(p_b0_without_stocking>.1,"no_trend",
+                     ifelse(Tau_bcurr_without_stocking<0, "negative","positive"))),
          b0_today=ifelse(Esc_perc_b0_current >= 0.4, "positive", "negative"),
-         b0_initial=ifelse(Esc_perc_b0_initial >= 0.4, "positive", "negative")) %>%
-  select(suma,sumf,sumh,b0,b0_adj, b0_today, b0_initial) %>%
+         b0_today_without_stocking=ifelse(Esc_perc_b0_current_without_stocking >= 0.4, "positive", "negative"),
+         b0_initial=ifelse(Esc_perc_b0_initial >= 0.4, "positive", "negative"),
+         b0_initial_without_stocking=ifelse(Esc_perc_b0_initial_without_stocking >= 0.4, "positive", "negative")) %>%
+  select(suma,sumf,sumh,b0,b0_without_stocking, b0_today, b0_today_without_stocking, b0_initial, b0_initial_without_stocking) %>%
   pivot_longer(everything(),names_to="indicator", values_to="trend") %>%
   group_by(indicator) %>%
   count(trend) %>%
@@ -1107,11 +1490,11 @@ library(officer)
 thick <- officer::fp_border(color="black", width = 3)
 
 Progress_visualisation <- Kendall_table %>%
-  select(eel_emu_nameshort, Esc_perc_b0_current, suma_current, Delta_b0, Delta_suma, Esc_perc_b0_initial, suma_initial) %>% 
-  filter_at(vars(Esc_perc_b0_current, Delta_b0, suma_current, Delta_suma, Esc_perc_b0_initial, suma_initial), any_vars(!is.na(.))) %>% 
+  select(eel_emu_nameshort, Esc_perc_b0_current,Esc_perc_b0_current_without_stocking, suma_current, Delta_b0, Delta_b0_without_stocking, Delta_suma, Esc_perc_b0_initial,Esc_perc_b0_initial_without_stocking,suma_initial) %>% 
+  filter_at(vars(Esc_perc_b0_current,Esc_perc_b0_current_without_stocking, Delta_b0, Delta_b0_without_stocking, suma_current, Delta_suma, Esc_perc_b0_initial, Esc_perc_b0_initial_without_stocking, suma_initial), any_vars(!is.na(.))) %>% 
   mutate(Delta_suma = ifelse(suma_current == suma_initial & suma_initial == 0, NA, Delta_suma))
                      
-columns <- c("Esc_perc_b0_current", "suma_current", "Delta_b0", "Delta_suma", "Esc_perc_b0_initial", "suma_initial")
+columns <- c("Esc_perc_b0_current","Esc_perc_b0_current_without_stocking", "suma_current", "Delta_b0", "Delta_b0_without_stocking","Delta_suma", "Esc_perc_b0_initial","Esc_perc_b0_initial_without_stocking", "suma_initial")
 
 bg_b0 <- scales::col_bin(
   palette = c("coral1", "palegreen3"),
@@ -1131,14 +1514,17 @@ bg_Delta_suma <- scales::col_bin(
 
 flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU",
                     Esc_perc_b0_current = "Bcurrent/B0 (current)",
+                    Esc_perc_b0_current_without_stocking = "Bcurrent without stocking/B0 (current)",
                     Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
+                    Esc_perc_b0_initial_without_stocking = "Bcurrent without stocking/B0 (initial)",
                     suma_current = "\u03A3A (current)",
                     suma_initial = "\u03A3A (initial)",
                     Delta_suma = "Change in \u03A3A since implementation",
-                    Delta_b0 = "Change in Bcurrent/B0 since implementation") %>% 
-             bg(j = c("Esc_perc_b0_current", "Esc_perc_b0_initial"), bg = bg_b0) %>%
+                    Delta_b0 = "Change in Bcurrent/B0 since implementation",
+                    Delta_b0_without_stocking = "Change in Bcurrent without stocking/B0 since implementation") %>% 
+             bg(j = c("Esc_perc_b0_current","Esc_perc_b0_current_without_stocking", "Esc_perc_b0_initial",  "Esc_perc_b0_initial_without_stocking"), bg = bg_b0) %>%
              bg(j = c("suma_current", "suma_initial"), bg = bg_suma) %>%
-             bg(j = "Delta_b0", bg = bg_Delta_b0) %>%
+             bg(j = c("Delta_b0","Delta_b0_without_stocking"), bg = bg_Delta_b0) %>%
              bg(j = "Delta_suma", bg = bg_Delta_suma) %>%
              vline() %>%
              hline() %>%
@@ -1146,7 +1532,7 @@ flextable(Progress_visualisation) %>% set_header_labels(eel_emu_nameshort = "EMU
              vline(j = 3, border = thick) %>% 
              vline_left() %>% 
              #void(j = columns) %>%
-             autofit()
+             autofit() %>% set_table_properties(layout = "autofit")
 
 detach("package:officer", unload=TRUE)
 
@@ -1160,8 +1546,7 @@ detach("package:officer", unload=TRUE)
 
 ## Biomass statistics
 
-Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent/B0_adjusted - as indicated by suffixes.\
-B0_adjusted accounts for the fact that while B0, by definition, is a fixed value, Bcurrent partly depends on natural recruitment. The ratio Bcurrent/B0 will thus not accurately reflect the influence of continental factors on escapement biomass (most importantly effects of management measures) but also changes in natural recruitment. B0_adjusted incorporates changes in natural recruitment, therefore canceling out effects of natural recruitment on Bcurrent and removing the bias. Since a multitude of different methods and models is used by countries to calculate biomass indicators a general approximation for the adjustment of B0 was derived from WGEEL recruitment index by... _SENTENCE OR TWO FROM HILAIRE_   
+Time trend analyses are carried out on the ratio of Bcurrent/B0 and Bcurrent_without_stocking - as indicated by suffixes.\
 
 The following restraints were defined for trend analyses:   
 1. Only values after 2010 (Implementation of Eel regulation) were considered\
@@ -1169,53 +1554,110 @@ The following restraints were defined for trend analyses:
 
 Delta gives the difference between the initial (2007) and current (last year reported) ratio of either Bcurrent/Bo or Bcurrent/B0_adjusted - as indicated by suffixes. The value thus indicates a quantitative measure of the change in biomass whereas Tau gives a qualitative estimate on whether the trend is positive/negative and significant (also see table footnote).
 
+
+
+
+Table with stocking
 ```{r KtableB0}
+format_p <- function(pall){
+  sapply(pall, function(p){
+  if (is.na(p)) return("")
+  if (p <= 0.001) return("***")
+  if (p<=0.01) return("**")
+  if (p <= 0.05) return("*")
+  if (p <=0.1) return(".")
+  return("")})
+}
 
 flextable(Kendall_table %>%
             rename(EMU = eel_emu_nameshort) %>%
-            mutate(Tau_b0 = ifelse(p_b0 <= 0.1, 
-                            ifelse(p_b0 <= 0.05, paste(Tau_b0, "**"), paste(Tau_b0, "*")), as.character(Tau_b0)))  %>%
-            select(EMU, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0) %>%
+            mutate(Tau_bcurr = paste(ifelse(is.na(Tau_bcurr),"",Tau_bcurr), format_p(p_b0)))  %>%
+            select(EMU, Period_b0, n_b0, Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_bcurr) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
-            filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_b0), any_vars(!is.na(.)))) %>%
+            filter_at(vars(n_b0,  Esc_perc_b0_initial, Esc_perc_b0_current, Delta_b0, Tau_bcurr), any_vars(!is.na(.)))) %>%
   set_header_labels(Period_b0 = "Period",
                     n_b0 = "n",
                     Esc_perc_b0_initial = "Bcurrent/B0 (initial)",
                     Esc_perc_b0_current = "Bcurrent/B0 (current)",
                     Delta_b0 = "\u0394 Bcurrent/B0",
-                    Tau_b0 = "\u03C4 B0") %>%
-            autofit()
+                    Tau_bcurr = "\u03C4 Bcurrent") %>%
+            autofit() %>% set_table_properties(layout = "autofit")
 ```
 
-[*] indicates p > 0.1\
-[**] indicates p > 0.05
+[.] indicates p < 0.1\
+[*] indicates p < 0.05\
+[**] indicates p < 0.01\
+[***] indicates p < 0.001\
 
 
-```{r KtableBB0_adj}
+
+Escapement still appears to be decreasing in many EMUs where a trend could be detected. A positive trend was found in only two EMUs (`r paste(Kendall_table %>% filter(!is.na(Tau_bcurr) & Tau_bcurr>0 & p_b0<=0.05) %>% select(eel_emu_nameshort) %>% pull(),collapse=", ")`)
+- Number of EMU with increasing trend in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr) & Tau_bcurr>0 & p_b0<=0.05)) `
+- Number of EMU with decreasing trend in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr) & Tau_bcurr<0 & p_b0<=0.05))`
+- Number of EMU for which no significant trend was detected in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr)  & p_b0>0.05))`
+
+
+
+
+Same without stocking
+
+```{r KtableB0withoutstocking}
 
 flextable(Kendall_table %>%
             rename(EMU = eel_emu_nameshort) %>%
-            mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
-                               ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
-            select(EMU, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj) %>%
+            mutate(Tau_bcurr_without_stocking = paste(ifelse(is.na(Tau_bcurr_without_stocking),"",Tau_bcurr_without_stocking), 
+                                                      format_p(p_b0_without_stocking)))  %>%
+            select(EMU, Period_b0_without_stocking, n_b0_without_stocking, Esc_perc_b0_initial_without_stocking, Esc_perc_b0_current_without_stocking, Delta_b0_without_stocking, Tau_bcurr_without_stocking) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
-            filter_at(vars(n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj), any_vars(!is.na(.)))) %>%
-  set_header_labels(Period_b0_adj = "Period",
-                    n_b0_adj = "n",
-                    Esc_perc_b0_adj_initial = "Bcurrent/B0-adj (initial)",
-                    Esc_perc_b0_adj_current = "Bcurrent/B0-adj (current)",
-                    Delta_b0_adj = "\u0394 Bcurrent/B0-adj",
-                    Tau_b0_adj = "\u03C4 B0-adj") %>%
-            autofit()
+            filter_at(vars(n_b0_without_stocking,  Esc_perc_b0_initial_without_stocking, Esc_perc_b0_current_without_stocking, Delta_b0_without_stocking, Tau_bcurr_without_stocking), any_vars(!is.na(.)))) %>%
+  set_header_labels(Period_b0_without_stocking = "Period",
+                    n_b0_without_stocking = "n",
+                    Esc_perc_b0_initial_without_stocking = "Bcurrent/B0 (initial)",
+                    Esc_perc_b0_current_without_stocking = "Bcurrent/B0 (current)",
+                    Delta_b0_without_stocking = "\u0394 Bcurrent/B0",
+                    Tau_bcurr_without_stocking = "\u03C4 Bcurrent") %>%
+  autofit() %>% set_table_properties(layout = "autofit")
 ```
 
-[*] indicates p > 0.1\
-[**] indicates p > 0.05
+[.] indicates p < 0.1\
+[*] indicates p < 0.05\
+[**] indicates p < 0.01\
+[***] indicates p < 0.001\
+
+ 
+ 
+
+The situation was almost the same when analysing trends in escapement without stocking: 
+- Number of EMU with increasing trend in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr_without_stocking) & Tau_bcurr_without_stocking>0 & p_b0_without_stocking<=0.05)) `
+- Number of EMU with decreasing trend in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr_without_stocking) & Tau_bcurr_without_stocking<0 & p_b0_without_stocking<=0.05))`
+- Number of EMU for which no significant trend was detected in $b_{curr}$: `r nrow(Kendall_table %>% filter(!is.na(Tau_bcurr)  & p_b0>0.05))`
+
+
+
+ 
+```{r KtableBB0_adj}
+# 
+# flextable(Kendall_table %>%
+#             rename(EMU = eel_emu_nameshort) %>%
+#             mutate(Tau_b0_adj = ifelse(p_b0_adj <= 0.1,
+#                                ifelse(p_b0_adj <= 0.05, paste(Tau_b0_adj, "**"), paste(Tau_b0_adj, "*")), as.character(Tau_b0_adj)))  %>%
+#             select(EMU, Period_b0_adj, n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj) %>%
+#             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
+#             filter_at(vars(n_b0_adj, Esc_perc_b0_adj_initial, Esc_perc_b0_adj_current, Delta_b0_adj, Tau_b0_adj), any_vars(!is.na(.)))) %>%
+#   set_header_labels(Period_b0_adj = "Period",
+#                     n_b0_adj = "n",
+#                     Esc_perc_b0_adj_initial = "Bcurrent/B0-adj (initial)",
+#                     Esc_perc_b0_adj_current = "Bcurrent/B0-adj (current)",
+#                     Delta_b0_adj = "\u0394 Bcurrent/B0-adj",
+#                     Tau_b0_adj = "\u03C4 B0-adj") %>%
+#             autofit() %>% set_table_properties(layout = "autofit")
+```
+
 
 \
 \
 
-```{r reporting summary}
+```{r reporting summary, eval=FALSE}
 
 ### SORRY THIS LOOKS SHITTY, HAD TO BE FAST DURING ADG
 
@@ -1337,7 +1779,7 @@ ADG_summary <- as.data.frame(t(head(ADG_summary)))
 
 #write.csv2(ADG_summary, file = "ADG_summary.csv", row.names = T, sep = ";")
 
-flextable(ADG_summary %>% rownames_to_column("indicator")) %>% autofit()
+flextable(ADG_summary %>% rownames_to_column("indicator")) %>% autofit() %>% set_table_properties(layout = "autofit")
 
 ```
 
@@ -1357,8 +1799,8 @@ Delta gives the difference between the initial (2010) and current (latest year r
 ```{r Ktablesuma}
 
 flextable(Kendall_table %>%
-            mutate(Tau_suma = ifelse(p_suma <= 0.1, 
-                            ifelse(p_suma <= 0.05, paste(Tau_suma, "**"), paste(Tau_suma, "*")), as.character(Tau_suma)))  %>%
+            mutate(Tau_suma = paste(ifelse(is.na(Tau_suma),"",Tau_suma), format_p(p_suma)))  %>%
+
             select(eel_emu_nameshort, Period_suma, suma_initial, suma_current, n_suma, Delta_suma, Tau_suma) %>%
             mutate_all(~ifelse(is.nan(.), NA, .)) %>%
             relocate(n_suma, .after = Period_suma) %>%
@@ -1370,8 +1812,27 @@ flextable(Kendall_table %>%
                               n_suma = "n",
                               Delta_suma = "\u0394 \u03A3A",
                               Tau_suma = "\u03C4 \u03A3A") %>%
-            autofit()
+            autofit() %>% set_table_properties(layout = "autofit")
 ```
+
+
+[.] indicates p < 0.1\
+[*] indicates p < 0.05\
+[**] indicates p < 0.01\
+[***] indicates p < 0.001\
+
+ 
+ 
+
+While negative trends in anthropogenic mortality was found in some EMUs (`r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_suma < 0 & Kendall_table$p_suma <= 0.05]), collapse=", ")`), soe increasing trends were also found (`r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_suma > 0 & Kendall_table$p_suma <= 0.05]), collapse=", ")`)
+- Number of EMU with increasing trend in $suma$: `r nrow(Kendall_table %>% filter(!is.na(Tau_suma) & Tau_suma>0 & p_suma<=0.05)) `
+- Number of EMU with decreasing trend in $suma$: `r nrow(Kendall_table %>% filter(!is.na(Tau_suma) & Tau_suma<0 & p_suma<=0.05))`
+- Number of EMU for which no significant trend was detected in $suma$: `r nrow(Kendall_table %>% filter(!is.na(Tau_suma)  & p_suma>0.05))`
+
+
+
+
+
 
 \
 \
@@ -1392,8 +1853,24 @@ flextable(Kendall_table %>%
                               n_sumf = "n",
                               Delta_sumf = "\u0394 \u03A3F",
                               Tau_sumf = "\u03C4 \u03A3F") %>%
-            autofit()
+            autofit() %>% set_table_properties(layout = "autofit")
 ```
+
+
+
+[.] indicates p < 0.1\
+[*] indicates p < 0.05\
+[**] indicates p < 0.01\
+[***] indicates p < 0.001\
+
+ 
+ 
+
+Negative trends (`r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_sumf < 0 & Kendall_table$p_sumf <= 0.05]), collapse=", ")`) are also more frequent than positive trends `r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_sumf > 0 & Kendall_table$p_sumf <= 0.05]), collapse=", ")`) in sumf:
+- Number of EMU with increasing trend in $sumf$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumf) & Tau_sumf>0 & p_sumf<=0.05)) `
+- Number of EMU with decreasing trend in $sumf$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumf) & Tau_sumf<0 & p_sumf<=0.05))`
+- Number of EMU for which no significant trend was detected in $sumf$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumf)  & p_sumf>0.05))`
+
 
 \
 \
@@ -1414,14 +1891,26 @@ flextable(Kendall_table %>%
                               n_sumh = "n",
                               Delta_sumh = "\u0394 \u03A3H",
                               Tau_sumh = "\u03C4 \u03A3H") %>%
-            autofit()
+            autofit() %>% set_table_properties(layout = "autofit")
 ```
 
 
-[*] indicates 0.05 < p < 0.1\
-[**] indicates p < 0.05
+
+[.] indicates p < 0.1\
+[*] indicates p < 0.05\
+[**] indicates p < 0.01\
+[***] indicates p < 0.001\
+
+ 
+ 
+
+The situation is almost similar with sumh negative trends:`r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_sumh < 0 & Kendall_table$p_sumf <= 0.05]), collapse=", ")` -  positive trends: `r paste(na.omit(Kendall_table$eel_emu_nameshort[Kendall_table$Tau_sumh > 0 & Kendall_table$p_sumh <= 0.05]), collapse=", ")` in sumf:
+- Number of EMU with increasing trend in $sumh$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumh) & Tau_sumh>0 & p_sumh<=0.05)) `
+- Number of EMU with decreasing trend in $sumh$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumh) & Tau_sumh<0 & p_sumh<=0.05))`
+- Number of EMU for which no significant trend was detected in $sumh$: `r nrow(Kendall_table %>% filter(!is.na(Tau_sumh)  & p_sumh>0.05))`
 
 
+<!--
 
 # Test for effect of measures
 ## Fisher's exact Test
@@ -1433,7 +1922,7 @@ _-_Result for b0 is interesting, eel governance seems to have an effect (tested 
 
 _Need to check if this makes sense, since the EMUs for the different measures are not the same but those where the respective measure was implemented_
 
-```{r Fisher_all}
+```{r Fisher_all, eval=FALSE}
 #### CAREFUL, THIS SECTION MIGHT NEED REVISION SINCE POSSIBLY NAs ARE DROPPED THAT SHOULD BE INCLUDED AS ZEROES####
 load("./data_dependencies/Annex15.Rdata")
 
@@ -1513,10 +2002,10 @@ Fisher_b0_adj <- measures %>%
          percentage = effect/total*100) %>%
   relocate(effect, .after = measure_type)
 
-flextable(Fisher_sumA) %>% autofit() %>% set_caption(caption = paste("sumA, p =", round((fisher.test(Fisher_sumA[,c(2,3)])$p.value), 3)))
-flextable(Fisher_sumF) %>% autofit() %>% set_caption(caption = paste("sumF, p =", round((fisher.test(Fisher_sumF[,c(2,3)])$p.value), 3)))
-flextable(Fisher_sumH) %>% autofit() %>% set_caption(caption = paste("sumH, p =", round((fisher.test(Fisher_sumH[,c(2,3)])$p.value), 3)))
-flextable(Fisher_b0_adj) %>% autofit() %>% set_caption(caption = paste("b0 adjusted, p =", round((fisher.test(Fisher_b0_adj[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumA) %>% autofit() %>% set_table_properties(layout = "autofit") %>% set_caption(caption = paste("sumA, p =", round((fisher.test(Fisher_sumA[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumF) %>% autofit() %>% set_table_properties(layout = "autofit") %>% set_caption(caption = paste("sumF, p =", round((fisher.test(Fisher_sumF[,c(2,3)])$p.value), 3)))
+flextable(Fisher_sumH) %>% autofit() %>% set_table_properties(layout = "autofit") %>% set_caption(caption = paste("sumH, p =", round((fisher.test(Fisher_sumH[,c(2,3)])$p.value), 3)))
+flextable(Fisher_b0_adj) %>% autofit() %>% set_table_properties(layout = "autofit") %>% set_caption(caption = paste("b0 adjusted, p =", round((fisher.test(Fisher_b0_adj[,c(2,3)])$p.value), 3)))
 
 ```
 
@@ -1526,7 +2015,7 @@ flextable(Fisher_b0_adj) %>% autofit() %>% set_caption(caption = paste("b0 adjus
 
 Fishers exact test is performed on a 2x2 matrix per measure, i.e. count of EMUs wher measure is implemented / not implemented x count of EMus with an effect / no effect on either SumA, SumF, SumH or bcurr/b0 adjusted (=b0_adj). The test indicates whether an effect on either parameter was independent (= null hypothesis) of the implementation of the respective measure type. 
 
-```{r Fisher_by_measure}
+```{r Fisher_by_measure, eval=FALSE}
 
 fisher_sumA <- measures %>% 
                      group_by(measure_type, binary_measure, sumA) %>%
@@ -1641,7 +2130,7 @@ flextable(fisher_sumA) %>% set_caption(caption = "\u03A3A") %>%
                     measure_type = "Measure type") %>% 
   vline(j = 5, border = thin) %>%
   vline(j = 6, border = thick) %>%
-  autofit() 
+  autofit() %>% set_table_properties(layout = "autofit") 
 
 flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
@@ -1652,7 +2141,7 @@ flextable(fisher_sumF) %>% set_caption(caption = "\u03A3F") %>%
                     measure_type = "Measure type") %>%
   vline(j = 5, border = thin) %>%
   vline(j = 6, border = thick) %>%
-  autofit()
+  autofit() %>% set_table_properties(layout = "autofit")
 
 flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
@@ -1663,7 +2152,7 @@ flextable(fisher_sumH) %>% set_caption(caption = "\u03A3H") %>%
                     measure_type = "Measure type") %>%
   vline(j = 5, border = thin) %>%
   vline(j = 6, border = thick) %>%
-  autofit()
+  autofit() %>% set_table_properties(layout = "autofit")
 
 flextable(fisher_b0) %>% set_caption(caption = "b0") %>%
   set_header_labels(implemented_0 = "implemented/no effect",
@@ -1674,7 +2163,7 @@ flextable(fisher_b0) %>% set_caption(caption = "b0") %>%
                     measure_type = "Measure type") %>%
   vline(j = 5, border = thin) %>%
   vline(j = 6, border = thick) %>%
-  autofit()
+  autofit() %>% set_table_properties(layout = "autofit")
 
 detach("package:officer", unload=TRUE)
 
@@ -1685,7 +2174,7 @@ detach("package:officer", unload=TRUE)
 ## Logistic regression
 ### Relation SigA and Bcurr
 
-```{r delta_Bcurr_vs_sigA_graph}
+```{r delta_Bcurr_vs_sigA_graph, eval=FALSE}
 
 require(lme4)
 delta <- Kendall_table %>%
@@ -1725,7 +2214,7 @@ ggplot(delta, aes(x=Delta_suma, y=binary_b0)) +
 
 *Tab* Model statistics for Logistic regression of change in Biomass expressed as Bcurrent/B0_adjusted over change in mortalities expressed as Delta sumA (for time period see Kendall table). Values marked with (all) use all available data where estimates of biomass and change in mrtality are available, values marked with (truncated) only use data where Delta SumA was between 1 and -1. 
 
-```{r delta_Bcurr_vs_sigA_table}
+```{r delta_Bcurr_vs_sigA_table, eval=FALSE}
 
 
 logit_delta_table <- as.data.frame(summary(logit_delta_b0_adj)$coefficients) %>%
@@ -1743,14 +2232,14 @@ logit_delta_table <- as.data.frame(summary(logit_delta_b0_adj)$coefficients) %>%
                "SE (truncated)" = "Std. Error.y",
                 "z (truncated)" = "z value.y",)
 
-flextable(logit_delta_table) %>% autofit()
+flextable(logit_delta_table) %>% autofit() %>% set_table_properties(layout = "autofit")
 
 ```
 
 
 ### Effect of number of measures on Stock indicators
 
-```{r logit_numbers_prep}
+```{r logit_numbers_prep, eval=FALSE}
 measures_n <- expand.grid(EMU = unique(res$emu_name_short),
             measure_type = unique(res$measure_type)) %>%
             left_join(counts, by=c("EMU" = "emu_name_short", "measure_type" = "measure_type")) %>%
@@ -1772,7 +2261,7 @@ new_measures_n <- expand.grid(n = seq(0, max(measures_n$n), by =0.5),
                          measure_type = unique(measures_n$measure_type))
 ```
 
-```{r logit_n_sumA_graph}
+```{r logit_n_sumA_graph, eval=FALSE}
 ggplot(measures_n, aes(x=n, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1786,10 +2275,10 @@ ggplot(measures_n, aes(x=n, y=sumA)) +
 
 *Tab* Table with model statistics for SumA vs number of measures
 
-```{r logit_n_sumA_table}
+```{r logit_n_sumA_table, eval=FALSE}
 summary_n_sumA <- as.data.frame(summary(logit_measures_n_sumA)$coefficients) 
 summary_n_sumA$coefficients <- rownames(summary_n_sumA)
-flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1798,7 +2287,7 @@ flextable(summary_n_sumA %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
-```{r logit_n_sumF_graph}
+```{r logit_n_sumF_graph, eval=FALSE}
 ggplot(measures_n, aes(x=n, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1812,10 +2301,10 @@ ggplot(measures_n, aes(x=n, y=sumF)) +
 
 *Tab* Table with model statistics for SumF vs number of measures
 
-```{r logit_n_sumF_table}
+```{r logit_n_sumF_table, eval=FALSE}
 summary_n_sumF <- as.data.frame(summary(logit_measures_n_sumF)$coefficients) 
 summary_n_sumF$coefficients <- rownames(summary_n_sumF)
-flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1824,7 +2313,7 @@ flextable(summary_n_sumF %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
-```{r logit_n_sumH_graph}
+```{r logit_n_sumH_graph, eval=FALSE}
 ggplot(measures_n, aes(x=n, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1838,10 +2327,10 @@ ggplot(measures_n, aes(x=n, y=sumH)) +
 
 *Tab* Table with model statistics for SumH vs number of measures
 
-```{r logit_n_sumH_table}
+```{r logit_n_sumH_table, eval=FALSE}
 summary_n_sumH <- as.data.frame(summary(logit_measures_n_sumH)$coefficients) 
 summary_n_sumH$coefficients <- rownames(summary_n_sumH)
-flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1850,7 +2339,7 @@ flextable(summary_n_sumH %>% relocate(coefficients, .before = Estimate)) %>% aut
 \
 
 
-```{r logit_n_Bcurr_graph}
+```{r logit_n_Bcurr_graph, eval=FALSE}
 ggplot(measures_n, aes(x=n, y=b0_adj)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1864,17 +2353,17 @@ ggplot(measures_n, aes(x=n, y=b0_adj)) +
 
 *Tab* Table with model statistics for Bcurr vs number of measures
 
-```{r logit_n_Bcurr_table}
+```{r logit_n_Bcurr_table, eval=FALSE}
 summary_n_b0_adj <- as.data.frame(summary(logit_measures_n_b0_adj)$coefficients) 
 summary_n_b0_adj$coefficients <- rownames(summary_n_b0_adj)
-flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_n_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 
 
 
 ### Effect of measure scores on stock indicators
 
-```{r logit_scores_prep}
+```{r logit_scores_prep, eval=FALSE}
 scores <- res %>%
   mutate(impact = ifelse(impact == "High", 3, 
                     ifelse(impact == "Intermediate", 2, 
@@ -1907,7 +2396,7 @@ new_measures_scores <- expand.grid(score = seq(0, max(measures_scores$score), by
 
 ```
 
-```{r logit_scores_sumA_graph}
+```{r logit_scores_sumA_graph, eval=FALSE}
 ggplot(measures_scores, aes(x=score, y=sumA)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1921,10 +2410,10 @@ ggplot(measures_scores, aes(x=score, y=sumA)) +
 
 *Tab* Table with model statistics for SumA vs score of measures
 
-```{r logit_scores_sumA_table}
+```{r logit_scores_sumA_table, eval=FALSE}
 summary_scores_sumA <- as.data.frame(summary(logit_measures_scores_sumA)$coefficients) 
 summary_scores_sumA$coefficients <- rownames(summary_scores_sumA)
-flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1933,7 +2422,7 @@ flextable(summary_scores_sumA %>% relocate(coefficients, .before = Estimate)) %>
 \
 
 
-```{r logit_scores_sumF_graph}
+```{r logit_scores_sumF_graph, eval=FALSE}
 ggplot(measures_scores, aes(x=score, y=sumF)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1947,10 +2436,10 @@ ggplot(measures_scores, aes(x=score, y=sumF)) +
 
 *Tab* Table with model statistics for SumF vs score of measures
 
-```{r loogit_scores_sumF_table}
+```{r loogit_scores_sumF_table, eval=FALSE}
 summary_scores_sumF <- as.data.frame(summary(logit_measures_scores_sumF)$coefficients) 
 summary_scores_sumF$coefficients <- rownames(summary_scores_sumF)
-flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1959,7 +2448,7 @@ flextable(summary_scores_sumF %>% relocate(coefficients, .before = Estimate)) %>
 \
 
 
-```{r logit_scores_sumH_graph}
+```{r logit_scores_sumH_graph, eval=FALSE}
 ggplot(measures_scores, aes(x=score, y=sumH)) +
   geom_point(aes(col=measure_type), size=0.9)+
   theme_bw()+
@@ -1973,10 +2462,10 @@ ggplot(measures_scores, aes(x=score, y=sumH)) +
 
 *Tab* Table with model statistics for SumH vs score of measures
 
-```{r logit_scores_sumH_table}
+```{r logit_scores_sumH_table, eval=FALSE}
 summary_scores_sumH <- as.data.frame(summary(logit_measures_scores_sumH)$coefficients) 
 summary_scores_sumH$coefficients <- rownames(summary_scores_sumH)
-flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 \
 \
@@ -1985,7 +2474,7 @@ flextable(summary_scores_sumH %>% relocate(coefficients, .before = Estimate)) %>
 \
 
 
-```{r logit__scores_bcurr_by_b0adj_graph}
+```{r logit__scores_bcurr_by_b0adj_graph, eval=FALSE}
 test <- measures_scores %>% filter(measure_type != "Eel_governance")
 
 ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score, y=b0_adj)) +
@@ -2002,17 +2491,17 @@ ggplot(measures_scores %>% filter(measure_type != "Eel_governance"), aes(x=score
 *Tab* Table with model statistics for Bcurr vs score of measures\
 _careful here, I am not sure about the interpretation of "Eel_governance", since twe have EMUs with governance but no Bcurr effect measured anywhere_
 
-```{r logit__scores_bcurr_by_b0adj_table}
+```{r logit__scores_bcurr_by_b0adj_table, eval=FALSE}
 summary_scores_b0_adj <- as.data.frame(summary(logit_measures_scores_b0_adj)$coefficients) 
 summary_scores_b0_adj$coefficients <- rownames(summary_scores_sumH)
-flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit()
+flextable(summary_scores_b0_adj %>% relocate(coefficients, .before = Estimate)) %>% autofit() %>% set_table_properties(layout = "autofit")
 ```
 
 ## Effect of measures vs sources of mortality
 
 
 
-```{r measures_vs_mortalities}
+```{r measures_vs_mortalities, eval=FALSE}
 
 meas_mort <- indicator %>% filter(eel_year >= 2007) %>%
                 group_by(eel_emu_nameshort) %>%
@@ -2063,3 +2552,33 @@ ggplot(meas_mort, aes(x=sumh_initial, y=delta_sumh)) +
 *Fig* Relation of the change in mortality to the initial mortality levels. The initial mortality is defined as the earliest estimate that was reported after the year 2007 (but no later than 2011, initial year indicated by colour) to best representat pre-EMP levels. However, for some EMUs no pre-EMP estimates were reported and thus rather reflect mortality levels shortly after implementation of EMPs. The latest most recent value for mortality was used to calculate delta, see Tab xx.  
 EMUs where only values after 2011 were reported are not shown.   
 
+-->
+
+# Questions to countries
+- Estonia: 
+  - EE_total and EE_Narv biomass indicators in 2023 are the same, this would mean that there is no eels in EE_West, it does not seem to be correct
+- Germany: 
+  - bcurrent is dropping in most EMUs while suma is relatively stable. Are you right by assuming that this is still resulting from the decline in recruitment before 2010 (since recruitment is more or last stable since then)? If yes, what time lag is used between recruitment and escapement?
+- Danemark: 
+  - bcurrent is dropping in most EMUs while suma is relatively stable. Are you right by assuming that this is still resulting from the decline in recruitment before 2010 (since recruitment is more or last stable since then)? If yes, what time lag is used between recruitment and escapement?
+- Grece:
+  - GR_CeAe: bcurrent is equal 0 for some years, that does not seem logical? the same stands for mortalities
+- Portugal:
+  - in PT_Port:
+    - bcurrent seems to be multiplied by about 3 from 2018 to 2019, does that make sense?
+    - this is probably related, but mortality indicators vary very rapidly and erratically
+  - in biomass indicators, is PT_total the sum of PT_Port and Minho (not reported)? PT_total should not have been reported if the information exists at the EMU scale
+- Spain:
+  - b0 of Andalucia seems very large, how was it extrapolated?
+  - bbest remains constant while recruitment vary, does that make sense?
+  - bbest and bcurr suddenly drops in 2017, is there a specific reason?
+- Poland:
+  - bbest is constant through time while recruitment has varied, does that make sense?
+- Sweden:
+  - SE_Inla: there is a peak of sumh in the mid 1990s and another increase over the 2010s, what could be the reason? Is this related to restocking above dams?
+- Ireland:
+  - in almost all EMUs, bcurr/b0 is already above 40% since the beginning of the series (~2008), this is not related to restocking since bcurr with restocking is the same. Is this related to a possible underestimation of $b_0$ resulting from the difficulty to extrapolate a value mentioned in annex13?
+  - bcurrent and bcurrent_without_restocking are equal, is this ok?
+  
+  
+  
