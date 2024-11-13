@@ -142,7 +142,24 @@ Here is J-Ds new tasks
 
 ```{r TODO1, echo=FALSE}
 #2. Add a column with "suggested objective" from our standard categorization next to the objective column
+
+# Add new column 'suggested_objective' if quantifiable is yes
+measures_all <- measures_all %>%
+  mutate(suggested_objective = ifelse(quantifiable == "yes", "quantifiable", NA))
+
+# Move 'suggested_objective' to the 9th position
+measures_all <- measures_all %>%
+  select(1:8, suggested_objective, everything())
+
+
 #3. attach our "standard categorization" (only quantitatifiable/immediate/direct (i.e. measure or action)) and add an indication whether they match our individual entries
+
+# Add new column 'stocking' based on if measuretype is stocking
+measures_all <- measures_all %>%
+  mutate(stocking = ifelse(measure_type == "Stocking", "stocking", 0))
+
+
+
 ```
 
 
