@@ -11,14 +11,20 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(readxl)
-library(dplyr)
-library(tidyr)
-library(flextable)
-library(knitr)
-library(kableExtra)
-library(officer)
-library(readr)
+
+# define libraries needed
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr") 
+
+#define libraries already installed
+installed_libs <- libs %in% rownames(installed.packages())
+
+# install libraries that are not installed already
+if (any(installed_libs == F)) {
+  install.packages(libs[!installed_libs])
+}
+
+# load libraries needed
+invisible(lapply(libs, library, character.only = T))
 
 ```
 
@@ -26,12 +32,13 @@ library(readr)
 ```{r Import_files, include=FALSE}
 
 ### The folder where all the excel files are in. CHANGE IF NEEDED
-folder_path <- "C:/Users/03224501/OneDrive - Valtion/WGEEL - Ankeriastyöt/WKEMP4/Annex_14"
-file_name <- "2024_Eel_Data_Call_Annex_14_Management_measures_FI.xlsx" #Only need One file (e.g. Belgium) because it has all the 2021 data
+folder_path <- "./Annex_14"
+file_name <- "2024_Eel_Data_Call_Annex_14_Management_measures_BE.xlsx" #Only need One file (e.g. Belgium) because it has all the 2021 data
 full_path <- file.path(folder_path, file_name)
 #List of all emus
-all_emus <- read_delim("C:/Users/03224501/OneDrive - Valtion/WGEEL - Ankeriastyöt/WKEMP4/Annex_14/Original files/all_emus.csv", 
-    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+all_emus <- read_delim("Annex_14/Original files/all_emus.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+#Adding our standards
+standards <- read_excel("./Annex_14/Other data/standards.xlsx")
 
 
 ### Function for reading the files from the folder
@@ -127,13 +134,7 @@ print(paste("Expected rows:", expected_rows))
 print(paste("Actual rows:", actual_rows))
 
 # Remove all objects except measures_all
-rm(list = setdiff(ls(), c("measures_all", "all_emus")))
-
-# Remove deleted rows and create a separate df for them
-measures_deleted <- measures_all %>%
-  filter(!is.na(delete))
-measures_all <- measures_all %>%
-  filter(is.na(delete))
+rm(list = setdiff(ls(), c("measures_all", "all_emus", "standards")))
 
 
 ```
@@ -141,21 +142,95 @@ measures_all <- measures_all %>%
 Here is J-Ds new tasks
 
 ```{r TODO1, echo=FALSE}
-#2. Add a column with "suggested objective" from our standard categorization next to the objective column
 
-# Add new column 'suggested_objective' if quantifiable is yes
+#Merge standards to the whole data
+# Rename all columns in 'standards' by adding "std_" prefix
+colnames(standards) <- paste0("std_", colnames(standards))
+# Perform the join operation
 measures_all <- measures_all %>%
-  mutate(suggested_objective = ifelse(quantifiable == "yes", "quantifiable", NA))
+  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
 
 # Move 'suggested_objective' to the 9th position
 measures_all <- measures_all %>%
-  select(1:8, suggested_objective, everything())
+  select(1:8, std_objective, everything())
 
 
-#3. attach our "standard categorization" (only quantitatifiable/immediate/direct (i.e. measure or action)) and add an indication whether they match our individual entries
+#rename all asseessments done by us so that they can be compared
+measures_all <- measures_all %>%
+  mutate(
+    across(
+      c(std_quantifiable, quantifiable, std_immediate, immediate, std_direct, direct, std_evaluated, evaluated, std_target),
+      ~ case_when(
+        . %in% c("y", "Y", "yes", "YES", "Yes", "true", "TRUE") ~ "TRUE",
+        . %in% c("n", "N", "no", "NO", "No", "false", "np", "not pertinent", "na", "NP", "FALSE") ~ "FALSE",
+        TRUE ~ as.character(.)
+      )
+    )
+  )
+
+# Create the "Check this column" column if it doesnt match with our assessment
+measures_all <- measures_all %>%
+  rowwise() %>%
+  mutate(
+    check_this_column = {
+      mismatches <- c()
+      if (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable) mismatches <- c(mismatches, "quantifiable")
+      if (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate) mismatches <- c(mismatches, "immediate")
+      if (!is.na(std_direct) && !is.na(direct) && std_direct != direct) mismatches <- c(mismatches, "direct")
+      if (!is.na(std_evaluated) && !is.na(evaluated) && std_evaluated != evaluated) mismatches <- c(mismatches, "evaluated")
+      if (length(mismatches) == 0) NA_character_ else paste(mismatches, collapse = ", ")
+    }
+  ) %>%
+  ungroup()
 
 
 
+#If it is QUANTIFIABLE, then there should be something in the efectiveness_monitored column
+# AND  If TARGET it is TRUE, there should be a target_value
+# SPECIFY THAT COUNTRIES SHOULD PUT NA IN TARGET UNIT AND ACHIEVED IF NOT AVAILABLE
+
+measures_all <- measures_all %>%
+  rowwise() %>%
+  mutate(
+    Value_missing_in = paste(
+      na.omit(c(
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(effectiveness_monitored) || effectiveness_monitored == "")) "effectiveness_monitored" else NA_character_,
+        if (!is.na(std_target) && std_target == "TRUE" && (is.na(target_value) || target_value == "")) "target_value" else NA_character_,
+        if (!is.na(std_target) && std_target == "TRUE" && (is.na(specify_monitoring_or_why_not) || specify_monitoring_or_why_not == "")) "specify_monitoring_or_why_not" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(estimated_effect_size) || estimated_effect_size == "")) "estimated_effect_size" else NA_character_,
+        if (!is.na(`std_effectiveness on stock indicator`) && `std_effectiveness on stock indicator` == "TRUE") {
+          c(
+            if (is.na(effectiveness_monitored) || effectiveness_monitored == "") "effectiveness_monitored" else NA_character_,
+            if (is.na(specify_monitoring_or_why_not) || specify_monitoring_or_why_not == "") "specify_monitoring_or_why_not" else NA_character_,
+            if (is.na(estimated_effect_size) || estimated_effect_size == "") "estimated_effect_size" else NA_character_
+          )
+        } else NA_character_
+      )),
+      collapse = "; "
+    )
+  ) %>%
+  ungroup()
+
+
+#List the rows taht have 2021. You need to provide the rwos. dprovider shoudl indicate whetehr deleted or updated. Add a column saying "YOU SHOULD FILL THIS AND THIS COLUMN"
+
+measures_all <- measures_all %>%
+  mutate(
+    Confirmation = if_else(source == 2021, "Kept or Deleted", NA_character_)
+  )
+
+# Write the measures_all data frame to a CSV file
+write.csv(measures_all, "measures_all.csv", row.names = FALSE)
+
+
+
+'''
+# Remove deleted rows and create a separate df for them
+measures_deleted <- measures_all %>%
+  filter(!is.na(delete))
+measures_all <- measures_all %>%
+  filter(is.na(delete))
+'''
 
 
 ```
