@@ -11,22 +11,14 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-
-# define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr") 
-
-#define libraries already installed
-installed_libs <- libs %in% rownames(installed.packages())
-
-# install libraries that are not installed already
-if (any(installed_libs == F)) {
-  install.packages(libs[!installed_libs])
-}
-
-# load libraries needed
-invisible(lapply(libs, library, character.only = T))
-
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(knitr)
+library(kableExtra)
+library(officer)
+library(readr)
 
 ```
 
@@ -162,9 +154,7 @@ measures_all <- measures_all %>%
 
 #3. attach our "standard categorization" (only quantitatifiable/immediate/direct (i.e. measure or action)) and add an indication whether they match our individual entries
 
-# Add new column 'stocking' based on if measuretype is stocking
-measures_all <- measures_all %>%
-  mutate(stocking = ifelse(measure_type == "Stocking", "stocking", 0))
+
 
 
 
