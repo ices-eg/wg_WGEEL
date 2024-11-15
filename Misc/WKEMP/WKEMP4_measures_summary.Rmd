@@ -168,16 +168,30 @@ measures_all <- measures_all %>%
     )
   )
 
-# Create the "Check this column" column if it doesnt match with our assessment
+# Create the "Check this column" column if it doesnt match with our assessment. REMOVED THIS 
+# measures_all <- measures_all %>%
+#   rowwise() %>%
+#   mutate(
+#     check_this_column = {
+#       mismatches <- c()
+#       if (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable) mismatches <- c(mismatches, "quantifiable")
+#       if (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate) mismatches <- c(mismatches, "immediate")
+#       if (!is.na(std_direct) && !is.na(direct) && std_direct != direct) mismatches <- c(mismatches, "direct")
+#       if (!is.na(std_evaluated) && !is.na(evaluated) && std_evaluated != evaluated) mismatches <- c(mismatches, "evaluated")
+#       if (length(mismatches) == 0) NA_character_ else paste(mismatches, collapse = ", ")
+#     }
+#   ) %>%
+#   ungroup()
+
+#Create the "Check this column" column if it doesnt match with our assessment, include NA
 measures_all <- measures_all %>%
   rowwise() %>%
   mutate(
     check_this_column = {
       mismatches <- c()
-      if (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable) mismatches <- c(mismatches, "quantifiable")
-      if (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate) mismatches <- c(mismatches, "immediate")
-      if (!is.na(std_direct) && !is.na(direct) && std_direct != direct) mismatches <- c(mismatches, "direct")
-      if (!is.na(std_evaluated) && !is.na(evaluated) && std_evaluated != evaluated) mismatches <- c(mismatches, "evaluated")
+      if (is.na(std_quantifiable) != is.na(quantifiable) || (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable)) mismatches <- c(mismatches, "quantifiable")
+      if (is.na(std_immediate) != is.na(immediate) || (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate)) mismatches <- c(mismatches, "immediate")
+      if (is.na(std_direct) != is.na(direct) || (!is.na(std_direct) && !is.na(direct) && std_direct != direct)) mismatches <- c(mismatches, "direct")
       if (length(mismatches) == 0) NA_character_ else paste(mismatches, collapse = ", ")
     }
   ) %>%
