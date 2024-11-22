@@ -1,0 +1,153 @@
+---
+title: "This file is to collate the revised measures version"
+author: "none (contact Jani H for questions)"
+date: "`r Sys.Date()`"
+
+output:
+  html_document: default
+  #word_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# define libraries needed
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble") 
+
+#define libraries already installed
+installed_libs <- libs %in% rownames(installed.packages())
+
+# install libraries that are not installed already
+if (any(installed_libs == F)) {
+  install.packages(libs[!installed_libs])
+}
+
+# load libraries needed
+invisible(lapply(libs, library, character.only = T))
+
+```
+
+
+```{r Import_files, include=FALSE}
+
+### The folder where all the excel files are in. CHANGE IF NEEDED
+folder_path <- "./Annex_14/revised"
+#List of all emus
+all_emus <- read_delim("Annex_14/Original files/all_emus.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+#Adding our standards
+standards <- read_excel("./Annex_14/Other data/standards.xlsx")
+
+# Get the list of .xls files
+file_list <- list.files(path = folder_path, pattern = "\\.xlsx$", full.names = TRUE)
+
+# Read each file into a separate data frame
+data_frames <- lapply(file_list, read_excel)
+
+# Name the data frames based on file names
+names(data_frames) <- basename(file_list)
+# Get all unique column names
+all_columns <- unique(unlist(lapply(data_frames, colnames)))
+
+# Ensure each data frame has all columns, filling missing columns with NA
+data_frames <- lapply(data_frames, function(df) {
+  missing_cols <- setdiff(all_columns, colnames(df))
+  df[missing_cols] <- NA
+  df <- df[all_columns]
+  return(df)
+})
+
+# Check for unique "country" values across all data frames
+all_countries <- unlist(lapply(data_frames, function(df) unique(df$country)))
+if (length(all_countries) != length(unique(all_countries))) {
+  warning("There are duplicate 'country' values across the data frames.")
+}
+
+# Combine all data frames into a single data frame
+combined_df <- do.call(rbind, data_frames)
+
+```
+
+1.(and fill the rest with standard answers, if needed)
+```{r}
+
+```
+
+2. for every quantifiable measure we need to ask to fill (in "value_missing_in"; create columns if not already exist)
+  2a) "effectiveness monitored" and "estimated_effect_size"
+  2b) "target_value", "target_unit", "value_achieved", and when no value ask to fill "degree_achieved" if feasible (we should prefill with fully for those where we have "yes" in "target achieved" and then delete the column "trarget_achieved", will address in guidance) 
+
+5. For those that provided nothing (where source=2021)  I guess " value_missing_in" should spell "all" ?
+Upload to SP
+
+```{r valuemissing, include=FALSE}
+#Make a new column degree achieved
+combined_df <- combined_df %>%
+  mutate(
+    degree_achieved = ifelse(tolower(target_achieved) == "yes", 100, NA_real_)
+  )
+
+
+combined_df <- combined_df %>%
+  mutate(
+    degree_achieved = ifelse(tolower(target_achieved) == "yes", 100, NA_real_),
+    degree_achieved = ifelse(!is.na(degree_achieved_percent), degree_achieved_percent, degree_achieved)
+  )
+
+
+
+#Check the columns
+rev_measures_all <- combined_df %>%
+  rowwise() %>%
+  mutate(
+    Value_missing_in = paste(
+      na.omit(c(
+        if (source == "2021") "ALL" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(effectiveness_monitored) || effectiveness_monitored == "")) "effectiveness_monitored" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_value) || target_value == "")) "target_value" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(estimated_effect_size) || estimated_effect_size == "")) "estimated_effect_size" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_unit) || target_unit == "")) "target_unit" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(value_achieved) || value_achieved == "") && (is.na(degree_achieved) || degree_achieved == "")) "degree_achieved" else NA_character_
+      )),
+      collapse = "; "
+    )
+  ) %>%
+  ungroup()
+```
+
+3. Remove all redundant columns - table should end at  "delete_reason",
+
+4. Add columns in the end and highlight: "value_missing_in", "question_to_country" and one "country_answer". (fill the first two with what we provided)
+
+
+```{r}
+rev_measures_all <- rev_measures_all %>%
+  mutate(
+    country_answer = NA_character_
+  ) %>%
+  select(
+    -quantifiable,
+    -immediate,
+    -direct,
+    -std_quantifiable,
+    -std_immediate,
+    -std_direct,
+    -check_this_column,
+    -Spalte4,
+    -source,
+    -`Habitat type`,
+    -Confirmation,
+    -target_achieved
+  )
+```
+
+Write
+
+```{r}
+library(writexl)
+
+# Write the dataframe to an Excel file
+write_xlsx(rev_measures_all, "rev_measures_all.xlsx")
+```
+
+
