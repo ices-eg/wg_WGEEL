@@ -66,6 +66,12 @@ if (length(all_countries) != length(unique(all_countries))) {
 # Combine all data frames into a single data frame
 combined_df <- do.call(rbind, data_frames)
 
+
+# Drop rows where fileorigin is "FileOrigin" because it was duplicated in one excel (i checked)
+combined_df <- combined_df %>%
+  filter(FileOrigin != "FileOrigin")
+
+
 ```
 
 1.(and fill the rest with standard answers, if needed)
@@ -137,6 +143,8 @@ rev_measures_all <- rev_measures_all %>%
     -source,
     -`Habitat type`,
     -Confirmation,
+    -Comment,
+    -...44,
     -target_achieved
   )
 ```
