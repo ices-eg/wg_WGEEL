@@ -76,6 +76,52 @@ combined_df <- combined_df %>%
 
 1.(and fill the rest with standard answers, if needed)
 ```{r}
+library(readxl)
+measures_check <- read_excel("./Annex_14/revised/allmeasures/measures_check.xlsx")
+
+# Get the list of countries in combined_df
+countries_in_combined <- combined_df$country
+
+# Filter measures_check to keep only rows with countries not in combined_df
+filtered_measures_check <- measures_check %>%
+  filter(!country %in% countries_in_combined)
+
+# Add a new column with the value TRUE for all rows
+filtered_measures_check <- filtered_measures_check %>%
+  mutate(JD_this_country_wasnt_checked = TRUE)
+
+
+## Get the column names of both dataframes
+combined_columns <- colnames(combined_df)
+filtered_columns <- colnames(filtered_measures_check)
+
+# Find columns that are in combined_df but not in filtered_measures_check
+columns_in_combined_not_in_filtered <- setdiff(combined_columns, filtered_columns)
+
+# Find columns that are in filtered_measures_check but not in combined_df
+columns_in_filtered_not_in_combined <- setdiff(filtered_columns, combined_columns)
+
+# Add missing columns to filtered_measures_check with NA values
+for (col in columns_in_combined_not_in_filtered) {
+  filtered_measures_check[[col]] <- NA
+}
+
+# Add missing columns to combined_df with NA values
+for (col in columns_in_filtered_not_in_combined) {
+  combined_df[[col]] <- NA
+}
+
+# Add the 'comment' column to combined_df with NA values
+combined_df <- combined_df %>%
+  mutate(comment = NA)
+
+#dirty change to character
+combined_df$FileOrigin <- as.character(combined_df$FileOrigin)
+filtered_measures_check$FileOrigin <- as.character(filtered_measures_check$FileOrigin)
+
+# Combine the two dataframes
+combined_df <- bind_rows(combined_df, filtered_measures_check)
+
 
 ```
 
@@ -144,7 +190,8 @@ rev_measures_all <- rev_measures_all %>%
     -`Habitat type`,
     -Confirmation,
     -Comment,
-    -...44,
+    -...45,
+    -...46,
     -target_achieved
   )
 ```
