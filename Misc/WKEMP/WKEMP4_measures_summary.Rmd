@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -168,16 +168,30 @@ measures_all <- measures_all %>%
     )
   )
 
-# Create the "Check this column" column if it doesnt match with our assessment
+# Create the "Check this column" column if it doesnt match with our assessment. REMOVED THIS 
+# measures_all <- measures_all %>%
+#   rowwise() %>%
+#   mutate(
+#     check_this_column = {
+#       mismatches <- c()
+#       if (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable) mismatches <- c(mismatches, "quantifiable")
+#       if (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate) mismatches <- c(mismatches, "immediate")
+#       if (!is.na(std_direct) && !is.na(direct) && std_direct != direct) mismatches <- c(mismatches, "direct")
+#       if (!is.na(std_evaluated) && !is.na(evaluated) && std_evaluated != evaluated) mismatches <- c(mismatches, "evaluated")
+#       if (length(mismatches) == 0) NA_character_ else paste(mismatches, collapse = ", ")
+#     }
+#   ) %>%
+#   ungroup()
+
+#Create the "Check this column" column if it doesnt match with our assessment, include NA
 measures_all <- measures_all %>%
   rowwise() %>%
   mutate(
     check_this_column = {
       mismatches <- c()
-      if (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable) mismatches <- c(mismatches, "quantifiable")
-      if (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate) mismatches <- c(mismatches, "immediate")
-      if (!is.na(std_direct) && !is.na(direct) && std_direct != direct) mismatches <- c(mismatches, "direct")
-      if (!is.na(std_evaluated) && !is.na(evaluated) && std_evaluated != evaluated) mismatches <- c(mismatches, "evaluated")
+      if (is.na(std_quantifiable) != is.na(quantifiable) || (!is.na(std_quantifiable) && !is.na(quantifiable) && std_quantifiable != quantifiable)) mismatches <- c(mismatches, "quantifiable")
+      if (is.na(std_immediate) != is.na(immediate) || (!is.na(std_immediate) && !is.na(immediate) && std_immediate != immediate)) mismatches <- c(mismatches, "immediate")
+      if (is.na(std_direct) != is.na(direct) || (!is.na(std_direct) && !is.na(direct) && std_direct != direct)) mismatches <- c(mismatches, "direct")
       if (length(mismatches) == 0) NA_character_ else paste(mismatches, collapse = ", ")
     }
   ) %>%
@@ -219,23 +233,96 @@ measures_all <- measures_all %>%
     Confirmation = if_else(source == 2021, "Kept or Deleted", NA_character_)
   )
 
+
+#### Cleaning####
+
+# Modify the dataframe. FIrst drop many columns, then add some and 
+measures_all <- measures_all %>%
+  select(-std_objective, -evaluated, -"evaluation specific", -Expectation, -std_rename, -std_evaluated, -"std_by year?", -"std_new measure_type" ) %>%
+  mutate(habitat_affected = NA) %>%
+  mutate(effect_unit = NA) %>%
+  mutate(Spalte4 = NA) %>%
+  mutate(value_achieved = NA, 
+         degree_achieved_percent = ifelse(target_achieved == "yes", 100, NA))
+
+#Combine comment and ...20, remove ...20
+measures_all <- measures_all %>%
+  mutate(comment = ifelse(is.na(comment), `...20`, 
+                          ifelse(is.na(`...20`), comment, 
+                                 paste(comment, `...20`, sep = " ")))) %>%
+  select(-`...20`)
+
+
+# Combine columns question to country and Question to country, remove Question to country
+measures_all <- measures_all %>%
+  mutate(`question to country` = ifelse(is.na(`question to country`), `Question to country`, 
+                                        ifelse(is.na(`Question to country`), `question to country`, 
+                                               paste(`question to country`, `Question to country`, sep = " ")))) %>%
+  select(-`Question to country`)%>%
+  rename(question_to_country = "question to country")
+
+
+
+# Combine columns personal comment and comments,  remove personal comment and rename comments to reviewer_comment
+measures_all <- measures_all %>%
+  mutate(comments = ifelse(is.na(comments), `personal comment`, 
+                           ifelse(is.na(`personal comment`), comments, 
+                                  paste(comments, `personal comment`, sep = " ")))) %>%
+  select(-`personal comment`) %>%
+  rename(reviewer_comment = comments)
+
+# Rename the column effect_unit to effect_size_unit
+measures_all <- measures_all %>%
+  rename(effect_size_unit = effect_unit)
+
+
+
+# List of column names to check
+columns_to_check <- c("FileOrigin", "id", "country", "emu_name_short", "measure_type", 
+                      "submeasure_type", "measure_description", "objective", 
+                      "objective_feedback", "objective_achieved", "life_stage_affected", 
+                      "habitat_affected", "measure_planned", "progress", "target_value", 
+                      "target_unit", "value_achieved", "degree_achieved_percent", 
+                      "target_achieved", "year_of_full_implementation", 
+                      "why_not_fully_implemented", "impact", "effectiveness_monitored", 
+                      "specify_monitoring_or_why_not", "estimated_effect_size", 
+                      "effect_size_unit", "comment", "delete", "delete_reason", 
+                      "quantifiable", "immediate", "direct", "std_quantifiable", 
+                      "std_immediate", "std_direct", "check_this_column", 
+                      "question_to_country", "Spalte4", "reviewer_comment", "source", 
+                      "Habitat type", "Value_missing_in", "Confirmation", "std_target", "std_effectiveness on stock indicator")
+
+# Reorder the columns in the dataframe
+measures_all <- measures_all %>%
+  select(all_of(columns_to_check))
+
+# Drop the columns std_target and std_effectiveness on stock indicator
+measures_all <- measures_all %>%
+  select(-std_target, -`std_effectiveness on stock indicator`)
+
+# Modify the 'delete' column
+measures_all <- measures_all %>%
+  mutate(delete = ifelse(!is.na(delete) & delete != "NA", "delete", delete))
+
 # Write the measures_all data frame to a CSV file
 write.csv(measures_all, "measures_all.csv", row.names = FALSE)
 
+```
+
+BEFORE ANALYSIS, DO NOT ACCOUNT FOR DELETED ROWS
+
+```{r}
 
 
-'''
+
 # Remove deleted rows and create a separate df for them
 measures_deleted <- measures_all %>%
   filter(!is.na(delete))
 measures_all <- measures_all %>%
   filter(is.na(delete))
-'''
 
 
 ```
-
-
 
 
 
