@@ -655,7 +655,9 @@ AS WITH b0_unique AS (
          SELECT bigtable_by_habitat_1.eel_emu_nameshort,
             sum(bigtable_by_habitat_1.b0) AS unique_b0
            FROM datawg.bigtable_by_habitat bigtable_by_habitat_1
-          WHERE bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text <> 'ES_Murc'::text OR bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text = 'ES_Murc'::text AND bigtable_by_habitat_1.eel_hty_code::text = 'C'::text
+          WHERE bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text <> 'ES_Murc'::text OR
+          bigtable_by_habitat_1.eel_year = 0 AND bigtable_by_habitat_1.eel_emu_nameshort::text = 'ES_Murc'::text AND 
+          bigtable_by_habitat_1.eel_hty_code::text = 'C'::text
           GROUP BY bigtable_by_habitat_1.eel_emu_nameshort
         )
  SELECT bigtable_by_habitat.eel_year,
@@ -1160,8 +1162,8 @@ as
   
   -- datawg.precodata_all source
 
-CREATE OR REPLACE VIEW datawg.precodata_all
-AS WITH all_level AS (
+CREATE OR REPLACE VIEW datawg.precodata_all AS
+ WITH all_level AS (
         ( WITH last_year_emu AS (
                  SELECT precodata.eel_emu_nameshort,
                     max(precodata.eel_year) AS last_year
