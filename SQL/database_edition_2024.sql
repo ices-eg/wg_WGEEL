@@ -1157,7 +1157,6 @@ as
   ORDER BY eel_year, countries.cou_order, eel_emu_nameshort, eel_qal_id;
   
   
-  
   -- datawg.precodata_all source
 
 CREATE OR REPLACE VIEW datawg.precodata_all
@@ -1177,6 +1176,7 @@ AS WITH all_level AS (
             b0.eel_value AS b0,
             p.bbest,
             p.bcurrent,
+            p.bcurrent_without_stocking,
             p.suma,
             p.sumf,
             p.sumh,
@@ -1200,6 +1200,7 @@ AS WITH all_level AS (
             b0.eel_value AS b0,
             p.bbest,
             p.bcurrent,
+            p.bcurrent_without_stocking,
             p.suma,
             p.sumf,
             p.sumh,
@@ -1231,6 +1232,7 @@ AS WITH all_level AS (
             b0,
             p.bbest,
             p.bcurrent,
+            p.bcurrent_without_stocking,
             p.suma,
             p.sumf,
             p.sumh,
@@ -1246,6 +1248,7 @@ AS WITH all_level AS (
             sum(precodata_country.b0) AS b0,
             sum(precodata_country.bbest) AS bbest,
             sum(precodata_country.bcurrent) AS bcurrent,
+            sum(precodata_country.bcurrent_without_stocking) AS bcurrent_without_stocking,
             round(sum(precodata_country.suma * precodata_country.bbest) / sum(precodata_country.bbest), 3) AS suma,
                 CASE
                     WHEN count(precodata_country.sumf) < count(*) THEN NULL::numeric
@@ -1258,7 +1261,7 @@ AS WITH all_level AS (
             'all'::text AS aggreg_level,
             NULL::integer AS last_year
            FROM datawg.precodata_country
-          WHERE precodata_country.b0 IS NOT NULL AND precodata_country.bbest IS NOT NULL AND precodata_country.bcurrent IS NOT NULL AND precodata_country.suma IS NOT NULL
+          WHERE precodata_country.b0 IS NOT NULL AND precodata_country.bbest IS NOT NULL AND precodata_country.bcurrent IS NOT NULL AND precodata_country.suma IS NOT NULL AND precodata_country.bcurrent_without_stocking IS NOT NULL
           GROUP BY precodata_country.eel_year
         )
  SELECT all_level.eel_year,
@@ -1272,7 +1275,8 @@ AS WITH all_level AS (
     all_level.sumf,
     all_level.sumh,
     all_level.aggreg_level,
-    all_level.last_year
+    all_level.last_year,
+    all_level.bcurrent_without_stocking
    FROM all_level
      LEFT JOIN ref.tr_country_cou ON all_level.eel_cou_code::text = tr_country_cou.cou_code::text
   ORDER BY all_level.eel_year, (
