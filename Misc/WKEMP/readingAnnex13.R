@@ -32,9 +32,7 @@ readWorksheetWithNull=function(wb, s, startRow, startCol, endRow, endCol,header=
 
 read.data = FALSE # Set this to false as a standard, so that it can be sourced by other R files and load the already-compiled data
 datawd <- "C:/Users/rbva0001/Dropbox//Rob/SLU/ICES/Workshops/WKEMP4/data/annex13/"
-datawd <- "W:/annex13-EMP"
-if(read.data == TRUE){
-
+#datawd <- "W:/annex13-EMP"
 
 
 #filepath <- filepath[1]
@@ -339,7 +337,7 @@ read_annex13 <- function(filepath){
 
 #####to build the table: put all the filenames below and then run the line starting with annexes13_table
 #setwd("/tmp/Annex13/")
-filenames=list.files(str_c(datawd))
+filenames <- list.files(str_c(datawd))
 filenames <- filenames[grep("xlsx", filenames)] # only extract xlsx
 filenames <- filenames[!grepl("~", filenames)] 
 filenames <- filenames[!grepl("compiled", filenames)] 
@@ -371,9 +369,7 @@ annexes13_management <- annexes13_table[,c(1,2,104:117)]
 
 save(annexes13_method,annexes13_traceability,annexes13_management, file=("data_dependencies/annex13.Rdata"))
 
-} else {
-  load("data_dependencies/annex13.Rdata")
-}
+
 
 
 wb = loadWorkbook("data_dependencies/annex13_compiled.xlsx",create=TRUE)

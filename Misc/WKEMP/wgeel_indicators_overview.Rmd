@@ -56,6 +56,9 @@ nb_country_emu <- dbGetQuery(con,"select count(distinct eel_cou_code),count(dist
 ```
 
 # Data availability
+
+*** COMMENT DURING PLENARY : CHECK ABOUT ANSWERING THE LATEST DATACALL THERE ***
+
 ## General overview
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 ```{r data2020}
@@ -204,10 +207,7 @@ flextable(indicator %>%
 ```
 Marine open and coastal never accounted for. Significant part of transitional waters not accounted for.
 
-# Maps of indicators
-Values averages from 2018 to 2020 (3 years)
 
-## per emu
 
 
 ```{r rasta}
@@ -301,8 +301,8 @@ Values averages from 2018 to 2020 (3 years)
 
 ```
 
-### biomass
-```{r biomassmap}
+
+```{r biomassmap, eval=FALSE}
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort")) %>%
   filter(eel_cou_code %in% eu_cou_codes)
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)
@@ -386,8 +386,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 
 
 
-### biomass
-```{r biomassmap_withoutstocking}
+```{r biomassmap_withoutstocking, eval=FALSE}
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent_without_stocking) bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE) %>%
   filter(eel_cou_code %in% eu_cou_codes)
@@ -469,10 +468,8 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 ```
 
 
-### mortality
 
-
-```{r mortalitymap}
+```{r mortalitymap, eval=FALSE}
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
 indicator <- merge(emu_c, indicator, by.x="emu_nameshort",by.y="eel_emu_nameshort",all.x=TRUE)%>%
   filter(eel_cou_code %in% eu_cou_codes)
@@ -526,13 +523,9 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 #ggsave(filename="/tmp/maps_mortality.png",width=16/2.54,height=10/2.54)
 ```
 
-
-
-## per country
-Here, biomasses are summed over available EMUs and mortality are average (weighted averages based on bbest)
-
 ### biomass
-```{r biomassmapcountry}
+```{r biomassmapcountry, eval=FALSE}
+# Here, biomasses are summed over available EMUs and mortality are average (weighted averages based on bbest)
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
 indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)%>%
   filter(cou_code %in% eu_cou_codes)
@@ -587,7 +580,7 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 
 ```
 
-```{r biomassmapcountrywithoutstocking}
+```{r biomassmapcountrywithoutstocking, eval=FALSE}
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent_without_stocking)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear,"group by eel_cou_code,eel_emu_nameshort"))
 indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE)%>%
   filter(cou_code %in% eu_cou_codes)
@@ -642,10 +635,8 @@ ggplot(st_transform(country_p,3035)) + geom_sf(fill=NA,size=.1)+theme_bw()+
 
 ```
 
-### mortality
 
-
-```{r mortalitymapcountry}
+```{r mortalitymapcountry, eval=FALSE}
 indicator <- dbGetQuery(con,paste("select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_country where eel_year>=",startYear," group by eel_cou_code,eel_emu_nameshort"))
 indicator <- merge(country_c, indicator, by.x="cou_code",by.y="eel_cou_code",all.x=TRUE) %>%
   filter(cou_code %in% eu_cou_codes)
@@ -1041,82 +1032,7 @@ for (emu in unique(sub$EMU)){
          height=16/2.54, width = 16/2.54, dpi = 300)}
 }
 ```
-## Data availability
 
-```{r visualize_datagaps}
-
-library(naniar)
-indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
-                             eel_year = seq(2006, 2021, by = 1)) %>%
-                                        left_join(indicator %>% select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
-
-gg_miss_fct(x = indicator_vis %>% select(-eel_emu_nameshort), fct = eel_year)
-
-ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, b0) %>%
-  mutate(b0 = ifelse(is.na(b0), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = b0)) +
-  geom_tile() +
-  scale_fill_manual(values=c("yellow2", "dark blue"))+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
-  theme(legend.title = element_blank())+
-  labs(x = "EMU", y = "year") +
-  ggtitle(expression("B"["0"]))
-
-ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, bcurrent) %>%
-  mutate(bcurrent = ifelse(is.na(bcurrent), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrent)) +
-  geom_tile() +
-  scale_fill_manual(values=c("yellow2", "dark blue"))+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
-  theme(legend.title = element_blank())+
-  labs(x = "EMU", y = "year") +
-  ggtitle(expression("B"["current"]))
-
-ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
-  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
-  geom_tile() +
-  scale_fill_manual(values=c("yellow2", "dark blue"))+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
-  theme(legend.title = element_blank())+
-  labs(x = "EMU", y = "year") +
-  ggtitle("\u03A3A")
-
-ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, sumf) %>%
-  mutate(sumf = ifelse(is.na(sumf), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
-  geom_tile() +
-  scale_fill_manual(values=c("yellow2", "dark blue"))+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
-  theme(legend.title = element_blank())+
-  labs(x = "EMU", y = "year") +
-  ggtitle("\u03A3F")
-
-ggplot(indicator_vis %>% select(eel_emu_nameshort, eel_year, suma) %>%
-  mutate(suma = ifelse(is.na(suma), "abscent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
-  geom_tile() +
-  scale_fill_manual(values=c("yellow2", "dark blue"))+
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
-  theme(legend.title = element_blank())+
-  labs(x = "EMU", y = "year") +
-  ggtitle("\u03A3H")
-
-
-
-```
-
-Tab XX Summary of implementation progress and related effects in all reporting EMUs.
 
 ```{r produce_Kendall_table}
 
@@ -1560,6 +1476,8 @@ Delta gives the difference between the initial (2007) and current (last year rep
 
 Table with stocking
 ```{r KtableB0}
+#| tab.id: bookmark_id
+#| tab.cap: "Table XX Kendall test $\\Tau$ $B_{current}, . p < 0.1, * p < 0.05, ** p < 0.01, *** p < 0.001"
 format_p <- function(pall){
   sapply(pall, function(p){
   if (is.na(p)) return("")
