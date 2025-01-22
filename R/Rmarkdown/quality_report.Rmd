@@ -164,20 +164,20 @@ LEFT JOIN ref.tr_country_cou on sai_cou_code= cou_code
 
 dbDisconnect(con_wgeel)
 
-biometry_group_data_series_long <- biometry_group_data_series %>%
+biometry_group_data_series_wide <- biometry_group_data_series %>%
     select(-geom, -mty_id, -mty_min, -mty_max) %>%
     pivot_wider(names_from = mty_name, values_from = meg_value)
 
-biometry_group_data_sampling_long <- biometry_group_data_sampling %>%
+biometry_group_data_sampling_wide <- biometry_group_data_sampling %>%
     dplyr::select(-mty_id, -mty_min, -mty_max) %>%
     pivot_wider(names_from = mty_name, values_from = meg_value)
 
 
-biometry_individual_series_long <- biometry_individual_series %>%
+biometry_individual_series_wide <- biometry_individual_series %>%
     pivot_wider(names_from = mty_name, values_from = mei_value)
 
 
-biometry_individual_sampling_long <- biometry_individual_sampling %>%
+biometry_individual_sampling_wide <- biometry_individual_sampling %>%
     pivot_wider(names_from = mty_name, values_from = mei_value)
 ```
 
