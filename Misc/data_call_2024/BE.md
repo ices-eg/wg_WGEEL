@@ -77,6 +77,23 @@ qal_comment: as based on a survey
 WKEMP4 Cédric 
 48 new values inserted in the database
 
+## Annex 11
+
+WKEMP4 Cédric 
+18 new values inserted in the database
+
+## Annex 12 
+
+WKEMP4  moved to folder
+
+## Annex 14
+
+WKEMP4  moved to folder
+
+## Annex 16
+
+WKEMP4  moved to folder
+
 ### samplinginfo
 
 
