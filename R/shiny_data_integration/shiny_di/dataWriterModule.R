@@ -44,7 +44,7 @@ dataWriterModuleServer <- function(id, loaded_data_ts,globaldata, proceedfunctio
                    shinyjs::hide("cancel")
                    shinyjs::hide("newind")
                    tryCatch({
-                     browser()
+                     #browser()
                      
                      conn <- poolCheckout(pool)
                      dbBegin(conn)

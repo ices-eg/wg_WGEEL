@@ -37,7 +37,7 @@ import <- function(cou_code){
     scale_color_viridis_d("") +
     theme_bw() + 
     ggtitle(cou_code)
-  ggsave(paste0("Annex 12_",cou_code,".png"),
+  ggsave(paste0("2024/image/Annex 12_",cou_code,".png"),
          width = 16/2.54, 
          height = 12/2.54,
          dpi = 300)

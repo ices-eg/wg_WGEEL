@@ -83,7 +83,7 @@ g = ggplot(comb, aes(x=RR0, y=values)) +
   scale_y_sqrt() +
   scale_linetype_manual("area", values = c("Elsewhere.Europe"=3,
                                            "North.Sea"=4))
-ggsave("mortality_1.png", width=16/2.54,height=16/2.54)
+ggsave("2024/image/mortality_1.png", width=16/2.54,height=16/2.54)
 knitr::include_graphics("mortality_1.png")
 
 ```

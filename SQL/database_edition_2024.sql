@@ -1288,3 +1288,22 @@ CREATE OR REPLACE VIEW datawg.precodata_all AS
             WHEN all_level.aggreg_level = 'all'::text THEN 3
             ELSE NULL::integer
         END), tr_country_cou.cou_order, all_level.eel_emu_nameshort;
+        
+      
+ # CHECK units
+ 
+ WITH unidata as(
+ SELECT DISTINCT ser_uni_code AS uni_code, 't_series_ser(ser_uni_code)' AS "table"  FROM datawg.t_series_ser 
+ UNION 
+  SELECT DISTINCT ser_effort_uni_code AS uni_code, 't_series_ser(ser_effort_uni_code)' AS "table"  FROM datawg.t_series_ser 
+ UNION 
+  SELECT DISTINCT mty_uni_code AS uni_code, 'tr_metrictype_mty' AS "table"  FROM ref.tr_metrictype_mty
+UNION
+  SELECT DISTINCT typ_uni_code AS uni_code, 'tr_typeseries_typ' AS "table"  FROM ref.tr_typeseries_typ
+UNION 
+  SELECT DISTINCT typ_uni_code AS uni_code, 'tr_typeseries_typ' AS "table"  FROM ref.tr_typeseries_typ)
+
+SELECT * FROM unidata WHERE uni_code IS NOT NULL ORDER BY "table", uni_code
+      
+      
+      
