@@ -174,7 +174,7 @@ ggplot(st_transform(country_p, crs = 3035)) +
   ylab("")
 
 data_avail <- data_avail %>%
-  select(emu_nameshort, x, y, bsummary, responded, mortsummary, geometry) %>%
+  select(emu_nameshort, x, y, bsummary, responded, mortsummary, geom) %>%
   pivot_longer(cols = ends_with("summary"), names_to = "indicator", values_to = "nb")
 
 g <- ggplot(st_transform(country_p, crs = 3035)) +
@@ -187,7 +187,7 @@ g <- ggplot(st_transform(country_p, crs = 3035)) +
   facet_wrap(~indicator)
 
 ggsave(g, filename = "2024/image/data_avail.png", width = 16 / 2.54, height = 10 / 2.54)
-knitr::include_graphics("data_avail.png")
+knitr::include_graphics("2024/image/data_avail.png")
 ```
 
 ## Habitat coverage
@@ -817,7 +817,7 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = "2024/image/trend_biomass.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_biomass.png")
+knitr::include_graphics("2024/image/trend_biomass.png")
 
 for (emu in unique(indicator$eel_emu_nameshort)) {
   g <- ggplot(
@@ -868,7 +868,7 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = "2024/image/trend_biomass_without_stocking.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_biomass_without_stocking.png")
+knitr::include_graphics("2024/image/trend_biomass_without_stocking.png")
 ```
 
 ## Mortalities visualization
@@ -899,7 +899,7 @@ suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) 
 
 
 ggsave(suma, file = "2024/image/trend_suma.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_suma.png")
+knitr::include_graphics("2024/image/trend_suma.png")
 ```
 
 
@@ -916,9 +916,9 @@ sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) 
   xlab("") +
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
-
+²
 ggsave(sumf, file = "2024/image/trend_sumf.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_sumf.png")
+knitr::include_graphics("2024/image/trend_sumf.png")
 ```
 
 ```{r trendmortasumh, fig.height=16/2.54,fig.width=16/2.54}
@@ -937,7 +937,7 @@ sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) 
 
 
 ggsave(sumh, file = "2024/image/trend_sumh.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_sumh.png")
+knitr::include_graphics("2024/image/trend_sumh.png")
 ```
 
 ```{r calculate_b0_adj}
@@ -1027,8 +1027,8 @@ b0trend <- ggplot(indicator %>% filter(!is.na(b0_adj)), aes(x = eel_year, y = b0
   xlab("") +
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
-ggsave(b0trend, file = "b0_trend.png", height = 16 / 2.54, width = 16 / 2.54)
-knitr::include_graphics("b0_trend.png")
+ggsave(b0trend, file = "2024/image/b0_trend.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/b0_trend.png")
 ```
 
 
@@ -1089,8 +1089,8 @@ b0ratio <- ggplot(indicator %>% filter(!is.na(bcurrent / b0_adj)), aes(x = eel_y
   xlab("") +
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
-ggsave(b0ratio, file = "figure/b0_ratio.png", height = 16 / 2.54, width = 16 / 2.54)
-knitr::include_graphics("b0_ratio.png")
+ggsave(b0ratio, file = "2024/image//b0_ratio.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/b0_ratio.png")
 ```
 
 
