@@ -12,8 +12,7 @@ knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE, error=FALSE, fi
 
 
 
-```{r message=TRUE, warning=TRUE, include=FALSE}
-
+```{r load_libraries, message=TRUE, warning=TRUE, include=FALSE}
 library(dplyr)
 library(ggrepel)
 library(viridis)
@@ -41,7 +40,7 @@ dbDisconnect(con)
  
 
 
-```{r message=FALSE, warning=FALSE}
+```{r function_precodiag, message=FALSE, warning=FALSE}
 
 
 #' @title Draw background of the precautionary diagram
@@ -71,7 +70,7 @@ background2<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
 #' x11()
 #' trace_precodiag(extract_data("precodata))
 # TODO: offer the possibility to aggregate by country
-trace_precodiag3 = function(precodata, 
+trace_precodiag3 <- function(precodata, 
                             precodata_choice=c("emu","country","all"), 
                             last_year=TRUE,
                             years,
@@ -184,7 +183,7 @@ trace_precodiag3 = function(precodata,
 
 ```{r message=FALSE, warning=FALSE, fig.width=25/2.54}
 
-trace_precodiag3(precodata_all,"country",last_year=2023,years=2023)
+trace_precodiag3(precodata_all, "country", last_year=2023, years = 2023)
 
 ```
 
@@ -485,7 +484,7 @@ trace_precodiag3 = function(precodata,
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2023)
-ggsave("2023.png",width=30/2.54,height=18/2.54 )
+ggsave("2024/image//2023.png",width=30/2.54,height=18/2.54 )
 
 ```
 
@@ -495,7 +494,7 @@ ggsave("2023.png",width=30/2.54,height=18/2.54 )
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54}
 
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2022)
-ggsave("2022.png",width=30/2.54,height=18/2.54 )
+ggsave("2024/image//2022.png",width=30/2.54,height=18/2.54 )
 
 ```
 
@@ -505,7 +504,7 @@ ggsave("2022.png",width=30/2.54,height=18/2.54 )
 ```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=16/2.54, fig.height=12/2.54}
 
 trace_precodiag3(precodata_all %>% filter(eel_emu_nameshort %in% mor_wise$emu_nameshort),"emu",last_year=FALSE,years=2021)
-ggsave("2021.png",width=30/2.54,height=18/2.54 )
+ggsave("2024/image//2021.png",width=30/2.54,height=18/2.54 )
 
 ```
 

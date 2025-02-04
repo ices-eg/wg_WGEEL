@@ -15,7 +15,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning=FALSE,message=FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 library(RPostgres)
 library(sf)
 library(getPass)
@@ -25,11 +25,11 @@ library(readxl)
 library(flextable)
 library(tidyverse)
 library(yaml)
-cred=read_yaml("../../credentials.yml")
-con = dbConnect(Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=getPass())
+cred <- read_yaml("../../credentials.yml")
+con <- dbConnect(Postgres(), dbname = cred$dbname, host = cred$host, port = cred$port, user = cred$user, password = getPass())
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
-eu_cou_codes=c("AT",	"BE",	"BG",	"HR",	"CY",	"CZ",	"DK",	"EE",	"FI",	"FR",	"DE",	"GR",	"HU",	"IE",	"IT",	"LV",	"LT",	"LU",	"MT",	"NL",	"PL",	"PT",	"RO",	"SK",	"SI",	"ES",	"SE",	"GB")
+eu_cou_codes <- c("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE", "GB")
 country_p <- country_p %>%
   filter(cou_code %in% eu_cou_codes)
 ```
@@ -37,7 +37,7 @@ country_p <- country_p %>%
 # Annexes 9
 
 ```{r download}
-mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
+mortality <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
 ```
 
 # Data availability
@@ -45,38 +45,42 @@ mortality <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e where eel_q
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
 ```{r mortadata}
-flextable(mortality %>% 
-            mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
-            filter(eel_cou_code %in% eu_cou_codes) %>%
-            select(eel_typ_id,
-                   eel_year,
-                   eel_emu_nameshort,
-                   eel_value) %>%
-            mutate(eel_typ_id=case_when(eel_typ_id==17~"sumA",eel_typ_id==18~"sumF",eel_typ_id==19~"sumH")) %>%
-            na.omit() %>%
-            group_by(eel_typ_id,
-                     eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
-            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
-            arrange(eel_emu_nameshort) %>%
-            pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
-                        names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE))
-  
+flextable(mortality %>%
+  mutate(eel_value = ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0, eel_value)) %>%
+  filter(eel_cou_code %in% eu_cou_codes) %>%
+  select(
+    eel_typ_id,
+    eel_year,
+    eel_emu_nameshort,
+    eel_value
+  ) %>%
+  mutate(eel_typ_id = case_when(eel_typ_id == 17 ~ "sumA", eel_typ_id == 18 ~ "sumF", eel_typ_id == 19 ~ "sumH")) %>%
+  na.omit() %>%
+  group_by(
+    eel_typ_id,
+    eel_emu_nameshort
+  ) %>%
+  summarize(minyear = min(eel_year), maxyear = max(eel_year), nb_value = n()) %>%
+  mutate(range = paste(minyear, maxyear, sep = "-")) %>%
+  select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
+  arrange(eel_emu_nameshort) %>%
+  pivot_wider(
+    names_from = eel_typ_id, values_from = c(range, nb_value),
+    names_glue = "{eel_typ_id}_{.value}",
+    names_sort = TRUE
+  ))
 ```
 
 # EU: not reported country
 ```{r notans}
-not_reported=country_p$cou_code[! country_p$cou_code %in% c(mortality$eel_cou_code)]
-sort(country_p$cou_country[! country_p$cou_code %in% c(mortality$eel_cou_code)]) 
+not_reported <- country_p$cou_code[!country_p$cou_code %in% c(mortality$eel_cou_code)]
+sort(country_p$cou_country[!country_p$cou_code %in% c(mortality$eel_cou_code)])
 ```
 
 # Annexes 10
 
 ```{r downloadbiom}
-biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
-
+biomass <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e  where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (13,14,15)")
 ```
 
 # Data availability
@@ -84,30 +88,36 @@ biomass <- dbGetQuery(con,"select e.* from datawg.t_eelstock_eel e  where eel_qa
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 ```{r data2020biom}
 flextable(biomass %>%
-            filter(eel_cou_code %in% eu_cou_codes) %>%
-            mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
-            select(eel_typ_id,
-                   eel_year,
-                   eel_emu_nameshort,
-                   eel_value) %>%
-            mutate(eel_typ_id=case_when(eel_typ_id==13~"B0",eel_typ_id==14~"Bbest",eel_typ_id==15~"Bcurrent")) %>%
-            na.omit() %>%
-            group_by(eel_typ_id,
-                     eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
-            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
-            arrange(eel_emu_nameshort) %>%
-            pivot_wider(names_from=eel_typ_id, values_from=c(range, nb_value),
-                        names_glue="{eel_typ_id}_{.value}",
-                        names_sort=TRUE))
+  filter(eel_cou_code %in% eu_cou_codes) %>%
+  mutate(eel_value = ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0, eel_value)) %>%
+  select(
+    eel_typ_id,
+    eel_year,
+    eel_emu_nameshort,
+    eel_value
+  ) %>%
+  mutate(eel_typ_id = case_when(eel_typ_id == 13 ~ "B0", eel_typ_id == 14 ~ "Bbest", eel_typ_id == 15 ~ "Bcurrent")) %>%
+  na.omit() %>%
+  group_by(
+    eel_typ_id,
+    eel_emu_nameshort
+  ) %>%
+  summarize(minyear = min(eel_year), maxyear = max(eel_year), nb_value = n()) %>%
+  mutate(range = paste(minyear, maxyear, sep = "-")) %>%
+  select(eel_typ_id, eel_emu_nameshort, nb_value, range) %>%
+  arrange(eel_emu_nameshort) %>%
+  pivot_wider(
+    names_from = eel_typ_id, values_from = c(range, nb_value),
+    names_glue = "{eel_typ_id}_{.value}",
+    names_sort = TRUE
+  ))
 ```
 
 
 # not reported country
 ```{r notansbiom}
-not_reported=country_p$cou_code[! country_p$cou_code %in% c(biomass$eel_cou_code )]
-sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code)]) 
+not_reported <- country_p$cou_code[!country_p$cou_code %in% c(biomass$eel_cou_code)]
+sort(country_p$cou_country[!country_p$cou_code %in% c(biomass$eel_cou_code)])
 ```
 
 
@@ -115,9 +125,9 @@ sort(country_p$cou_country[! country_p$cou_code %in% c(biomass$eel_cou_code)])
 # Annex 11
 
 ```{r downloadrec}
-folder="/home/hilaire.drouineau/Bureau/data_call/Annex11/"
-list_files=list.files(path=folder,pattern="xls")
-rec = do.call(rbind.data.frame, lapply(list_files,function(f) read_xlsx(paste0(folder,f),sheet="fisher_data")))
+folder <- "/home/hilaire.drouineau/Bureau/data_call/Annex11/"
+list_files <- list.files(path = folder, pattern = "xls")
+rec <- do.call(rbind.data.frame, lapply(list_files, function(f) read_xlsx(paste0(folder, f), sheet = "fisher_data")))
 ```
 
 # Data availability
@@ -125,40 +135,43 @@ rec = do.call(rbind.data.frame, lapply(list_files,function(f) read_xlsx(paste0(f
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
 ```{r recdata}
-  
-
-flextable(rec %>% 
-            mutate(eel_value=ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0,eel_value)) %>% 
-            select(eel_typ_name,
-                   eel_year,
-                   eel_emu_nameshort,
-                   eel_value) %>%
-            na.omit() %>%
-            group_by(eel_typ_name,
-                     eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
-            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_typ_name, eel_emu_nameshort, nb_value, range) %>%
-            arrange(eel_emu_nameshort) %>%
-            pivot_wider(names_from=eel_typ_name, values_from=c(range, nb_value),
-                        names_glue="{eel_typ_name}_{.value}",
-                        names_sort=TRUE))
-  
+flextable(rec %>%
+  mutate(eel_value = ifelse(is.na(eel_value & eel_missvaluequal == "NP"), 0, eel_value)) %>%
+  select(
+    eel_typ_name,
+    eel_year,
+    eel_emu_nameshort,
+    eel_value
+  ) %>%
+  na.omit() %>%
+  group_by(
+    eel_typ_name,
+    eel_emu_nameshort
+  ) %>%
+  summarize(minyear = min(eel_year), maxyear = max(eel_year), nb_value = n()) %>%
+  mutate(range = paste(minyear, maxyear, sep = "-")) %>%
+  select(eel_typ_name, eel_emu_nameshort, nb_value, range) %>%
+  arrange(eel_emu_nameshort) %>%
+  pivot_wider(
+    names_from = eel_typ_name, values_from = c(range, nb_value),
+    names_glue = "{eel_typ_name}_{.value}",
+    names_sort = TRUE
+  ))
 ```
 
 # EU: not reported country
 ```{r notansrec}
-not_reported=country_p$cou_code[! country_p$cou_code %in% c(rec$eel_cou_code)]
-sort(country_p$cou_country[! country_p$cou_code %in% c(rec$eel_cou_code)]) 
+not_reported <- country_p$cou_code[!country_p$cou_code %in% c(rec$eel_cou_code)]
+sort(country_p$cou_country[!country_p$cou_code %in% c(rec$eel_cou_code)])
 ```
 
 
 # Annex 12
 
 ```{r downloadeffort}
-folder="/home/hilaire.drouineau/Bureau/data_call/Annex12/"
-list_files=list.files(path=folder,pattern="xls")
-effort = do.call(rbind.data.frame, lapply(list_files,function(f) read_xlsx(paste0(folder,f),sheet="Effort")))
+folder <- "/home/hilaire.drouineau/Bureau/data_call/Annex12/"
+list_files <- list.files(path = folder, pattern = "xls")
+effort <- do.call(rbind.data.frame, lapply(list_files, function(f) read_xlsx(paste0(folder, f), sheet = "Effort")))
 ```
 
 # Data availability
@@ -166,27 +179,26 @@ effort = do.call(rbind.data.frame, lapply(list_files,function(f) read_xlsx(paste
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
 ```{r effdata}
-  
-
-flextable(effort %>% 
-            mutate(eel_value=ifelse(is.na(effort_value_number & eel_missvaluequal == "NP"), 0,effort_value_number)) %>% 
-            select(eel_gear,
-                   eel_year,
-                   eel_emu_nameshort,
-                   eel_value) %>%
-            filter(!(is.na(eel_year) | is.na(eel_emu_nameshort) | is.na(eel_value))) %>%
-            group_by(eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_years=n_distinct(eel_year),nb_gears=n_distinct(eel_gear, na.rm=TRUE)) %>%
-            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_emu_nameshort, range,nb_years,nb_gears) %>%
-            arrange(eel_emu_nameshort))
-  
+flextable(effort %>%
+  mutate(eel_value = ifelse(is.na(effort_value_number & eel_missvaluequal == "NP"), 0, effort_value_number)) %>%
+  select(
+    eel_gear,
+    eel_year,
+    eel_emu_nameshort,
+    eel_value
+  ) %>%
+  filter(!(is.na(eel_year) | is.na(eel_emu_nameshort) | is.na(eel_value))) %>%
+  group_by(eel_emu_nameshort) %>%
+  summarize(minyear = min(eel_year), maxyear = max(eel_year), nb_years = n_distinct(eel_year), nb_gears = n_distinct(eel_gear, na.rm = TRUE)) %>%
+  mutate(range = paste(minyear, maxyear, sep = "-")) %>%
+  select(eel_emu_nameshort, range, nb_years, nb_gears) %>%
+  arrange(eel_emu_nameshort))
 ```
 
 # EU: not reported country
 ```{r notanseff}
-not_reported=country_p$cou_code[! country_p$cou_code %in% c(effort$eel_cou_code)]
-sort(country_p$cou_country[! country_p$cou_code %in% c(effort$eel_cou_code)]) 
+not_reported <- country_p$cou_code[!country_p$cou_code %in% c(effort$eel_cou_code)]
+sort(country_p$cou_country[!country_p$cou_code %in% c(effort$eel_cou_code)])
 ```
 
 
@@ -194,14 +206,14 @@ sort(country_p$cou_country[! country_p$cou_code %in% c(effort$eel_cou_code)])
 # Annex 13
 
 ```{r downloadmeth}
-folder="/home/hilaire.drouineau/Bureau/data_call/Annex13/"
-list_files=list.files(path=folder,pattern="xls")
+folder <- "/home/hilaire.drouineau/Bureau/data_call/Annex13/"
+list_files <- list.files(path = folder, pattern = "xls")
 ```
 
 # EU: not reported country
 ```{r notansmeth}
-not_reported=country_p$cou_code[sapply(country_p$cou_code,function(cou) length(grep(cou,list_files))==0)]
-sort(not_reported) 
+not_reported <- country_p$cou_code[sapply(country_p$cou_code, function(cou) length(grep(cou, list_files)) == 0)]
+sort(not_reported)
 ```
 
 Here are listed countries that have not sent data. 
@@ -210,12 +222,13 @@ Here are listed countries that have not sent data.
 # Annex 14
 
 ```{r downloaduse}
-folder="/home/hilaire.drouineau/Bureau/data_call/Annex14/"
-list_files=list.files(path=folder,pattern="xls")
-use = do.call(rbind.data.frame, lapply(list_files,function(f) {
+folder <- "/home/hilaire.drouineau/Bureau/data_call/Annex14/"
+list_files <- list.files(path = folder, pattern = "xls")
+use <- do.call(rbind.data.frame, lapply(list_files, function(f) {
   print(f)
-  read_xlsx(paste0(folder,f),sheet="new_data") %>%
-    filter(eel_comment != "EXAMPLE ROW TO BE DELETED")}))
+  read_xlsx(paste0(folder, f), sheet = "new_data") %>%
+    filter(eel_comment != "EXAMPLE ROW TO BE DELETED")
+}))
 ```
 
 # Data availability
@@ -223,24 +236,25 @@ use = do.call(rbind.data.frame, lapply(list_files,function(f) {
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
 ```{r usedata}
-flextable(use %>% 
-            mutate(eel_value=ifelse(is.na(Check_allocation & eel_missvaluequal == "NP"), 0,Check_allocation)) %>% 
-            select(eel_year,
-                   eel_emu_nameshort,
-                   eel_value) %>%
-            na.omit() %>%
-            group_by(eel_emu_nameshort) %>%
-            summarize(minyear=min(eel_year), maxyear=max(eel_year), nb_value=n()) %>%
-            mutate(range=paste(minyear, maxyear, sep = "-")) %>%
-            select(eel_emu_nameshort, nb_value, range) %>%
-            arrange(eel_emu_nameshort)) 
-  
+flextable(use %>%
+  mutate(eel_value = ifelse(is.na(Check_allocation & eel_missvaluequal == "NP"), 0, Check_allocation)) %>%
+  select(
+    eel_year,
+    eel_emu_nameshort,
+    eel_value
+  ) %>%
+  na.omit() %>%
+  group_by(eel_emu_nameshort) %>%
+  summarize(minyear = min(eel_year), maxyear = max(eel_year), nb_value = n()) %>%
+  mutate(range = paste(minyear, maxyear, sep = "-")) %>%
+  select(eel_emu_nameshort, nb_value, range) %>%
+  arrange(eel_emu_nameshort))
 ```
 
 # EU: not reported country
 ```{r notansuse}
-not_reported=country_p$cou_code[sapply(country_p$cou_code,function(cou) length(grep(cou,list_files))==0)]
-sort(not_reported) 
+not_reported <- country_p$cou_code[sapply(country_p$cou_code, function(cou) length(grep(cou, list_files)) == 0)]
+sort(not_reported)
 ```
 
 Here are listed countries that have not sent data. Other countries have reported either an empty file, either only missing values
@@ -253,42 +267,42 @@ Here are listed countries that have not sent data. Other countries have reported
 # Annex 15
 
 ```{r downloadmeas}
-folder="/home/hilaire.drouineau/Bureau/data_call/Annex15/"
-list_files=list.files(path=folder,pattern="xls")
-meas = unique(do.call(rbind.data.frame, lapply(list_files,function(f) {
+folder <- "/home/hilaire.drouineau/Bureau/data_call/Annex15/"
+list_files <- list.files(path = folder, pattern = "xls")
+meas <- unique(do.call(rbind.data.frame, lapply(list_files, function(f) {
   print(f)
-  cou_code=gsub(".xlsx","",strsplit(f,split="_")[[1]][8])
-  sheets=excel_sheets(paste0(folder,f))
-  do.call(rbind.data.frame, lapply(sheets[grep("^INPUT",sheets)],function(s){
-                                   read_xlsx(paste0(folder,f),sheet=s, guess_max=5000) %>%
-                                     filter(startsWith(emu_name_short,cou_code) |
-                                              (s=="INPUT_measures ES_Minh" & emu_name_short=="ES_Minh"))}))
-  })) %>%
-  filter(emu_name_short!="emu_name_short"))
-
+  cou_code <- gsub(".xlsx", "", strsplit(f, split = "_")[[1]][8])
+  sheets <- excel_sheets(paste0(folder, f))
+  do.call(rbind.data.frame, lapply(sheets[grep("^INPUT", sheets)], function(s) {
+    read_xlsx(paste0(folder, f), sheet = s, guess_max = 5000) %>%
+      filter(startsWith(emu_name_short, cou_code) |
+        (s == "INPUT_measures ES_Minh" & emu_name_short == "ES_Minh"))
+  }))
+})) %>%
+  filter(emu_name_short != "emu_name_short"))
 ```
 # Data availability
 ## General overview
 Tables showing the numbers of the range and numbers of years provided for each indicator by each country
 
 ```{r measdata}
-flextable(meas %>% 
-            mutate(id_bis=seq_len(nrow(meas))) %>%
-            group_by(emu_name_short) %>%
-            summarize(nb_measures=n(),
-                      nb_fully_implemented=sum(progress=="Fully_implemented",na.rm=TRUE),
-                      na_impact=sum(is.na(impact)),
-                      na_effectiveness=sum(is.na(effectiveness_monitored)),
-                      na_estimated_effect_size=sum(is.na(estimated_effect_size))
-            ) %>%
-            arrange(emu_name_short)
-) 
+flextable(meas %>%
+  mutate(id_bis = seq_len(nrow(meas))) %>%
+  group_by(emu_name_short) %>%
+  summarize(
+    nb_measures = n(),
+    nb_fully_implemented = sum(progress == "Fully_implemented", na.rm = TRUE),
+    na_impact = sum(is.na(impact)),
+    na_effectiveness = sum(is.na(effectiveness_monitored)),
+    na_estimated_effect_size = sum(is.na(estimated_effect_size))
+  ) %>%
+  arrange(emu_name_short))
 ```
 
 # EU: not reported country
 ```{r notansmeas}
-not_reported=country_p$cou_code[sapply(country_p$cou_code,function(cou) length(grep(cou,list_files))==0)]
-sort(not_reported) 
+not_reported <- country_p$cou_code[sapply(country_p$cou_code, function(cou) length(grep(cou, list_files)) == 0)]
+sort(not_reported)
 ```
 
 Here are listed countries that have not sent data. 
@@ -305,51 +319,61 @@ load("../..//R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 library(rnaturalearth)
 # devtools::install_github("ropensci/rnaturalearthhires")
 library(rnaturalearthhires)
-countries=ne_countries("large",continent=c("africa","europe","asia"),returnclass="sf")
+countries <- ne_countries("large", continent = c("africa", "europe", "asia"), returnclass = "sf")
 
 
-emu_split=dbGetQuery(con, "select emu_nameshort, emu_name from ref.tr_emusplit_ems")
-values=c(RColorBrewer::brewer.pal(12,"Set3"),
-    RColorBrewer::brewer.pal(12, "Paired"), 
-    RColorBrewer::brewer.pal(8,"Accent"),
-    RColorBrewer::brewer.pal(8, "Dark2"))
-country_ref=dbGetQuery(con,"select cou_code from ref.tr_country_cou")
-color_countries = setNames(values,country_ref$cou_code)
-ggplot(emu_p %>% filter(emu_cou_code %in%eu_cou_codes &
-                          grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$",emu_p$emu_nameshort) &
-                          ! emu_cou_code %in% c("CY","MT"))) +
+emu_split <- dbGetQuery(con, "select emu_nameshort, emu_name from ref.tr_emusplit_ems")
+values <- c(
+  RColorBrewer::brewer.pal(12, "Set3"),
+  RColorBrewer::brewer.pal(12, "Paired"),
+  RColorBrewer::brewer.pal(8, "Accent"),
+  RColorBrewer::brewer.pal(8, "Dark2")
+)
+country_ref <- dbGetQuery(con, "select cou_code from ref.tr_country_cou")
+color_countries <- setNames(values, country_ref$cou_code)
+ggplot(emu_p %>% filter(emu_cou_code %in% eu_cou_codes &
+  grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$", emu_p$emu_nameshort) &
+  !emu_cou_code %in% c("CY", "MT"))) +
   geom_sf(data = countries, fill = "grey", inherit.aes = FALSE) +
-  geom_sf(aes(fill=emu_cou_code),
-          show.legend=FALSE) +
-  scale_fill_manual(values=color_countries) +
-  geom_label_repel(aes(label=emu_nameshort, 
-                       geometry=geom),
-                   key_glyph=draw_key_text,
-                   max.overlaps = Inf,
-                   label.padding = 0.1,
-                   cex = 2.5,
-                   stat = "sf_coordinates",
-                   show.legend=FALSE) +
-  scale_color_manual(values=color_countries)+
-  xlim(-11,31) + ylim(34,70) +
-  xlab("")+
+  geom_sf(aes(fill = emu_cou_code),
+    show.legend = FALSE
+  ) +
+  scale_fill_manual(values = color_countries) +
+  geom_label_repel(
+    aes(
+      label = emu_nameshort,
+      geometry = geom
+    ),
+    key_glyph = draw_key_text,
+    max.overlaps = Inf,
+    label.padding = 0.1,
+    cex = 2.5,
+    stat = "sf_coordinates",
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = color_countries) +
+  xlim(-11, 31) +
+  ylim(34, 70) +
+  xlab("") +
   ylab("")
-ggsave("map_emu.png",width=18/2.54,height=16/2.54,dpi=300)
+ggsave("2024/imagemap_emu.png", width = 18 / 2.54, height = 16 / 2.54, dpi = 300)
 
 library(dplyr)
-flextable(emu_p %>% 
-            st_drop_geometry() %>%
-            select(emu_cou_code,emu_nameshort) %>%
-            filter(emu_cou_code %in%eu_cou_codes &
-                     grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$",emu_p$emu_nameshort) &
-                     ! emu_cou_code %in% c("CY","MT")) %>%
-            inner_join(country_p,by=c("emu_cou_code"="cou_code")) %>%
-            inner_join(emu_split) %>%
-            select(cou_country, emu_nameshort, emu_name) %>%
-            arrange(cou_country,emu_nameshort) %>%
-            rename("country" = cou_country,
-                   "EMU short name"=emu_nameshort,
-                   "EMU name"=emu_name)) %>%
-  merge_v(j="country") %>%
+flextable(emu_p %>%
+  st_drop_geometry() %>%
+  select(emu_cou_code, emu_nameshort) %>%
+  filter(emu_cou_code %in% eu_cou_codes &
+    grepl("^[[:alpha:]]{2}_[[:alpha:]]{1,4}$", emu_p$emu_nameshort) &
+    !emu_cou_code %in% c("CY", "MT")) %>%
+  inner_join(country_p, by = c("emu_cou_code" = "cou_code")) %>%
+  inner_join(emu_split) %>%
+  select(cou_country, emu_nameshort, emu_name) %>%
+  arrange(cou_country, emu_nameshort) %>%
+  rename(
+    "country" = cou_country,
+    "EMU short name" = emu_nameshort,
+    "EMU name" = emu_name
+  )) %>%
+  merge_v(j = "country") %>%
   autofit()
 ```
