@@ -790,8 +790,8 @@ ggplot(st_transform(country_p, 3035)) +
 ## Biomass visualisation
 Each line represents an EMU.
 ```{r trendbiomass, fig.height=16/2.54,fig.height=16/2.54}
-if (!dir.exists("trendbiomassplots")) {
-  dir.create("trendbiomassplots")
+if (!dir.exists("2024/image/trendbiomassplots")) {
+  dir.create("2024/image/trendbiomassplots")
 }
 indicator <- dbGetQuery(con, "select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, bcurrent_without_stocking,suma,sumf, sumh from datawg.precodata_emu")
 indicator <- indicator %>%

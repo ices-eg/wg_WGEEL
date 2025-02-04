@@ -1,6 +1,6 @@
 ---
 title: "restocking"
-author: "EWG 24-02"
+author: "WKEMP4"
 date: "2024-11-19"
 output: html_document
 ---
@@ -28,6 +28,9 @@ sum_na <- function(x){
 dbDisconnect(con)
 ```
 
+Restocking consists in transferring young eels (usually glass eels) from one area to another, possibly distant, area. Ideally, growth and survival in the recipient area should be higher than in the donor area in order to have a positive contribution to the overall escapement. By importing "foreign" individual in the recipient EMU, restocking is supposed to enhance the local escapement. Conversely, by catching and transferring individual from the donor EMU, the escapement is supposed to decrease in the local escapement. In this exercise, we explore whether the increase of escapement in recipient EMUsd due to restocking outweighs the decrease in donor EMUs.
+
+
 # Computation of total increase of escapment due to restocking (gain)
 In the recipient countries (receiving restocked glass eel) we can compute the
 increase of escapement in recipient countries by summing
@@ -36,33 +39,43 @@ account for the restocking in France since France does not provide estimates of
 $B_{curr}$. As such, the exercice mostly focuses on restocking at the
 international scale (outside from France).
 
+Many countries/EMUs have not reported $B_{curr\_without\_restocking}(y,e)$. In order to have a bound of plausible values, we tested to scenario:
+- $Gain_{max}$: in which $B_{curr\_without\_restocking}$ is assumed to be 0 if no value was provided by the country
+- $Gain_{min}$: in which $B_{curr\_without\_restocking}$ is assumed to be equal to $B_{current} if no value was reported by the country
+
 ```{r gain}
 gain <- stock |>
-  mutate(gain = bcurrent - bcurrent_without_stocking) |>
+  mutate(gain_min = bcurrent - bcurrent_without_stocking,
+         gain_max = bcurrent - coalesce(bcurrent_without_stocking,0)) |>
   group_by(eel_year) |>
-  summarize(gain = sum_na(gain), .groups = "keep") |>
+  summarize(gain_min = sum_na(gain_min),
+            gain_max = sum_na(gain_max),
+            .groups = "keep") |>
   ungroup()
 
 
 ```
 
 # Computation of loss
-We assume here that most of the restocked eels are caught as glass eel in
+We assume here that most of the restocked eels are caught as glass eels in
 France, in EMUs FR_Adou, FR_Garo, FR_Loir, FR_Bret, FR_Sein, FR_Arto. In those
 EMUs, the fishing mortality is mostly due to glass eel fishing
 mortality, but there is a contribution of yellow (mostly recreational) and
 silver eel (in FR_Loir fisheries). France provided life-stage disaggregated
-estimates of $\sum{F}$ so that we were able to estimate the mortality due to
-glass eel fishery only, denoted $\sum{F_G}$. Moreover, we assume that about 55%
-of estimated $\sum{F_G}$ is due to restocking (consistently with figures
+estimates of mortalities, so that we were able to assess the contribution of the glass-eel fishery in $\sum{F}$, denoted $\sum{F_G}$. Moreover, part of the glass eel landings are used for restocking and another for consumption. We assumes that about 55%
+of estimated $\sum{F_G}$ corresponds to restocking (consistently with figures
 reported in the annex on the usage of glass eel below 12cm) and 45% for
-consumption, so we split $\sum{F_G}$ into a mortality for consumption
+consumption. As such, we split $\sum{F_G}$ into a mortality for consumption
 $\sum{F_{cons}}$ ($0.45 \cdot \sum{F_G}$) and a mortality for stocking
 $\sum{F_{stocking}}$ ($0.55 \cdot \sum{F_G}$).
+
+$B_{best} is the escapement that would have occurred without any fishing mortality. We can compute it as:
 
 $$
 B_{best} = R \cdot e^{-\sum{M}} 
 $$
+
+In the absence of restocking as of any density-dependent mortality, the current escapement would be:
 
 $$
 \begin{aligned}
@@ -74,7 +87,7 @@ B_{curr\_without\_restocking} = & R \cdot e^{-\sum{F_{cons}}} \cdot e^{-\sum{F_{
 \end{aligned}
 $$
 
-We can approximate the loss as the difference between the escapement that would have occurred without $\sum{F_{stocking}}$ and the escapement with $\sum{F_{stocking}}$:
+In view of this, we can approximate the loss as the difference between the escapement that would have occurred without $\sum{F_{stocking}}$ and the escapement with $\sum{F_{stocking}}$:
 
 $$
 \begin{aligned}
@@ -102,7 +115,7 @@ losses <- stock |>
   ungroup()
 ```
 
-Note that this loss does not account for a potential decrease of natural mortality in the donor country due to a reduction of density of glass eels.
+We remind that this estimate does not account for a potential decrease of natural mortality in the donor country due to a reduction of density of glass eels. Here, we account only for the loss in France and do not account for the effect of restocking within the same EMU.
 
 # Balance
 Here is a diagram that display the time trends of total gain (sum over recipient EMUs) and losses (sum over donour EMUs) per year
@@ -115,7 +128,8 @@ losses |>
   geom_line() +
   theme_bw() +
   xlab("") + 
-  ylab("change in escapment (t)") +
+  ylab("effect on escapment (t)") +
+  scale_color_discrete(labels = c("losses" = "Losses", "gain_min" = expression(Gain[min]), "gain_max" = expression(Gain[max]))) +
   xlim(2012, NA)
 ```
 
@@ -126,7 +140,7 @@ losses |>
   should probably translated to the left.
 - Another limitation is that the loss calculated will depend on how countries
   account for density dependent mortality in their estimates.
-  - France does not account for any density dependence in its stock indicators estimation, so its estimate are likely pessimistic especially for the estimate of b0
+  - France does not account for any density dependence in its stock indicators, so they are likely pessimistic especially for the estimate of b0
   - however, here losses are estimated through a comparison with bbest, so a potential reduction of density dependent natural mortality due to the removal of fishes for restocking might be limited since we are already in a situation of low abundance.
 - This does not account for internal stocking within donor EMU (e.g. restocking
   in France of eels caught in France) so gains might potentially be
@@ -134,4 +148,4 @@ losses |>
   restocked eels outpass the mortality due to the manipulation).
 - This assumes that sumF mostly arises due to glass eel fisheries in donor EMUs
   which is not completely correct, especially in FR_Loir.
-- Estimated losses are up to 2 to 4 times higher than gains (without accounting for the final contribution or not to the reproduction and without accouting for internal stocking), this would suggest that the decrease of density dependent mortality in donor country due to the removal of fishes, should allow a multiplication of final escapement by a factor of at least 2 for a benefit of restocking.
+- The balance critically depends on the assumption for missing data. In the pessimistic scenario, estimated losses are up to 2 times higher than gains (without accounting for the final contribution or not to the reproduction and without accounting for internal stocking), this would suggest that the decrease of density dependent mortality in donor country due to the removal of fishes, should allow a multiplication of final escapement by a factor of at least 2 for a benefit of restocking. In the optimist scenario, gains could be 14 times higher than losses. This clearly highlights the need for a better monitoring of the outcomes of restocking in recipient country. This perfectly illustrates how the lack of monitoring of the effects of management measures (here in terms of impact on escapement) at the appropriate scale (EMU) impairs the assessment of their effectiveness at a suitable scale (EMU or population scale).
