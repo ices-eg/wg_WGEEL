@@ -74,6 +74,9 @@ qal_comment: as based on a survey
 
 ## Annex 10
 
+WKEMP4 Cédric 
+48 new values inserted in the database
+
 ### samplinginfo
 
 
