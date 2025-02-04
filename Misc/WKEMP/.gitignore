@@ -24,9 +24,6 @@ wgeel_datacheck_2024.docx
 /2024/image/*
 /wgeel_datacheck_2024_files/
 /trendbiomassplots/
-/trendsfig/
-/trend_biomass.png
-/trend_biomass_without_stocking.png
-/trend_suma.png
-/trend_sumf.png
-/trend_sumh.png
+/*.html
+/trendsfig/*
+/trendbiomassplots/*
