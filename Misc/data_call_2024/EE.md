@@ -81,6 +81,9 @@
 
 * 134 new values inserted in the database
 
+
+* WKEMP 2025, integration of new data in the db
+
 ## Annex 11
 
  9 new values inserted in the database
