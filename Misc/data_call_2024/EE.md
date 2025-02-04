@@ -84,6 +84,15 @@
 
 * WKEMP 2025, integration of new data in the db
 
+The data replaced are in wkemp folder
+
+or duplicates 35 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id -24)
+,               
+          110 values not replaced (values from current datacall stored with code eel_qal_id -24),
+ In addition, 35 values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=-24)
+,
+                110 values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id -24)
+
 ## Annex 11
 
  9 new values inserted in the database
