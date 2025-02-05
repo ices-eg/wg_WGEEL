@@ -109,3 +109,16 @@ For duplicates 33 values replaced in the t_eelstock_ eel table (values from curr
 ## Annex 11
  108 new values inserted in the database
 131 values updated
+
+
+## Annex 12
+
+WKEMP4 recreational fishers file replaced
+
+## Annex 13
+
+WKEMP4 file replaced
+
+## Annex 14
+
+WKEMP4 file replaced
