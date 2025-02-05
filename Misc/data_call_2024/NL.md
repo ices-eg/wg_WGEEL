@@ -59,7 +59,17 @@
 30 values deleted in the db
 53 new values inserted in the database
 
+WKEMP4 resubmitted data for bcurrentwithoutstocking bbest and bcurrent
+For duplicates 53 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id -24)
+,								
+          0 values not replaced (values from current datacall stored with code eel_qal_id -24),
+ In addition, 53 values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=-24)
+,
+                0 values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id -24)
 ## Annex 11
 45 values deleted in the db
 54 new values inserted in the database
+
+## Annex 14
+replaced file with file from WKEMP4
 

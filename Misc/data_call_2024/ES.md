@@ -92,6 +92,33 @@ LAter corrected:
  271 new values inserted in the database
 115 values updated in the db
 115 values updated in the db
+
+
+WKEMP4 Cédric
+Putting all the data in new data and then use check duplicates
+
+new data : 3 lines ES_Nava
+updated data 
+For duplicates 33 values replaced in the t_eelstock_ eel table (values from current datacall stored with code eel_qal_id -24)
+,								
+          0 values not replaced (values from current datacall stored with code eel_qal_id -24),
+ In addition, 33 values replaced in the t_eelstock_eel_percent (old values kept with code eel_qal_id=-24)
+,
+                0 values not replaced for table t_eelstock_eel_percent  (values from current datacall stored with code eel_qal_id -24)
+
 ## Annex 11
  108 new values inserted in the database
 131 values updated
+
+
+## Annex 12
+
+WKEMP4 recreational fishers file replaced
+
+## Annex 13
+
+WKEMP4 file replaced
+
+## Annex 14
+
+WKEMP4 file replaced
