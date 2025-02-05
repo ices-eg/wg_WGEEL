@@ -11,6 +11,9 @@ format:
   docx:
     fig_caption: yes
     reference-doc: "../../R/quarto/ICES_template.docx"
+params:
+  image_path: "2024/image"
+  quarto_path: "../../R/quarto/"
 lang: fr
 bibliography: "../../R/quarto/ICES.bib"
 csl: "../../R/quarto/ices-journal-of-marine-science.csl"
@@ -24,13 +27,27 @@ link-citations: true
 link-bibliography: true
 ---
 
+```{r qmdhelper}
+#| echo: FALSE
+#| eval: FALSE
+#| label: qmdhelper
+# this is only necessary in eclipse, VScodium outside quarto render
+#  Rstudio or vscodium quarto render should have param ready
+# so you just need to launch this manually to make your code work
+
+params <- list(image_path = "2024/image",
+  quarto_path = "../../R/quarto/")
+setwd(dirname(.vsc$rstudioapi_env$getSourceEditorContext()$path))
+#setwd("c:/workspace/wg_WGEEL/Misc/WKEMP")
+```
+
 ```{r init}
 #| echo: false
 #| warning: false
 #| message: false
-#| 
+#| label: init
 
-source("../../R/quarto/quarto_utilities.R")
+source(file.path(params$quarto_path,"quarto_utilities.R"))
 
 library(dplyr)
 library(ggrepel)
@@ -91,7 +108,7 @@ trendtable <- function(dat = precodata_all, ind = "suma"){
 
 ```{r functionpreco}
 #| echo: false
-
+#| label: functionpreco
 
 #' @title Draw background of the precautionary diagram
 background2<-function(Aminimum=0,Amaximum=6.5,Bminimum=1e-2,Bmaximum=1){
@@ -229,7 +246,7 @@ trace_precodiag3 = function(precodata,
 
 ```
 
-# Tor b) Evaluate the overall effectiveness of EMPs in terms of trends (or recent changes) in in achieving specific target indicators
+# Tor b) Evaluate the overall effectiveness of EMPs in terms of trends (or recent changes) in achieving specific target indicators
 
 ```{r}
 #| label: trendtables
@@ -247,7 +264,7 @@ biomasstrendtab <- trendtable(ind = "bcurrent")
 
 #### Possibility to achieve the management target given current recruitment levels
 
-The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, in average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first a rebuilding of the recruitment.
+The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, in average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first rebuilding recruitment.
 
 In a pristine situation, and assuming an average natural mortality over the lifespan, escapement can be calculated as:
 
@@ -279,7 +296,7 @@ $$
 
 The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment. $\frac{R_0}{R}$ is the ratio of pristine recruitment over current recruitment, corresponding to the WGEEL index.
 
-Since lifespan vary among regions from few years to decades and since the recruitment might locally vary, we computed $\frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)$ for different levels of $\Delta t$ and $\frac{R}{R_0}$.
+Since lifespans vary among regions from few years to decades and since the recruitment might locally vary, we computed $\frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)$ for different levels of $\Delta t$ and $\frac{R}{R_0}$.
 
 Figure @fig-natmort indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North-Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ if current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates), so a reduction of more than 1/3 compared to the 0.138 year^-1^. It is important to remind here that this reduction is the average value over the whole lifespan of the individual, while density dependent natural mortality is mainly restricted to younger ages.
 
@@ -329,8 +346,8 @@ g = ggplot(comb, aes(x=RR0, y=values)) +
   scale_linetype_manual("area", values = c("Elsewhere.Europe"=3,
                                            "North.Sea"=4))+
   xlim(0,0.4)
-ggsave("2024/image/mortality_1.png", width=16/2.54,height=16/2.54)
-knitr::include_graphics("2024/image/mortality_1.png")
+ggsave(file.path(params$image_path,"mortality_1.png"), width=16/2.54,height=16/2.54)
+knitr::include_graphics(file.path(params$image_path,"mortality_1.png"))
 
 ```
 
@@ -345,8 +362,8 @@ Figure @fig-trendbiomass and Table @tbl-trendbiomass show the trends in escapeme
 #| fig-width: 6.3
 #| fig-cap: "Trends in reported Bcurrent/B0. Each line stands for a specific EMU. The horizontal red line indicates the target set in the Eel Regulation."
 #| 
-if (!dir.exists("2024/image/trendbiomassplots")) {
-  dir.create("2024/image/trendbiomassplots")
+if (!dir.exists(file.path(params$image_path,"trendbiomassplots"))) {
+  dir.create(file.path(params$image_path,"trendbiomassplots"))
 }
 indicator <- precodata_all |>
   filter(aggreg_level == "emu")
@@ -372,8 +389,8 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
-ggsave(g, filename = "2024/image/trend_biomass.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trend_biomass.png")
+ggsave(g, filename = file.path(params$image_path,"trend_biomass.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trend_biomass.png"))
 
 for (emu in unique(indicator$eel_emu_nameshort)) {
   g <- ggplot(
@@ -394,7 +411,7 @@ for (emu in unique(indicator$eel_emu_nameshort)) {
     xlim(2007, 2020) +
     ggtitle(emu)
   
-  ggsave(g, filename = paste0("2024/image/trendbiomassplots/trend_biomass_", emu, ".png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+  ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_biomass_"), emu, ".png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
 }
 ```
 
@@ -412,6 +429,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
+#| label flextabletrendbiomass
 flextable(biomasstrendtab |>
             mutate(across(all_of(c("Initial","Final","Δ")),round))) |>
   flextable2ICES() |>
@@ -451,8 +469,8 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
-ggsave(g, filename = "2024/image/trend_biomass_without_stocking.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("trend_biomass_without_stocking.png")
+ggsave(g, filename = file.path(params$image_path,"trend_biomass_without_stocking.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trend_biomass_without_stocking.png"))
 ```
 
 ### Mortality indicators
@@ -478,8 +496,8 @@ sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) 
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
-ggsave(sumf, file = "2024/image/trend_sumf.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trend_sumf.png")
+ggsave(sumf, file = file.path(params$image_path,"trend_sumf.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trend_sumf.png"))
 ```
 
 ```{r}
@@ -495,6 +513,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
+#| label flextabletrendsumf
 flextable( sumftab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -526,8 +545,8 @@ sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) 
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
-ggsave(sumh, file = "2024/image/trend_sumh.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trend_sumh.png")
+ggsave(sumh, file = file.path(params$image_path,"trend_sumh.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trend_sumh.png"))
 ```
 
 <br>
@@ -544,6 +563,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
+#| label flextabletrendsumh
 flextable( sumhtab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -577,8 +597,8 @@ suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) 
   xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
-ggsave(suma, file = "2024/image/trend_suma.png", width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trend_suma.png")
+ggsave(suma, file = file.path(params$image_path,"trend_suma.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trend_suma.png"))
 ```
 
 <br>
@@ -595,6 +615,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
+#| label flextabletrendsuma 
 flextable( sumatab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -628,7 +649,7 @@ Many EMUs are still in the red zone. While not achieving the 40% pristine escape
 #| fig-height: 3.94
 #| fig-cap: "Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2022 and 2023: status of the stock (horizontal, spawner escapement (B current) expressed as a percentage of the pristine escapement (B0)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt)."
 #|
-img <- "2024/image/preco_emu.png"
+img <- file.path(params$image_path,"preco_emu.png")
 g = trace_precodiag3(precodata_all,"emu",last_year=2023,years=2022:2023)
 ggsave(img, height = 12/2.54, width = 16/2.54)
 knitr::include_graphics(img)
@@ -652,7 +673,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-
+#| label flextableprecoemu
 precodata_all |>
   filter(aggreg_level == "emu",
          eel_year %in% 2022:2023) |>
@@ -740,8 +761,8 @@ emus <- sort(unique(biomass$eel_emu_nameshort))
 g <- biomass |>
   mutate(iemu = match(eel_emu_nameshort, emus)) |>
   plot_indicator_emu(1:16)
-ggsave(g, filename = paste0("2024/image/trendbiomassplots/trend_biomass_1_16.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trendbiomassplots/trend_biomass_1_16.png")
+ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_biomass_1_16.png")), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_biomass_1_16.png"))
 
 
 ```
@@ -761,7 +782,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
   g <- biomass |>
     mutate(iemu = match(eel_emu_nameshort, emus)) |>
     plot_indicator_emu(imin:imax)
-  file <- paste0("2024/image/trendbiomassplots/trend_biomass_",imin,"_",imax,".png")
+  file <- paste0(file.path(params$image_path,"trendbiomassplots/trend_biomass_"),imin,"_",imax,".png")
   ggsave(g, filename = file, width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
   
   knit_expand(text=c(paste0('![](', file, ')'),
@@ -801,8 +822,8 @@ emus <- sort(unique(sumF$eel_emu_nameshort))
 g <- sumF |>
   mutate(iemu = match(eel_emu_nameshort, emus)) |>
   plot_indicator_emu(1:16, ind = "sumf", ref = 0.92, ylab = expression(Sigma~F~(year^{-1})))
-ggsave(g, filename = paste0("2024/image/trendbiomassplots/trend_sumf_1_16.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trendbiomassplots/trend_sumf_1_16.png")
+ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_sumf_1_16.png")), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sumf_1_16.png"))
 
 
 ```
@@ -827,7 +848,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
                        ind = "sumf", 
                        ref = 0.92,
                        ylab = expression(Sigma~F~(year^{-1})))
-  file <- paste0("2024/image/trendbiomassplots/trend_sumf_",imin,"_",imax,".png")
+  file <- paste0(file.path(params$image_path,"trendbiomassplots/trend_sumf_"),imin,"_",imax,".png")
   ggsave(g, filename = file, width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
   
   knit_expand(text=c(paste0('![](', file, ')'),
@@ -863,8 +884,8 @@ emus <- sort(unique(sumH$eel_emu_nameshort))
 g <- sumH |>
   mutate(iemu = match(eel_emu_nameshort, emus)) |>
   plot_indicator_emu(1:16, ind = "sumh", ref = 0.92, ylab = expression(Sigma~H~(year^{-1})))
-ggsave(g, filename = paste0("2024/image/trendbiomassplots/trend_sumh_1_16.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trendbiomassplots/trend_sumh_1_16.png")
+ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_sumh_1_16.png")), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sumh_1_16.png"))
 
 
 ```
@@ -888,7 +909,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
                        ind = "sumh", 
                        ref = 0.92,
                        ylab = expression(Sigma~H~(year^{-1})))
-  file <- paste0("2024/image/trendbiomassplots/trend_sumh_",imin,"_",imax,".png")
+  file <- paste0(file.path(params$image_path,"trendbiomassplots/trend_sumh_"),imin,"_",imax,".png")
   ggsave(g, filename = file, width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
   
   knit_expand(text=c(paste0('![](', file, ')'),
@@ -924,8 +945,8 @@ emus <- sort(unique(sumA$eel_emu_nameshort))
 g <- sumA |>
   mutate(iemu = match(eel_emu_nameshort, emus)) |>
   plot_indicator_emu(1:16, ind = "suma", ref = 0.92, ylab = expression(Sigma~A~(year^{-1})))
-ggsave(g, filename = paste0("2024/image/trendbiomassplots/trend_suma_1_16.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
-knitr::include_graphics("2024/image/trendbiomassplots/trend_suma_1_16.png")
+ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_suma_1_16.png")), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_suma_1_16.png"))
 
 
 ```
@@ -948,7 +969,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
                        ind = "suma", 
                        ref = 0.92,
                        ylab = expression(Sigma~A~(year^{-1})))
-  file <- paste0("2024/image/trendbiomassplots/trend_suma_",imin,"_",imax,".png")
+  file <- paste0(file.path(params$image_path,"trendbiomassplots/trend_suma_"),imin,"_",imax,".png")
   ggsave(g, filename = file, width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
   
   knit_expand(text=c(paste0('![](', file, ')'),
@@ -982,7 +1003,7 @@ Figure @fig-precocountry displays the indicators aggregated by countries. The im
 #|
 
 
-img <- "2024/image/preco_country.png"
+img <- file.path(params$image_path,"preco_country.png")
 g = trace_precodiag3(precodata_all,"country",last_year=2023,years=2022:2023)
 ggsave(img, height = 12/2.54, width = 16/2.54)
 knitr::include_graphics(img)

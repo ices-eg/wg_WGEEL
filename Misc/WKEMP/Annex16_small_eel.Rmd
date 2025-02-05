@@ -18,6 +18,8 @@ setwd(datawd)
 files <- list.files(".")
 # remove comments
 files <- files[!grepl("comments", files)]
+files <- files[!grepl("annex16", files)]
+files <- files[grepl("xls", files)]
 stringr::str_sub(files, -7, -6)
 
 l12 <- read_xlsx(
