@@ -123,48 +123,50 @@ filtered_measures_check$FileOrigin <- as.character(filtered_measures_check$FileO
 combined_df <- bind_rows(combined_df, filtered_measures_check)
 
 
+
+
 ```
 
+
 2. for every quantifiable measure we need to ask to fill (in "value_missing_in"; create columns if not already exist)
-  2a) "effectiveness monitored" and "estimated_effect_size"
+  2a) "effectiveness monitored" and "estimated_effect_size" "effect_size_unit"
   2b) "target_value", "target_unit", "value_achieved", and when no value ask to fill "degree_achieved" if feasible (we should prefill with fully for those where we have "yes" in "target achieved" and then delete the column "trarget_achieved", will address in guidance) 
 
 5. For those that provided nothing (where source=2021)  I guess " value_missing_in" should spell "all" ?
 Upload to SP
 
 ```{r valuemissing, include=FALSE}
-#Make a new column degree achieved
-combined_df <- combined_df %>%
-  mutate(
-    degree_achieved = ifelse(tolower(target_achieved) == "yes", 100, NA_real_)
-  )
-
+#Make a new column degree achieved. It SHUOLD SAY "FULL"
 
 combined_df <- combined_df %>%
   mutate(
-    degree_achieved = ifelse(tolower(target_achieved) == "yes", 100, NA_real_),
-    degree_achieved = ifelse(!is.na(degree_achieved_percent), degree_achieved_percent, degree_achieved)
+    degree_achieved = ifelse(target_achieved %in% c("yes", "YES", "Yes"), "full", NA_character_)
   )
 
+# Add the column 'value_achieved' to combined_df if it doesn't exist
+if (!"value_achieved" %in% colnames(combined_df)) {
+  combined_df$value_achieved <- NA
+}
 
-
-#Check the columns
+# Check the columns and update the Value_missing_in column
 rev_measures_all <- combined_df %>%
   rowwise() %>%
   mutate(
     Value_missing_in = paste(
       na.omit(c(
         if (source == "2021") "ALL" else NA_character_,
-        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(effectiveness_monitored) || effectiveness_monitored == "")) "effectiveness_monitored" else NA_character_,
-        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_value) || target_value == "")) "target_value" else NA_character_,
-        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(estimated_effect_size) || estimated_effect_size == "")) "estimated_effect_size" else NA_character_,
-        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_unit) || target_unit == "")) "target_unit" else NA_character_,
-        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(value_achieved) || value_achieved == "") && (is.na(degree_achieved) || degree_achieved == "")) "degree_achieved" else NA_character_
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(effectiveness_monitored) || effectiveness_monitored == "" || effectiveness_monitored == "NA")) "effectiveness_monitored" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_value) || target_value == "" || target_value == "NA")) "target_value" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(estimated_effect_size) || estimated_effect_size == "" || estimated_effect_size == "NA")) "estimated_effect_size" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(target_unit) || target_unit == "" || target_unit == "NA")) "target_unit" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(value_achieved) || value_achieved == "" || value_achieved == "NA")) "value_achieved" else NA_character_,
+        if (!is.na(std_quantifiable) && std_quantifiable == "TRUE" && (is.na(degree_achieved) || degree_achieved == "" || degree_achieved == "NA")) "degree_achieved" else NA_character_
       )),
       collapse = "; "
     )
   ) %>%
   ungroup()
+
 ```
 
 3. Remove all redundant columns - table should end at  "delete_reason",
