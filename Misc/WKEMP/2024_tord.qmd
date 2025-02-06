@@ -23,165 +23,146 @@ crossref:
   ref-hyperlink: true
 link-citations: true
 link-bibliography: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
-
 
 # Provide alternative methods of monitoring, analysis and reporting in which the attainment of implementation efforts is possible, in the event that quantification under the present system is not possible
 
+## On escapement biomass EC request 1.2
 
+```         
+Note : This is probably covered already. Do we mean to explain here
+    how we will setup a model to build better estimations of
+    escapement biomass ? Suggestion ignore this one and consider it covered elsewhere in the report
+```
 
-## On escapement biomass EC request 1.2\
+## On effects of measures on escapement EC requests 1.4 + 1.5
 
+```         
+  Note : this is vague ... shouldn't we at least split sumH, SumF other in the answer.
+  If so I suggest just separating sumF and sum H as below
+```
 
-
-    Note : This is probably covered already. Do we mean to explain here
-        how we will setup a model to build better estimations of
-        escapement biomass ? Suggestion ignore this one and consider it covered elsewhere in the report
-   
-
-
-## On effects of measures on escapement EC requests 1.4 + 1.5 
-
-      Note : this is vague ... shouldn't we at least split sumH, SumF other in the answer.
-      If so I suggest just separating sumF and sum H as below
-   
-   
 ## Fishing mortality measures
-       
 
+Management measure are complex to evaluate. They vary over time. They
+include different type of measures (e.g. size limit, gear specification,
+diminution of the number of licences, spatial fishing bans, reductions
+applying only to a type of fisherman). They have spatial variations. To
+better assess the relevance of management measures and since the
+objective of the Eel Regulation is to reduce anthropogenic mortalities,
+we suggest that each management measures should be associated with a
+measure of its effect on sumF at the EMU scale.
 
-Management measure are complex to evaluate. They vary over
-time. They include different type of measures (e.g. size
-limit, gear specification, diminution of the number of
-licences, spatial fishing interdictions, reductions applying
-only to a type of fisherman). They have spatial variations.
-The evaluation should be integrated in term of sumF at the
-scale of the
-EMU.
-   
-
-Mortality targets (objective for sum F and sum H) and their
-change should be adopted in eel management plans. These
-targets should be compatible with the restoration of the eel
-population in the long term (e.g. far below 0.92). The
-management measures or reductions of fishing effort should
-be evaluated against the attainment of those
-targets.
-   
-
-
+Mortality targets (objective for sum F and sum H) and their change
+should be adopted in eel management plans. These targets should be
+compatible with the restoration of the eel population in the long term
+(e.g. far below 0.92). The management measures or reductions of fishing
+effort should be evaluated against the attainment of those targets.
+<!--- I would remove this paragraph: setting intermediate is a management question
+not a scientific one. For ICES, given the situation, we can only set one target and
+recommendation: sumA=0 -->
 
 ## On fishing effort EC request 2.3
+
+Fishing effort and its link to fishing mortality has been discussed in
+previous WGEEL reports [@ices2019], reminding that while fishing effort
+is quantity that could be easily managed, the consequences on fishing
+mortality can be complex and are often non linear (see for example
+various examples from Mediterranean fisheries
+[@scientifictechnicalandeconomiccommitteeforfisheriesstecf2022c]).
+Recently, an example in the Minho river illustrated the potential
+ineffectiveness of fishing effort regulation and possible resulting biases in the
+analysis of CPUE [@stratoudakis2024]. As such, we consider that the effectiveness
+of any fishing effort reduction should be monitored through its final effect on the
+reduction of fishing mortality.
+
+```         
+     Note : This is be covered in previous paragraph, do we need more ref to previous WKEMP to explain that we cannot work on fishing effort ?
    
-         Note : This is be covered in previous paragraph, do we need more ref to previous WKEMP to explain that we cannot work on fishing effort ?
-       
+```
 
+## On non-fishing mortality EC request 3.3
 
+Habitat degradation has clearly an effect on eel population (refs).
+Local measures however will only have a local effect on the local eel
+population, that is difficult to relate at the scale of an EMU. These
+effect might be confounded by other effects (e.g. pollution, drought
+events), and will only show on escapement in the long term. While a
+monitoring of the change in biomass might demonstrate a positive effect,
+change in recruitment also have an effect on biomass. With a reduced
+recruitment, the restoration of habitat might only have a limited effect
+on density dependent increased mortality linked with barriers.
 
-## On non-fishing mortality EC request 3.3\
-   
+While these measures (restoring connectivity, enhancing habitats,
+diminishing delays or obstructions for downtream migration) are probably
+very important for the eel, the measure of their effect shall only be
+visible in the long term.
 
-   
-Habitat degradation has clearly an effect on eel population
-(refs). Local measures however will only have a local effect on
-the local eel population, that is difficult to relate at the
-scale of an EMU. These effect might be confounded by other
-effects (e.g. pollution, drought events), and will only show on
-escapement in the long term. While a monitoring of the change in
-biomass might demonstrate a positive effect, change in
-recruitment also have an effect on biomass. With a reduced
-recruitment, the restoration of habitat might only have a
-limited effect on density dependent increased mortality linked
-with barriers.
-       
+A first feasible option to deal with this difficulty to evaluate the
+effect of habitat restoration might be to use intermediate targets not
+necessarily focused on the effect on eel population. For example the
+country might identify a list of the most impacting barriers or most
+useful habitat restoration and provide a report on the progress in
+restoring these barriers. Quantifying the current quantity of available
+habitat and the evolution of this habitat would be a relevant and useful
+proxy. This could be done for example by using spatial model as
+discussed during WKSMEEL. Specific studies on the effect of restoration
+of these habitats on the eel population could also be led to shed a
+light on the effect of these restorations. Monitoring growth trend and
+contaminant levels in restored site can be used to demonstrate the
+enhancement of the habitat quality.
 
-   
-While these measures (restoring connectivity, enhancing
-habitats, diminishing delays or obstructions for downtream
-migration) are probably very important for the eel, the measure
-of their effect shall only be visible in the long
-term.
-       
+However, in the long term, a quantification of the effect of those
+measure would be preferable. Doing so required as a first step to
+quantify the proportion/abundance of eels that is affected by the
+management measure. Indeed, a measure can be very relevant locally but
+have a limited effect at the EMU scale if the local abundance is small
+compared to the total abundance within the EMU. Therefore, any
+quantification at the EMU scale will require at some points data on the
+spatial distribution of eels. For downstream migration mortality, a
+combination of a repartition model (EDA like statistical repartition
+model as envisioned in the WKFEA roadmap) and dam data should be used to
+assess the effect of barriers (TODO cite WKFEA roadmap). The effect of
+trap and transport or mitigation measures applied should be quantified
+at the regional level as modification/ reduction of sumH.
 
-   
-A first feasible option to deal with this difficulty to
-evaluate the effect of habitat restoration might be to use
-intermediate targets not necessarily focused on the effect on
-eel population. For example the country might identify a list of
-the most impacting barriers or most usefull habitat restoration
-and provide a report on the progress in restoring these
-barriers. Specific studies on the effect of restoration of these
-habitats on the eel population could also be led to shed a light
-on the effect of these
-restorations.
-       
+A future listing of the barriers with in order :
 
-   
-However, in the long term, a quantification of the effect of
-those measure would be preferable. For downstream migration
-mortality, a combination of a repartition model (EDA like
-statistical repartion model as envisioned in the WKFEA roadmap)
-and dam data should be used to assess the effect of barriers
-(TODO cite WKFEA roadmap). The effect of trap and transport or
-mitigation measures applied should be quantified at the regional
-level as modification/ reduction of
-sumH.
-       
+-   The location of hydropower plant without specification of type or
+    equipment flow.
 
-   
-A future listing of the barriers with in
-order :
-       
-- The location of hydropower plant without specification of type
-or equipment flow.
+-   The type of turbine (application of average mortality per dam /
+    turbine type).
 
--  The type of turbine (application of average mortality per
-dam / turbine type).
-   
+-   Detailed data on turbine type (equipment flow of the turbine, type
+    of turbine, rotation speed, diameter, height of dam) should allow
+    for the application of model types (refs, + ref to SUDOANG tool)
 
--  Detailed data on turbine type (equipment flow of the
-turbine, type of turbine, rotation speed, diameter, height
-of dam) should allow for the application of model types
-(refs, + ref to SUDOANG
-tool)
-   
+-   A direct measurement or specific model allowing the evaluation of
+    mortality on site.
 
--  A direct measurement or specific model allowing the
-evaluation of mortality on
-site.
-   
-
-   
-For a measure of the gain in term of habitat, the
-identification of habitat surface restored along with a
-prediction of the density (using EDA like spatial repartition
-models) should also be used to evaluate the \"gain\" in term of
-potential silver eel
-production.
-       
-
-
+For a measure of the gain in term of habitat, the identification of
+habitat surface restored along with a prediction of the density (using
+EDA like spatial repartition models) should also be used to evaluate the
+"gain" in term of potential silver eel production.
 
 ## On restocking EC request 5.2
-   
 
-   
-Restocking is a measure financed by EU funds. Countries
-implementing restocking should report a separate measure of sumF
-and sumH applied specifically to the restocked eel. These sumF
-and sumH should be close to zero when the measure is financed by EU money.
- Separated evaluation of sumF
-and SumH should be provided over time to account for a better
-implementation of this measure. Historical transport should also
-be evaluated.
-       
-
-
+Assessig the potential benefit of restocking requires at least to know
+whether the escapement from a from a stock eel is higher than what would
+have occurred otherwise. As such, we suggest that countries implementing
+restocking should report a separate measure of sumF and sumH applied
+specifically to the restocked eel. These would allow comparing the
+escapement per eel for the stocked eel with the escapment per eel in the
+donor area. This would also enable to check that eels are effectively
+stocked in area where anthropogenic pressures (sumF and sumH) are small.
+Historical transport should also be evaluated.
 
 ##   On other targets EC request 6.2
-   
 
-        No idea what this is....
-
-
-   
+```         
+    No idea what this is....
+```
