@@ -1,14 +1,17 @@
+##### data for the script is on Ices SP (working documents/SG1) using the same folder structure as specified in this script #####
+
+getwd()
 library(readxl)
 library(tidyverse)
 
 
 
 #create a list of excel files (separated by first and second data call response)
-files_second <- list.files(path = "C:/Users/pohlmann/Desktop/2024_WKEMP4/pt 2/for_compilation/responses", 
+files_second <- list.files(path = "Misc/WKEMP/WKEMP4/SG1/for_compilation/responses", 
                     pattern = ".xlsx",
                     full.names = TRUE)
 
-files_first <- list.files(path = "C:/Users/pohlmann/Desktop/2024_WKEMP4/pt 2/for_compilation", 
+files_first <- list.files(path = "Misc/WKEMP/WKEMP4/SG1/for_compilation", 
                         pattern = ".xlsx",
                         full.names = TRUE)
 
@@ -35,6 +38,15 @@ measures_2024_new <- measures_2024_new %>% rename(status = Value_missing_in)
 #combine all in one dataframe
 measures_all <- bind_rows(measures_2024_first, measures_2024_second, measures_2024_new)
 
-#save result
-save(measures_all, file = "output/measures_all.RData")
+#read standards
+standards <- read_excel("Misc/WKEMP/WKEMP4/SG1/standards.xlsx")
 
+#Merge standards to the whole data
+# Rename all columns in 'standards' by adding "std_" prefix
+colnames(standards) <- paste0("std_", colnames(standards))
+# Join standards 
+measures_all <- measures_all %>%
+  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
+
+#save result
+save(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.RData")
