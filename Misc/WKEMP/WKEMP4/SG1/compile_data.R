@@ -36,7 +36,8 @@ colnames(measures_2024_new) <- correct_colnames
 measures_2024_new <- measures_2024_new %>% rename(status = Value_missing_in)
 
 #combine all in one dataframe
-measures_all <- bind_rows(measures_2024_first, measures_2024_second, measures_2024_new)
+measures_all <- bind_rows(measures_2024_first, measures_2024_second, measures_2024_new) %>%
+  filter(delete == "No" | delete == "NA" | is.na(delete))
 
 #read standards
 standards <- read_excel("Misc/WKEMP/WKEMP4/SG1/standards.xlsx")
