@@ -2,6 +2,7 @@
 
 library(readxl)
 library(tidyverse)
+library(icesTAF)
 
 
 
@@ -46,6 +47,9 @@ colnames(standards) <- paste0("std_", colnames(standards))
 # Join standards 
 measures_all <- measures_all %>%
   left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
+
+#create output directory
+mkdir("Misc/WKEMP/WKEMP4/SG1/output/")
 
 #save result
 save(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.RData")
