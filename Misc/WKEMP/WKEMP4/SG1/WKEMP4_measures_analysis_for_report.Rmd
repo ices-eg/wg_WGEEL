@@ -53,6 +53,8 @@ measures_all <- measures_all %>%
 
 ```
 
+Need to filter for EMP only!!!!
+
 Graph/Table with no. of measures per type for each country
 
 
@@ -132,6 +134,8 @@ ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = pro
 
 Graph of effectiveness monitored - stacked bars by measure type (implemented, etc
 
+We may need to check if a value is provided
+
 
 ```{r EffectivenesMonitored, echo=FALSE}
 
@@ -163,10 +167,42 @@ ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = percentage, fill 
 
 ```
 
-By year implemenmted measures with direct effect - stacked bar (high/medium low impact)
+By year implemented measures with direct effect - stacked bar (high/medium low impact)
+NOTE THE YEAR NA IS DIVIDED BY 10
 
 ```{r ByYearImplementedMeasures, echo=FALSE}
 
+# Create the new data frame with year_of_full_implementation and impact
+ImpactByYear <- measures_all %>%
+  select(year_of_full_implementation, impact)
+
+#clean NAs
+ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "NA"
+
+ImpactByYear <- ImpactByYear %>%
+  mutate(year_of_full_implementation = as.character(year_of_full_implementation),
+         year_of_full_implementation = trimws(year_of_full_implementation),
+         year_of_full_implementation = ifelse(is.na(year_of_full_implementation) | 
+                                              year_of_full_implementation == "The EMU has not reported any information for that sub measure" | 
+                                              year_of_full_implementation == "The EMU has not reported any information", 
+                                              "NA", 
+                                              year_of_full_implementation))
+
+
+# Adjust the count of "NA" entries by dividing by 10 and rename to "NA / 10"
+ImpactByYear <- ImpactByYear %>%
+  group_by(year_of_full_implementation, impact) %>%
+  summarise(count = n()) %>%
+  ungroup() %>%
+  mutate(year_of_full_implementation = ifelse(year_of_full_implementation == "NA", "NA / 10", year_of_full_implementation),
+         count = ifelse(year_of_full_implementation == "NA / 10", count / 10, count))
+
+# Create the stacked bar chart
+ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fill = factor(impact))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "Stacked Bar Chart of Impact by Year of Full Implementation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
 ```
 
@@ -174,14 +210,58 @@ By year implemenmted measures with direct effect - stacked bar (high/medium low 
 No of quantifiable measures vs measures with a set target (by measure type, country?)
 
 ```{r QUantifiableMeasures, echo=FALSE}
+# Create a new dataframe with relevant columns
+measures_summary <- measures_all %>%
+  select(country, measure_type, std_quantifiable, target_value)
 
+# Count the number of rows where std_quantifiable is "y" per country
+quantifiable_measures <- measures_summary %>%
+  filter(std_quantifiable == "y") %>%
+  group_by(country, measure_type) %>%
+  summarise(count_quantifiable = n())
+
+# Count the number of rows where measures_all$target_value is not in the specified list and is not NA
+target_measures <- measures_summary %>%
+  filter(!target_value %in% c("ND", "Not monitored", "Not established", "not specified", "NA") & !is.na(target_value)) %>%
+  group_by(country, measure_type) %>%
+  summarise(count_target = n())
+
+# Merge the two dataframes
+measures_summary <- quantifiable_measures %>%
+  full_join(target_measures, by = c("country", "measure_type")) %>%
+  replace_na(list(count_quantifiable = 0, count_target = 0))
+
+# View the summary dataframe
+print(measures_summary)
 
 ```
 
-Objective defined vs objective evaluated
+Objective defined vs objective evaluated. UNCLEAR WHICH FIELDS TO USE!!
 
 ```{r DefinedVsEvaluatedObjective, echo=FALSE}
+# Create a new dataframe with relevant columns
+summary_data <- measures_all %>%
+  select(country, measure_type, std_objective, objective)
 
+# Count the number of rows where std_objective is "y" per country
+quantifiable_summary <- summary_data %>%
+  filter(std_objective == "y") %>%
+  group_by(country, measure_type) %>%
+  summarise(count_std_objective = n())
+
+# Count the number of rows where objective is not in the specified list and is not NA
+target_summary <- summary_data %>%
+  filter(!objective %in% c("np", "NA", ".NA") & !is.na(objective)) %>%
+  group_by(country, measure_type) %>%
+  summarise(count_target = n())
+
+# Merge the two dataframes
+final_summary <- quantifiable_summary %>%
+  full_join(target_summary, by = c("country", "measure_type")) %>%
+  replace_na(list(count_std_objective = 0, count_target = 0))
+
+# View the final summary dataframe
+print(final_summary)
 
 ```
 
@@ -192,6 +272,13 @@ Sthgin with immediate / direct
 
 ```
 
+
+
+
+
+
+
+OTHER LIKELY NOT NEEDED STUFF BELOW
 
 
 Objective there but no feedback in these ones
