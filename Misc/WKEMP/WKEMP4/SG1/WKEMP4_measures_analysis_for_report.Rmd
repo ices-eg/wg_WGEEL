@@ -1,3 +1,4 @@
+
 ---
 title: "WKEMP4_measures_summary"
 author: "none (contact Jani H for questions)"
@@ -8,6 +9,10 @@ output:
   #word_document: default
 
 ---
+
+```{r setup, include=FALSE}
+load("./output/measures_all.RData")
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
