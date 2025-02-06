@@ -1,6 +1,5 @@
 ##### data for the script is on Ices SP (working documents/SG1) using the same folder structure as specified in this script #####
 
-getwd()
 library(readxl)
 library(tidyverse)
 
