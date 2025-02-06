@@ -11,14 +11,10 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-load("./output/measures_all.RData")
-```
-
-```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -37,13 +33,10 @@ invisible(lapply(libs, library, character.only = T))
 ```{r Import_files, include=FALSE}
 
 ### The folder where all the excel files are in. CHANGE IF NEEDED
-folder_path <- "./Annex_14"
-load("./Annex_14/measures_all.Rdata")
+load("./output/measures_all.RData")
 
-standards <- read_excel("./Annex_14/Other data/standards.xlsx")
-all_emus = read.csv2("./Annex_14/Other data/all_emus.csv")
-
-
+standards <- read_excel("standards.xlsx")
+all_emus = read.csv2("all_emus.csv")
 
 ```
 
@@ -59,6 +52,146 @@ measures_all <- measures_all %>%
   left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
 
 ```
+
+Graph/Table with no. of measures per type for each country
+
+
+```{r NoOfMeasuresPerCountry, echo=FALSE}
+
+# Create the MeasuresPerType to show data
+MeasuresPerType <- measures_all %>%
+  count(country, measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# Print
+print(MeasuresPerType)
+
+```
+
+Graph/Table with no. of measures per type for each EMU
+NOTE THAT SOME EMU's are missing - should we link here?
+
+
+```{r NoOfMeasuresPerEMU, echo=FALSE}
+
+# Create the MeasuresPerTypeEMU to list it in new df
+MeasuresPerTypeEMU <- measures_all %>%
+  count(country, emu_name_short, measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# printit
+print(MeasuresPerTypeEMU)
+
+```
+
+
+Number of measures per type TOTAL
+
+
+```{r NoOfMeasuresTOTAL, echo=FALSE}
+# Create the total data data frame
+TotalData <- measures_all %>%
+  count(measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# Display the TotalData data frame
+print(TotalData)
+
+```
+
+Graph of implementation percentage - stacked bars by measure type (implemented/partially implemented ... etc)
+
+
+```{r ImplementationPercentage, echo=FALSE}
+
+# Create a contingency table
+ProgressCountTable <- table(measures_all$measure_type, measures_all$progress)
+
+# Convert the table to a data frame
+ProgressCountTable <- as.data.frame.matrix(ProgressCountTable)
+
+# Display the ProgressCountTable data frame
+print(ProgressCountTable)
+
+# Normalize the data to get percentages
+ProgressCountTable <- sweep(ProgressCountTable, 1, rowSums(ProgressCountTable), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+ProgressCountTable_long <- as.data.frame(ProgressCountTable)
+ProgressCountTable_long$measure_type <- rownames(ProgressCountTable_long)
+ProgressCountTable_long <- tidyr::gather(ProgressCountTable_long, key = "progress", value = "percentage", -measure_type)
+
+# Create the stacked bar chart with rotated x-axis labels
+ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = progress)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Progress by Measure Type") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+```
+
+Graph of effectiveness monitored - stacked bars by measure type (implemented, etc
+
+
+```{r EffectivenesMonitored, echo=FALSE}
+
+# Create a contingency table
+EffectivenessCountTable <- table(measures_all$measure_type, measures_all$effectiveness_monitored)
+
+# Convert the table to a data frame
+EffectivenessCountTable <- as.data.frame.matrix(EffectivenessCountTable)
+
+# Normalize the data to get percentages
+EffectivenessCountTable <- sweep(EffectivenessCountTable, 1, rowSums(EffectivenessCountTable), FUN = "/") * 100
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Convert the data frame to long format for ggplot2
+EffectivenessCountTable_long <- as.data.frame(EffectivenessCountTable)
+EffectivenessCountTable_long$measure_type <- rownames(EffectivenessCountTable_long)
+EffectivenessCountTable_long <- tidyr::gather(EffectivenessCountTable_long, key = "effectiveness_monitored", value = "percentage", -measure_type)
+
+# Create the stacked bar chart with rotated x-axis labels
+ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Effectiveness by Measure Type") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+```
+
+By year implemenmted measures with direct effect - stacked bar (high/medium low impact)
+
+```{r ByYearImplementedMeasures, echo=FALSE}
+
+
+```
+
+
+No of quantifiable measures vs measures with a set target (by measure type, country?)
+
+```{r QUantifiableMeasures, echo=FALSE}
+
+
+```
+
+Objective defined vs objective evaluated
+
+```{r DefinedVsEvaluatedObjective, echo=FALSE}
+
+
+```
+
+Sthgin with immediate / direct
+
+```{r ImmediateDirect, echo=FALSE}
+
+
+```
+
 
 
 Objective there but no feedback in these ones
@@ -99,55 +232,11 @@ for (i in 1:nrow(grouped_data)) {
 
 ```
 
-```{r}
-# TASK:	Create a summary table/graph with the number of measures in total, the number of quantifiable measures, the number of quantified measures and the number of quantified & evaluated measures – check with 2c) and see what works…  #THIS IS NOT FINISHED!!!
-
-#IS THERE A TARGET VALUE WHEN THERE IS quantifiable measure
-
-# Count all rows
-total_rows <- nrow(measures_all)
-
-# Count rows where quantifiable is "yes", "YES", "y", or "Y"
-quantifiable_yes <- measures_all %>%
-  filter(tolower(std_quantifiable) %in% c('yes', 'y')) %>%
-  nrow()
-
-# Count rows where effectiveness_monitored is anything not na or something like that
-effectiveness_monitored <- measures_all %>%
-  filter(!is.na(effectiveness_monitored) & 
-         !effectiveness_monitored %in% c("na", "not monitored", "NA", "Not monitored")) %>%
-  nrow()
-
-# Count rows where evaluated is anything other than na or not 
-effectiveness_evaluated <- measures_all %>%
-  filter(!is.na(std_evaluated) & 
-         !std_evaluated %in% c("na", "no", "np", "n", "NP", "Not monitored")) %>%
-  nrow()
-
-# Group by country and summarize counts
-counts_by_country <- measures_all %>%
-  group_by(country) %>%
-  summarize(
-    total_rows = n(),
-    quantifiable_yes = sum(tolower(std_quantifiable) %in% c('yes', 'y')),
-    effectiveness_monitored = sum(!is.na(effectiveness_monitored) & 
-                                  !effectiveness_monitored %in% c("na", "not monitored", "NA", "Not monitored")),
-    effectiveness_evaluated = sum(!is.na(std_evaluated) & 
-                                  !std_evaluated %in% c("na", "no", "np", "n", "NP", "Not monitored"))
-  )
-
-```
 
 
 
-```{r TODO, echo=FALSE}
 
 
-# Task:	Check where quantification is not provided but could have been (if that is feasible; check if we can script this in a meaningful way) and draft a request to countries to provide that information 
-
-
-
-```
 
 
 
@@ -158,6 +247,7 @@ counts_by_country <- measures_all %>%
 
 
 
+Function for creating tables
 
 ```{r CreatingTypeTables, include=FALSE}
 create_measure_tables <- function(measures_data, measure_type) {
@@ -285,3 +375,35 @@ print_country_tables <- function(data, output_format = "html") {
 # Call the function with your data for HTML output
 print_country_tables(measures_all, output_format = "html")
 ```
+
+
+
+#### Other tasks
+
+measures_all$std_quantifiable
+
+```{r}
+# TASK:	Create a summary table/graph with the number of measures in total, the number of quantifiable measures, the number of quantified measures and the number of quantified & evaluated measures – check with 2c) and see what works…  #THIS IS NOT FINISHED!!!
+
+#IS THERE A TARGET VALUE WHEN THERE IS quantifiable measure
+
+# Count all rows
+total_rows <- nrow(measures_all)
+
+print(total_rows)
+```
+
+
+
+```{r TODO, echo=FALSE}
+
+
+# Task:	Check where quantification is not provided but could have been (if that is feasible; check if we can script this in a meaningful way) and draft a request to countries to provide that information 
+
+
+
+```
+
+
+
+
