@@ -270,7 +270,7 @@ In a pristine situation, and assuming an average natural mortality over the life
 
 $$
 B_0 = R_0 \cdot e^{-M_0 \cdot \Delta t}
-$${#eq-b0}
+$$ {#eq-b0}
 
 with $\Delta t$ the lifespan, $M_0$ the average natural mortality, and $R_0$ the recruitment in the pristine situation.
 
@@ -429,7 +429,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-#| label flextabletrendbiomass
+#| label: flextabletrendbiomass
 flextable(biomasstrendtab |>
             mutate(across(all_of(c("Initial","Final","Δ")),round))) |>
   flextable2ICES() |>
@@ -513,7 +513,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-#| label flextabletrendsumf
+#| label: flextabletrendsumf
 flextable( sumftab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -563,7 +563,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-#| label flextabletrendsumh
+#| label: flextabletrendsumh
 flextable( sumhtab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -615,7 +615,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-#| label flextabletrendsuma 
+#| label: flextabletrendsuma 
 flextable( sumatab |>
              mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
   flextable2ICES() |>
@@ -673,7 +673,7 @@ knitr::kable(data.frame())
 <br>
 
 ```{r}
-#| label flextableprecoemu
+#| label: flextableprecoemu
 precodata_all |>
   filter(aggreg_level == "emu",
          eel_year %in% 2022:2023) |>
@@ -715,6 +715,7 @@ Implementing the WKFEA roadmap [@ices2021] is critical to get more standardised 
 ::: {custom-style="Annex heading"}
 Trends in indicators
 :::
+
 # Trends per emu
 
 ## Trends in biomass
@@ -766,8 +767,8 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_bio
 
 
 ```
-<br>
-::: {custom-style="Image Caption"}
+
+<br> ::: {custom-style="Image Caption"}
 
 ```{r}
 #| label: generateemubiom
@@ -797,8 +798,6 @@ cat(res, sep = '\n')
 ```
 
 :::
-
-
 
 ## Trends in mortalities
 
@@ -831,7 +830,6 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 <br>
 
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusumf
 #| echo: false
@@ -861,7 +859,6 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
 
 ### Trends in other anthropogenic mortalities
@@ -890,9 +887,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 
 ```
 
-
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusumh
 #| echo: false
@@ -922,7 +917,6 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
 
 ### Trends in total anthropogenic mortalities
@@ -952,7 +946,6 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 ```
 
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusuma
 #| echo: false
@@ -982,9 +975,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
-
 
 # Precautionary diagrams at country scale
 
