@@ -40,18 +40,6 @@ all_emus = read.csv2("all_emus.csv")
 
 ```
 
-Add standards
-
-```{r TODO1, echo=FALSE}
-
-#Merge standards to the whole data
-  # Rename all columns in 'standards' by adding "std_" prefix
-colnames(standards) <- paste0("std_", colnames(standards))
-  # Join standards 
-measures_all <- measures_all %>%
-  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
-
-```
 
 Need to filter for EMP only!!!!
 
