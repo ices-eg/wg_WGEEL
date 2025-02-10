@@ -14,7 +14,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -40,18 +40,6 @@ all_emus = read.csv2("all_emus.csv")
 
 ```
 
-Add standards
-
-```{r TODO1, echo=FALSE}
-
-#Merge standards to the whole data
-  # Rename all columns in 'standards' by adding "std_" prefix
-colnames(standards) <- paste0("std_", colnames(standards))
-  # Join standards 
-measures_all <- measures_all %>%
-  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
-
-```
 
 Need to filter for EMP only!!!!
 
@@ -106,14 +94,32 @@ Graph of implementation percentage - stacked bars by measure type (implemented/p
 
 ```{r ImplementationPercentage, echo=FALSE}
 
-# Create a contingency table
+# Function to replace underscores with spaces and capitalize the first letter of each word
+clean_names <- function(name) {
+  if (!is.na(name)) {
+    name <- gsub("_", " ", name)
+    name <- tools::toTitleCase(name)
+  }
+  return(name)
+}
+
+# Apply the function to the progress column
+measures_all$progress <- sapply(measures_all$progress, clean_names)
+
+# Apply the function to the measure_type column
+measures_all$measure_type <- sapply(measures_all$measure_type, clean_names)
+
+# Replace values in the progress column
+measures_all$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all$progress)
+measures_all$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all$progress)
+measures_all$measure_type <- gsub("Other", "Uncategorized", measures_all$measure_type)
+
+
+# Create a contingency table that has only the needed data
 ProgressCountTable <- table(measures_all$measure_type, measures_all$progress)
 
 # Convert the table to a data frame
 ProgressCountTable <- as.data.frame.matrix(ProgressCountTable)
-
-# Display the ProgressCountTable data frame
-print(ProgressCountTable)
 
 # Normalize the data to get percentages
 ProgressCountTable <- sweep(ProgressCountTable, 1, rowSums(ProgressCountTable), FUN = "/") * 100
@@ -123,12 +129,27 @@ ProgressCountTable_long <- as.data.frame(ProgressCountTable)
 ProgressCountTable_long$measure_type <- rownames(ProgressCountTable_long)
 ProgressCountTable_long <- tidyr::gather(ProgressCountTable_long, key = "progress", value = "percentage", -measure_type)
 
-# Create the stacked bar chart with rotated x-axis labels
+# Ensure the progress column is a factor with the correct levels
+ProgressCountTable_long$progress <- factor(ProgressCountTable_long$progress, levels = unique(measures_all$progress))
+
+# Calculate the total counts for each measure_type
+TotalCounts <- aggregate(count ~ measure_type, data = ProgressCountTable_counts_long, sum)
+
+# Rename the column to avoid confusion
+colnames(TotalCounts)[2] <- "total_count"
+
+# Merge the totals with the percentages
+ProgressCountTable_long <- merge(ProgressCountTable_long, TotalCounts, by = "measure_type")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
 ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = progress)) +
   geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
   labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Progress by Measure Type") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
 
 ```
 
@@ -138,6 +159,12 @@ We may need to check if a value is provided
 
 
 ```{r EffectivenesMonitored, echo=FALSE}
+# Replace values in the effectiveness_monitored column
+measures_all$effectiveness_monitored <- gsub("Î”Î£F", "ΔΣF", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("Î”Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("%Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("Î”Î£H", "ΔΣH", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("other", "Other", measures_all$effectiveness_monitored)
 
 # Create a contingency table
 EffectivenessCountTable <- table(measures_all$measure_type, measures_all$effectiveness_monitored)
@@ -156,14 +183,13 @@ EffectivenessCountTable_long <- as.data.frame(EffectivenessCountTable)
 EffectivenessCountTable_long$measure_type <- rownames(EffectivenessCountTable_long)
 EffectivenessCountTable_long <- tidyr::gather(EffectivenessCountTable_long, key = "effectiveness_monitored", value = "percentage", -measure_type)
 
-# Create the stacked bar chart with rotated x-axis labels
+# Create the stacked bar chart with rotated x-axis labels and viridis color palette
 ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
   geom_bar(stat = "identity") +
   labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Effectiveness by Measure Type") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
 
 ```
 
