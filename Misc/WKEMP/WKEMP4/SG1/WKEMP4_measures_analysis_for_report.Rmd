@@ -155,7 +155,7 @@ ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = pro
   geom_bar(stat = "identity") +
   geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
           vjust = -0.2, size = 3, inherit.aes = FALSE) +
-  labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Progress by Measure Type") +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
@@ -197,7 +197,7 @@ ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = count, fill = eff
   geom_bar(stat = "identity") +
   geom_text(data = TotalCounts, aes(x = measure_type, y = total_count, label = paste0("n = ", total_count)), 
             vjust = -0.2, size = 3, inherit.aes = FALSE) +
-  labs(x = "Measure Type", y = "Count", title = "Stacked Bar Chart of Effectiveness by Measure Type") +
+  labs(x = "Measure Type", y = "Count", title = "", fill = "Effectiveness Monitored") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
@@ -242,7 +242,7 @@ ImpactByYear <- ImpactByYear %>%
 # Create the stacked bar chart
 ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fill = factor(impact))) +
   geom_bar(stat = "identity") +
-  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "Stacked Bar Chart of Impact by Year of Full Implementation") +
+  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "", fill = "Impact") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
