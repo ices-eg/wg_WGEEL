@@ -1265,3 +1265,206 @@ check_these_emusbcurrentlessthancurrentwithout <-
   unique()|>
   pull()
 ```
+
+
+## Comparing $B_0$ with an adjusted estimate
+The EU regulation states that Member States should implement management measures to achieve an escapement equal to 40 % of the pristine escapement. However, the pristine situation is difficult to define and therefore, $B_0$ is difficult to estimate. Some countries have used observations of past productivity in some water bodies, multiplied by the total water surface to extrapolate pristine escapement as suggested in the Eel Regulation. However, the availability of historical data does not go back far enough in time, rarely before the 1980s, to be considered as pristine. Other countries have used the current escapement, corrected for anthropogenic mortality (i.e. Bbest) and used this to extrapolate B0. However, the extrapolation methods vary among countries, especially regarding the integration of density dependence (accounting for density dependent mortality leads to smaller B0 since it postulates that natural mortality increases with abundance). These difficulties impair the comparison among B0 estimates, and subsequently, the status of EMUs with respect to the EU regulation target. To avoid those inconsistencies, lasted WKEMP [@ices2022] proposed an alternative indicator based on $B_{best}$ and current level of recruitment: 
+
+$$
+B_{0_{adj}}=\frac{R_0}{R_{current}} \cdot {B_{best}}
+$$
+
+As explained in the latest report, this adjusted indicator does not account for any modification of natural mortality resulting from density-dependance [@bevacqua2011] and requires some extra-assumption regarding lifespan per region and current levels of recruitment. We applied the exact same methods as in 2022 and use this adjusted indicator to check the consistency among countries and EMUs.
+
+```{r}
+#| echo: false
+#| warning: false
+#| results: 'hide'
+#| label: calculate_b0_adj
+
+
+indicator <- dbGetQuery(con, "select eel_year,eel_cou_code,eel_emu_nameshort, b0,bbest,bcurrent, bcurrent_without_stocking,suma,sumf, sumh from datawg.precodata_emu")
+dbDisconnect(con)
+indicator <- indicator %>%
+  mutate(eel_cou_code = ifelse(eel_cou_code == substr(eel_emu_nameshort, 1, 2),
+    eel_cou_code,
+    "INT"
+  )) %>%
+  filter(eel_cou_code %in% eu_cou_codes)
+# source("readingAnnex13.R") run this if you don't have Rdata below
+load(file = file.path(getwd(), "data_dependencies", "annex13.Rdata")) # annexes13_method,annexes13_traceability,annexes13_management,
+
+eu_cou_codes <- c("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE")
+
+emu_sea <- emu_p %>%
+  filter(emu_cou_code %in% eu_cou_codes) %>%
+  mutate(rec_zone = ifelse(emu_cou_code %in% c("NL", "DK", "NO", "BE", "LU", "CZ", "SK") |
+    emu_nameshort %in% c(
+      "FR_Rhin", "FR_Meus", "GB_Tham", "GB_Angl", "GB_Humb", "GB_Nort", "GB_Solw",
+      "DE_Ems", "DE_Wese", "DE_Elbe", "DE_Rhei", "DE_Eide", "DE_Maas"
+    ),
+  "NS",
+  ifelse(emu_cou_code %in% c("EE", "FI", "SE", "LV", "LT", "AX", "PL", "DE"),
+    "BA",
+    "EE"
+  )
+  ))
+
+
+mor_wise <- annexes13_method %>% select(emu_nameshort, mortality_wise)
+mor_wise <- merge(emu_sea %>% st_drop_geometry(), mor_wise)
+mor_wise <- mor_wise %>% mutate(cohort_wise = grepl("ohort", mortality_wise))
+load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ge.Rdata")
+load("../../R/shiny_data_visualisation/shiny_dv/data/recruitment/dat_ye.Rdata")
+
+
+
+estimate_b0 <- function(emu, year, mor_wise, precodata, correctM = FALSE) {
+  mod <- switch(unique(mor_wise$rec_zone[mor_wise$emu_nameshort == emu]),
+    "EE" = dat_ge %>% filter(area == "Elsewhere Europe"),
+    "NS" = dat_ge %>% filter(area == "North Sea"),
+    "BA" = dat_ye
+  )
+  if ("value_std_1960_1979" %in% names(mod)) {
+    Rcurrent <- mean(mod$value_std_1960_1979[mod$year %in% ((year - 4):year)])
+  } else {
+    Rcurrent <- mean(mod$p_std_1960_1979[mod$year %in% ((year - 4):year)])
+  }
+  if (unique(mor_wise$cohort_wise[mor_wise$emu_nameshort == emu])) {
+    Rcurrent <- switch(mor_wise$rec_zone[mor_wise$emu_nameshort == emu],
+      "EE" = mean(mod$p_std_1960_1979[mod$year %in% ((year - 12):(year - 7))]),
+      "NS" = mean(mod$p_std_1960_1979[mod$year %in% ((year - 17):(year - 12))]),
+      "BA" = mean(mod$value_std_1960_1979[mod$year %in% ((year - 22):(year - 17))])
+    )
+  }
+  if (!correctM) {
+    return(precodata$bbest[precodata$eel_emu_nameshort == emu & precodata$eel_year == year] / Rcurrent)
+  }
+}
+
+indicator <- indicator %>% left_join(
+  emu_sea %>%
+    st_drop_geometry() %>%
+    select(emu_nameshort, rec_zone) %>%
+    rename(eel_emu_nameshort = emu_nameshort)
+)
+
+
+indicator_sub <- indicator %>%
+  filter(eel_emu_nameshort %in% unique(mor_wise$emu_nameshort))
+indicator_sub$b0_adj <- mapply(estimate_b0, indicator_sub$eel_emu_nameshort, indicator_sub$eel_year,
+  MoreArgs = list(mor_wise = mor_wise, precodata = indicator_sub)
+)
+
+options(scipen = 999)
+indicator <- indicator %>% left_join(indicator_sub %>% select(eel_year, eel_emu_nameshort, b0_adj), by = c("eel_year", "eel_emu_nameshort"))
+```
+
+$B_{0_{adj}}$ takes current level of recruitment expressed a a fraction of pre-80s values (from WGEEL indices, considering that pre-80s is close to $R_0$), and use $B_{best}$ (escapment that would have occured given current recruitment in the absence of anthropogenic mortality) to estimate a theoretical $B_0$. This could be repeated for every year for which $B_{best}$ and recruitment indices are available. In the absence of any density dependent natural mortality, those adjusted $B_{0_{adj}}$ are expected to be stable through time. In period of declining recruitment, natural mortality is expected to decrease and consequently, $B_{0_{adj}}$ to increase. On the contrary, $B_{0_{adj}}$ is expected to decrease in periods of decreasing recruitment. In the last years, recruitment have been rather stable, so $B_{0_{adj}}$ were expected to be rather stable, but interestingly, we observe significant and contrasted trends depending on countries (Figure @fig-plotB0adj). This is likely related to heterogeneities in the methods to compute indicators.
+
+```{r}
+#| echo: false
+#| label: fig-plotB0adj
+#| fig-height: 6.3
+#| fig-width: 6.3
+#| fig-cap: "Trends in $B_{0_{adj}}$ per EMU. Each line stands for an EMU"
+
+
+b0trend <- ggplot(indicator %>% filter(!is.na(b0_adj)), aes(x = eel_year, y = b0_adj / 1000000)) +
+  geom_hline(yintercept = .4, col = "red") +
+  geom_line(aes(col = eel_cou_code, group = eel_emu_nameshort)) +
+  #  scale_y_log10()+
+  scale_color_manual("country", values = color_countries[names(color_countries) %in% unique(indicator$eel_cou_code)], ) +
+  guides(lty = FALSE, col = FALSE) + # geom_hline(yintercept=1)+
+  #  scale_y_sqrt()+
+  theme_bw() +
+  ylab(expression(B[0[adj]] ~ "in 1000t")) +
+  xlab("") +
+  xlim(2007, 2020) +
+  facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
+ggsave(b0trend, file = "2024/image/b0_trend.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/b0_trend.png")
+```
+
+<br>
+In the absence of density dependence $B_{0_{adj}}$/$B_0$ is expected to be close to 1. In the presence of density dependent mortality, given the current recruitment decline, $B_{0_{adj}}$/$B_0$ might be higher than 1. 
+
+
+
+In Elsewhere Europe area (Figure @fig-B0adjoverB0EE), most of the ratio are between 1 and 10, the order of magnitudes appear to be roughly constant among countries. The only exception is ES_Anda that display a very low ratio. This would suggest either very strong values of $B_0$ or very pessimistic values of $B_{best}$. In this EMU, pristine escapement is estimated using current estimate of production per hectare corrected for recruitment loss without accounting for any density-dependance, and postulating multiplying it by the surface in pristine conditions. Ireland appears to have larger values than other countries, this is likely related to their difficulties in extrapolating $b_0$ mentioned in their annex 13.
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| label: fig-B0adjoverB0EE
+#| fig-height: 6.3
+#| fig-width: 6.3
+#| fig-cap: "Ratio of $B_{0_{adj}}$/$B_0$ per EMU. Each bar stands for a year from Elsewhere Europe. Only EMUs for which it was possible to estimate $B_{0_{adj}}$ are plotted."
+g <- ggplot(indicator %>%
+  filter(eel_cou_code %in% eu_cou_codes & rec_zone == "EE" & !is.na(b0_adj)), aes(x = b0_adj / b0)) +
+  geom_histogram(aes(fill = eel_emu_nameshort), show.legend = FALSE) +
+  geom_vline(aes(xintercept = 1), lty = 3) +
+  facet_wrap(~eel_emu_nameshort) +
+  scale_x_log10() +
+  xlab(expression(B[0[adj]] / B[0])) +
+  ylab("") +
+  theme_bw()
+
+ggsave(g, file = "2024/image/B0adjoverB0EE.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/B0adjoverB0EE.png")
+```
+<br>
+
+EMUs connected to the North Sea display very high values of ratios compared to what is observed in Elsewhere Europe (Figure @fig-B0adjoverB0NS). This is surprising since recruitment (and consequently density dependent natural mortality) is supposed to be lower in this area. A possible reason is the WGEEL North Sea index that might be overpessimistic, indicating overly low current recruitment and leading to overestimated $B_{0_{adj}$ as discussed in WGEEL 2024. However, the level of variations among countries, and among EMUs withing countries is still rather large.
+
+```{r}
+#| echo: false
+#| warning: false
+#| error: false
+#| label: fig-B0adjoverB0NS
+#| fig-height: 6.3
+#| fig-width: 6.3
+#| fig-cap: "Ratio of $B_{0_{adj}}$/$B_0$ per EMU. Each bar stands for a year from North Sea. Only EMUs for which it was possible to estimate $B_{0_{adj}}$ are plotted."
+g <- ggplot(indicator %>%
+  filter(eel_cou_code %in% eu_cou_codes & rec_zone == "NS" & !is.na(b0_adj)), aes(x = b0_adj / b0)) +
+  geom_histogram(aes(fill = eel_emu_nameshort), show.legend = FALSE) +
+  geom_vline(aes(xintercept = 1), lty = 3) +
+  facet_wrap(~eel_emu_nameshort) +
+  scale_x_log10() +
+  xlab(expression(B[0[adj]] / B[0])) +
+  ylab("") +
+  theme_bw()
+
+ggsave(g, file = "2024/image/B0adjoverB0NS.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/B0adjoverB0NS.png")
+```
+<br>
+
+In the Baltic region (Figure @fig-B0adjoverB0BA), the situation is similar to Elsewhere Europe. Here, two EMUs display negative ratio that could be surprising: DE_Oder and SE_Inla, questioning a possible overestimation of $B_0$.
+
+```{r B0adjoverB0BA}
+#| echo: false
+#| warning: false
+#| error: false
+#| label: fig-B0adjoverB0BA
+#| fig-height: 6.3
+#| fig-width: 6.3
+#| fig-cap: "Ratio of $B_{0_{adj}}$/$B_0$ per EMU. Each bar stands for a year from the Baltic area. Only EMUs for which it was possible to estimate $B_{0_{adj}}$ are plotted."
+g <- ggplot(indicator %>%
+  filter(eel_cou_code %in% eu_cou_codes & rec_zone == "BA"& !is.na(b0_adj)), aes(x = b0_adj / b0)) +
+  geom_histogram(aes(fill = eel_emu_nameshort), show.legend = FALSE) +
+  geom_vline(aes(xintercept = 1), lty = 3) +
+  facet_wrap(~eel_emu_nameshort) +
+  scale_x_log10() +
+  xlab(expression(B[0[adj]] / B[0])) +
+  ylab("") +
+  theme_bw()
+
+ggsave(g, file = "2024/image/B0adjoverB0BA.png", height = 16 / 2.54, width = 16 / 2.54)
+knitr::include_graphics("2024/image/B0adjoverB0BA.png")
+```
+<br>
+
+### Conclusion
+The aim of this exercise was not to check the validity of $B_0$ nor to say that $B_{0_{adj}}$ is a better indicator. It rather aims to detect differences in $B_0$ estimates that could be due to highlight differences in methods and in assumptions regarding natural mortality. Such differences affecting $B_0$ will mechanically affect the estimate of $B_{current}/B_0$ and consequently, the assessment of the achievement of the Eel Regulation target.
