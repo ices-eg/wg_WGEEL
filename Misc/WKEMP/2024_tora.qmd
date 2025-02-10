@@ -12,6 +12,7 @@ format:
 params:
   image_path: "2024/image"
   quarto_path: "../../R/quarto/"
+  data_path: "2024/data"
 lang: fr
 bibliography: "../../R/quarto/ICES.bib"
 csl: "../../R/quarto/ices-journal-of-marine-science.csl"
@@ -25,7 +26,6 @@ link-citations: true
 link-bibliography: true
 ---
 
-
 ```{r }
 #| label: qmdhelper
 #| eval: FALSE
@@ -34,14 +34,15 @@ link-bibliography: true
 # so you just need to launch this manually to make your code work
 
 params <- list(image_path = "2024/image",
-  quarto_path = "../../R/quarto/")
+  quarto_path = "../../R/quarto/",
+  data_path = "2024/data")
 setwd(dirname(.vsc$rstudioapi_env$getSourceEditorContext()$path))
 #setwd("c:/workspace/wg_WGEEL/Misc/WKEMP")
 ```
 
-
 ```{r }
 #| label: setup
+
 source(file.path(params$quarto_path,"quarto_utilities.R"))
 library(RPostgres)
 library(sf)
@@ -66,7 +67,6 @@ values <- c(
 color_countries <- setNames(values, country_ref$cou_code)
 ```
 
-
 ```{r }
 #| label: download
 biomass <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e
@@ -76,11 +76,13 @@ mortality <- dbGetQuery(con, "select e.* from datawg.t_eelstock_eel e
 where eel_qal_id in (0,1,2,3,4) and eel_typ_id in (17,18,19)")
 
 nb_country_emu <- dbGetQuery(con, "select count(distinct eel_cou_code),
-count(distinct(eel_emu_nameshort))
-from datawg.t_eelstock_eel
+                             count(distinct(eel_emu_nameshort))
+                             from datawg.t_eelstock_eel
                              where eel_typ_id in (13, 14, 15, 17, 18, 19,34)
-                              and eel_datasource='dc_2021'")
-avgindicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,avg(bcurrent)bcurrent, avg(bcurrent_without_stocking)bcurrentw, avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2020 group by eel_cou_code,eel_emu_nameshort") |>
+                             and eel_datasource='dc_2021'")
+avgindicator <- dbGetQuery(con, "select eel_cou_code,eel_emu_nameshort, avg(b0)b0,avg(bbest)bbest,
+avg(bcurrent)bcurrent, avg(bcurrent_without_stocking)bcurrentw, 
+avg(suma)suma,avg(sumf)sumf,avg(sumh) sumh from datawg.precodata_emu where eel_year>=2020 group by eel_cou_code,eel_emu_nameshort") |>
   mutate(eel_emu_nameshort = ifelse(eel_cou_code == "NL", "NL_Neth", eel_emu_nameshort))
 avgindicator <- merge(emu_c, avgindicator, by.x = "emu_nameshort", by.y = "eel_emu_nameshort", all.x = TRUE)
 avgindicator <- st_transform(avgindicator, crs = 3035)
@@ -125,67 +127,67 @@ indicator2 <- indicator
 
 # Importance of non reported data
 
-Checks were done to see which countries have reported and what corresponds to the 
-lastest value in the database.
+Checks were done to see which countries have reported and what corresponds to the lastest value in the database.
 
 ## Countries without report
 
-The following countries have not responded to the DATA call annexes 10- to 11 
-reporting biomass or mortality indicators:
+The following countries have not responded to the DATA call annexes 10- to 11 reporting biomass or mortality indicators:
 
 Non-EU countries (Atlantic):
 
-*	Åland Islands (AX)
-*	Iceland (IS)
-*	Russia (RU)
+-   Åland Islands (AX)
+-   Iceland (IS)
+-   Russia (RU)
 
 EU countries (Atlantic):
 
-*	Luxembourg (LU)
-* Czech republic (CZ)
+-   Luxembourg (LU)
+-   Czech republic (CZ)
 
 Non-EU countries (Mediterranean):
 
-*	Albania (AL)
-*	Bosnia and Herzegovina (BA)
-*	Algeria (DZ)
-*	Egypt (EG)
-* Lenbanon (LB)
-*	Israel (IL)
-*	Libya (LY)
-*	Morocco (MA)
-*	Montenegro (ME)
-*	Syria (SY)
-*	Tunisia (TN)
-*	Turkey (TR)
+-   Albania (AL)
+-   Bosnia and Herzegovina (BA)
+-   Algeria (DZ)
+-   Egypt (EG)
+-   Lenbanon (LB)
+-   Israel (IL)
+-   Libya (LY)
+-   Morocco (MA)
+-   Montenegro (ME)
+-   Syria (SY)
+-   Tunisia (TN)
+-   Turkey (TR)
 
 EU countries (Mediterranean):
 
-*	Cyprus (CY) (exempted)
-* Croatia (HR)
-* Italy (IT)
-*	Malta (MT) (exempted)
-*	Slovenia (SI)
-
+-   Cyprus (CY) (exempted)
+-   Croatia (HR)
+-   Italy (IT)
+-   Malta (MT) (exempted)
+-   Slovenia (SI)
 
 Non EU countries from the GFCM have not provided biomass or mortality indicators.
 
 Cyprus and Malta are exempted from providing a management plan. Romania, Austria and Slovakia are in the Black Sea region and also exempted by the commission from providing a management plan. Italy did not report data for biomass and mortality. Italy reported indicators in the past, but those indicators have been removed from the wgeel database, alongside all data prior to the 2021 datacall (the format of the data was changed in 2021 and all biomass and mortality data were replaced). From 2019 onwards no new assessment estimates have been made, so indicator values from 2019 onwards should be NR.
 
 ```{r }
-#| label: not reported
+#| label: not_reported
+
+
+
+
 not_reported <- country_p$cou_code[!country_p$cou_code %in% c(biomass$eel_cou_code, mortality$eel_cou_code)] # countries with no reported data on biomass or mortality for any EMU for any year
 
-#sprintf("Countries not reporting (outside EU) : %s.", paste(sort(not_reported[!not_reported %in% eu_cou_codes]), collapse =', '))
+# sprintf("Countries not reporting (outside EU) : %s.", paste(sort(not_reported[!not_reported %in% eu_cou_codes]), collapse =', '))
 
 # Same, but only EU countries, who are mandated to report biomass and mortality indicators
 not_reported_EU <- not_reported[not_reported %in% eu_cou_codes]
 
-#sprintf("Countries not reporting in the EU : %s.", paste(sort(not_reported_EU), collapse =', '))
+# sprintf("Countries not reporting in the EU : %s.", paste(sort(not_reported_EU), collapse =', '))
 ```
 
 ## Importance of landings for non reporting countries
-
 
 ```{r }
 #| label: tbl-tableit
@@ -249,11 +251,7 @@ flextable(tableit) |>
 
 After 2020 on average, total reported landings from yellow and silver eel fisheries across all countries amounted to `r round(sum(tableit[3,c(3:5)]))` tons. In comparison, Italy reported average landings for 5 years reached `r round(sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE))` tons, contributing approximately for `r round(100*sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE)/sum(tableit[tableit$eel_cou_code=='OVERALL TOTAL',c(3:5)]),1)` of the total landings (Table @tbl-tableit).
 
-
-The importance of landings in missing countries from EU, that have reported landings
-otherwise is illustrated in Figure @fig-landingsnoreport. Landings in Slovenia (Sl) 
-are almost inexistent.
-
+The importance of landings in missing countries from EU, that have reported landings otherwise is illustrated in Figure @fig-landingsnoreport. Landings in Slovenia (Sl) are almost inexistent.
 
 ```{r }
 #| label: fig-landingsnoreport
@@ -279,13 +277,9 @@ ggsave(g1, filename = file.path(params$image_path,"landings.png"), height = 16 /
 knitr::include_graphics(file.path(params$image_path,"landings.png"))
 ```
 
-
 ## Indicators reports
 
-The following table (Table @tbl-lastreport) provide checks for the latest reported value per EMU, 
-values in grey in column country and emu indicate that probably values where not reported for that EMU.
-Not that reporting ND
-
+The following table (Table @tbl-lastreport) provide checks for the latest reported value per EMU, values in grey in column country and emu indicate that probably values where not reported for that EMU. Not that reporting ND
 
 ```{r }
 #| label: tbl-lastreport
@@ -319,22 +313,20 @@ biomass |>
   select(country,emu, bcurrent, bcurrentw, bbest, sumF, sumH, sumA) |>
   flextable() |>
   flextable2ICES() |>
+  flextable::colformat_double(df, big.mark = "", digits = 0) |>
   bg(i=~`bcurrent`<=2020, j= c("country", "emu"),bg="grey") 
   
 ```
 
 ## Data availability
 
-The following figures summarize the mortality and biomass indicators that were provided as a response to the ICES data call.
-Maps showings data availability. The symbol indicates whether the country have provided estimates for at least one (whatever year), two , three distinct indicators.
-There is a high variability among the indicators reported by the countries (Figure XX):
+The following figures summarize the mortality and biomass indicators that were provided as a response to the ICES data call. Maps showings data availability. The symbol indicates whether the country have provided estimates for at least one (whatever year), two , three distinct indicators. There is a high variability among the indicators reported by the countries (Figure XX):
 
-*	North African countries (Morocco, Algeria, Tunisia, Libya) and the Middle East have mostly no indicators 
-*	The highest concentration of points with multiple indicators (2-4) is in Western and Central Europe.
-*	The United Kingdom and some EMUs of Spain and France show a high share with 4 indicators.
-*	There is a mixed distribution in Italy and the Balkans, with areas having between 1 and 3 indicators
-*	The Nordic and Baltic countries also show a varied participation.
-
+-   North African countries (Morocco, Algeria, Tunisia, Libya) and the Middle East have mostly no indicators
+-   The highest concentration of points with multiple indicators (2-4) is in Western and Central Europe.
+-   The United Kingdom and some EMUs of Spain and France show a high share with 4 indicators.
+-   There is a mixed distribution in Italy and the Balkans, with areas having between 1 and 3 indicators
+-   The Nordic and Baltic countries also show a varied participation.
 
 ```{r }
 #| label: fig-bcurrent
@@ -343,8 +335,8 @@ There is a high variability among the indicators reported by the countries (Figu
 #| fig-cap : "Availability of $B_{current}$ reports indicators from 2006 to 2023"
 
 indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
-                             eel_year = seq(2006, 2023, by = 1)) %>%
-                                        left_join(indicator %>% select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
+                             eel_year = seq(2006, 2023, by = 1)) |>
+                                        left_join(indicator |> select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
 
 
 
@@ -364,12 +356,13 @@ g2 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrent) |>
 ggsave(g2, , filename = file.path(params$image_path,"bcurrent.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"bcurrent.png"))  
 ```
+
 ```{r }
 #| label: fig-bcurrentw
 #| fig-cap : "Availability of $B_{currentw}$ reports indicators from 2006 to 2023"
 indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
-                             eel_year = seq(2006, 2023, by = 1)) %>%
-                                        left_join(indicator %>% select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
+                             eel_year = seq(2006, 2023, by = 1)) |>
+                                        left_join(indicator |> select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
 g3 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrentw) |>
   mutate(bcurrentw = ifelse(is.na(bcurrentw), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrentw)) +
   geom_tile() +
@@ -439,6 +432,7 @@ g6 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, sumf) |>
 ggsave(g6, filename = file.path(params$image_path,"sumf.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"sumf.png"))  
 ```
+
 ```{r }
 #| label: fig-sumh
 #| fig-cap : "$\\sum{A}$ availability per EMU from 2006 to 2023"
@@ -458,8 +452,6 @@ knitr::include_graphics(file.path(params$image_path,"sumh.png"))
 
 
 ```
-
-
 
 ```{r }
 #| label: fig-mapbiomassavail
@@ -506,7 +498,6 @@ g8 <- ggplot(st_transform(country_p, crs = 3035)) +
 ggsave(g8, filename = file.path(params$image_path,"biom.png"), height = 14 / 2.54, width = 14 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"biom.png"))
 ```
-
 
 ```{r }
 #| label: fig-mapbiomassdetail
@@ -606,12 +597,7 @@ ggsave(g11, filename = file.path(params$image_path,"maps_biomass_norestock.png")
 knitr::include_graphics(file.path(params$image_path,"maps_biomass_norestock.png"))
 ```
 
-
-
-
 # Mortality
-
-
 
 ## Data availability
 
@@ -639,9 +625,7 @@ ggsave(g12, filename = file.path(params$image_path,"indicatorsmapsmortality.png"
 knitr::include_graphics(file.path(params$image_path,"indicatorsmapsmortality.png"))
 ```
 
-
 ## Map of mortality indicators
-
 
 ```{r }
 #| label: fig-mortalitymap
@@ -711,16 +695,15 @@ knitr::include_graphics(file.path(params$image_path,"maps_mortality.png"))
 
 ```
 
-
 # Habitat coverage
-Unkile in the previous datacall, when data was collected per habitat, now stock indicators are only reported at the EMU scale, and only apply to Silver eel. However, to convey the importance of different habitats, during the datacall, each EMU reported data on habitat coverage within indicator. For the different habitats, MO marine open, T transitional, C coastal and F Freswater, the amount of habitat covered by indicator (mortality $\sum{F}$, $\sum{H}$, and biomass $B_{current}$, $B_{best}$ ...  For all biomass indicators taken together, and for all mortality indicators taken together,  the percentage of EMUs whose indicator estimate covers either 0% or 100% of a given habitat type is calculated (Table @tbl-habitatcoverage). This relies on data providers correctly filling in that habitat coverage for a given indicator is `NP/-1` when that habitat is not present in the EMU, and only fill in a cover of 0% when the habitat is present in the EMU, but not assessed.
+
+Unkile in the previous datacall, when data was collected per habitat, now stock indicators are only reported at the EMU scale, and only apply to Silver eel. However, to convey the importance of different habitats, during the datacall, each EMU reported data on habitat coverage within indicator. For the different habitats, MO marine open, T transitional, C coastal and F Freswater, the amount of habitat covered by indicator (mortality $\sum{F}$, $\sum{H}$, and biomass $B_{current}$, $B_{best}$ ... For all biomass indicators taken together, and for all mortality indicators taken together, the percentage of EMUs whose indicator estimate covers either 0% or 100% of a given habitat type is calculated (Table @tbl-habitatcoverage). This relies on data providers correctly filling in that habitat coverage for a given indicator is `NP/-1` when that habitat is not present in the EMU, and only fill in a cover of 0% when the habitat is present in the EMU, but not assessed.
 
 ```{r }
 #| label: tbl-habitatcoverage
 #| tbl-cap: "Table showing frequency of when an habitat coverage is reported as 0 or 100 % for the different habitats (F Freshwater, C Coastal, T transitional, MO Marine Open)"
 knitr::kable(data.frame())
 ```
-
 
 ```{r }
 #| label: flextablehabitatcoverage
@@ -785,27 +768,262 @@ flextable(indicatorflex |>
 Marine open and coastal waters are rarely accounted for an indicator estimates. Some fresh and transitional waters also are not accounted for.
 
 ::: {custom-style="Annex heading"}
+List of data reported to the datacall
+:::
+
+
+```{r }
+#| label: table_report
+
+
+fn_report_cou <- function(
+    eel_typ_id.,
+    eel_qal_id. = as.integer(c(1, 2, 4)),
+    nameannex.,
+    minyear. = 2010) {
+    dbGetQuery(
+        con,
+        glue::glue_sql(
+"with ind as (SELECT
+eel_cou_code,
+{nameannex} AS annex,
+2024 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'dc_2024'
+GROUP BY eel_cou_code
+UNION
+SELECT
+eel_cou_code,
+{nameannex} AS annex,
+2025 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'wkemp_2025'
+GROUP BY eel_cou_code
+UNION
+SELECT
+eel_cou_code,
+{nameannex} AS annex,
+2021 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'dc_2021'
+GROUP BY eel_cou_code)
+SELECT * FROM ind order by eel_cou_code,annex,datacall
+",
+            eel_typ_id = eel_typ_id.,
+            eel_qal_id = eel_qal_id.,
+            nameannex = nameannex.,
+            minyear = minyear., .con = con
+        )
+    )
+}
+
+fn_report_emu <- function(
+    eel_typ_id.,
+    eel_qal_id. = as.integer(c(1, 2, 4)),
+    nameannex.,
+    minyear. = 2010) {
+    dbGetQuery(
+        con,
+        glue::glue_sql(
+"with ind as (SELECT
+eel_emu_nameshort,
+{nameannex} AS annex,
+2024 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'dc_2024'
+GROUP BY eel_emu_nameshort
+UNION
+SELECT
+eel_emu_nameshort,
+{nameannex} AS annex,
+2025 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'wkemp_2025'
+GROUP BY eel_emu_nameshort
+UNION
+SELECT
+eel_emu_nameshort,
+{nameannex} AS annex,
+2021 AS datacall,
+count(*) AS reported,
+sum(case when eel_value IS NOT NULL then 1 else 0 end) AS number,
+sum(case when eel_missvaluequal= 'NC' then 1 else 0 end) AS NC,
+sum(case when eel_missvaluequal= 'NP' then 1 else 0 end) AS NP,
+sum(case when eel_missvaluequal= 'NR' then 1 else 0 end) AS NR
+FROM datawg.t_eelstock_eel
+where eel_typ_id in ({eel_typ_id*})
+AND eel_qal_id IN ({eel_qal_id*})
+AND eel_year > {minyear}
+and eel_datasource = 'dc_2021'
+GROUP BY eel_emu_nameshort)
+SELECT * FROM ind order by eel_emu_nameshort,annex,datacall
+",
+            eel_typ_id = eel_typ_id.,
+            eel_qal_id = eel_qal_id.,
+            nameannex = nameannex.,
+            minyear = minyear., .con = con
+        )
+    )
+}
+
+
+
+```
+
+```{r }
+#| label: tbl-reported_biomass
+#| echo: false
+#| warning: false
+#| message: false
+#| tbl-cap: "Number of biomass indicator reported per country (reported), either with a numeric value (number) or as 'NC' not collected, 'NP' not pertinent, 'NR' not reported. The report is split per annex type (annex) and country."
+
+ knitr::kable(data.frame())
+```
+
+
+```{r}
+#| label: flextablereportedbiom
+annex. = "biomass"
+dc2025cou <- bind_rows(
+    fn_report_cou(
+        eel_typ_id. = as.integer(c(13, 14, 15, 34)),
+        nameannex = "biomass"
+    ),
+    fn_report_cou(
+        eel_typ_id. = as.integer(c(17,18,19)),
+        nameannex = "mortality"
+    ),    
+    fn_report_cou(
+        eel_typ_id. = as.integer(c(4,6)),
+        nameannex = "landings"
+    ),    
+    fn_report_cou(
+        eel_typ_id. = as.integer(c(8,9,10)),
+        nameannex = "restocking"
+    )
+) |> pivot_wider(id_cols=c("eel_cou_code",annex),
+                  names_from="datacall",
+                  values_from=c("reported","number","nc","np","nr"),
+                  names_sort=TRUE) |>
+                  rename(country=eel_cou_code)
+write.csv2(dc2025cou, file=file.path(params$data_path, "annex4_11_reported_per_country.csv"))
+ 
+dc2025cou |> filter(annex == annex.)  |>
+    flextable() |>
+    flextable2ICES()     
+```
+
+```{r }
+#| label: tbl-reported_mortality
+#| echo: false
+#| warning: false
+#| message: false
+#| tbl-cap: "Number of mortality indicator reported per country (reported), either with a numeric value (number) or as 'NC' not collected, 'NP' not pertinent, 'NR' not reported. The report is split per annex type (annex) and country."
+
+ knitr::kable(data.frame())
+```
+
+
+```{r}
+#| label: flextablereportedmort
+annex. = "mortality" 
+dc2025cou |> filter(annex == annex.)  |>
+    flextable() |>
+    flextable2ICES()     
+```
+
+```{r }
+#| label: tbl-reported_landings
+#| echo: false
+#| warning: false
+#| message: false
+#| tbl-cap: "Number of landings indicator reported per country (reported), either with a numeric value (number) or as 'NC' not collected, 'NP' not pertinent, 'NR' not reported. The report is split per annex type (annex) and country."
+
+ knitr::kable(data.frame())
+```
+
+
+```{r}
+#| label: flextablereportedland
+annex. = "landings" 
+dc2025cou |> filter(annex == annex.)  |>
+    flextable() |>
+    flextable2ICES()     
+```
+
+```{r }
+#| label: tbl-reported_restocking
+#| echo: false
+#| warning: false
+#| message: false
+#| tbl-cap: "Number of restocking indicator reported per country (reported), either with a numeric value (number) or as 'NC' not collected, 'NP' not pertinent, 'NR' not reported. The report is split per annex type (annex) and country."
+
+ knitr::kable(data.frame())
+```
+
+
+```{r}
+#| label: flextablereportedrest
+annex. = "restocking" 
+dc2025cou |> filter(annex == annex.)  |>
+    flextable() |>
+    flextable2ICES()     
+```
+
+
+::: {custom-style="Annex heading"}
 Data quality check
 :::
 
+The data call has been done in two steps. After the first data call, wgeel and wkemp have analysed data and asked for clarifications. This part only reports data after the integration of new data in february 2025.
 
-The data call has been done in two steps. After the first data call, wgeel and wkemp
-have analysed data and asked for clarifications. This part only reports data after the 
-integration of new data in february 2025.
+## $B_{best}$ larger than $B_0$
+
+A first check consisted of comparing $B_{best}$ and $B_0$ (Table 3 2): both indicators refer to the escapement that would occur in the absence of any anthropogenic pressures, but $B_{best}$ corresponds to the escapement with the current recruitment while $B_0$ corresponds to the escapement produced with a pristine recruitment. Given the decrease in recruitment since the early 1980s, $B_{best}$ should be less than $B_0$. In a few situations, $B_{best}$ is greather than $B_0$ (Fig. @fig-Bbestb0): DE_Warn, EE_Narv, EE_total, ES_Minh, GB_Neag, GB_Scot, GR_CeAe, GR_WePe, PL_Oder, SE_Inla (table @tbl-tabbestb0). For SE_Inla, $B_{best}$ estimates are greater than $B_0$ during the late 80s / early 90s, suggesting that $B_0$ might be based on historical data from the 1980s (an option suggested in the Regulation) rather than to a truly pristine situation. In Estonia, it was indicated that $B_{best}$ was entirely dependent on $B_0$. Then the calculation of $B_{best}$ remains wrong and should be 0.
 
 
-##   $B_{best}$ larger than $B_0$
 
-A first check consisted of comparing $B_{best}$ and $B_0$ (Table 3 2): both indicators refer to the escapement that would occur in the absence of any anthropogenic pressures, but $B_{best}$ corresponds to the escapement with the current recruitment  while $B_0$ corresponds to the escapement produced with a pristine recruitment. Given the decrease in recruitment since the early 1980s, $B_{best}$ should be less than $B_0$. 
-In a few situations, $B_{best}$ is greather than $B_0$ (Fig. @fig-Bbestb0): DE_Warn, EE_Narv, EE_total, ES_Minh, GB_Neag, GB_Scot, GR_CeAe, GR_WePe, PL_Oder, SE_Inla (table @tbl-tabbestb0). For SE_Inla, $B_{best}$ estimates are greater than $B_0$ during the late 80s / early 90s, suggesting that $B_0$ might be based on historical data from the 1980s (an option suggested in the Regulation) rather than to a truly pristine situation. In Estonia, it was indicated that $B_{best}$ was entirely dependent on $B_0$. Then the calculation of $B_{best}$ remains wrong and should be 0.
-
-:::{.callout-important appearance="simple"}
-## Do we correct data manually ?
-Estonia reports that Bbest is entirely dependent on restocking do we correct the value ?
-:::
-
-In the other EMUs, an underestimation of $B_0$ is probably the reason.
-For instance, in SE_Inla, this is likely related to using a B_{0} that is coming from the late 80s situation. 
+In the other EMUs, an underestimation of $B_0$ is probably the reason. For instance, in SE_Inla, this is likely related to using a $B_{0}$ that is coming from the late 80s situation.
 
 Normally, $B_{best}$ (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, $B_{best}$ is supposed to be smaller than $B_0$ which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
 
@@ -824,7 +1042,6 @@ g15 <- ggplot(indicator, aes(x = bbest / b0)) +
 ggsave(g15, filename = file.path(params$image_path,"plotBbestb0.png"), height = 12 / 2.54, width = 12 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"plotBbestb0.png"))
 ```
-
 
 ```{r }
 #| label: tbl-tabbestb0
@@ -869,17 +1086,9 @@ check_these_emusbbestb0 <- indicator |>
     pull()
 ```
 
-
 ## $B_{best}$ less than $B_{current}$
 
-A second check consisted of comparing $B_{best}$ and $B_{current}$ (Table @tbl-bcurrentbbest, Figure @fig-bcurrentBbest): in the absence of significant re-stocking, $B_{current}$ should be less than $B_{best}$. The analysis of the ratio $B_{current}/B_{best}$ clearly shows the large effect of restocking in Germany, in Poland (PL_Oder) and in Sweden (SE_Inla). The very large value for DE_Rhei also illustrates a specific issue raised by transboundary EMU: DE_Rhein has no direct access to the sea so that young eels have to migrate through the Netherlands to reach DE_Rhein while in the other direction, silver eels also have to migrate through NL to reach the sea. $B_{best}$ is almost impossible to estimate in such EMUs: it would require estimating the number of eels that would migrate to DE_Rhei given the current recruitment in the absence of any anthropogenic barriers in the Netherlands. The large $B_{current}/B_{best}$ values indicate that $B_{best}$ is likely underestimated and that currently, the “natural recruitment” is almost insignificant compared to restocking in those EMUs.
-In some Irish EMUs, $B_{best}$ is equal to $B_{current}$, these results are consistent with the very small anthropogenic mortality estimated in recent years for those EMUs. In countries without (or with limited) restocking, $B_{current}$ should be less than $B_{best}$.
-In Poland $B_{best}$ was calculated using geometric average recruitment from years 2010-2014 and only natural mortality to get estimate of SSB and it has been assumed the same for all years.  In some previous  reports two options of Bbest were used as it was not clear from the guidelines how Bbest should be calculated: 
-1.	Bbest1 is based on current recruitment (e.g. from years 2021-2023), 
-2.	Bbest2 is based on recruitment from those year-classes, which form current escapement of silver eel  to spawn.
-
-
-
+A second check consisted of comparing $B_{best}$ and $B_{current}$ (Table @tbl-bcurrentbbest, Figure @fig-bcurrentBbest): in the absence of significant re-stocking, $B_{current}$ should be less than $B_{best}$. The analysis of the ratio $B_{current}/B_{best}$ clearly shows the large effect of restocking in Germany, in Poland (PL_Oder) and in Sweden (SE_Inla). The very large value for DE_Rhei also illustrates a specific issue raised by transboundary EMU: DE_Rhein has no direct access to the sea so that young eels have to migrate through the Netherlands to reach DE_Rhein while in the other direction, silver eels also have to migrate through NL to reach the sea. $B_{best}$ is almost impossible to estimate in such EMUs: it would require estimating the number of eels that would migrate to DE_Rhei given the current recruitment in the absence of any anthropogenic barriers in the Netherlands. The large $B_{current}/B_{best}$ values indicate that $B_{best}$ is likely underestimated and that currently, the “natural recruitment” is almost insignificant compared to restocking in those EMUs. In some Irish EMUs, $B_{best}$ is equal to $B_{current}$, these results are consistent with the very small anthropogenic mortality estimated in recent years for those EMUs. In countries without (or with limited) restocking, $B_{current}$ should be less than $B_{best}$. In Poland $B_{best}$ was calculated using geometric average recruitment from years 2010-2014 and only natural mortality to get estimate of SSB and it has been assumed the same for all years. In some previous reports two options of Bbest were used as it was not clear from the guidelines how Bbest should be calculated: 1. Bbest1 is based on current recruitment (e.g. from years 2021-2023), 2. Bbest2 is based on recruitment from those year-classes, which form current escapement of silver eel to spawn.
 
 ```{r }
 #| label: fig-bcurrentBbest
@@ -899,6 +1108,7 @@ knitr::include_graphics(file.path(params$image_path, "bcurrentBbest.png"))
 #| tbl-cap: "Table showing ratio of Bcurrent over Bbest for those EMUs and years where Bcurrent larger than Bbest. EMU from SE, NL, PL, DE excluded as obviously, in this case this is caused by restocking."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablebcurrentbbest
 
@@ -942,7 +1152,6 @@ check_these_emusbcurrentbbest <-
 
 For German EMUs, this shows the massive effect of restocking which is also visible in Sweden or in Poland. For Ireland, the anthropogenic mortality is so low in recent years that $B_{current}$ and $B_{best}$ can be very similar. Results are more doubtful in ES_Anda.
 
-
 ## Only $B_{current without restocking}$ reported
 
 Before looking at EMUs where $B_{current without restocking}$ exceeds either $B_{best}$ or $B_0$, it is worthwhile to look at countries that have only reported $B_{current without restocking}$, and no $B_{current}$ which may or may not include restocking.
@@ -952,6 +1161,7 @@ Before looking at EMUs where $B_{current without restocking}$ exceeds either $B_
 #| tbl-cap: "Table with $B_{current without restocking}$ larger than $B_{best}and $B_{current}$ is not reported."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextableonlybcurrent
 indicator |>
@@ -986,15 +1196,12 @@ indicator |>
 
 
 ```
-It is mostly French EMUs that have reported an estimate of $B_{current without restocking}$ (TABLE @tbl-onlybcurrent_without_restocking), while not having reported on regular Bcurrent.
-The reason is that the latest report is only based on regions where restocking didn't occur (so as not to biase EDA outputs....) so it was not provided. Theoretically another model could have been used to provide those estimates (e.g A model estimating the production for segments of rivers affected by restocking).
 
-## $B_{current without restocking}$ higher than $B_{best}$ 
+It is mostly French EMUs that have reported an estimate of $B_{current without restocking}$ (TABLE @tbl-onlybcurrent_without_restocking), while not having reported on regular Bcurrent. The reason is that the latest report is only based on regions where restocking didn't occur (so as not to biase EDA outputs....) so it was not provided. Theoretically another model could have been used to provide those estimates (e.g A model estimating the production for segments of rivers affected by restocking).
 
+## $B_{current without restocking}$ higher than $B_{best}$
 
-All estimates of $B_{current without restocking}$ are now lower than $B_{best}$. 
-Two values were corrected and now the table only shows a rounding problem
-for IE_SouW (Fig  @fig-bcurrentwbbest, Table @tbl-bcurrentwbbest).
+All estimates of $B_{current without restocking}$ are now lower than $B_{best}$. Two values were corrected and now the table only shows a rounding problem for IE_SouW (Fig @fig-bcurrentwbbest, Table @tbl-bcurrentwbbest).
 
 ```{r }
 #| label: fig-bcurrentwbbest
@@ -1014,6 +1221,7 @@ knitr::include_graphics(file.path(params$image_path,"bcurrentwbbest.png"))
 #| tbl-cap: Table showing years and EMU where $B_{current without restocking}$ is higher than $B_{best}$. There is only one and it's a rounding problem that can be saferly ignored.
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablebcurrentwbbest
 indicator |>
@@ -1054,18 +1262,16 @@ check_these_emusbcurrentbbest_without_restocking <-
 
 ## $B_{current}$ higher than $B_{best}$ while $B_{current without restocking}$ is not reported.
 
-$B_{best}$ calculation should not include restocking. So when $B_{current}$ is larger than
-   $B_{best}$ we expect that there is restocking. If $B_{current without restocking}$ is not reported, then data are missing. Table @tbl-currentbbestnorestockestimate summarize those data.
-Poland has reported missing values from 2011 so that is good, and only older estimates are missing (before 2010). Germany failed to report those data in time due to technical problem
-with the model (not being able to do such calculations). The problem identified for Greece also remains.
+$B_{best}$ calculation should not include restocking. So when $B_{current}$ is larger than $B_{best}$ we expect that there is restocking. If $B_{current without restocking}$ is not reported, then data are missing. Table @tbl-currentbbestnorestockestimate summarize those data. Poland has reported missing values from 2011 so that is good, and only older estimates are missing (before 2010). Germany failed to report those data in time due to technical problem with the model (not being able to do such calculations). The problem identified for Greece also remains.
 
 For GR_CeAe, indicators are strange. Sometimes $B_{current}$ is larger or equal to $B_{best}$, but at the same time $\sum{A}$ is also high. Sometimes, $B_{best}$ and $B_{current}$ are 0, but $\sum{A}$ is also 0. I double-checked with the data provider, and all years with 0 values for biomass indicator estimates should be NC instead, since these are years with no landings (so $\sum{A}$ is 0). It remained unclear why $B_{best}$ and $B_{current}$ were higher than b0 for years with an estimate. Advise to remove this series from WKEMP analysis until the methods for deriving these estimates are better looked at.
- 
+
 ```{r}
 #| label: tbl-currentbbestnorestockestimate
 #| tbl-cap : "EMU and years for which $B_{current}$ is larger than $B_{best}$ and $B_{current without stocking}$ is not reported."
 knitr::kable(data.frame())
 ```
+
 ```{r}
 #| label: flexcurrentbbestnorestockestimate
 flextable(indicator |>
@@ -1095,7 +1301,6 @@ flextable(indicator |>
 
 In countries without (or with limited) restocking, $B_{current}$ should be less than $B_0$
 
-
 ```{r}
 #| label: fig-bcurrentb0
 #| fig-cap: "Histogram showing frequency distribution of the $B_{current}$/$B_0$. Values >1 would indicate a problems"
@@ -1114,6 +1319,7 @@ knitr::include_graphics(file.path(params$image_path, "bcurrentb0.png"))
 #| tbl-cap: "Situations in which $B_{current}$ is reported as greater than $B_{0}$."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablebcurrentb0
 indicator |>
@@ -1153,9 +1359,9 @@ check_these_emusb0lessthanbcurrent <-
 
 ```
 
-## $B_{current}$ without restocking higher than $B_0$ 
+## $B_{current}$ without restocking higher than $B_0$
 
-There is only one case in wich with  $B_{current}$ without restocking was reported as greater than $B_0$ (Fig @fig-bcurrentb0, Table  @tbl-bcurrentb0). As already mentioned above, without any restocking effects, $B_{current}$ for GB_Scot is still estimated as higher than b0. This indicates an underestimate of $B_0$ which is confirmed by the data provider.
+There is only one case in wich with $B_{current}$ without restocking was reported as greater than $B_0$ (Fig @fig-bcurrentb0, Table @tbl-bcurrentb0). As already mentioned above, without any restocking effects, $B_{current}$ for GB_Scot is still estimated as higher than b0. This indicates an underestimate of $B_0$ which is confirmed by the data provider.
 
 ```{r }
 #| label: fig-bcurrentnorestockb0
@@ -1176,6 +1382,7 @@ knitr::include_graphics(file.path(params$image_path, "bcurrentnorestockb0.png"))
 #| tbl-cap: "Situations in which $B_{current}$ without restocking was reported as greater than $B_0$."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablebcurrentnorestockb0
 indicator |>
@@ -1208,11 +1415,7 @@ check_these_emusb0lessthanbcurrentwithout <-
 
 ## Check irregularities in combinations of $B_{current}$, $B_{best}$, and $\sum{A}$
 
-If there is no restocking, $B_{current}$ should roughly correspond to $B_{best}*\sum{A}$ (Fig @fig-highindicators , table @tbl-bcurrentbcurrentestimated). 
-Only EMUs from Germany, Greece have a $B_{current}$ that differs from more than 10% from the expected $B_{current}$. For Germany, this is likely the result of restocking. For Greece, it might be restocking.
-$B_{current_without_restocking}$ estimates are consistent with $B_{best}*\sum{A}$.
-For this reason Table @tbl-bcurrentbcurrentestimated has no value.
-
+If there is no restocking, $B_{current}$ should roughly correspond to $B_{best}*\sum{A}$ (Fig @fig-highindicators , table @tbl-bcurrentbcurrentestimated). Only EMUs from Germany, Greece have a $B_{current}$ that differs from more than 10% from the expected $B_{current}$. For Germany, this is likely the result of restocking. For Greece, it might be restocking. $B_{current_without_restocking}$ estimates are consistent with $B_{best}*\sum{A}$. For this reason Table @tbl-bcurrentbcurrentestimated has no value.
 
 ```{r }
 #| label: fig-highindicators
@@ -1262,6 +1465,7 @@ knitr::include_graphics(file.path(params$image_path,"highindicators2.png"))
 #| tbl-cap: "Comparison of $B_{current}$ and $B_{current expected}= B_{best} exp(-\\sum{A})$ for all series with no estimate for $B_{current without restocking}$."
 knitr::kable(data.frame())
 ```
+
 ```{r}
 #| label: flextablebcurrentbcurrentestimated
 indicator2 |>
@@ -1303,6 +1507,7 @@ indicator2 |>
 #| tbl-cap: Comparison $B_{current without restocking}$ to $B_{current expected}= B_{best} exp(-\\sum{A})$ for all series with no estimate for $B_{current without restocking}$."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablebcurrentbcurrentwestimated
 indicator2 |>
@@ -1331,8 +1536,6 @@ indicator2 |>
 
 ```
 
-
-
 ## Difference between $B_{current without restocking}$ and $B_{current}$
 
 $B_{current without restocking}$ should always be lower than $B_{current}$. Exceptions in Ireland are rounding issues. We have two cases where the calculation is dubious (Table @tbl-checkingdiffbcurrenttable, Figure @fig-checkingdiffbcurrent).
@@ -1356,6 +1559,7 @@ knitr::include_graphics(file.path(params$image_path, "checkingdiffbcurrent.png")
 #| tbl-cap: "Years and EMU for which $B_{current without restocking}$ is reported as greater than $B_{current}$."
 knitr::kable(data.frame())
 ```
+
 ```{r }
 #| label: flextablecheckingdiffbcurrenttable
 indicator |>
