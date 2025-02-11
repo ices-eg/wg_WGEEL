@@ -5,6 +5,7 @@ library(tidyverse)
 library(icesTAF)
 
 
+# 1. ANNEX 14
 
 #create a list of excel files (separated by first and second data call response)
 files_second <- list.files(path = "Misc/WKEMP/WKEMP4/SG1/for_compilation/responses", 
@@ -54,3 +55,35 @@ mkdir("Misc/WKEMP/WKEMP4/SG1/output/")
 
 #save result
 save(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.RData")
+write.csv2(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.csv", row.names = FALSE)
+
+
+
+
+# 2. ANNEX 17
+
+#get list of files
+files_17 <- list.files(path = "Misc/WKEMP/WKEMP4/SG1/for_compilation/annex_17", 
+                           pattern = ".xlsx",
+                           full.names = TRUE)
+
+#read "measures_2024"Reference List to single dataframe
+references_all <- map_dfr(files_17, function(x) {
+  # Read the file
+  df <- read_xlsx(x, sheet = "Reference List") %>%
+    mutate_all(as.character)
+  
+  # Extract the last two letters before .xlsx
+  filename_without_extension <- sub("\\.xlsx$", "", basename(x))  # Remove .xlsx
+  last_two_letters <- substr(filename_without_extension, nchar(filename_without_extension) - 1, nchar(filename_without_extension))
+  
+  # Add the last two letters as a new column
+  df <- df %>%
+    mutate(last_two_letters = last_two_letters)
+  
+  return(df)
+})
+
+#save result
+save(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.RData")
+write.csv2(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.csv", row.names = FALSE)
