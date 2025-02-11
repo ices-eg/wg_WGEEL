@@ -5,7 +5,9 @@ library(tidyverse)
 library(icesTAF)
 
 
-# 1. ANNEX 14
+# 1. ANNEX 14 ####
+
+# 1.1 read and bind together data call files
 
 #create a list of excel files (separated by first and second data call response)
 files_second <- list.files(path = "Misc/WKEMP/WKEMP4/SG1/for_compilation/responses", 
@@ -37,8 +39,7 @@ colnames(measures_2024_new) <- correct_colnames
 measures_2024_new <- measures_2024_new %>% rename(status = Value_missing_in)
 
 #combine all in one dataframe
-measures_all <- bind_rows(measures_2024_first, measures_2024_second, measures_2024_new) %>%
-  filter(delete == "No" | delete == "NA" | is.na(delete))
+measures_all <- bind_rows(measures_2024_first, measures_2024_second, measures_2024_new)
 
 #read standards
 standards <- read_excel("Misc/WKEMP/WKEMP4/SG1/standards.xlsx")
@@ -46,9 +47,34 @@ standards <- read_excel("Misc/WKEMP/WKEMP4/SG1/standards.xlsx")
 #Merge standards to the whole data
 # Rename all columns in 'standards' by adding "std_" prefix
 colnames(standards) <- paste0("std_", colnames(standards))
-# Join standards 
+
+# Join standards to measures all, add column with new id (old one kept, just added dc2021 before) and replace character NAs with true NAs 
 measures_all <- measures_all %>%
-  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
+  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type")) %>% 
+  mutate(across(where(is.character), ~na_if(., "NA"))) %>%  
+  mutate(temp_id = 1:n(),
+         new_id = ifelse(!is.na(id), paste("dc2021", id, sep = "_"), paste("dc2024", temp_id, sep = "_"))) %>% 
+  select(-id, -temp_id) %>% 
+  rename(id = new_id) %>% 
+  relocate(id, .before = country)
+
+
+
+
+# 1.2 do some filtering
+
+#create table with measures to remove from to get "measures_cleaned" and remove those lines
+removed_UK_delete <- measures_all %>%
+  filter(country == "Great_Britain" | delete == "Yes" | delete == "delete") 
+
+measures_all_cleaned <- anti_join(measures_all, removed_UK_delete)
+
+#create a table with rows that are not EMP or EMP_amended to be removed
+removed_non_EMP <- measures_all_cleaned %>%
+  filter(!measure_planned %in% c("EMP", "EMP_amended"))
+
+measures_all_cleaned_EMP <- anti_join(measures_all_cleaned, removed_non_EMP)
+
 
 #create output directory
 mkdir("Misc/WKEMP/WKEMP4/SG1/output/")
@@ -57,8 +83,17 @@ mkdir("Misc/WKEMP/WKEMP4/SG1/output/")
 save(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.RData")
 write.csv2(measures_all, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all.csv", row.names = FALSE)
 
+save(measures_all_cleaned, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_cleaned.RData")
+write.csv2(measures_all_cleaned, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_cleaned.csv", row.names = FALSE)
 
+save(measures_all_cleaned_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_cleaned_EMP.RData")
+write.csv2(measures_all_cleaned_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_cleaned_EMP.csv", row.names = FALSE)
 
+save(removed_UK_delete, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_UK_delete.RData")
+write.csv2(removed_UK_delete, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_UK_delete.csv", row.names = FALSE)
+
+save(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.RData")
+write.csv2(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.csv", row.names = FALSE)
 
 # 2. ANNEX 17
 
@@ -79,7 +114,8 @@ references_all <- map_dfr(files_17, function(x) {
   
   # Add the last two letters as a new column
   df <- df %>%
-    mutate(last_two_letters = last_two_letters)
+    mutate(country = last_two_letters,
+           ...7 = NULL)
   
   return(df)
 })
