@@ -14,7 +14,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -40,19 +40,15 @@ all_emus = read.csv2("all_emus.csv")
 
 ```
 
-Add standards
+```{r Filter_EMUOnly, include=FALSE}
 
-```{r TODO1, echo=FALSE}
 
-#Merge standards to the whole data
-  # Rename all columns in 'standards' by adding "std_" prefix
-colnames(standards) <- paste0("std_", colnames(standards))
-  # Join standards 
+# Filter the data frame for EMU only
 measures_all <- measures_all %>%
-  left_join(standards, by = c("measure_type" = "std_measure_type", "submeasure_type" = "std_submeasure_type"))
+  filter(measure_planned %in% c("EMP", "EMP_amended"))
+
 
 ```
-
 Need to filter for EMP only!!!!
 
 Graph/Table with no. of measures per type for each country
@@ -65,8 +61,9 @@ MeasuresPerType <- measures_all %>%
   count(country, measure_type) %>%
   spread(key = measure_type, value = n, fill = 0)
 
-# Print
-print(MeasuresPerType)
+# Print using kable
+kable(MeasuresPerType, caption = "Number of Measures Per Country")
+
 
 ```
 
@@ -81,8 +78,8 @@ MeasuresPerTypeEMU <- measures_all %>%
   count(country, emu_name_short, measure_type) %>%
   spread(key = measure_type, value = n, fill = 0)
 
-# printit
-print(MeasuresPerTypeEMU)
+# Print the table using kable
+kable(MeasuresPerTypeEMU, caption = "Number of Measures Per Country and EMU")
 
 ```
 
@@ -106,29 +103,62 @@ Graph of implementation percentage - stacked bars by measure type (implemented/p
 
 ```{r ImplementationPercentage, echo=FALSE}
 
-# Create a contingency table
+# Function to replace underscores with spaces and capitalize the first letter of each word
+clean_names <- function(name) {
+  if (!is.na(name)) {
+    name <- gsub("_", " ", name)
+    name <- tools::toTitleCase(name)
+  }
+  return(name)
+}
+
+# Apply the function to the progress column
+measures_all$progress <- sapply(measures_all$progress, clean_names)
+
+# Apply the function to the measure_type column
+measures_all$measure_type <- sapply(measures_all$measure_type, clean_names)
+
+# Replace values in the progress column
+measures_all$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all$progress)
+measures_all$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all$progress)
+#ONE CZ "Other" changed to trap and transport
+measures_all$measure_type <- gsub("Other", "Hydropower and Obstacles", measures_all$measure_type)
+
+# Create a contingency table that has only the needed data
 ProgressCountTable <- table(measures_all$measure_type, measures_all$progress)
 
 # Convert the table to a data frame
 ProgressCountTable <- as.data.frame.matrix(ProgressCountTable)
 
-# Display the ProgressCountTable data frame
-print(ProgressCountTable)
-
 # Normalize the data to get percentages
-ProgressCountTable <- sweep(ProgressCountTable, 1, rowSums(ProgressCountTable), FUN = "/") * 100
+ProgressCountTable_percent <- sweep(ProgressCountTable, 1, rowSums(ProgressCountTable), FUN = "/") * 100
 
 # Convert the data frame to long format for ggplot2
-ProgressCountTable_long <- as.data.frame(ProgressCountTable)
+ProgressCountTable_long <- as.data.frame(ProgressCountTable_percent)
 ProgressCountTable_long$measure_type <- rownames(ProgressCountTable_long)
 ProgressCountTable_long <- tidyr::gather(ProgressCountTable_long, key = "progress", value = "percentage", -measure_type)
 
-# Create the stacked bar chart with rotated x-axis labels
+# Assuming ProgressCountTable contains the original counts
+ProgressCountTable_counts_long <- as.data.frame(ProgressCountTable)
+ProgressCountTable_counts_long$measure_type <- rownames(ProgressCountTable_counts_long)
+ProgressCountTable_counts_long <- tidyr::gather(ProgressCountTable_counts_long, key = "progress", value = "count", -measure_type)
+
+# Calculate the total counts for each measure_type
+TotalCounts <- aggregate(count ~ measure_type, data = ProgressCountTable_counts_long, sum)
+colnames(TotalCounts)[2] <- "total_count"
+
+# Merge the totals with the percentages
+ProgressCountTable_long <- merge(ProgressCountTable_long, TotalCounts, by = "measure_type")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
 ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = progress)) +
   geom_bar(stat = "identity") +
-  labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Progress by Measure Type") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+          vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
 
 ```
 
@@ -138,6 +168,12 @@ We may need to check if a value is provided
 
 
 ```{r EffectivenesMonitored, echo=FALSE}
+# Replace values in the effectiveness_monitored column
+measures_all$effectiveness_monitored <- gsub("Î”Î£F", "ΔΣF", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("Î”Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("%Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("Î”Î£H", "ΔΣH", measures_all$effectiveness_monitored)
+measures_all$effectiveness_monitored <- gsub("other", "Other", measures_all$effectiveness_monitored)
 
 # Create a contingency table
 EffectivenessCountTable <- table(measures_all$measure_type, measures_all$effectiveness_monitored)
@@ -145,25 +181,26 @@ EffectivenessCountTable <- table(measures_all$measure_type, measures_all$effecti
 # Convert the table to a data frame
 EffectivenessCountTable <- as.data.frame.matrix(EffectivenessCountTable)
 
-# Normalize the data to get percentages
-EffectivenessCountTable <- sweep(EffectivenessCountTable, 1, rowSums(EffectivenessCountTable), FUN = "/") * 100
-
-# Load the ggplot2 package
-library(ggplot2)
+# Calculate the total counts for each measure type
+TotalCounts <- data.frame(
+  measure_type = rownames(EffectivenessCountTable),
+  total_count = rowSums(EffectivenessCountTable)
+)
 
 # Convert the data frame to long format for ggplot2
 EffectivenessCountTable_long <- as.data.frame(EffectivenessCountTable)
 EffectivenessCountTable_long$measure_type <- rownames(EffectivenessCountTable_long)
-EffectivenessCountTable_long <- tidyr::gather(EffectivenessCountTable_long, key = "effectiveness_monitored", value = "percentage", -measure_type)
+EffectivenessCountTable_long <- tidyr::gather(EffectivenessCountTable_long, key = "effectiveness_monitored", value = "count", -measure_type)
 
-# Create the stacked bar chart with rotated x-axis labels
-ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = count, fill = effectiveness_monitored)) +
   geom_bar(stat = "identity") +
-  labs(x = "Measure Type", y = "Percentage", title = "Stacked Bar Chart of Effectiveness by Measure Type") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = total_count, label = paste0("n = ", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Count", title = "", fill = "Effectiveness Monitored") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-
-
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
 
 ```
 
@@ -172,12 +209,17 @@ NOTE THE YEAR NA IS DIVIDED BY 10
 
 ```{r ByYearImplementedMeasures, echo=FALSE}
 
+measures_all$impact <- gsub("high", "High", measures_all$impact)
+measures_all$impact <- gsub("indirect", "Not direct", measures_all$impact)
+measures_all$impact <- gsub("none", "None", measures_all$impact)
+
+
 # Create the new data frame with year_of_full_implementation and impact
 ImpactByYear <- measures_all %>%
   select(year_of_full_implementation, impact)
 
 #clean NAs
-ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "NA"
+ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "N/A"
 
 ImpactByYear <- ImpactByYear %>%
   mutate(year_of_full_implementation = as.character(year_of_full_implementation),
@@ -200,9 +242,10 @@ ImpactByYear <- ImpactByYear %>%
 # Create the stacked bar chart
 ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fill = factor(impact))) +
   geom_bar(stat = "identity") +
-  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "Stacked Bar Chart of Impact by Year of Full Implementation") +
+  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "", fill = "Impact") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
 
 ```
 
@@ -402,13 +445,13 @@ This table is number of measures per country, but averaged per number of EMUs
 
 ```{r Measure_per_country_ComFish, echo=FALSE}
 # Select usage
-measure_type <- "Commercial_fishery"
-result <- create_measure_tables(measures_all, measure_type)
+#measure_type <- "Commercial_fishery"
+#result <- create_measure_tables(measures_all, measure_type)
 
 # Display the results
-knitr::kable(result$main_table, caption = paste("Number of Measures by Country and Submeasure Type for", measure_type))
+#knitr::kable(result$main_table, caption = paste("Number of Measures by Country and Submeasure Type for", measure_type))
 
-knitr::kable(result$consistency_check, caption = "Inconsistent Values by Country, EMU Name Short, and Submeasure Type")
+#knitr::kable(result$consistency_check, caption = "Inconsistent Values by Country, EMU Name Short, and Submeasure Type")
 
 ```
 

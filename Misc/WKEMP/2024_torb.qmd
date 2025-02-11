@@ -264,48 +264,48 @@ biomasstrendtab <- trendtable(ind = "bcurrent")
 
 #### Possibility to achieve the management target given current recruitment levels
 
-The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, in average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first rebuilding recruitment.
+The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in their waterbodies in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, in average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first rebuilding recruitment.
 
-In a pristine situation, and assuming an average natural mortality over the lifespan, escapement can be calculated as:
-
-$$
-B_0 = R_0 \cdot e^{-M_0 \cdot \Delta t}
-$$ {#eq-b0}
-
-with $\Delta t$ the lifespan, $M_0$ the average natural mortality, and $R_0$ the recruitment in the pristine situation.
-
-Current escapement can be calculated as:
+In a pristine situation, and assuming an average natural mortality over the lifespan, escapement in an EMU $e$ can be calculated as:
 
 $$
-B = R \cdot e^{-M \cdot \Delta t}
+B_0(e) = R_0(e) \cdot e^{-M_0(e) \cdot \Delta t(e)}
+$${#eq-b0}
+
+with $\Delta t(e)$ the lifespan, $M_0(e)$ the average natural mortality, and $R_0(e)$ the recruitment in the pristine situation in the corresponding EMU.
+
+Conversely, in the absence of any anthropogenic mortalities, current escapement can be calculated in an EMU as:
+
+$$
+B(e) = R(e) \cdot e^{-M(e) \cdot \Delta t(e)}
 $$ {#eq-b}
 
-Current recruitment is estimated to be less than 10% of what it was in the pre-1980s [@ices2024]. In this context, if the lifespan has remained the same, having $B/B_0$\>40% while $R/R_0$\<10% would require a drop of the natural mortality. This might occur as a result of compensatory density dependence mechanisms [@bevacqua2011], but what would be the required decrease of natural mortality?
+In average, current recruitment is estimated to be less than 10% of what it was in the pre-1980s [@ices2024]. In this context, if the lifespan has remained the same, having $B(e)/B_0(e)$\>40% while $R(e)/R_0(e)$\<10% would require a drop of the natural mortality. This might occur as a result of compensatory density dependence mechanisms [@bevacqua2011], but what would be the required decrease of natural mortality?
 
 To achieve the target, assuming the lifespan hasn't changed, we need:
 
 $$
 \begin{split}
-&\frac{B}{B_0} \geq 0.4 \\
-& \Leftrightarrow \frac{R \cdot e^{-M \cdot \Delta t}}{R_0 \cdot e^{-M_0 \cdot \Delta t}} \geq 0.4 \\
-& \Leftrightarrow e^{(M_0-M) \cdot \Delta t} \geq 0.4 \cdot \frac{R_0}{R}\\
-& \Leftrightarrow (M_0-M) \cdot \Delta t \geq log \left( 0.4 \cdot \frac{R_0}{R} \right) \\
-& \Leftrightarrow (M_0-M) \geq  \frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)
+&\frac{B(e)}{B_0(e)} \geq 0.4 \\
+& \Leftrightarrow \frac{R(e) \cdot e^{-M(e) \cdot \Delta t(e)}}{R_0(e) \cdot e^{-M_0(e) \cdot \Delta t(e)}} \geq 0.4 \\
+& \Leftrightarrow e^{(M_0(e)-M(e)) \cdot \Delta t(e)} \geq 0.4 \cdot \frac{R_0(e)}{R(e)}\\
+& \Leftrightarrow (M_0-M) \cdot \Delta t \geq log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right) \\
+& \Leftrightarrow (M_0(e)-M(e)) \geq  \frac{1}{\Delta t(e)}log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right)
 \end{split}
 $$
 
-The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment. $\frac{R_0}{R}$ is the ratio of pristine recruitment over current recruitment, corresponding to the WGEEL index.
+The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment. $\frac{R_0(e)}{R(e)}$ is the ratio of pristine recruitment over current recruitment. Since recruitment trends is thought to be homogeneous across the distribution area, this ratio can be compared to to the WGEEL indices.
 
-Since lifespans vary among regions from few years to decades and since the recruitment might locally vary, we computed $\frac{1}{\Delta t}log \left( 0.4 \cdot \frac{R_0}{R} \right)$ for different levels of $\Delta t$ and $\frac{R}{R_0}$.
+Since lifespans vary among regions from few years to decades and since the recruitment might still locally vary, we computed $\frac{1}{\Delta t(e)}log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right)$ for different levels of $\Delta t(e)$ and $\frac{R(e)}{R_0(e)}$.
 
-Figure @fig-natmort indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North-Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ if current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates), so a reduction of more than 1/3 compared to the 0.138 year^-1^. It is important to remind here that this reduction is the average value over the whole lifespan of the individual, while density dependent natural mortality is mainly restricted to younger ages.
+Figure @fig-natmort indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North-Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density dependent natural mortality is mainly restricted to younger ages.
 
 ```{r plot}
 #| label: fig-natmort
 #| echo: false
 #| warning: false
 #| error: false
-#| fig-cap: "Reduction of average natural mortality over the lifespan that would be required to achieve the management target given different levels of recruitment (x-axis) and lifespan (facet). The vertical lines indicate the recruitment estimates from the WGEEL glass eel index lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^"
+#| fig-cap: "Reduction of average natural mortality over the lifespan that would be required to achieve the management target in an  EMU given different levels of recruitment (x-axis) and lifespan (facet). The two vertical lines indicate the recruitment estimates from the WGEEL glass eel indices lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^"
 #| fig.height: 6.3
 #| fig.width: 6.3
 
@@ -336,7 +336,7 @@ g = ggplot(comb, aes(x=RR0, y=values)) +
   geom_line() +
   theme_bw() +
   facet_wrap(~lifespan)+
-  xlab(expression(R/R[0])) +
+  xlab(expression(R(e)/R[0](e))) +
   ylab(expression(M~reduction~(year^-1))) +
   geom_hline(aes(yintercept = 0.138), col=2)+
   geom_vline(data = rec %>%
@@ -345,7 +345,8 @@ g = ggplot(comb, aes(x=RR0, y=values)) +
             inherit.aes = FALSE) +
   scale_linetype_manual("area", values = c("Elsewhere.Europe"=3,
                                            "North.Sea"=4))+
-  xlim(0,0.4)
+  xlim(0,0.4) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 ggsave(file.path(params$image_path,"mortality_1.png"), width=16/2.54,height=16/2.54)
 knitr::include_graphics(file.path(params$image_path,"mortality_1.png"))
 
@@ -353,7 +354,7 @@ knitr::include_graphics(file.path(params$image_path,"mortality_1.png"))
 
 #### Reported trends
 
-Figure @fig-trendbiomass and Table @tbl-trendbiomass show the trends in escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. Significant trends are still frequent (Table @tbl-trendbiomass), which might be due to a delayed effect of the decline in recruitment.
+Figure @fig-trendbiomass and Table @tbl-trendbiomass show the trends in escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. Some negative significant trends in escapement are still detected (Table @tbl-trendbiomass), which might be due to a delayed effect of the decline in recruitment.
 
 ```{r}
 #| label: fig-trendbiomass
@@ -422,7 +423,7 @@ for (emu in unique(indicator$eel_emu_nameshort)) {
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for Bcurrent (kg). n stand for the number of years for which an estimate is available, while Δ is the difference between the first value reported and the last value reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and pvalue indicate the significance of the trend. A green background indicate a significant increase of escapment while a red background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for Bcurrent (kg). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. A green background indicates a significant increase of escapement while a red background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -440,7 +441,7 @@ flextable(biomasstrendtab |>
 
 <br>
 
-The patterns are very similar when $B_{current\_without\_stocking}$ is plotted (Figure @fig-trendbiomasswithoutstocking), with the escapments often shifted downward.
+The patterns are very similar when $B_{current\_without\_stocking}$ is plotted (Figure @fig-trendbiomasswithoutstocking), with the escapements often shifted downward. This suggests that restocking does not have a major effect on recent trends in escapement.
 
 ```{r}
 #| label: fig-trendbiomasswithoutstocking
@@ -477,7 +478,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_biomass_without_stock
 
 #### Fishing mortality
 
-Figure @fig-trendmortasumf and Table @tbl-trendsumf show the trends in reported fishing mortality. The fishery ban in IE is clearly visible. Interestingly,
+Figure @fig-trendmortasumf and Table @tbl-trendsumf show the trends in reported fishing mortality.
 
 ```{r}
 #| label: fig-trendmortasumf
@@ -505,7 +506,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumf.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumF (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first value reported and the last value reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and pvalue indicate the significance of the trend. A red background indicate a significant increase of escapment while a green background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumF (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing trend. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
 
 knitr::kable(data.frame())
 ```
@@ -522,7 +523,8 @@ flextable( sumftab |>
 
 ```
 
-<br> The reduction in fishing mortality is more visible than the increase in escapement, with `r sum(sumftab[,8]<0.05 & sumftab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease. However, `r sum(sumftab[,8]<0.05 & sumftab[,7]>0, na.rm = TRUE)` are still displaying a significant increase of fishing mortality.
+<br> 
+Interestingly, the reduction in fishing mortality is more visible than the increase in escapement, with `r sum(sumftab[,8]<0.05 & sumftab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease. However, `r sum(sumftab[,8]<0.05 & sumftab[,7]>0, na.rm = TRUE)` are still displaying a significant increase of fishing mortality.
 
 #### Others anthropogenic mortalities
 
@@ -556,7 +558,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumh.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumH (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first value reported and the last value reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and pvalue indicate the significance of the trend. A red background indicate a significant increase of escapment while a green background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumH (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -608,7 +610,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_suma.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumA (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first value reported and the last value reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and pvalue indicate the significance of the trend. A red background indicate a significant increase of escapment while a green background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumA (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -628,7 +630,7 @@ flextable( sumatab |>
 
 Total anthropogenic mortalities is the sum of fishing and other anthropogenic mortalities, therefore is is not surprising to observe similar patterns with more frequent significant decrease (`r sum(sumatab[,8]<0.05 & sumatab[,7]<0, na.rm = TRUE)` EMUs) than significant increase (`r sum(sumatab[,8]<0.05 & sumatab[,7]>0, na.rm = TRUE)`).
 
-## Precautionary diagram
+### Precautionary diagram
 
 Precautionary diagrams were proposed by ICES [@ices2010] to provide an overview of the achievement of the Eel Regulation objectives, potentially by EMUs or countries. The diagram shows the ratio of the current escapement over pristine biomass $B_0$ in x-axis, with a threshold $B_{mgt}$ set at 40% and corresponding to the Regulation target. On the y axis, reported anthropogenic mortalities $sumA$ are reported, with a threshold set at 0.92 year^-1^ which corresponds to the cumulative lifespan mortality that would allow achieving 40% of $B_{best}$. The data reported by member states are reported at the EMU scale. Aggregations at the country scale were achieved following the methods described in ICES @ices2010.
 
@@ -704,18 +706,48 @@ precodata_all |>
 
 <br>
 
-## Conclusions
+### Conclusions
 
-As during latest WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement, target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require unlikely reduction of natural mortality due to density-dependent effects. Following ICES @ices2002, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of recruitment decline. Compared to previous report, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same level of magnitude of the 0.92 year^-1^ limit, even in countries in which escapement rely mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors.
+As during latest WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either unlikely reduction of natural mortality that density-dependent effets are not likely to explain or favourable local conditions of recruitements while recruitment trends are thought to be rather homogeneous other the distribution area. Following ICES @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of recruitment decline. Compared to previous report, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same level of magnitude of the 0.92 year^-1^ limit, even in countries in which escapement rely mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors.
 
 Implementing the WKFEA roadmap [@ices2021] is critical to get more standardised methods and more informative results in the future.
+
+## Small eel usage
+Traceability of glass eel landings is crucial for legal enforcement, conservation, population recovery, and adherence to international conservation agreements. The European eel regulation requires monitoring of glass eels (those under 12 cm) designated for restocking as well as those for consumption. It also mandates that EMPs specify the quantity of eels under 20 cm needed for restocking to enhance silver eel escapement levels. It is necessary to identify whether the eels are destined for restocking (R) or consumption (C). The consumption category encompasses both glass eels directly consumed and those raised in aquaculture for later consumption as adults.
+
+<br>
+Among the glass eel producers, France monitors the RC category using a quota system. The UK has left the EU, Portugal has not reported any data.  In Spain, there is no specific traceability system for glass eels, and the general system applied to all fishery products does not allow the use (R or C)  and country of destination to be identified.. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings, once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
+
+Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spain traders, but since Spain is lacking a traceability system, this does not necessarily implies that glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
+
+<br>
+Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination.. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
+<br>
+
+There is a clear need for an international traceability scheme during trade to monitor the destination of caught glass eels. Spain’s failure to monitor the destination of glass eels and Portugal’s lack of reporting mean that traceability cannot be applied at the source. The failure of any country (Belgium, Germany, Italy, Latvia, Lithuania, Denmark) to monitor trade origin, destination, or RC category means it is currently impossible to track the destination of glass eels.
+The use of size categories like 12 cm and 20 cm is confusing. Reports of 20 cm eels are inconsistent, with some countries reporting trade of larger eels but not in the 20 cm category. Due to significant growth variation in eels, separating them by size has little biological basis and quickly mixes different cohorts. Only the separation of glass eels and other categories should be used practically.
+
+<br>
+Even when RC categories are reported, they are not traced or separated, making it impossible to ensure that glass eels reserved for restocking are used for that purpose. Also, not having different categories for directly consumed glass eels or those used in the aquaculture complicates the tracking and management of eel stocks. Without clear categorization, there is a risk that eels meant for conservation efforts, such as restocking programs, could be diverted to the consumption or aquaculture markets. Additionally, combining these eels in one category can lead to inaccuracies in data on catch volumes and trade. Categorizing them separately, could improve traceability and ensure that eels destined for restocking programs are not diverted for other uses. 
+
+<br>
+Finally, the lack of effective traceability severely impairs accurate eel stock assessments. Without it, data on catch volumes, origins, and destinations are unreliable, complicating efforts to estimate true fishing pressure and mortality rates. This gap not only weakens scientific assessments but also hinders conservation efforts, as much of the catch and trade may go unreported, often due to illegal fishing. Traceability is also essential for assessing the effectiveness of restocking programs and their impact on biomass indicators. 
+In conclusion, the glass eel traceability system in Europe is inefficient and fragmented:
+-	Some countries have reported internal traceability systems, but there is no traceability at the transnational level.
+-	The lack of transnational traceability raises concerns about the actual use of these eels, especially for restocking purposes.
+-	The size categories (<12 cm and 20 cm) lack a strong biological basis, as growth variations among eels make them difficult to classify. Only the separation of glass eels from other types should be considered in practice.
+-	The lack of effective traceability severely impairs accurate eel stock assessments.
+
+<b>
+Recommendation:
+-	Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means until they are released into the water to avoid that glass eels are diverted to other, potentially illegal, uses.
+-	The traceability system should separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities. 
 
 \newpage
 
 ::: {custom-style="Annex heading"}
 Trends in indicators
 :::
-
 # Trends per emu
 
 ## Trends in biomass
@@ -768,7 +800,9 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_bio
 
 ```
 
-<br> ::: {custom-style="Image Caption"}
+<br>
+
+::: {custom-style="Image Caption"}
 
 ```{r}
 #| label: generateemubiom
@@ -798,6 +832,8 @@ cat(res, sep = '\n')
 ```
 
 :::
+
+
 
 ## Trends in mortalities
 
@@ -830,6 +866,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 <br>
 
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusumf
 #| echo: false
@@ -859,6 +896,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
 
 ### Trends in other anthropogenic mortalities
@@ -887,7 +925,9 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 
 ```
 
+
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusumh
 #| echo: false
@@ -917,6 +957,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
 
 ### Trends in total anthropogenic mortalities
@@ -946,6 +987,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 ```
 
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusuma
 #| echo: false
@@ -975,7 +1017,9 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
+
 
 # Precautionary diagrams at country scale
 

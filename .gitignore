@@ -16,3 +16,14 @@ Misc/WKEMP/data_dependencies/
 Misc/WKEMP/Annex_14/
 Misc/WKEMP/WKEMP4/SG1/for_compilation
 Misc/WKEMP/WKEMP4/SG1/output
+Misc/WKEMP/2024/image/biom.png
+Misc/WKEMP/2024/image/landings.png
+Misc/WKEMP/2024/image/maps_biomass_norestock.png
+Misc/WKEMP/2024/image/maps_biomass.png
+Misc/WKEMP/2024/image/maps_mortality.png
+Misc/WKEMP/2024/data/annex0_answers.csv
+Misc/WKEMP/2024/data/annex4_11_reported_per_country.csv
+Misc/WKEMP/2024/image/maps_mortality.png
+Misc/WKEMP/2024/image/maps_biomass.png
+Misc/WKEMP/2024/image/landings.png
+*.orig
