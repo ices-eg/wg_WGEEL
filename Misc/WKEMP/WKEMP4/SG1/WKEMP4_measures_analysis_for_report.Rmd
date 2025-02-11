@@ -42,12 +42,12 @@ all_emus = read.csv2("all_emus.csv")
 
 ```{r Filter_EMUOnly, include=FALSE}
 
-# Filter the data frame for EMU only and drop Great_Britain
-measures_all <- measures_all %>%
-  filter(measure_planned %in% c("EMP", "EMP_amended")) %>%
-  filter(country != "Great_Britain") %>%
-  filter(delete != "Yes") %>%
-  filter(delete != "delete")
+## Filter the data frame for EMU only and drop Great_Britain
+#measures_all <- measures_all %>%
+#  filter(measure_planned %in% c("EMP", "EMP_amended")) %>%
+#  filter(country != "Great_Britain") %>%
+#  filter(delete != "Yes") %>%
+#  filter(delete != "delete")
 
 ```
 
