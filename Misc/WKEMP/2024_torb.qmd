@@ -141,7 +141,8 @@ trace_precodiag3 = function(precodata,
                             precodata_choice=c("emu","country","all"), 
                             last_year=TRUE,
                             years,
-                            stocking = TRUE)
+                            stocking = TRUE,
+                            bwithout_replace = FALSE)
 {  
   bcurr <- "bcurrent_without_stocking"
   if (stocking) bcurr <- "bcurrent"
@@ -169,6 +170,17 @@ trace_precodiag3 = function(precodata,
   mylimits=c(0,1000)
   precodata$pSpR=exp(-precodata$suma)
   precodata$pbiom=precodata$ratio_bcurrent_b0 <- precodata[, bcurr]/precodata$b0
+  precodata$type <- bcurr
+  if (bwithout_replace){
+    precodata$type <- ifelse(is.na(precodata$pbiom),
+                            "bcurrent_without_stocking",
+                             precodata$type)
+    precodata$pbiom <- ifelse(is.na(precodata$pbiom),
+                              precodata[,"bcurrent_without_stocking"]/precodata$b0,
+                              precodata$pbiom)
+    
+    
+  }
   if (any(precodata[, bcurr]>precodata$b0,na.rm=TRUE)){
     message("You  have Bbest larger than B0, you should check \n")
     Bmaximum<-max(precodata$pbiom,na.rm=TRUE)
@@ -211,7 +223,14 @@ trace_precodiag3 = function(precodata,
     #geom_path(data = precodata,aes(x = pbiom, y = suma, group = eel_cou_code))+
     #scale_color_discrete(#guide = 'none'
     #    ) +
-    geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest/1000,color=.data[[choose_color]]), alpha=0.7)+ 
+    geom_point(data=precodata,aes(x=pbiom,y=suma,size=bbest/1000,color=.data[[choose_color]]), alpha=0.7)
+  
+  if (bwithout_replace) {
+    g <- g + geom_point(data=precodata |> filter(type == "bcurrent_without_stocking"),aes(x=pbiom,y=suma,size=bbest/1000), shape = 1)
+  }
+    
+    
+  g <- g +
     geom_text_repel(data=precodata, aes(x=pbiom,
                                         y = suma,
                                         size=12,
@@ -236,8 +255,8 @@ trace_precodiag3 = function(precodata,
     ggtitle(str_c(title))
   if(pretty(max(precodata$suma,na.rm=TRUE))[2] > 4.6)   g = g +annotate("text",x =  Bminimum, y = 4.6, label = "1%",  parse = F, hjust=1, size=3) 
   if (choose_color == "eel_year")
-    g+scale_colour_viridis("year", discrete=TRUE) else
-      g+scale_colour_brewer(palette = "Set3",direction=-1)
+    g <- g+scale_colour_viridis("year", discrete=TRUE) else
+      g <- g+scale_colour_brewer(palette = "Set3",direction=-1)
   
   
   return(g)
@@ -528,7 +547,7 @@ Interestingly, the reduction in fishing mortality is more visible than the incre
 
 #### Others anthropogenic mortalities
 
-Figure @fig-trendmortasumh and Table @tbl-trendsumh show the trends in reported other anthropogenic mortalities. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for.
+Figure @fig-trendmortasumh and Table @tbl-trendsumh show the trends in reported other anthropogenic mortalities. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for. The group was asked to provide further insights on trends per mortality types (e.g. hydropower, contamination). However, given that (i) the number of significant trends for the combined "others anthropogenic mortalities" indicators is very small (Table @tbl-trendsumh) and (ii) that it is unclear which mortalities were accounted for in the different EMUs (and many of them were seemingly not accounted for at all), the experts were not in position to answer precisely the request but consider that reported trends in $sumH$ did not indicate a likely change in any other types of mortalities.
 
 ```{r}
 #| label: fig-trendmortasumh
@@ -649,10 +668,10 @@ Many EMUs are still in the red zone. While not achieving the 40% pristine escape
 #| echo: false
 #| fig-width: 6.3
 #| fig-height: 3.94
-#| fig-cap: "Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2022 and 2023: status of the stock (horizontal, spawner escapement (B current) expressed as a percentage of the pristine escapement (B0)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt)."
+#| fig-cap: "Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2021, 2022 and 2023: status of the stock (horizontal, spawner escapement ($B_{current}$) expressed as a percentage of the pristine escapement ($B_0$)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt). Points circled with black stand for EMU in which $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$"
 #|
 img <- file.path(params$image_path,"preco_emu.png")
-g = trace_precodiag3(precodata_all,"emu",last_year=2023,years=2022:2023)
+g = trace_precodiag3(precodata_all,"emu",last_year=2023,years=2021:2023, bwithout_replace = TRUE)
 ggsave(img, height = 12/2.54, width = 16/2.54)
 knitr::include_graphics(img)
 
@@ -666,7 +685,7 @@ knitr::include_graphics(img)
 #| message: false
 #| warning: false
 #| echo: false
-#| tab-cap: "Position of EMUs in the precautionary diagram. The colours stand for the zones in the diagram."
+#| tab-cap: 'Position of EMUs in the precautionary diagram. The colours stand for the zones in the diagram. A "x" indicates that $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$'
 
 knitr::kable(data.frame())
 
@@ -676,28 +695,59 @@ knitr::kable(data.frame())
 
 ```{r}
 #| label: flextableprecoemu
-precodata_all |>
+f <- precodata_all |>
   filter(aggreg_level == "emu",
-         eel_year %in% 2022:2023) |>
-  mutate(isbtarget = (bcurrent/b0)>=0.4,
-         issum = suma <=0.92) |>
+         eel_year %in% 2021:2023) |>
+  mutate(isbtarget = (ifelse(is.na(bcurrent), bcurrent_without_stocking, bcurrent)/b0)>=0.4,
+         issum = suma <=0.92,
+         replace = ifelse(is.na(bcurrent) & !is.na(bcurrent_without_stocking), "x", "")) |>
   mutate(zone = isbtarget + issum) |>
-  select(eel_cou_code,eel_emu_nameshort,eel_year,zone) |>
+  select(eel_cou_code,eel_emu_nameshort,eel_year,zone,replace) |>
   filter(!is.na(zone)) |>
   pivot_wider(id_cols = all_of(c("eel_cou_code","eel_emu_nameshort")),
               names_from = eel_year,
-              values_from = zone) |>
+              values_from = c(zone,replace)) |>
   arrange(eel_cou_code,eel_emu_nameshort) |>
   rename(Country = eel_cou_code,
          EMU = eel_emu_nameshort) |>
-  flextable() |>
-  flextable::bg(j=3, i=~(`2022`==0),bg="red", part = "body") |>
-  flextable::bg(j=3, i= ~(`2022`==1),bg="orange", part = "body") |>
-  flextable::bg(j=3, i= ~ (`2022`==2), bg="green", part = "body") |>
-  flextable::bg(j=4, i=~(`2023`==0),bg="red", part = "body") |>
-  flextable::bg(j=4, i= ~(`2023`==1),bg="orange", part = "body") |>
-  flextable::bg(j=4, i= ~ (`2023`==2), bg="green", part = "body") |>
-  flextable::void(j = 3:4) |>
+  rename_with(~gsub("replace_", "", .x)) |>
+  flextable()
+
+
+for (i in 2021:2023){
+  f <- f |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("zone",
+                                              as.character(i),
+                                              sep = "_"),
+                                        "== 0")),
+                  j = as.character(i), 
+                  part = "body", 
+                  bg="red") |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("zone",
+                                              as.character(i),
+                                              sep = "_"),
+                                        "== 1")),
+                  j = as.character(i), 
+                  part = "body", 
+                  bg="orange") |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("zone",
+                                              as.character(i),
+                                              sep = "_"),
+                                        "== 2")),
+                  j = as.character(i), 
+                  part = "body", 
+                  bg="green")
+  
+  
+}
+f |>
+  flextable::delete_columns(j=paste("zone",
+                                    2021:2023,
+                                    sep = "_")) |>
+  flextable::merge_v(j = 1, part = "body") |>
   flextable2ICES()
 
 
@@ -1039,7 +1089,7 @@ Figure @fig-precocountry displays the indicators aggregated by countries. The im
 
 
 img <- file.path(params$image_path,"preco_country.png")
-g = trace_precodiag3(precodata_all,"country",last_year=2023,years=2022:2023)
+g = trace_precodiag3(precodata_all,"country",last_year=2023,years=2021:2023)
 ggsave(img, height = 12/2.54, width = 16/2.54)
 knitr::include_graphics(img)
 
