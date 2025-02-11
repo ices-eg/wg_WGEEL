@@ -84,6 +84,9 @@
 12 new values inserted in the database
 58 values updated in the db
 
+WKEMP4  26 new values inserted in the database
+(I had to pick those data from the word document)
+
 ## Annex 11
 
 18 new values inserted in the database

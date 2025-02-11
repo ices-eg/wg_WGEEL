@@ -42,14 +42,58 @@ all_emus = read.csv2("all_emus.csv")
 
 ```{r Filter_EMUOnly, include=FALSE}
 
-
-# Filter the data frame for EMU only
+# Filter the data frame for EMU only and drop Great_Britain
 measures_all <- measures_all %>%
-  filter(measure_planned %in% c("EMP", "EMP_amended"))
-
+  filter(measure_planned %in% c("EMP", "EMP_amended")) %>%
+  filter(country != "Great_Britain") %>%
+  filter(delete != "Yes") %>%
+  filter(delete != "delete")
 
 ```
-Need to filter for EMP only!!!!
+
+
+```{r TableAboutDIrectAndQuantifiable, echo=FALSE}
+
+
+# Filter the data frame for quantifiable measures only
+measures_quantifiable <- measures_all %>%
+  filter(std_quantifiable %in% c("y"))
+
+# Count the number of each submeasure_type and calculate the percentages, QUANTIFIABLES
+submeasure_count_quantifiables <- measures_quantifiable %>%
+  group_by(submeasure_type) %>%
+  summarise(
+    total = n(),
+    Other = paste0(round(sum(effectiveness_monitored == "Other") / total * 100), "%"),
+    ΔBcurrent = paste0(round(sum(effectiveness_monitored == "ΔBcurrent") / total * 100), "%"),
+    ΔΣH = paste0(round(sum(effectiveness_monitored == "ΔΣH") / total * 100), "%"),
+    ΔΣF = paste0(round(sum(effectiveness_monitored == "ΔΣF") / total * 100), "%"),
+    ΔΣA = paste0(round(sum(effectiveness_monitored == "ΔΣA") / total * 100), "%"),
+    `Not monitored` = paste0(round((total - (sum(effectiveness_monitored == "Other") + sum(effectiveness_monitored == "ΔBcurrent") + sum(effectiveness_monitored == "ΔΣH") + sum(effectiveness_monitored == "ΔΣF") + sum(effectiveness_monitored == "ΔΣA"))) / total * 100), "%")
+  )
+
+# Filter the data frame for direct measures only
+measures_direct <- measures_all %>%
+  filter(std_direct %in% c("y")) 
+
+# Count the number of each submeasure_type and calculate the percentages, DIRECTS
+submeasure_count_directs <- measures_direct %>%
+  group_by(submeasure_type) %>%
+  summarise(
+    total = n(),
+    Other = paste0(round(sum(effectiveness_monitored == "Other") / total * 100), "%"),
+    ΔBcurrent = paste0(round(sum(effectiveness_monitored == "ΔBcurrent") / total * 100), "%"),
+    ΔΣH = paste0(round(sum(effectiveness_monitored == "ΔΣH") / total * 100), "%"),
+    ΔΣF = paste0(round(sum(effectiveness_monitored == "ΔΣF") / total * 100), "%"),
+    ΔΣA = paste0(round(sum(effectiveness_monitored == "ΔΣA") / total * 100), "%"),
+    `Not monitored` = paste0(round((total - (sum(effectiveness_monitored == "Other") + sum(effectiveness_monitored == "ΔBcurrent") + sum(effectiveness_monitored == "ΔΣH") + sum(effectiveness_monitored == "ΔΣF") + sum(effectiveness_monitored == "ΔΣA"))) / total * 100), "%")
+  )
+
+# Print using kable
+kable(submeasure_count_directs, caption = "Count of direct measures and whether they are monitored or not")
+kable(submeasure_count_quantifiables, caption = "Count of quantifiable measures and whether they are monitored or not")
+
+```
 
 Graph/Table with no. of measures per type for each country
 
@@ -249,6 +293,126 @@ ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fil
 
 ```
 
+```{r ImpactVsMeasure, echo=FALSE}
+
+measures_all$impact <- gsub("high", "High", measures_all$impact)
+measures_all$impact <- gsub("indirect", "Not direct", measures_all$impact)
+measures_all$impact <- gsub("none", "None", measures_all$impact)
+
+
+# Create the new data frame with year_of_full_implementation and impact
+ImpactByType <- measures_all %>%
+  select(measure_type, impact)
+
+#clean NAs
+ImpactByType$impact[is.na(ImpactByType$impact)] <- "NA"
+
+ImpactByType <- ImpactByType %>%
+  mutate(measure_type = as.character(measure_type),
+         measure_type = trimws(measure_type),
+         measure_type = ifelse(is.na(measure_type) | 
+                                              measure_type == "The EMU has not reported any information for that sub measure" | 
+                                              measure_type == "The EMU has not reported any information", 
+                                              "NA", 
+                                              measure_type))
+
+# Make counts and adjust NAs
+ImpactByType <- ImpactByType %>%
+  group_by(measure_type, impact) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+# Create the stacked bar chart
+ggplot(ImpactByType, aes(x = factor(measure_type), y = count, fill = factor(impact))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Measure Type", y = "Count of Impact", title = "", fill = "Impact") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+```
+
+```{r OnlyHighImpact, echo=FALSE}
+
+# Filter the data frame for EMU only
+measures_HighImpact <- measures_all %>%
+  filter(impact %in% c("High", "Intermediate", "Low"))
+
+
+
+# Create the new data frame with needed columns
+HighImpact <- measures_HighImpact %>%
+  select(measure_type, impact, std_direct, effectiveness_monitored)
+
+#clean NAs
+HighImpact$impact[is.na(HighImpact$impact)] <- "NA"
+
+HighImpact <- HighImpact %>%
+  mutate(measure_type = as.character(measure_type),
+         measure_type = trimws(measure_type),
+         measure_type = ifelse(is.na(measure_type) | 
+                                              measure_type == "The EMU has not reported any information for that sub measure" | 
+                                              measure_type == "The EMU has not reported any information", 
+                                              "NA", 
+                                              measure_type))
+
+#How many are monitored
+
+#combine Na not monitored and other to one group
+HighImpact$effectiveness_monitored <- gsub("NA", "No monitoring", HighImpact$effectiveness_monitored)
+HighImpact$effectiveness_monitored <- gsub("Other", "No monitoring", HighImpact$effectiveness_monitored)
+HighImpact$effectiveness_monitored <- gsub("Not monitored", "No monitoring", HighImpact$effectiveness_monitored)
+
+#clean NAs
+HighImpact$effectiveness_monitored[is.na(HighImpact$effectiveness_monitored)] <- "No monitoring"
+
+# Make counts and adjust NAs
+HighImpact_count <- HighImpact %>%
+  group_by(measure_type, effectiveness_monitored) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+
+# Create the stacked bar chart
+ggplot(HighImpact_count, aes(x = factor(measure_type), y = count, fill = factor(effectiveness_monitored))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Measure Type", y = "Count of Impact", title = "", fill = "Effectiveness monitored") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+
+
+```
+
+
+
+
+
+```{r DirectEffect, echo=FALSE}
+
+#How many have direct effect
+
+#combine Na not monitored and other to one group
+measures_all$std_direct[is.na(measures_all$std_direct)] <- "NA"
+
+
+# Make counts and adjust NAs
+DirectEffect_count <- measures_all %>%
+  group_by(measure_type, std_direct) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+
+# Create the stacked bar chart
+ggplot(DirectEffect_count, aes(x = factor(measure_type), y = count, fill = factor(std_direct))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Measure Type", y = "Count of Impact", title = "", fill = "Direct effect") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+```
 
 No of quantifiable measures vs measures with a set target (by measure type, country?)
 

@@ -56,14 +56,14 @@ objective of the Eel Regulation is to reduce anthropogenic mortalities,
 we suggest that each management measures should be associated with a
 measure of its effect on sumF at the EMU scale.
 
-Mortality targets (objective for sum F and sum H) and their change
+<!---Mortality targets (objective for sum F and sum H) and their change
 should be adopted in eel management plans. These targets should be
 compatible with the restoration of the eel population in the long term
 (e.g. far below 0.92). The management measures or reductions of fishing
 effort should be evaluated against the attainment of those targets.
-<!--- I would remove this paragraph: setting intermediate is a management question
+ Hilaire : I would remove this paragraph: setting intermediate is a management question
 not a scientific one. For ICES, given the situation, we can only set one target and
-recommendation: sumA=0 -->
+recommendation: sumA=0 / Cédric OK removed --> 
 
 ## On fishing effort EC request 2.3
 
