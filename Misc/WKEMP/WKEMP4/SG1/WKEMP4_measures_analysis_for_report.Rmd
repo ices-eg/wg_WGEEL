@@ -34,6 +34,7 @@ invisible(lapply(libs, library, character.only = T))
 
 ### The folder where all the excel files are in. CHANGE IF NEEDED
 load("./output/measures_all.RData")
+measures_all = read.csv2("measures_all_cleaned_EMP.csv")
 
 standards <- read_excel("standards.xlsx")
 all_emus = read.csv2("all_emus.csv")
@@ -42,12 +43,12 @@ all_emus = read.csv2("all_emus.csv")
 
 ```{r Filter_EMUOnly, include=FALSE}
 
-# Filter the data frame for EMU only and drop Great_Britain
-measures_all <- measures_all %>%
-  filter(measure_planned %in% c("EMP", "EMP_amended")) %>%
-  filter(country != "Great_Britain") %>%
-  filter(delete != "Yes") %>%
-  filter(delete != "delete")
+## Filter the data frame for EMU only and drop Great_Britain
+#measures_all <- measures_all %>%
+#  filter(measure_planned %in% c("EMP", "EMP_amended")) %>%
+#  filter(country != "Great_Britain") %>%
+#  filter(delete != "Yes") %>%
+#  filter(delete != "delete")
 
 ```
 
@@ -280,13 +281,13 @@ ImpactByYear <- ImpactByYear %>%
   group_by(year_of_full_implementation, impact) %>%
   summarise(count = n()) %>%
   ungroup() %>%
-  mutate(year_of_full_implementation = ifelse(year_of_full_implementation == "NA", "NA / 10", year_of_full_implementation),
-         count = ifelse(year_of_full_implementation == "NA / 10", count / 10, count))
+  mutate(year_of_full_implementation = ifelse(year_of_full_implementation == "NA", "NA *", year_of_full_implementation),
+         count = ifelse(year_of_full_implementation == "NA *", count / 10, count))
 
 # Create the stacked bar chart
 ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fill = factor(impact))) +
   geom_bar(stat = "identity") +
-  labs(x = "Year of Full Implementation", y = "Count of Impact", title = "", fill = "Impact") +
+  labs(x = "Year", y = "Number of measures fully implemented", title = "", fill = "Impact") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
