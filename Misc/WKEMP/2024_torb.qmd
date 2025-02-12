@@ -283,7 +283,7 @@ biomasstrendtab <- trendtable(ind = "bcurrent")
 
 #### Possibility to achieve the management target given current recruitment levels
 
-The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in their waterbodies in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, in average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first rebuilding recruitment.
+The Eel Regulation states that Eel Manangement Plans should enforce measures to reduce all sources of anthropogenic mortalities in their waterbodies in order to achieve an escapement of at least 40% of the escapement that would occur in a pristine situation. Theoretically, in a pristine situation, the absence of anthropogenic pressures for many generations leads the population to an equilibrium in which, on average, the escapement $B_0$ produces a recruitment $R_0$. Of course, given the current depletion of the population [@dekker2003] and of the recruitment [@ices2024], current levels of recruitment are far below $R_0$ and it is questionable whether it is still possible to achieve the management target without first rebuilding recruitment.
 
 In a pristine situation, and assuming an average natural mortality over the lifespan, escapement in an EMU $e$ can be calculated as:
 
@@ -299,7 +299,7 @@ $$
 B(e) = R(e) \cdot e^{-M(e) \cdot \Delta t(e)}
 $$ {#eq-b}
 
-In average, current recruitment is estimated to be less than 10% of what it was in the pre-1980s [@ices2024]. In this context, if the lifespan has remained the same, having $B(e)/B_0(e)$\>40% while $R(e)/R_0(e)$\<10% would require a drop of the natural mortality. This might occur as a result of compensatory density dependence mechanisms [@bevacqua2011], but what would be the required decrease of natural mortality?
+On average, current recruitment is estimated to be less than 10% of what it was in the pre-1980s [@ices2024]. In this context, if the lifespan has remained the same, having $B(e)/B_0(e)$\>40% while $R(e)/R_0(e)$\<10% would require a drop of the natural mortality. This might occur as a result of compensatory density dependence mechanisms [@bevacqua2011], but what would be the required decrease of natural mortality?
 
 To achieve the target, assuming the lifespan hasn't changed, we need:
 
@@ -313,11 +313,11 @@ $$
 \end{split}
 $$
 
-The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment. $\frac{R_0(e)}{R(e)}$ is the ratio of pristine recruitment over current recruitment. Since recruitment trends is thought to be homogeneous across the distribution area, this ratio can be compared to to the WGEEL indices.
+The last equation indicates the reduction of natural mortality that would be required to achieve the target in the absence of anthropogenic mortality, given current levels of recruitment. $\frac{R_0(e)}{R(e)}$ is the ratio of pristine recruitment over current recruitment. Since recruitment trends are thought to be homogeneous across the distribution area, this ratio can be compared to the WGEEL indices.
 
-Since lifespans vary among regions from few years to decades and since the recruitment might still locally vary, we computed $\frac{1}{\Delta t(e)}log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right)$ for different levels of $\Delta t(e)$ and $\frac{R(e)}{R_0(e)}$.
+Since lifespans vary among regions from a few years to decades and since the recruitment might still locally vary, we computed $\frac{1}{\Delta t(e)}log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right)$ for different levels of $\Delta t(e)$ and $\frac{R(e)}{R_0(e)}$.
 
-Figure @fig-natmort indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North-Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density dependent natural mortality is mainly restricted to younger ages.
+Figure @fig-natmort indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density-dependent natural mortality is mainly restricted to younger ages.
 
 ```{r plot}
 #| label: fig-natmort
@@ -380,7 +380,7 @@ Figure @fig-trendbiomass and Table @tbl-trendbiomass show the trends in escapeme
 #| echo: false
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported Bcurrent/B0. Each line stands for a specific EMU. The horizontal red line indicates the target set in the Eel Regulation."
+#| fig-cap: "Trends in reported Bcurrent/B0. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
 #| 
 if (!dir.exists(file.path(params$image_path,"trendbiomassplots"))) {
   dir.create(file.path(params$image_path,"trendbiomassplots"))
@@ -442,7 +442,7 @@ for (emu in unique(indicator$eel_emu_nameshort)) {
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for Bcurrent (kg). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. A green background indicates a significant increase of escapement while a red background indicates a negative trend of escapement. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for $B_{current}$ (kg). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -451,10 +451,15 @@ knitr::kable(data.frame())
 ```{r}
 #| label: flextabletrendbiomass
 flextable(biomasstrendtab |>
-            mutate(across(all_of(c("Initial","Final","Δ")),round))) |>
-  flextable2ICES() |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="green") |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
+            mutate(across(all_of(c("Initial","Final","Δ")),round),
+                   trend = ifelse(`tau Kendall` < 0 & `p-value Kendall` <= 0.05, 
+                                  "↘",
+                                  ifelse(`tau Kendall` > 0 & `p-value Kendall` <= 0.05,
+                                         "↗",
+                                         "")))) |>
+  flextable2ICES()# |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="green") |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
 
 ```
 
@@ -466,7 +471,7 @@ The patterns are very similar when $B_{current\_without\_stocking}$ is plotted (
 #| label: fig-trendbiomasswithoutstocking
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported Bcurrent_without_stocking/B0. Each line stands for a specific EMU. The horizontal red line indicates the target set in the Eel Regulation."
+#| fig-cap: "Trends in reported $B_{current\_without\_stocking}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
 indicator <- indicator %>%
   mutate(eel_cou_code = ifelse(eel_cou_code == substr(eel_emu_nameshort, 1, 2),
                                eel_cou_code,
@@ -503,7 +508,7 @@ Figure @fig-trendmortasumf and Table @tbl-trendsumf show the trends in reported 
 #| label: fig-trendmortasumf
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣF. Each line stands for a specific EMU."
+#| fig-cap: "Trends in reported ΣF. Each coloured line represents a specific EMU."
 sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -525,7 +530,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumf.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumF (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing trend. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumF ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test."
 
 knitr::kable(data.frame())
 ```
@@ -535,25 +540,29 @@ knitr::kable(data.frame())
 ```{r}
 #| label: flextabletrendsumf
 flextable( sumftab |>
-             mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
-  flextable2ICES() |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="red") |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="green")
-
+             mutate(across(all_of(c("Initial","Final","Δ")), ~round(.x, digits = 2)),
+                   trend = ifelse(`tau Kendall` < 0 & `p-value Kendall` <= 0.05, 
+                                  "↘",
+                                  ifelse(`tau Kendall` > 0 & `p-value Kendall` <= 0.05,
+                                         "↗",
+                                         "")))) |>
+  flextable2ICES()# |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="green") |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
 ```
 
-<br> 
-Interestingly, the reduction in fishing mortality is more visible than the increase in escapement, with `r sum(sumftab[,8]<0.05 & sumftab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease. However, `r sum(sumftab[,8]<0.05 & sumftab[,7]>0, na.rm = TRUE)` are still displaying a significant increase of fishing mortality.
+<br>
+
+Interestingly, the reduction in fishing mortality is more visible than the increase in escapement, with `r sum(sumftab[,8]<0.05 & sumftab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease. However, `r sum(sumftab[,8]<0.05 & sumftab[,7]>0, na.rm = TRUE)` are still displaying a significant increase of fishing mortality, while the vast majority show no trend.
 
 #### Others anthropogenic mortalities
 
-Figure @fig-trendmortasumh and Table @tbl-trendsumh show the trends in reported other anthropogenic mortalities. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for. The group was asked to provide further insights on trends per mortality types (e.g. hydropower, contamination). However, given that (i) the number of significant trends for the combined "others anthropogenic mortalities" indicators is very small (Table @tbl-trendsumh) and (ii) that it is unclear which mortalities were accounted for in the different EMUs (and many of them were seemingly not accounted for at all), the experts were not in position to answer precisely the request but consider that reported trends in $sumH$ did not indicate a likely change in any other types of mortalities.
-
+Figure @fig-trendmortasumh and Table @tbl-trendsumh show the trends in reported other anthropogenic mortalities. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for. 
 ```{r}
 #| label: fig-trendmortasumh
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣH. Each line stands for a specific EMU."
+#| fig-cap: "Trends in reported ΣH. Each coloured line represents a specific EMU."
 sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -577,7 +586,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumh.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumH (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumH ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -586,26 +595,31 @@ knitr::kable(data.frame())
 ```{r}
 #| label: flextabletrendsumh
 flextable( sumhtab |>
-             mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
-  flextable2ICES() |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="red") |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="green")
+             mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)) ,
+                   trend = ifelse(`tau Kendall` < 0 & `p-value Kendall` <= 0.05, 
+                                  "↘",
+                                  ifelse(`tau Kendall` > 0 & `p-value Kendall` <= 0.05,
+                                         "↗",
+                                         "")))) |>
+  flextable2ICES()# |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="green") |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
 
 ```
 
 <br>
 
-`r sum(sumhtab[,8]<0.05 & sumhtab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease of $\sum H$ while only `r sum(sumhtab[,8]<0.05 & sumhtab[,7]>0, na.rm = TRUE)` are still displaying a significant increase.
+`r sum(sumhtab[,8]<=0.05 & sumhtab[,7]<0, na.rm = TRUE)` EMUs displaying a significant decrease of $\sum H$, another `r sum(sumhtab[,8]<0.05 & sumhtab[,7]>0, na.rm = TRUE)` display a significant increase, but the vast majority show no trend.
+The Workshop was asked to provide further insights on trends per mortality types (e.g. hydropower, contamination). However, given that (i) the number of significant trends for the combined "others anthropogenic mortalities" indicators is very small (Table @tbl-trendsumh) and (ii) that it is unclear which mortalities were accounted for in the different EMUs (and many of them were seemingly not accounted for at all), the experts were not in position to answer precisely the request but consider that reported trends in $sumH$ did not indicate a likely change in any other types of mortalities.
 
 #### Total anthropogenic mortality
-
 Figure @fig-trendmortasuma and Table @tbl-trendsuma show the resulting trends in reported total anthropogenic mortalities.
 
 ```{r}
 #| label: fig-trendmortasuma
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣA. Each line stands for a specific EMU."
+#| fig-cap: "Trends in reported ΣA. Each coloured line represents a specific EMU."
 suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -629,7 +643,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_suma.png"))
 #| echo: false
 #| warning: false
 #| message: false
-#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumA (/year). n stand for the number of years for which an estimate is available, while Δ is the difference between the first and the last reported values reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicate the significance of the trend. A red background indicates a significant increase of mortality while a green background indicates a decreasing. Some countries (e.g. NL and FR) report the same value for several years, that might affect the results of the trend test."
+#| tbl-cap: "Results of Mann-Kendall test for monotonic trends per EMU for sumA ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test."
 knitr::kable(data.frame())
 ```
 
@@ -638,26 +652,31 @@ knitr::kable(data.frame())
 ```{r}
 #| label: flextabletrendsuma 
 flextable( sumatab |>
-             mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)))) |>
-  flextable2ICES() |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="red") |>
-  bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="green")
+             mutate(across(all_of(c("Initial","Final","Δ")),~round(.x, digits = 2)),
+                   trend = ifelse(`tau Kendall` < 0 & `p-value Kendall` <= 0.05, 
+                                  "↘",
+                                  ifelse(`tau Kendall` > 0 & `p-value Kendall` <= 0.05,
+                                         "↗",
+                                         "")))) |>
+  flextable2ICES()# |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`>0,bg="green") |>
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
 
 ```
 
 <br>
 
-Total anthropogenic mortalities is the sum of fishing and other anthropogenic mortalities, therefore is is not surprising to observe similar patterns with more frequent significant decrease (`r sum(sumatab[,8]<0.05 & sumatab[,7]<0, na.rm = TRUE)` EMUs) than significant increase (`r sum(sumatab[,8]<0.05 & sumatab[,7]>0, na.rm = TRUE)`).
+Total anthropogenic mortalities is the sum of fishing and other anthropogenic mortalities, therefore it is not surprising to observe similar patterns to the Fishing and Non-Fishing Mortality indicators.
 
 ### Precautionary diagram
 
-Precautionary diagrams were proposed by ICES [@ices2010] to provide an overview of the achievement of the Eel Regulation objectives, potentially by EMUs or countries. The diagram shows the ratio of the current escapement over pristine biomass $B_0$ in x-axis, with a threshold $B_{mgt}$ set at 40% and corresponding to the Regulation target. On the y axis, reported anthropogenic mortalities $sumA$ are reported, with a threshold set at 0.92 year^-1^ which corresponds to the cumulative lifespan mortality that would allow achieving 40% of $B_{best}$. The data reported by member states are reported at the EMU scale. Aggregations at the country scale were achieved following the methods described in ICES @ices2010.
+Precautionary diagrams were proposed by ICES [@ices2010] to provide an overview of the achievement of the Eel Regulation objectives, potentially by EMUs or countries. The diagram concept shows the ratio of the current escapement over pristine biomass $B_0$ on x-axis, with a threshold $B_{mgt}$ set at 40% and corresponding to the Regulation target. On the y-axis, reported anthropogenic mortalities $sumA$ are reported, with a threshold set at 0.92 year^-1^ which corresponds to the cumulative lifespan mortality that would allow the achievement of 40% of $B_{best}$. The data reported by Member States are reported at the EMU scale. Aggregations at the country scale were achieved following the methods described in @ices2010.
 
-While precautionary diagrams are valuable for an easy exploration of the status of the population across EMUs or countries. However, they suffer from the lack of standardisation in assessment methods and especially of the inconsistencies in the estimation of $B_0$. Therefore, comparisons among EMUs/countries are difficult and the comparison with $B_{mgt}$ is greatly affected by inconsistencies in the estimation of $B_0$. As such, trend analysis of indicators are thought to be more informative and reliable.
+Precautionary diagrams are valuable for a simple exploration of the status of the population across EMUs or countries. However, they suffer from the lack of standardisation in assessment methods and especially from inconsistencies in the estimation of $B_0$. Therefore, comparisons among EMUs/countries are difficult and the comparison with $B_{mgt}$ is greatly affected by inconsistencies in the estimation of $B_0$. As such, trend analysis of indicators is thought to be more reliable and therefore more informative.
 
-Here, we will focus on the precautionary diagrams since (i) it is the scale at which data are reported and (ii) aggregation at the country scale is sensitive to missing data. The diagram at the country scale can be found in annex XX.
+Here, we will focus on the precautionary diagram at the EMU scale since (i) it is the scale at which data are reported and (ii) aggregation at the country scale is sensitive to missing data. The diagram at the country scale can be found in annex XX.
 
-Few EMUs are in the green area, i.e. have both achieved the management target and reduced the anthropogenic mortality below 0.82 year^-1^ (Figure @fig-precoemu - Table @tbl-precoemu). In Ireland, the fishery ban has effectively reduced the anthropogenic mortality. As mentioned earlier, caution should be taken with the estimate of $B_0$ and therefore with the achievement of the 40% target. A few other areas are in the green area. In EE_Narv, the natural recruitment is thought to be insignificant so the situation only relies on the artificial restocking. The situation is the same (or almost the same) in German EMUs or in PL_Oder in which escapement largely relies on restocking.
+Few EMUs are in the green area, i.e. have both achieved the management target and reduced the anthropogenic mortality below 0.92 year^-1^ (Figure @fig-precoemu - Table @tbl-precoemu). While caution should be taken with the estimate of $B_0$ and therefore with the achievement or not of the 40% target, a few EMUs are in reported to be in the green zone. In Ireland, the fishery ban has effectively reduced the anthropogenic mortality. A few other areas are in the green area. In EE_Narv, the natural recruitment is thought to be insignificant so the situation only relies on the artificial restocking. The situation is the same (or almost the same) in German EMUs or in PL_Oder in which escapement largely relies on restocking.
 
 Many EMUs are still in the red zone. While not achieving the 40% pristine escapement is not surprising given the current low recruitment levels, it indicates that anthropogenic mortalities have not been reduced enough yet to achieve an escapement of 40% of what would occur given current level of recruitment in the absence of any anthropogenic pressures.
 
@@ -758,17 +777,17 @@ f |>
 
 ### Conclusions
 
-As during latest WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either unlikely reduction of natural mortality that density-dependent effets are not likely to explain or favourable local conditions of recruitements while recruitment trends are thought to be rather homogeneous other the distribution area. Following ICES @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of recruitment decline. Compared to previous report, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same level of magnitude of the 0.92 year^-1^ limit, even in countries in which escapement rely mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors.
+As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, the target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
 
-Implementing the WKFEA roadmap [@ices2021] is critical to get more standardised methods and more informative results in the future.
+Implementing the WKFEA roadmap [@ices2021] is critical to achieving or delivering more standardised methods and more informative results in the future.
 
 ## Small eel usage
-Traceability of glass eel landings is crucial for legal enforcement, conservation, population recovery, and adherence to international conservation agreements. The European eel regulation requires monitoring of glass eels (those under 12 cm) designated for restocking as well as those for consumption. It also mandates that EMPs specify the quantity of eels under 20 cm needed for restocking to enhance silver eel escapement levels. It is necessary to identify whether the eels are destined for restocking (R) or consumption (C). The consumption category encompasses both glass eels directly consumed and those raised in aquaculture for later consumption as adults.
+The traceability of glass eel landings and of their subsequent trade are crucial for legal enforcement, conservation, population recovery, and adherence to international conservation agreements. The European eel regulation requires monitoring of glass eels (those under 12 cm) designated for restocking as well as those for consumption. It also mandates that EMPs specify the quantity of eels under 20 cm needed for restocking to enhance silver eel escapement levels. It is necessary to identify whether the eels are destined for restocking (R) or consumption (C). The consumption category encompasses both glass eels directly consumed and those raised in aquaculture for later consumption as adults.
 
 <br>
-Among the glass eel producers, France monitors the RC category using a quota system. The UK has left the EU, Portugal has not reported any data.  In Spain, there is no specific traceability system for glass eels, and the general system applied to all fishery products does not allow the use (R or C)  and country of destination to be identified.. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings, once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
+Among the glass eel producing countries of Europe, France monitors the RC category using a quota system, the UK monitors trade but has left the EU so does not take part in this reporting, Portugal has not reported any data, and Spain has no specific traceability system for glass eels, and a general system applied to all fishery products that does not allow the use (R or C)  and country of destination to be identified. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings, once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
 
-Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spain traders, but since Spain is lacking a traceability system, this does not necessarily implies that glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
+Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spanish traders, but since Spain is lacking a traceability system, this does not necessarily imply that the glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
 
 <br>
 Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination.. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
