@@ -1,0 +1,59 @@
+
+---
+title: "WKEMP4_measures_summary"
+author: "none (contact Jani H for questions)"
+date: "`r Sys.Date()`"
+
+output:
+  html_document: default
+  #word_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# define libraries needed
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis") 
+
+#define libraries already installed
+installed_libs <- libs %in% rownames(installed.packages())
+
+# install libraries that are not installed already
+if (any(installed_libs == F)) {
+  install.packages(libs[!installed_libs])
+}
+
+# load libraries needed
+invisible(lapply(libs, library, character.only = T))
+
+#load data
+load("output/measures_all_cleaned_EMP.RData")
+
+```
+
+
+```{r create bar chart with quantifiable, target and target achievement, include=FALSE}
+
+measures_all_cleaned_EMP <- measures_all_cleaned_EMP %>% 
+  mutate(achieved = ifelse(achieved_per > 0.749 | target_value_achieved_numeric == "yes", "achieved", NA))
+         
+data_percentage <- measures_all_cleaned_EMP %>% 
+  group_by(country, measure_type) %>% 
+  summarize(measures_achieved = length(id[which(achieved == "achieved")]),
+            measures_target = length(id[which(!is.na(measures_all_cleaned_EMP$target_value_numeric))]),
+            measures_quantifiable = length(id[which(measures_all_cleaned_EMP$std_quantifiable == "y")]))
+         
+ggplot(data_percentage, aes(x = measure_type, y = percentage, fill = progress)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+          vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+
+
+
+```
