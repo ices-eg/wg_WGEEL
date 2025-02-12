@@ -96,6 +96,7 @@ avgindicator$y <- st_coordinates(avgindicator)[, 2]
 avgindicator$btarget <- .4 * avgindicator$b0
 avgindicator$bscaled <- avgindicator$bcurrent / avgindicator$b0
 avgindicator$sumfsuma <- avgindicator$sumf / avgindicator$suma
+avgindicator$sumhsuma <- avgindicator$sumh / avgindicator$suma
 prettyscale <- pretty(range(avgindicator$bcurrent, na.rm = TRUE), n = 2)
 prettyscale_scaled <- scales::rescale(prettyscale, to = c(40190.79, 200000.00), from = c(661, max(avgindicator$bcurrent, na.rm = TRUE)))
 scalesb <- data.frame(b = prettyscale, bscale = prettyscale_scaled)
@@ -104,7 +105,7 @@ avgindicator$bcurrent <- scales::rescale(avgindicator$bcurrent, to = c(40190.79,
 # avgindicator$bbest <- scales::rescale(avgindicator$bbest,to=c(40190.79,200000.00),from=c(661,10400000))
 # avgindicator$b0 <- scales::rescale(avgindicator$b0,to=c(40190.79,200000.00),from=c(661,10400000))
 
-avgindicator$bnorestockscaled <- avgindicator$bcurrentw / avgindicator$b0
+avgindicator$bcurrentwscaled <- avgindicator$bcurrentw / avgindicator$b0
 prettyscale_norestock <- pretty(range(avgindicator$bcurrentw, na.rm = TRUE), n = 2)
 prettyscale_norestock_scaled <- scales::rescale(prettyscale_norestock, to = c(40190.79, 200000.00), from = c(661, max(avgindicator$bcurrentw, na.rm = TRUE)))
 scalesb_norestock <- data.frame(b = prettyscale_norestock, bscale = prettyscale_norestock_scaled)
@@ -257,7 +258,7 @@ flextable(tableit) |>
   flextable2ICES()
 ```
 
-After 2020 on average, total reported landings from yellow and silver eel fisheries across all countries amounted to `r round(sum(tableit[3,c(3:5)]))` tons. In comparison, Italy reported average landings for 5 years reached `r round(sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE))` tons, contributing approximately for `r round(100*sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE)/sum(tableit[tableit$eel_cou_code=='OVERALL TOTAL',c(3:5)]),1)` of the total landings (Table @tbl-tableit).
+After 2020 on average, total reported landings from yellow and silver eel fisheries across all countries amounted to `r round(sum(tableit[tableit$eel_cou_code=="OVERALL TOTAL",c(3:5)]))` tons. In comparison, Italy reported average landings for 5 years reached `r round(sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE))` tons, contributing approximately for `r round(100*sum(tableit[tableit$eel_cou_code=='IT',c(3:5)], na.rm =TRUE)/sum(tableit[tableit$eel_cou_code=='OVERALL TOTAL',c(3:5)]),1)` of the total landings (Table @tbl-tableit).
 
 The importance of landings in missing countries from EU, that have reported landings otherwise is illustrated in Figure @fig-landingsnoreport. Landings in Slovenia (Sl) are almost inexistent.
 
@@ -288,20 +289,25 @@ knitr::include_graphics(file.path(params$image_path,"landings.png"))
 
 ## Indicators reports
 
-The following table (Table @tbl-lastreport) provide checks for the latest reported value per EMU, values in grey in column country and emu indicate that probably values where not reported for that EMU. Not that reporting ND
+
+
+
+## Data availability
+
+
+The following table (Table @tbl-lastreportbiom) provide checks for the latest reported value per EMU, values in grey in column country and emu indicate that probably values where not reported for that EMU. 
 
 ```{r }
-#| label: tbl-lastreport
-#| tbl-cap: "Table showing when the indicators was last reported, emus for which bcurrent was not reported during this datacall are in grey, the absence of date indicates that the data was reported as NP or NC"
+#| label: tbl-lastreportbiom
+#| tbl-cap: "Table showing when the biomass indicator was last reported, emus for which bcurrent was not reported during this datacall are in grey, the absence of date indicates that the data was reported as NP or NC"
 
 knitr::kable(data.frame())
 ```
 
 ```{r }
-#| label: flextablelastreport
+#| label: flextablelastreportsuma
 biomass |>
-    bind_rows(mortality) |>
-    filter(eel_typ_id %in% c(14, 15, 17, 18, 19, 34)) |>
+    filter(eel_typ_id %in% c(14, 15, 34)) |>
     filter(!is.na(eel_value)) |>
     select(-eel_value) |>
     group_by(eel_cou_code, eel_emu_nameshort, eel_typ_id) |>
@@ -311,23 +317,19 @@ biomass |>
       eel_typ_id,
       15 ~ "bcurrent",
       14 ~ "bbest",
-      34 ~ "bcurrentw",
-      17 ~ "sumA",
-      18 ~ "sumF",
-      19 ~ "sumH"
+      34 ~ "bcurrentw"    
     )) |>
   select(eel_cou_code, eel_year, eel_emu_nameshort, eel_typ_id)|> 
   pivot_wider(names_from = eel_typ_id, values_from = eel_year)|>
   rename("country"="eel_cou_code", "emu"="eel_emu_nameshort") |>
-  select(country,emu, bcurrent, bcurrentw, bbest, sumF, sumH, sumA) |>
+  select(country,emu, bcurrent, bcurrentw, bbest) |>
   flextable() |>
   flextable2ICES() |>
-  flextable::colformat_double(df, big.mark = "", digits = 0) |>
+  flextable::colformat_num(j = c( "bcurrent", "bcurrentw", "bbest"), big.mark = "")|>
   bg(i=~`bcurrent`<=2020, j= c("country", "emu"),bg="grey") 
   
 ```
 
-## Data availability
 
 The following figures summarize the mortality and biomass indicators that were provided as a response to the ICES data call. Maps showings data availability. The symbol indicates whether the country have provided estimates for at least one (whatever year), two , three distinct indicators. There is a high variability among the indicators reported by the countries (Figure XX):
 
@@ -336,6 +338,10 @@ The following figures summarize the mortality and biomass indicators that were p
 -   The United Kingdom and some EMUs of Spain and France show a high share with 4 indicators.
 -   There is a mixed distribution in Italy and the Balkans, with areas having between 1 and 3 indicators
 -   The Nordic and Baltic countries also show a varied participation.
+
+
+
+
 
 ```{r }
 #| label: fig-bcurrent
@@ -348,9 +354,19 @@ indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_namesh
                                         left_join(indicator |> select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
 
 
+indicator_vis <- indicator_vis |> left_join(
+  indicator_vis |> 
+select(eel_emu_nameshort) |>
+distinct() |>
+mutate(firstletter = substring(eel_emu_nameshort,1,1),
+       rank=rank(firstletter),
+       istable1=rank/max(rank)<=0.5) |> 
+       select(eel_emu_nameshort,istable1)
+       ) 
 
-
-g2 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrent) |>
+g2 <- ggplot(indicator_vis |> 
+  filter(istable1) |>
+  select(eel_emu_nameshort, eel_year, bcurrent) |> 
   mutate(bcurrent = ifelse(is.na(bcurrent), "absent", "present")), 
   aes(eel_emu_nameshort, eel_year, fill = bcurrent))+
   geom_tile() +
@@ -362,17 +378,33 @@ g2 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrent) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
   ggtitle(expression("B"["current"]))
-ggsave(g2, , filename = file.path(params$image_path,"bcurrent.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"bcurrent.png"))  
+ggsave(g2, , filename = file.path(params$image_path,"bcurrent_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bcurrent_part1.png"))  
+g2 <- ggplot(indicator_vis |> 
+  filter(!istable1) |>
+  select(eel_emu_nameshort, eel_year, bcurrent) |> 
+  mutate(bcurrent = ifelse(is.na(bcurrent), "absent", "present")), 
+  aes(eel_emu_nameshort, eel_year, fill = bcurrent))+
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression("B"["current"]))
+ggsave(g2, , filename = file.path(params$image_path,"bcurrent_part2.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bcurrent_part2.png"))  
 ```
 
 ```{r }
 #| label: fig-bcurrentw
 #| fig-cap : "Availability of $B_{currentw}$ reports indicators from 2006 to 2023"
-indicator_vis <- expand.grid(eel_emu_nameshort = unique(indicator$eel_emu_nameshort),
-                             eel_year = seq(2006, 2023, by = 1)) |>
-                                        left_join(indicator |> select(eel_emu_nameshort, sumh, sumf, suma, bcurrent, bcurrentw, bbest, b0, eel_year), by = c("eel_emu_nameshort" = "eel_emu_nameshort", "eel_year" = "eel_year"))
-g3 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrentw) |>
+
+g3 <- ggplot(indicator_vis |>
+  filter(istable1) |>
+  select(eel_emu_nameshort, eel_year, bcurrentw) |>
   mutate(bcurrentw = ifelse(is.na(bcurrentw), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrentw)) +
   geom_tile() +
   scale_fill_manual(values=c("black", "#b7d1c3"))+
@@ -383,14 +415,32 @@ g3 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bcurrentw) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
   ggtitle(expression(paste("B"["current without restocking"])))
-ggsave(g3, filename = file.path(params$image_path,"bcurrentw.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"bcurrentw.png"))  
+ggsave(g3, filename = file.path(params$image_path,"bcurrentw_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bcurrentw_part1.png"))  
+
+g3 <- ggplot(indicator_vis |>
+  filter(!istable1) |>
+  select(eel_emu_nameshort, eel_year, bcurrentw) |>
+  mutate(bcurrentw = ifelse(is.na(bcurrentw), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrentw)) +
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression(paste("B"["current without restocking"])))
+ggsave(g3, filename = file.path(params$image_path,"bcurrentw_part2.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bcurrentw_part2.png"))  
 ```
 
 ```{r }
 #| label: fig-bbest
 #| fig-cap: "Availability of $B_{best}$ reports indicators from 2006 to 2023"
-g4 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bbest) |>
+g4 <- ggplot(indicator_vis |>
+ filter(istable1) |>
+ select(eel_emu_nameshort, eel_year, bbest) |>
   mutate(bbest = ifelse(is.na(bbest), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bbest)) +
   geom_tile() +
   scale_fill_manual(values=c("black", "#b7d1c3"))+
@@ -401,14 +451,32 @@ g4 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, bbest) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
   ggtitle(expression(paste("B"["best"])))
-ggsave(g4, filename = file.path(params$image_path,"bbest.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"bbest.png"))  
+ggsave(g4, filename = file.path(params$image_path,"bbest_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bbest_part1.png"))  
+
+g4 <- ggplot(indicator_vis |>
+ filter(!istable1) |>
+ select(eel_emu_nameshort, eel_year, bbest) |>
+  mutate(bbest = ifelse(is.na(bbest), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bbest)) +
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression(paste("B"["best"])))
+ggsave(g4, filename = file.path(params$image_path,"bbest_part2.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"bbest_part2.png")) 
 ```
 
 ```{r }
 #| label: fig-suma
 #| fig-cap : "$\\sum{A}$ availability from 2006 to 2023"
-g5 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, suma) |>
+g5 <- ggplot(indicator_vis |> 
+     filter(istable1) |> 
+   select(eel_emu_nameshort, eel_year, suma) |>
   mutate(suma = ifelse(is.na(suma), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
   geom_tile() +
   scale_fill_manual(values=c("black", "#b7d1c3"))+
@@ -419,15 +487,33 @@ g5 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, suma) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
   ggtitle(expression(paste(Sigma," A")))
-ggsave(g5, filename = file.path(params$image_path,"suma.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"suma.png"))  
+ggsave(g5, filename = file.path(params$image_path,"suma_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"suma_part1.png")) 
+
+g5 <- ggplot(indicator_vis |> 
+     filter(!istable1) |> 
+   select(eel_emu_nameshort, eel_year, suma) |>
+  mutate(suma = ifelse(is.na(suma), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression(paste(Sigma," A")))
+ggsave(g5, filename = file.path(params$image_path,"suma_part2.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"suma_part2.png"))  
 ```
 
 ```{r }
 #| label: fig-sumf
 #| fig-cap :  "$\\sum{F}$ availability per EMU from 2006 to 2023"
 
-g6 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, sumf) |>
+g6 <- ggplot(indicator_vis |> 
+  filter(istable1) |> 
+  select(eel_emu_nameshort, eel_year, sumf) |>
   mutate(sumf = ifelse(is.na(sumf), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
   geom_tile() +
   scale_fill_manual(values=c("black", "#b7d1c3"))+
@@ -438,14 +524,31 @@ g6 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, sumf) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
   ggtitle(expression(paste(Sigma," F")))
-ggsave(g6, filename = file.path(params$image_path,"sumf.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"sumf.png"))  
+ggsave(g6, filename = file.path(params$image_path,"sumf_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"sumf_part1.png"))
+g6 <- ggplot(indicator_vis |> 
+  filter(!istable1) |> 
+  select(eel_emu_nameshort, eel_year, sumf) |>
+  mutate(sumf = ifelse(is.na(sumf), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+  ggtitle(expression(paste(Sigma," F")))
+ggsave(g6, filename = file.path(params$image_path,"sumf_part2.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"sumf_part2.png"))   
 ```
 
 ```{r }
 #| label: fig-sumh
 #| fig-cap : "$\\sum{A}$ availability per EMU from 2006 to 2023"
-g7 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, sumh) |>
+g7 <- ggplot(indicator_vis |> 
+  filter(istable1) |> 
+  select(eel_emu_nameshort, eel_year, sumh) |>
   mutate(sumh = ifelse(is.na(sumh), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumh)) +
   geom_tile() +
   scale_fill_manual(values=c("black", "#b7d1c3"))+
@@ -456,8 +559,24 @@ g7 <- ggplot(indicator_vis |> select(eel_emu_nameshort, eel_year, sumh) |>
   theme(legend.title = element_blank())+
   labs(x = "EMU", y = "year") +
     ggtitle(expression(paste(Sigma," H")))
-ggsave(g7, filename = file.path(params$image_path,"sumh.png"), height = 10 / 2.54, width = 20 / 2.54, dpi = 300)
-knitr::include_graphics(file.path(params$image_path,"sumh.png"))
+ggsave(g7, filename = file.path(params$image_path,"sumh_part1.png"), height = 10 / 2.54, width = 20 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"sumh_part1.png"))
+
+g7 <- ggplot(indicator_vis |> 
+  filter(!istable1) |> 
+  select(eel_emu_nameshort, eel_year, sumh) |>
+  mutate(sumh = ifelse(is.na(sumh), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumh)) +
+  geom_tile() +
+  scale_fill_manual(values=c("black", "#b7d1c3"))+
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = -0.001)) +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(), axis.line = element_blank(), legend.position = "bottom")+
+  theme(legend.title = element_blank())+
+  labs(x = "EMU", y = "year") +
+    ggtitle(expression(paste(Sigma," H")))
+ggsave(g7, filename = file.path(params$image_path,"sumh_part2.png"), height = 10 / 2.54, width = 20 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"sumh_part2.png"))
 
 
 ```
@@ -586,7 +705,7 @@ g11 <- ggplot(st_transform(country_p, 3035)) +
     theme_bw() +  
   geom_arc_bar(data = avgindicator, aes(
     x0 = x, y0 = y, r0 = 0, r = bcurrentw, start = 0,
-    end = 2 * pi, fill = bnorestockscaled
+    end = 2 * pi, fill = bcurrentwscaled
   ), col = NA, alpha = 1) +
   xlab("") +
   ylab("") +
@@ -603,7 +722,7 @@ g11 <- ggplot(st_transform(country_p, 3035)) +
       filter(is.na(bcurrentw)),
     aes(x = x, y = y), pch = "x"
   ) +
-  scale_fill_viridis_c(expression(B[current_norestock] / B[0]))
+  scale_fill_viridis_c(expression(B[currentw] / B[0]))
 
 ggsave(g11, filename = file.path(params$image_path,"maps_biomass_norestock.png"), height = 14 / 2.54, width = 14 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"maps_biomass_norestock.png"))
@@ -618,6 +737,40 @@ knitr::include_graphics(file.path(params$image_path,"maps_biomass_norestock.png"
 
 ## Data availability
 
+The following table (Table @tbl-lastreportmort) provide checks for the latest reported value per EMU, values in grey in column country and emu indicate that probably values where not reported for that EMU. 
+```{r }
+#| label: tbl-lastreportmort
+#| tbl-cap: "Table showing when the mortality indicator was last reported, emus for which bcurrent was not reported during this datacall are in grey, the absence of date indicates that the data was reported as NP or NC"
+
+knitr::kable(data.frame())
+```
+
+```{r }
+#| label: flextablelastreportmort
+mortality |>
+    filter(eel_typ_id %in% c( 17, 18, 19)) |>
+    filter(!is.na(eel_value)) |>
+    select(-eel_value) |>
+    group_by(eel_cou_code, eel_emu_nameshort, eel_typ_id) |>
+    summarise(eel_year = max(eel_year))|> 
+     ungroup() |>    
+    mutate(eel_typ_id = case_match(
+      eel_typ_id,      
+      17 ~ "sumA",
+      18 ~ "sumF",
+      19 ~ "sumH"
+    )) |>
+  select(eel_cou_code, eel_year, eel_emu_nameshort, eel_typ_id)|> 
+  pivot_wider(names_from = eel_typ_id, values_from = eel_year)|>
+  rename("country"="eel_cou_code", "emu"="eel_emu_nameshort") |>
+  select(country,emu, sumF, sumH, sumA) |>
+  flextable() |>
+  flextable2ICES() |>
+  flextable::colformat_num(j = c( "sumA", "sumF", "sumH"), big.mark = "")|>
+  bg(i=~`sumF`<=2020, j= c("country", "emu"),bg="grey") 
+  
+```
+
 ```{r }
 #| label: fig-indicatorsmapsmortality
 #| fig-height: 8
@@ -629,6 +782,7 @@ knitr::include_graphics(file.path(params$image_path,"maps_biomass_norestock.png"
 data_avail_ind <- data_avail |>
   gather(Mindicator, Reported, 9:11) |>
   filter(!is.na(Reported))
+
 
 g12 <- ggplot(st_transform(country_p, crs = 3035)) +
   geom_sf(fill = NA) +
@@ -711,6 +865,58 @@ g14 <- ggplot(st_transform(country_p, 3035)) +
 
 ggsave(g14, filename = file.path(params$image_path,"maps_mortality.png"), height = 10 / 2.54, width = 20 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"maps_mortality.png"))
+
+```
+
+```{r }
+#| label: fig-mortalitymap2
+#| fig-cap: "Maps of mortality indicators per EMU (average after 2018). The size of the circle reflects the magnitude of $\\sum{A}$ while the colour illustrates the ratio between $\\sum{H}$ and $\\sum{A}$. A cross indicates that $\\sum{A}$ or both $\\sum{H}$ and $\\sum{A}$ are missing." 
+
+prettyscale <- c(0, .92)
+prettyscale_scaled <- scales::rescale(prettyscale, to = c(40000, 200000), 
+from = c(0, max(indicator$suma, na.rm = TRUE)))
+
+indicator$sumhsuma <- indicator$sumh / indicator$suma
+indicator$suma <- scales::rescale(indicator$suma, to = c(40000, 200000), 
+from = c(0, max(indicator$suma, na.rm = TRUE)))
+
+scalesm <- data.frame(m = prettyscale, mscale = prettyscale_scaled, y0 = c(4200000, 4400000))
+legend <- data.frame(indicator = c("sumA", "sumH"))
+
+g14 <- ggplot(st_transform(country_p, 3035)) +
+  geom_sf(fill = NA, size = .1) +
+  theme_bw() +
+  geom_arc_bar(data = avgindicator, aes(
+    x0 = x, y0 = y, r0 = 0, r = suma, start = 0,
+    end = 2 * pi, fill = sumhsuma
+  ), size = .2, col = NA) +
+  # geom_arc_bar(data=indicator,aes(x0 = x, y0 = y, r0 = 0, r = sumf, start = 0,
+  #                  end = 2*pi ),size=.2,fill=NA,col="yellow")+
+  xlab("") +
+  ylab("") +
+  geom_point(
+    data = avgindicator |>
+      filter( is.na(sumh)),
+    aes(x = x, y = y), pch = "x"
+  ) +
+  # geom_arc_bar(data=scalesb,aes(x0 = 3008000, y0 =3800000, r0 = 0, r = 40000, start =0,
+  # end = pi),linewidth=.2, fill = NA,col="black")+
+  geom_arc_bar(data = scalesm, aes(
+    x0 = 3008000, y0 = y0, r0 = 0, r = mscale, start = 0,
+    end = pi
+  ), fill = NA, col = "black") +
+  geom_text(
+    data = scalesm, aes(x = 3000000, y = y0 + mscale, label = paste0(m, "~lifetime^{-1}")),
+    size = 1, hjust = "right", parse = TRUE
+  ) +
+  #    geom_rect(data=legend,aes(col=indicator,xmin=0,ymin=0,xmax=0,ymax=0),fill=NA)+
+
+  # scale_color_manual("",values=c("sumF" = "yellow",
+  #                      "sumA" = "blue"))
+  scale_fill_viridis_c(expression(paste(Sigma, "H") / paste(Sigma, "A")))
+
+ggsave(g14, filename = file.path(params$image_path,"maps_mortalityh.png"), height = 10 / 2.54, width = 20 / 2.54, dpi = 300)
+knitr::include_graphics(file.path(params$image_path,"maps_mortalityh.png"))
 
 ```
 
@@ -1183,6 +1389,7 @@ For German EMUs, this shows the massive effect of restocking which is also visib
 
 Before looking at EMUs where $B_{current without restocking}$ exceeds either $B_{best}$ or $B_0$, it is worthwhile to look at countries that have only reported $B_{current without restocking}$, and no $B_{current}$ which may or may not include restocking.
 
+```{r }
 #| label: tbl-onlybcurrent_without_restocking
 #| tbl-cap: "Table with $B_{current without restocking}$ larger than $B_{best}and $B_{current}$ is not reported."
 knitr::kable(data.frame())
@@ -1205,10 +1412,10 @@ indicator |>
             max(eel_year),
             n())
     ),
-    mean_bcurrent_norestock_bbest = 
+    mean_bcurrentw_bbest = 
       round(mean(bcurrentw / bbest, na.rm = T),2)
   ) |>
-  arrange(desc(mean_bcurrent_norestock_bbest)) |>
+  arrange(desc(mean_bcurrentw_bbest)) |>
   flextable() |>
   flextable2ICES() |>
   width(j = c(1,2,3), width = c(2.5,10,3), unit = "cm") |>
@@ -1235,7 +1442,7 @@ All estimates of $B_{current without restocking}$ are now lower than $B_{best}$.
 g17 <- ggplot(indicator, aes(x = bcurrentw / bbest)) +
   geom_histogram() +
   geom_vline(xintercept = 1, slope = 1, lty = 2) +
-  xlab(expression(B[current_norestock] / B[best])) +
+  xlab(expression(B[currentw] / B[best])) +
   scale_x_log10() +
   ylab("frequency")
 ggsave(g17, filename = file.path(params$image_path,"bcurrentwbbest.png"), height = 12 / 2.54, width = 12 / 2.54, dpi = 300)
@@ -1750,7 +1957,7 @@ In the absence of density dependence $B_{0_{adj}}$/$B_0$ is expected to be close
 
 
 
-In Elsewhere Europe area (Figure @fig-B0adjoverB0EE), most of the ratio are between 1 and 10, the order of magnitudes appear to be roughly constant among countries. The only exception is ES_Anda that display a very low ratio. This would suggest either very strong values of $B_0$ or very pessimistic values of $B_{best}$. In this EMU, pristine escapement is estimated using current estimate of production per hectare corrected for recruitment loss without accounting for any density-dependance, and postulating multiplying it by the surface in pristine conditions. Ireland appears to have larger values than other countries, this is likely related to their difficulties in extrapolating $b_0$ mentioned in their annex 13.
+In Elsewhere Europe area (Figure @fig-B0adjoverB0EE), most of the ratio are between 1 and 10, the order of magnitudes appear to be roughly constant among countries. The only exception is ES_Anda that display a very low ratio. This would suggest either very strong values of $B_0$ or very pessimistic values of $B_{best}$. In this EMU, pristine escapement is estimated using current estimate of production per hectare corrected for recruitment loss without accounting for any density-dependance, and postulating multiplying it by the surface in pristine conditions. Ireland appears to have larger values than other countries, this is likely related to their difficulties in extrapolating $B_0$ mentioned in their annex 13.
 
 ```{r}
 #| echo: false
