@@ -58,7 +58,34 @@ measures_all <- measures_all %>%
   rename(id = new_id) %>% 
   relocate(id, .before = country)
 
+#get rows where target_value, target_value_achieved or effect_size_monitored is a number
+convertible_values_tv <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$target_value)))]
+convertible_values_tva <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$target_value_achieved)))]
+convertible_values_em <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$estimated_effect_size)))]
 
+#### ADD HERE VECTORS FOR THE THREE COLUMS WHERE THERE IS TEXT WHICH IMPLIES THERE IS A MONITORING/TARGET #####
+#measures_all <- measures_all %>% 
+  #relocate(target_value, .before = country) %>% 
+  #relocate(target_value_achieved, .before = country) %>% 
+  #relocate(estimated_effect_size, .before = country)
+
+add_target <- c("dc2021_322", "dc2021_1486","dc2021_472", "dc2021_104")
+add_target_achieved <- c("dc2021_320", "dc2021_317", "dc2021_322", "dc2021_324", "dc2021_318", "dc2021_472", "dc2024_1605")
+add_effect <- c("dc2021_392", "dc2021_393", "d2021_348", "dc2021_349", "dc2021_350", "dc2021_359", "dc2021_240")
+
+
+
+#create columns for target_value, target_value_achieved or effect_size_monitored wherer only the numerics are available
+measures_all <- measures_all %>% 
+  mutate(target_value_numeric = ifelse(id %in% convertible_values_tv, target_value, 
+                                       ifelse(id %in% add_target, "yes", NA)),
+         target_value_achieved_numeric = ifelse(id %in% convertible_values_tva, target_value_achieved, 
+                                                ifelse(id %in% add_target_achieved, "yes", NA)),
+         effect_size_numeric = ifelse(id %in% convertible_values_em, estimated_effect_size, 
+                                      ifelse(id %in% add_effect, "yes", NA)),
+         effect_size_true = ifelse(effectiveness_monitored != "Not monitored" & !is.na(effectiveness_monitored) & !is.na(effect_size_numeric), effectiveness_monitored, "Not monitored"))
+
+unique(measures_all$effect_size_true)
 
 
 # 1.2 do some filtering
@@ -74,6 +101,7 @@ removed_non_EMP <- measures_all_cleaned %>%
   filter(!measure_planned %in% c("EMP", "EMP_amended"))
 
 measures_all_cleaned_EMP <- anti_join(measures_all_cleaned, removed_non_EMP)
+
 
 
 #create output directory
@@ -94,6 +122,8 @@ write.csv2(removed_UK_delete, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_UK_de
 
 save(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.RData")
 write.csv2(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.csv", row.names = FALSE)
+
+
 
 # 2. ANNEX 17
 
