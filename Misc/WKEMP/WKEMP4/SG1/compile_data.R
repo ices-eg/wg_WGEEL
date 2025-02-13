@@ -84,7 +84,9 @@ measures_all <- measures_all %>%
          effect_size_true = ifelse(effectiveness_monitored != "Not monitored" & !is.na(effectiveness_monitored) & !is.na(effect_size_numeric), effectiveness_monitored, "Not monitored"), 
          target_value_numeric = ifelse(id %in% add_target, "yes", target_value_numeric),
          target_value_achieved_numeric = ifelse(id %in% add_target_achieved, "yes", target_value_achieved_numeric),
-         effect_size_numeric = ifelse(id %in% add_effect, "yes", effect_size_numeric))
+         effect_size_numeric = ifelse(id %in% add_effect, "yes", effect_size_numeric),
+         quantifiable = ifelse(std_quantifiable != "n" & !is.na(std_quantifiable), std_quantifiable,
+                               ifelse(!is.na(target_value_numeric), "y", "n")))
 
 
 
