@@ -77,15 +77,18 @@ add_effect <- c("dc2021_392", "dc2021_393", "d2021_348", "dc2021_349", "dc2021_3
 
 #create columns for target_value, target_value_achieved or effect_size_monitored wherer only the numerics are available
 measures_all <- measures_all %>% 
-  mutate(target_value_numeric = ifelse(id %in% convertible_values_tv, target_value, 
-                                       ifelse(id %in% add_target, "yes", NA)),
-         target_value_achieved_numeric = ifelse(id %in% convertible_values_tva, target_value_achieved, 
-                                                ifelse(id %in% add_target_achieved, "yes", NA)),
-         effect_size_numeric = ifelse(id %in% convertible_values_em, estimated_effect_size, 
-                                      ifelse(id %in% add_effect, "yes", NA)),
-         effect_size_true = ifelse(effectiveness_monitored != "Not monitored" & !is.na(effectiveness_monitored) & !is.na(effect_size_numeric), effectiveness_monitored, "Not monitored"))
+  mutate(target_value_numeric = as.numeric(ifelse(id %in% convertible_values_tv, target_value, NA)),
+         target_value_achieved_numeric = as.numeric(ifelse(id %in% convertible_values_tva, target_value_achieved, NA)),
+         effect_size_numeric = as.numeric(ifelse(id %in% convertible_values_em, estimated_effect_size, NA)),
+         achieved_per = target_value_achieved_numeric/target_value_numeric,
+         effect_size_true = ifelse(effectiveness_monitored != "Not monitored" & !is.na(effectiveness_monitored) & !is.na(effect_size_numeric), effectiveness_monitored, "Not monitored"), 
+         target_value_numeric = ifelse(id %in% add_target, "yes", target_value_numeric),
+         target_value_achieved_numeric = ifelse(id %in% add_target_achieved, "yes", target_value_achieved_numeric),
+         effect_size_numeric = ifelse(id %in% add_effect, "yes", effect_size_numeric),
+         quantifiable = ifelse(std_quantifiable != "n" & !is.na(std_quantifiable), std_quantifiable,
+                               ifelse(!is.na(target_value_numeric), "y", "n")))
 
-unique(measures_all$effect_size_true)
+
 
 
 # 1.2 do some filtering
