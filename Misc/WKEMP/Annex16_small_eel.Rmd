@@ -87,7 +87,7 @@ openxlsx::write.xlsx(l20, file.path(datawd, "annex16_less_than_20cm.xlsx"))
 
 
 ```{r check_proportion, include=TRUE, eval=TRUE, echo=FALSE}
-wgeelwd <- "C:/workspace/wg_WGEEL"
+wgeelwd <- "../.."
 load(file = file.path(
   wgeelwd, "Misc",
   "WKEMP", "data_dependencies", "annex16.RData"
@@ -130,4 +130,7 @@ ggplot(fr_reserve) +
   ylim(c(0, 1)) +
   theme_minimal() +
   theme(legend.position = "bottom")
+
+
+
 ```
