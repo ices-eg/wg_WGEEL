@@ -3,7 +3,16 @@ library(flextable)
 library(ggplot2)
 library(dplyr)
 library(gt)
+library(officedown)
 library(officer)
+
+add_figure_caption <- function(bkm){
+  run_autonum(seq_id = "Figure", pre_label = "Figure ", bkm = bkm, tnd = 1, tns = '.')
+}
+
+add_table_caption <- function(bkm){
+  run_autonum(seq_id = "Table", pre_label = "Table ", bkm = bkm, tnd = 1, tns = '.')
+}
 
 
 library(knitr)
