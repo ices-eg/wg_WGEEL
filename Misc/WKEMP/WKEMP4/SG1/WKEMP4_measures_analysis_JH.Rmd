@@ -156,8 +156,8 @@ removed_non_EMP$country <- sapply(removed_non_EMP$country, clean_names)
 
 # Replace values in the impact column
 removed_non_EMP$impact <- gsub("Indirect", "Not direct", removed_non_EMP$impact)
-# Replace NA values in the impact column with "None"
-removed_non_EMP$impact[is.na(removed_non_EMP$impact)] <- "None"
+# Replace NA values in the impact column with "Not reported"
+removed_non_EMP$impact[is.na(removed_non_EMP$impact)] <- "Not reported"
 # Create a contingency table for measure_type and impact
 ImpactCountTable_measure <- table(removed_non_EMP$measure_type, removed_non_EMP$impact)
 # Convert the table to a data frame
@@ -327,14 +327,16 @@ NOTE THE YEAR NA IS DIVIDED BY 10 for scale
 # Update the impact column values
 measures_all_cleaned_EMP$impact <- gsub("high", "High", measures_all_cleaned_EMP$impact)
 measures_all_cleaned_EMP$impact <- gsub("indirect", "Not direct", measures_all_cleaned_EMP$impact)
-measures_all_cleaned_EMP$impact <- gsub("none", "None", measures_all_cleaned_EMP$impact)
+measures_all_cleaned_EMP$impact <- gsub("none", "Not reported", measures_all_cleaned_EMP$impact)
+measures_all_cleaned_EMP$impact <- gsub("N/A", "Not reported", measures_all_cleaned_EMP$impact)
+
 
 # Create the new data frame with year_of_full_implementation and impact
 ImpactByYear <- measures_all_cleaned_EMP %>%
   select(year_of_full_implementation, impact)
 
 # Clean NAs
-ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "N/A"
+ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "Not reported"
 
 ImpactByYear <- ImpactByYear %>%
   mutate(year_of_full_implementation = as.character(year_of_full_implementation),
@@ -440,14 +442,6 @@ ProgressCountTable_country_long$progress <- factor(ProgressCountTable_country_lo
 
 ### PLOT 3
 
-# Apply the function to the progress, measure_type, and country columns
-measures_all_cleaned_EMP$progress <- sapply(measures_all_cleaned_EMP$progress, clean_names)
-measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
-measures_all_cleaned_EMP$country <- sapply(measures_all_cleaned_EMP$country, clean_names)
-
-# Replace values in the progress column
-measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
-measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
 
 # Combine NA and "Not Available / Not Pertinent" into one category
 measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
@@ -805,6 +799,62 @@ plot3_effectiveness
 
 
 ```
+
+```{r TableAboutDIrectAndQuantifiable, echo=FALSE}
+
+# Function to create summary tables for each measure_type
+create_summary_table <- function(data, measure_type) {
+  data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(submeasure_type) %>%
+    summarise(
+      total = n(),
+      Other = paste0(round(sum(replace_na(effectiveness_monitored == "Other", 0)) / total * 100), "%"),
+      ΔBcurrent = paste0(round(sum(replace_na(effectiveness_monitored == "ΔBcurrent", 0)) / total * 100), "%"),
+      ΔΣH = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣH", 0)) / total * 100), "%"),
+      ΔΣF = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣF", 0)) / total * 100), "%"),
+      ΔΣA = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣA", 0)) / total * 100), "%"),
+      `Not monitored` = paste0(round((total - (sum(replace_na(effectiveness_monitored == "Other", 0)) + sum(replace_na(effectiveness_monitored == "ΔBcurrent", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣH", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣF", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣA", 0)))) / total * 100), "%")
+    )
+}
+
+# Filter the data frame for quantifiable measures only
+measures_quantifiable <- measures_all_cleaned_EMP %>%
+  filter(std_quantifiable %in% c("y"))
+
+# Get unique measure types
+measure_types <- unique(measures_quantifiable$measure_type)
+
+# Create summary tables for each measure type
+quantifiable_tables <- lapply(measure_types, function(mt) {
+  create_summary_table(measures_quantifiable, mt)
+})
+
+# Print each table using kable
+for (i in seq_along(quantifiable_tables)) {
+  cat("\n### Measure Type:", measure_types[i], "\n")
+  print(kable(quantifiable_tables[[i]], caption = paste("Count of quantifiable measures for", measure_types[i], "and whether they are monitored or not")))
+}
+
+# Filter the data frame for direct measures only
+measures_direct <- measures_all %>%
+  filter(std_direct %in% c("y"))
+
+# Create summary tables for each measure type
+direct_tables <- lapply(measure_types, function(mt) {
+  create_summary_table(measures_direct, mt)
+})
+
+# Print each table using kable
+for (i in seq_along(direct_tables)) {
+  cat("\n### Measure Type:", measure_types[i], "\n")
+  print(kable(direct_tables[[i]], caption = paste("Count of direct measures for", measure_types[i], "and whether they are monitored or not")))
+}
+
+```
+
+
+
 
 
 
