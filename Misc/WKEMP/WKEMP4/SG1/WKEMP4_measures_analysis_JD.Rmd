@@ -135,7 +135,7 @@ target_by_country <- ggplot(percentage_long_cou, aes(x = country, y = no_measure
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
         legend.position = "bottom") +
   scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
-  scale_y_continuous(limits = c(0, 110), breaks = seq(0, 100, by = 25)) +
+  scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
   scale_x_discrete(expand = expansion(add = c(1.00, 1.05)))
 
 # Create the stacked bar chart with total counts as labels at the top of each bar

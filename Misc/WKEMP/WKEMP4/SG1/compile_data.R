@@ -1,9 +1,18 @@
 ##### data for the script is on Ices SP (working documents/SG1) using the same folder structure as specified in this script #####
 
+# List all currently loaded packages, excluding the default ones
+default_packages <- c("base", "stats", "graphics", "grDevices", "utils", "datasets", "methods")
+loaded_libs <- setdiff(.packages(), default_packages)
+
+# Detach each non-default package
+for(lib in loaded_libs) {
+  detach(paste("package:", lib, sep=""), character.only = TRUE, unload = TRUE)
+}
+
+#load libraries
 library(readxl)
 library(tidyverse)
 library(icesTAF)
-
 
 # 1. ANNEX 14 ####
 
