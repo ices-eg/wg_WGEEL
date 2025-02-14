@@ -365,7 +365,7 @@ mutate(firstletter = substring(eel_emu_nameshort,1,1),
        ) 
 
 g2 <- ggplot(indicator_vis |> 
-  filter(istable1) |>
+  filter(istable1 & !eel_emu_nameshort %in% c("DK_total","EE_total", "FI_total", "FR_total")) |>
   select(eel_emu_nameshort, eel_year, bcurrent) |> 
   mutate(bcurrent = ifelse(is.na(bcurrent), "absent", "present")), 
   aes(eel_emu_nameshort, eel_year, fill = bcurrent))+
@@ -381,7 +381,7 @@ g2 <- ggplot(indicator_vis |>
 ggsave(g2, , filename = file.path(params$image_path,"bcurrent_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"bcurrent_part1.png"))  
 g2 <- ggplot(indicator_vis |> 
-  filter(!istable1) |>
+  filter(!istable1 & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |>
   select(eel_emu_nameshort, eel_year, bcurrent) |> 
   mutate(bcurrent = ifelse(is.na(bcurrent), "absent", "present")), 
   aes(eel_emu_nameshort, eel_year, fill = bcurrent))+
@@ -403,7 +403,7 @@ knitr::include_graphics(file.path(params$image_path,"bcurrent_part2.png"))
 #| fig-cap : "Availability of $B_{currentw}$ reports indicators from 2006 to 2023"
 
 g3 <- ggplot(indicator_vis |>
-  filter(istable1) |>
+  filter(istable1 & !eel_emu_nameshort %in% c("EE_total", "FI_total", "FR_total", "DK_total")) |>
   select(eel_emu_nameshort, eel_year, bcurrentw) |>
   mutate(bcurrentw = ifelse(is.na(bcurrentw), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrentw)) +
   geom_tile() +
@@ -419,7 +419,7 @@ ggsave(g3, filename = file.path(params$image_path,"bcurrentw_part1.png"), height
 knitr::include_graphics(file.path(params$image_path,"bcurrentw_part1.png"))  
 
 g3 <- ggplot(indicator_vis |>
-  filter(!istable1) |>
+  filter(!istable1 & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |>
   select(eel_emu_nameshort, eel_year, bcurrentw) |>
   mutate(bcurrentw = ifelse(is.na(bcurrentw), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bcurrentw)) +
   geom_tile() +
@@ -439,7 +439,7 @@ knitr::include_graphics(file.path(params$image_path,"bcurrentw_part2.png"))
 #| label: fig-bbest
 #| fig-cap: "Availability of $B_{best}$ reports indicators from 2006 to 2023"
 g4 <- ggplot(indicator_vis |>
- filter(istable1) |>
+ filter(istable1 & !eel_emu_nameshort %in% c("EE_total", "FI_total", "FR_total", "DK_total")) |>
  select(eel_emu_nameshort, eel_year, bbest) |>
   mutate(bbest = ifelse(is.na(bbest), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bbest)) +
   geom_tile() +
@@ -455,7 +455,7 @@ ggsave(g4, filename = file.path(params$image_path,"bbest_part1.png"), height = 1
 knitr::include_graphics(file.path(params$image_path,"bbest_part1.png"))  
 
 g4 <- ggplot(indicator_vis |>
- filter(!istable1) |>
+ filter(!istable1  & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |>
  select(eel_emu_nameshort, eel_year, bbest) |>
   mutate(bbest = ifelse(is.na(bbest), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = bbest)) +
   geom_tile() +
@@ -475,7 +475,7 @@ knitr::include_graphics(file.path(params$image_path,"bbest_part2.png"))
 #| label: fig-suma
 #| fig-cap : "$\\sum{A}$ availability from 2006 to 2023"
 g5 <- ggplot(indicator_vis |> 
-     filter(istable1) |> 
+     filter(istable1 & !eel_emu_nameshort %in% c("EE_total", "FI_total", "FR_total", "DK_total")) |> 
    select(eel_emu_nameshort, eel_year, suma) |>
   mutate(suma = ifelse(is.na(suma), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
   geom_tile() +
@@ -491,7 +491,7 @@ ggsave(g5, filename = file.path(params$image_path,"suma_part1.png"), height = 10
 knitr::include_graphics(file.path(params$image_path,"suma_part1.png")) 
 
 g5 <- ggplot(indicator_vis |> 
-     filter(!istable1) |> 
+     filter(!istable1 & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |> 
    select(eel_emu_nameshort, eel_year, suma) |>
   mutate(suma = ifelse(is.na(suma), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = suma)) +
   geom_tile() +
@@ -512,7 +512,7 @@ knitr::include_graphics(file.path(params$image_path,"suma_part2.png"))
 #| fig-cap :  "$\\sum{F}$ availability per EMU from 2006 to 2023"
 
 g6 <- ggplot(indicator_vis |> 
-  filter(istable1) |> 
+  filter(istable1 & !eel_emu_nameshort %in% c("EE_total", "FI_total", "FR_total", "DK_total")) |> 
   select(eel_emu_nameshort, eel_year, sumf) |>
   mutate(sumf = ifelse(is.na(sumf), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
   geom_tile() +
@@ -527,7 +527,7 @@ g6 <- ggplot(indicator_vis |>
 ggsave(g6, filename = file.path(params$image_path,"sumf_part1.png"), height = 10 / 2.54, width = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"sumf_part1.png"))
 g6 <- ggplot(indicator_vis |> 
-  filter(!istable1) |> 
+  filter(!istable1  & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |> 
   select(eel_emu_nameshort, eel_year, sumf) |>
   mutate(sumf = ifelse(is.na(sumf), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumf)) +
   geom_tile() +
@@ -547,7 +547,7 @@ knitr::include_graphics(file.path(params$image_path,"sumf_part2.png"))
 #| label: fig-sumh
 #| fig-cap : "$\\sum{A}$ availability per EMU from 2006 to 2023"
 g7 <- ggplot(indicator_vis |> 
-  filter(istable1) |> 
+  filter(istable1 &  !eel_emu_nameshort %in% c("EE_total", "FI_total", "FR_total", "DK_total")) |> 
   select(eel_emu_nameshort, eel_year, sumh) |>
   mutate(sumh = ifelse(is.na(sumh), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumh)) +
   geom_tile() +
@@ -563,7 +563,7 @@ ggsave(g7, filename = file.path(params$image_path,"sumh_part1.png"), height = 10
 knitr::include_graphics(file.path(params$image_path,"sumh_part1.png"))
 
 g7 <- ggplot(indicator_vis |> 
-  filter(!istable1) |> 
+  filter(!istable1  & !eel_emu_nameshort %in% c("IE_total","GB_total","LT_total", "LV_total")) |> 
   select(eel_emu_nameshort, eel_year, sumh) |>
   mutate(sumh = ifelse(is.na(sumh), "absent", "present")), aes(eel_emu_nameshort, eel_year, fill = sumh)) +
   geom_tile() +
@@ -1253,7 +1253,7 @@ A first check consisted of comparing $B_{best}$ and $B_0$ (Table 3 2): both indi
 
 In the other EMUs, an underestimation of $B_0$ is probably the reason. For instance, in SE_Inla, this is likely related to using a $B_{0}$ that is coming from the late 80s situation.
 
-Normally, $B_{best}$ (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, $B_{best}$ is supposed to be smaller than $B_0$ which is the escapment that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
+Normally, $B_{best}$ (that does not include restocking) stands for the best escapment that can occur in the absence of anthropogenic influence give the current recruitment. Since recruitment has collapsed, $B_{best}$ is supposed to be smaller than $B_0$ which is the escapement that would occur in the absence of any anthropogenic influence, including a pristine recruitment, and is generally estimated using pre-1980s data.
 
 ```{r }
 #| label: fig-Bbestb0

@@ -10,6 +10,7 @@ execute:
 format:
   docx:
     fig_caption: yes
+    keep-md: true
     reference-doc: "../../R/quarto/ICES_template.docx"
 params:
   image_path: "2024/image"
@@ -319,7 +320,7 @@ The last equation indicates the reduction of natural mortality that would be req
 
 Since lifespans vary among regions from a few years to decades and since the recruitment might still locally vary, we computed $\frac{1}{\Delta t(e)}log \left( 0.4 \cdot \frac{R_0(e)}{R(e)} \right)$ for different levels of $\Delta t(e)$ and $\frac{R(e)}{R_0(e)}$.
 
-Figure `r run_reference("fig-natmort")` indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density-dependent natural mortality is mainly restricted to younger ages.
+Figure `r run_reference("fignatmort")` indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density-dependent natural mortality is mainly restricted to younger ages.
 
 
 
@@ -372,12 +373,14 @@ ggsave(file.path(params$image_path,"mortality_1.png"), width=16/2.54,height=16/2
 knitr::include_graphics(file.path(params$image_path,"mortality_1.png"))
 
 ```
-::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-natmort")` Reduction of average natural mortality over the lifespan that would be required to achieve the management target in an  EMU given different levels of recruitment (x-axis) and lifespan (facet). The two vertical lines indicate the recruitment estimates from the WGEEL glass eel indices lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^
-:::
-#### Reported trends
 
-Figure `r run_reference("fig-trendbiomass")` and Table `r run_reference("tbl-trendbiomass")` show the trends in escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. Some negative significant trends in escapement are still detected (Table `r run_reference('tbl-trendbiomass')`), which might be due to a delayed effect of the decline in recruitment.
+::: {custom-style="Image Caption"}
+Figure `r run_bookmark("fignatmort", runs_figure)`: Reduction of average natural mortality over the lifespan that would be required to achieve the management target in an  EMU given different levels of recruitment (x-axis) and lifespan (facet). The two vertical lines indicate the recruitment estimates from the WGEEL glass eel indices lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^.
+:::
+
+#### Reported time series of escapement
+
+Figure `r run_reference("figtrendbiomass")` and Table `r run_reference("tbl-trendbiomass")` show the time series of reported escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. In each EMU, a Mann-Kendall trend test was used to test for the existence of a significant monotonic time trend. Some negative significant trends in escapement are still detected (Table `r run_reference('tbl-trendbiomass')`), which might be due to a delayed effect of the decline in recruitment.
 
 
 ```{r}
@@ -409,7 +412,7 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   theme_bw() +
   ylab(expression(B[current] / B[0])) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = file.path(params$image_path,"trend_biomass.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
@@ -431,21 +434,22 @@ for (emu in unique(indicator$eel_emu_nameshort)) {
     theme_bw() +
     ylab(expression(B[current] / B[0])) +
     xlab("") +
-    xlim(2007, 2020) +
+    xlim(2007, 2023) +
     ggtitle(emu)
   
   ggsave(g, filename = paste0(file.path(params$image_path,"trendbiomassplots/trend_biomass_"), emu, ".png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
 }
 ```
-::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-trendbiomass")` Trends in reported Bcurrent/B0. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation.
+
+::: {custom-style="Table Caption"}
+Figure `r run_bookmark("figtrendbiomass", runs_figure)`: Time series of reported $B_{current}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the 40% target according to the Eel Regulation.
 :::
 
 
 <br>
 
 ::: {custom-style="Image Caption"}
-`r add_table_caption("tbl-trendbiomass")` Results of Mann-Kendall test for monotonic trends per EMU for $B_{current}$ (kg). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
+Table `r run_bookmark("tbl-trendbiomass", runs_table)`: Results of Mann-Kendall test for monotonic trends per EMU for $B_{current}$ (kg). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
 :::
 
 
@@ -494,20 +498,20 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   theme_bw() +
   ylab(expression(B[current_without_stocking] / B[0])) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = file.path(params$image_path,"trend_biomass_without_stocking.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"trend_biomass_without_stocking.png"))
 ```
 ::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-trendbiomasswithoutstocking")` Trends in reported $B_{current\_without\_stocking}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation.
+Figure `r run_bookmark("fig-trendbiomasswithoutstocking", runs_figure)` Trends in reported $B_{current\_without\_stocking}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation.
 :::
 ### Mortality indicators
 
 #### Fishing mortality
 
-Figure `r run_reference("fig-trendmortasumf")` and Table `r run_reference("tbl-trendsumf")` show the trends in reported fishing mortality.
+Figure `r run_reference("fig-trendmortasumf")` and Table `r run_reference("tbl-trendsumf")` show the time series of reported fishing mortality per EMU and the results of the Mann-Kendall trend tests.
 
 
 
@@ -524,7 +528,7 @@ sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) 
   theme_bw() +
   ylab(expression(Sigma~F~(year^{-1}))) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(sumf, file = file.path(params$image_path,"trend_sumf.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
@@ -532,12 +536,12 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumf.png"))
 ```
 
 ::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-trendmortasumf")` Trends in reported ΣF. Each coloured line represents a specific EMU.
+Figure `r run_bookmark("fig-trendmortasumf", runs_figure)`: Time series of reported ΣF. Each coloured line represents a specific EMU. The red horizontal line stands for the 0.95 year^{-1} limit.
 :::
 
 
 ::: {custom-style="Image Caption"}
-`r add_table_caption("tbl-trendsumf")` Results of Mann-Kendall test for monotonic trends per EMU for sumF ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
+Table `r run_bookmark("tbl-trendsumf", runs_table)`: Results of Mann-Kendall test for monotonic trends per EMU for sumF ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
 :::
 
 
@@ -563,7 +567,7 @@ Interestingly, the reduction in fishing mortality is more visible than the incre
 
 #### Others anthropogenic mortalities
 
-Figure `r run_reference("fig-trendmortasumh")` and Table `r run_reference("tbl-trendsumh")` show the trends in reported other anthropogenic mortalities. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for. 
+Figure `r run_reference("fig-trendmortasumh")` and Table `r run_reference("tbl-trendsumh")` show the time series of reported other anthropogenic mortalities and the results of the Mann-Kendall trend tests. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for. 
 
 ```{r}
 #| fig-height: 6.3
@@ -577,14 +581,14 @@ sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) 
   theme_bw() +
   ylab(expression(Sigma~H~(year^{-1}))) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(sumh, file = file.path(params$image_path,"trend_sumh.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
 knitr::include_graphics(file.path(params$image_path,"trend_sumh.png"))
 ```
 ::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-trendmortasumh")` Trends in reported ΣH. Each coloured line represents a specific EMU.
+Figure `r run_bookmark("fig-trendmortasumh", runs_figure)`: Time series of reported ΣH. Each coloured line represents a specific EMU. The red horizontal line stands for the 0.95 year^{-1} limit.
 :::
 
 
@@ -592,7 +596,7 @@ knitr::include_graphics(file.path(params$image_path,"trend_sumh.png"))
 
 
 ::: {custom-style="Image Caption"}
-`r add_table_caption("tbl-trendsumh")` Results of Mann-Kendall test for monotonic trends per EMU for sumH ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
+Table `r run_bookmark("tbl-trendsumh", runs_table)`: Results of Mann-Kendall test for monotonic trends per EMU for sumH ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
 :::
 
 <br>
@@ -618,7 +622,7 @@ flextable( sumhtab |>
 The Workshop was asked to provide further insights on trends per mortality types (e.g. hydropower, contamination). However, given that (i) the number of significant trends for the combined "others anthropogenic mortalities" indicators is very small (Table `r run_reference("tbl-trendsumh")`) and (ii) that it is unclear which mortalities were accounted for in the different EMUs (and many of them were seemingly not accounted for at all), the experts were not in position to answer precisely the request but consider that reported trends in $sumH$ did not indicate a likely change in any other types of mortalities.
 
 #### Total anthropogenic mortality
-Figure `r run_reference("fig-trendmortasuma")` and Table `r run_reference('tbl-trendsuma')` show the resulting trends in reported total anthropogenic mortalities.
+Figure `r run_reference("fig-trendmortasuma")` and Table `r run_reference('tbl-trendsuma')` show the reported times series of reported total anthropogenic mortalities and the results of the Mann-Kendall trend tests.
 
 ```{r}
 #| fig-height: 6.3
@@ -632,7 +636,7 @@ suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) 
   theme_bw() +
   ylab(expression(Sigma~A~(year^{-1}))) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(suma, file = file.path(params$image_path,"trend_suma.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
@@ -641,14 +645,14 @@ knitr::include_graphics(file.path(params$image_path,"trend_suma.png"))
 
 
 ::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-trendmortasuma")` Trends in reported ΣA. Each coloured line represents a specific EMU.
+Figure: `r run_bookmark("fig-trendmortasuma", runs_figure)`: Time series of in reported ΣA. Each coloured line represents a specific EMU. The red horizontal line stands for the 0.95 year^{-1} limit.
 :::
 
 <br>
 
 
 ::: {custom-style="Image Caption"}
-`r add_table_caption("tbl-trendsuma")` Results of Mann-Kendall test for monotonic trends per EMU for sumA ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
+Table `r run_bookmark("tbl-trendsuma", runs_table)`: Results of Mann-Kendall test for monotonic trends per EMU for sumA ($year^{-1}$). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values reported. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-value indicates the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
 :::
 
 
@@ -700,14 +704,14 @@ knitr::include_graphics(img)
 
 ```
 ::: {custom-style="Image Caption"}
-`r add_figure_caption("fig-precoemu")` Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2021, 2022 and 2023: status of the stock (horizontal, spawner escapement ($B_{current}$) expressed as a percentage of the pristine escapement ($B_0$)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt). Points circled with black stand for EMU in which $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$.
+Figure `r run_bookmark("fig-precoemu", runs_figure)`: Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2021, 2022 and 2023: status of the stock (horizontal, spawner escapement ($B_{current}$) expressed as a percentage of the pristine escapement ($B_0$)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt). Points circled with black stand for EMU in which $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$.
 :::
 
 
 <br>
 
 ::: {custom-style="Image Caption"}
-`r add_table_caption("tbl-precoemu")` Position of EMUs in the precautionary diagram. The colours stand for the zones in the diagram. A "x" indicates that $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$.
+Table `r run_bookmark("tbl-precoemu", runs_table)`: Position of EMUs in the precautionary diagram. The colours stand for the zones in the diagram. A "x" indicates that $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$.
 :::
 
 <br>
@@ -775,9 +779,100 @@ f |>
 
 <br>
 
+
+::: {custom-style="Image Caption"}
+Table `r run_bookmark("tbl-precoemudetail", runs_table)`: Achievement of Eel Regulation target and of mortality reduction. A green background indicates that $B_{current}/B_0 \geq 40\%$ or that $\sum A \leq 0.92$ year^{-1}. A grey background indicates missing data. A "x" indicates that $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$.
+:::
+
+<br>
+
+```{r}
+#| label: flextableprecoemudetail
+f <- precodata_all |>
+  filter(aggreg_level == "emu",
+         eel_year %in% 2021:2023) |>
+  mutate(biomass = (ifelse(is.na(bcurrent), bcurrent_without_stocking, bcurrent)/b0)>=0.4,
+         mortality = suma <=0.92,
+         replace = ifelse(is.na(bcurrent) & !is.na(bcurrent_without_stocking), "x", "")) |>
+  select(eel_cou_code,eel_emu_nameshort,eel_year,replace, mortality, biomass) |>
+  filter(!(is.na(mortality) & is.na(biomass))) |>
+  pivot_wider(id_cols = all_of(c("eel_cou_code","eel_emu_nameshort")),
+              names_from = eel_year,
+              values_from = c(biomass, mortality, replace)) |>
+  arrange(eel_cou_code,eel_emu_nameshort) |>
+  rename(Country = eel_cou_code,
+         EMU = eel_emu_nameshort) |>
+  flextable()
+
+
+for (i in 2021:2023){
+  f <- f |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("mortality",
+                                              as.character(i),
+                                              sep = "_"),
+                                        "== TRUE")),
+                  j = as.character(paste("mortality",
+                                              as.character(i),
+                                              sep = "_")), 
+                  part = "body", 
+                  bg="green") |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("is.na(mortality",
+                                              as.character(i),
+                                              sep = "_"),
+                                        ")")),
+                  j = as.character(paste("mortality",
+                                              as.character(i),
+                                              sep = "_")), 
+                  part = "body", 
+                  bg="grey") |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("biomass",
+                                              as.character(i),
+                                              sep = "_"),
+                                        "== TRUE")),
+                  j = as.character(paste0("replace_",i)), 
+                  part = "body", 
+                  bg="green") |>
+    flextable::bg(i = as.formula(paste0("~",
+                                        paste("is.na(biomass",
+                                              as.character(i),
+                                              sep = "_"),
+                                        ")")),
+                  j = as.character(paste0("replace_",i)), 
+                  part = "body", 
+                  bg="grey")
+  
+  
+}
+
+newnames <- as.character(c(2021:2023, 2021:2023))
+
+names(newnames) <- c(paste0("mortality_", as.character(2021:2023)),
+                     paste0("replace_", as.character(2021:2023)))
+extra_header <- c(rep("mortality",3), rep("biomass", 3))
+names(extra_header) <- names(newnames)
+
+f |>
+  flextable::void(paste("mortality", 2021:2023, sep = "_")) |>
+  flextable::merge_v(j = 1, part = "body") |>
+  flextable::add_header_row(values = c("", "mortality", "biomass"),
+                            colwidths = c(5,3,3)) |>
+    flextable::delete_columns(j=paste("biomass",
+                                    2021:2023,
+                                    sep = "_")) |>
+  flextable::set_header_labels(values = as.list(newnames)) |>
+  flextable::merge_h(part = "header") |>
+  flextable2ICES()
+
+
+
+```
+
 ### Conclusions
 
-As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, the target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
+As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that the current low recruitment all over the distribution area, drastically reduces the possibility to achieve the 40% escapement target of the Eel Regulation, in any EMUs. This would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
 
 Implementing the WKFEA roadmap [@ices2021] is critical to achieving or delivering more standardised methods and more informative results in the future.
 
@@ -843,7 +938,7 @@ plot_indicator_emu <- function(data = indicator,
     theme_bw() +
     ylab(ylab) +
     xlab("") +
-    xlim(2007, 2020) +
+    xlim(2007, 2023) +
     facet_wrap(~eel_emu_nameshort,
                ncol = 4,
                nrow = 4)
@@ -910,7 +1005,7 @@ cat(res, sep = '\n')
 
 ```{r}
 #| label: fig-sumftrendsemu
-#| fig-cap: "Trends in reported sumF"
+#| fig-cap: "Time series of reported sumF (year^{-1}). The horizontal red line indicates the 0.92 year^{-1} threshold."
 #| fig-height: 6.3
 #| fig-width: 6.3
 
@@ -972,7 +1067,7 @@ cat(res, sep = '\n')
 
 ```{r}
 #| label: fig-sumhtrendsemu
-#| fig-cap: "Trends in reported sumH"
+#| fig-cap: "Reported time series of reported sumH (year^{-1}). The horizontal red line indicates the 0.92 year^{-1} threshold."
 #| fig-height: 6.3
 #| fig-width: 6.3
 
@@ -1033,7 +1128,7 @@ cat(res, sep = '\n')
 
 ```{r}
 #| label: fig-sumatrendsemu
-#| fig-cap: "Trends in reported sumA"
+#| fig-cap: "Time series of reported sumA (year^{-1}). The horizontal red line indicates the 0.92 year^{-1} threshold."
 #| fig-height: 6.3
 #| fig-width: 6.3
 
@@ -1103,7 +1198,7 @@ Figure @fig-precocountry displays the indicators aggregated by countries. The im
 #| echo: false
 #| fig-width: 6.3
 #| fig-height: 3.94
-#| fig-cap: "Precautionary Diagram for countries (ICES 2021b), presenting the reported data for the 2022 and 2023: status of the stock (horizontal, spawner escapement (B current) expressed as a percentage of the pristine escapement (B0)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt). Aggregation methods are detailed in SGIPEE report. Missing data might hinder the aggregation, as in Sweden where the missreporting of B0 in SE_East leads to an overestimation of Bcurrent/B0."
+#| fig-cap: "Precautionary Diagram for countries (ICES 2021b), presenting the reported data for the 2022 and 2023: status of the stock (horizontal, spawner escapement (B current) expressed as a percentage of the pristine escapement (B_0)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92 year^{-1}, corresponding to the 40% biomass target. Aggregation methods are detailed in SGIPEE report. Missing data might hinder the aggregation, as in Sweden where the missreporting of B_0 in SE_East leads to an overestimation of $B_{current}/B_{0}$."
 #|
 
 
