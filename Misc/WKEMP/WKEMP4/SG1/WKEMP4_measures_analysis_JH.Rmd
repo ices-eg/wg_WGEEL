@@ -290,35 +290,6 @@ plot3 <- ggplot(ImpactCountTable_combined, aes(x = measure_type, y = percentage,
 plot3
 ```
 
-Graph/Table with no. of measures per type for each EMU
-NOTE THAT SOME EMU's are missing - should we link here?
-
-
-```{r NoOfMeasuresPerCountry, echo=FALSE}
-
-# Create the MeasuresPerTypeEMU to list it in new df
-MeasuresPerTypeEMU <- measures_all_cleaned_EMP %>%
-  group_by(country) %>%
-  summarise(
-    `no. of EMUs` = n_distinct(emu_name_short),
-    .groups = 'drop'
-  )
-
-# Count the number of each measure_type per country
-MeasuresPerType <- measures_all_cleaned_EMP %>%
-  count(country, measure_type) %>%
-  spread(key = measure_type, value = n, fill = 0)
-
-# Combine the two data frames
-final_table <- MeasuresPerType %>%
-  left_join(MeasuresPerTypeEMU, by = "country") %>%
-  select(country, `no. of EMUs`, everything())
-
-# Print the table
-#kable(final_table, caption = "Number of Measures Per Country")
-flextable(final_table) %>% autofit()
-```
-
 
 By year implemented measures with direct effect - stacked bar (high/medium low impact)
 NOTE THE YEAR NA IS DIVIDED BY 10 for scale
@@ -329,6 +300,7 @@ measures_all_cleaned_EMP$impact <- gsub("high", "High", measures_all_cleaned_EMP
 measures_all_cleaned_EMP$impact <- gsub("indirect", "Not direct", measures_all_cleaned_EMP$impact)
 measures_all_cleaned_EMP$impact <- gsub("none", "Not reported", measures_all_cleaned_EMP$impact)
 measures_all_cleaned_EMP$impact <- gsub("N/A", "Not reported", measures_all_cleaned_EMP$impact)
+measures_all_cleaned_EMP$impact <- gsub("low", "Low", measures_all_cleaned_EMP$impact)
 
 
 # Create the new data frame with year_of_full_implementation and impact
@@ -363,22 +335,69 @@ ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fil
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
 ```
+Table with no. of measures per type for each country
+NOTE THAT SOME EMU's are missing - should we link here?
+
+
+```{r NoOfMeasuresPerCountry, echo=FALSE}
+
+# Create the MeasuresPerTypeEMU to list it in new df
+MeasuresPerTypeEMU <- measures_all_cleaned_EMP %>%
+  group_by(country) %>%
+  summarise(
+    `no. of EMUs` = n_distinct(emu_name_short),
+    .groups = 'drop'
+  )
+
+# Count the number of each measure_type per country
+MeasuresPerType <- measures_all_cleaned_EMP %>%
+  count(country, measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# Calculate the total measures per country
+TotalMeasuresPerCountry <- measures_all_cleaned_EMP %>%
+  count(country) %>%
+  rename(total = n)
+
+# Merge the total measures with the MeasuresPerType
+MeasuresPerType <- MeasuresPerType %>%
+  left_join(TotalMeasuresPerCountry, by = "country")
+
+# Calculate the percentage and format the values
+MeasuresPerType <- MeasuresPerType %>%
+  mutate(across(-c(country, total), ~ paste0(.x, " (", round(.x / total * 100, 1), "%)")))
+
+# Remove the total column as it's no longer needed
+MeasuresPerType <- MeasuresPerType %>%
+  select(-total)
+
+# Combine the two data frames
+final_table <- MeasuresPerType %>%
+  left_join(MeasuresPerTypeEMU, by = "country") %>%
+  select(country, `no. of EMUs`, everything())
+
+# Print the table using flextable
+flextable(final_table) %>% autofit()
+```
+
 
 Graph of implementation percentage - stacked bars by measure type (implemented/partially implemented ... etc)
 
 
 ```{r ImplementationPercentage_setup, echo=FALSE, warning = FALSE, message = FALSE}
 
-
+#Bit of cleaning and troubleshooting
+measures_all_cleaned_EMP_2 = measures_all_cleaned_EMP
 # Replace values in the progress column
-measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
-measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
-
+measures_all_cleaned_EMP_2$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP_2$progress)
+measures_all_cleaned_EMP_2$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP_2$progress)
 # Combine NA and "Not Available / Not Pertinent" into one category
-measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
+measures_all_cleaned_EMP_2$progress[is.na(measures_all_cleaned_EMP_2$progress)] <- "Not Available / Not Pertinent"
+
+#PLOT 1
 
 # Create a contingency table that includes NA values
-ProgressCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$progress)
+ProgressCountTable <- table(measures_all_cleaned_EMP_2$measure_type, measures_all_cleaned_EMP_2$progress)
 
 # Convert the table to a data frame
 ProgressCountTable <- as.data.frame.matrix(ProgressCountTable)
@@ -400,20 +419,17 @@ ProgressCountTable_counts_long <- tidyr::gather(ProgressCountTable_counts_long, 
 TotalCounts <- aggregate(count ~ measure_type, data = ProgressCountTable_counts_long, sum)
 colnames(TotalCounts)[2] <- "total_count"
 
-
-# Set the levels of the 'progress' factor in the desired order
-ProgressCountTable_long$progress <- factor(ProgressCountTable_long$progress, 
-                                           levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
-
 # Merge the totals with the percentages
 ProgressCountTable_long <- merge(ProgressCountTable_long, TotalCounts, by = "measure_type")
 
-
+# Set the levels of the 'progress' factor in the desired order
+ProgressCountTable_long$progress <- factor(ProgressCountTable_long$progress, 
+                                           levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / Not Pertinent"))
 
 #PLOT 2
 
 # Create a contingency table for country and progress
-ProgressCountTable_country <- table(measures_all_cleaned_EMP$country, measures_all_cleaned_EMP$progress)
+ProgressCountTable_country <- table(measures_all_cleaned_EMP_2$country, measures_all_cleaned_EMP_2$progress)
 
 # Convert the table to a data frame
 ProgressCountTable_country <- as.data.frame.matrix(ProgressCountTable_country)
@@ -437,17 +453,13 @@ colnames(TotalCounts_country)[2] <- "total_count"
 
 # Set the levels of the 'progress' factor in the desired order
 ProgressCountTable_country_long$progress <- factor(ProgressCountTable_country_long$progress, 
-                                                   levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
+                                                   levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / Not Pertinent"))
 
 
 ### PLOT 3
 
-
-# Combine NA and "Not Available / Not Pertinent" into one category
-measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
-
 # Create a contingency table for measure_type, country, and progress
-ProgressCountTable_combined <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$country, measures_all_cleaned_EMP$progress)
+ProgressCountTable_combined <- table(measures_all_cleaned_EMP_2$measure_type, measures_all_cleaned_EMP_2$country, measures_all_cleaned_EMP_2$progress)
 
 # Convert the table to a data frame
 ProgressCountTable_combined <- as.data.frame(ProgressCountTable_combined)
@@ -472,7 +484,7 @@ ProgressCountTable_combined <- merge(ProgressCountTable_combined, TotalCounts_co
 
 # Set the levels of the 'progress' factor in the desired order
 ProgressCountTable_combined$progress <- factor(ProgressCountTable_combined$progress, 
-                                               levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
+                                               levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / Not Pertinent"))
 
 ```
 
@@ -826,18 +838,18 @@ measures_quantifiable <- measures_all_cleaned_EMP %>%
 measure_types <- unique(measures_quantifiable$measure_type)
 
 # Create summary tables for each measure type
-quantifiable_tables <- lapply(measure_types, function(mt) {
-  create_summary_table(measures_quantifiable, mt)
-})
+#quantifiable_tables <- lapply(measure_types, function(mt) {
+#  create_summary_table(measures_quantifiable, mt)
+#})
 
 # Print each table using kable
-for (i in seq_along(quantifiable_tables)) {
-  cat("\n### Measure Type:", measure_types[i], "\n")
-  print(kable(quantifiable_tables[[i]], caption = paste("Count of quantifiable measures for", measure_types[i], "and whether they are monitored or not")))
-}
+#for (i in seq_along(quantifiable_tables)) {
+#  cat("\n### Measure Type:", measure_types[i], "\n")
+#  print(kable(quantifiable_tables[[i]], caption = paste("Count of quantifiable measures for", measure_types[i], "and whether they #are monitored or not")))
+#}
 
 # Filter the data frame for direct measures only
-measures_direct <- measures_all %>%
+measures_direct <- measures_all_cleaned_EMP %>%
   filter(std_direct %in% c("y"))
 
 # Create summary tables for each measure type
@@ -845,10 +857,11 @@ direct_tables <- lapply(measure_types, function(mt) {
   create_summary_table(measures_direct, mt)
 })
 
-# Print each table using kable
+# Print each table using flextable with autofit
 for (i in seq_along(direct_tables)) {
   cat("\n### Measure Type:", measure_types[i], "\n")
-  print(kable(direct_tables[[i]], caption = paste("Count of direct measures for", measure_types[i], "and whether they are monitored or not")))
+  ft <- flextable(direct_tables[[i]]) %>% autofit()
+  print(ft)
 }
 
 ```
@@ -871,6 +884,156 @@ flextable(MeasuresPerType_) %>% autofit()
 
 ```
 
+```{r create bar chart showing data availability on target, echo=FALSE, warning = FALSE, message = FALSE}
 
+#do some edits to include degree achieved
+measures_target <- measures_all_cleaned_EMP %>%
+  select(id, country, measure_type, target_value_numeric, target_degree_achieved, target_value_achieved_numeric) %>% 
+  mutate(target_degree_achieved = ifelse(!is.na(target_value_achieved_numeric), NA, target_degree_achieved))
+         
+
+# 1. by country & measure_type
+
+#create a dataframe calculating percentages 
+summary_target <- measures_target %>% 
+  group_by(country, measure_type) %>% 
+  summarize(measures_total = length(id),
+            measures_target = (length(id[which(!is.na(target_value_numeric))])),
+            measures_semi = (length(id[which(!is.na(target_degree_achieved) & !is.na(target_value_numeric))])) + (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])),
+            measures_quant = (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])))
+
+#turn to long for graphs 
+percentage_long <- summary_target %>% 
+  mutate(perc_target = (measures_target/measures_total)*100,
+         perc_semi = (measures_semi/measures_total)*100,
+         perc_quant = (measures_quant/measures_total)*100,
+         d_quant = perc_quant,
+         c_semi = perc_semi - d_quant,
+         b_target = perc_target - c_semi - d_quant,
+         a_total = 100 - b_target - c_semi - d_quant) %>% 
+         select(country, measure_type, measures_total, a_total, b_target, c_semi, d_quant) %>% 
+  pivot_longer(cols = c(a_total, b_target, c_semi, d_quant), names_to = "category", values_to = "no_measures")
+
+
+
+# 2. by country 
+
+#create a dataframe calculating percentages 
+summary_target_cou <- measures_target %>% 
+  group_by(country) %>% 
+  summarize(measures_total = length(id),
+            measures_target = (length(id[which(!is.na(target_value_numeric))])),
+            measures_semi = (length(id[which(!is.na(target_degree_achieved) & !is.na(target_value_numeric))])) + (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])),
+            measures_quant = (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])))
+
+#turn to long for graphs 
+percentage_long_cou <- summary_target_cou %>% 
+  mutate(perc_target = (measures_target/measures_total)*100,
+         perc_semi = (measures_semi/measures_total)*100,
+         perc_quant = (measures_quant/measures_total)*100,
+         d_quant = perc_quant,
+         c_semi = perc_semi - d_quant,
+         b_target = perc_target - c_semi - d_quant,
+         a_total = 100 - b_target - c_semi - d_quant) %>% 
+         select(country, measures_total, a_total, b_target, c_semi, d_quant) %>% 
+  pivot_longer(cols = c(a_total, b_target, c_semi, d_quant), names_to = "category", values_to = "no_measures")
+
+
+
+
+# 3. by measure type 
+
+#create a dataframe calculating percentages 
+summary_target_mt <- measures_target %>% 
+  group_by(measure_type) %>% 
+  summarize(measures_total = length(id),
+            measures_target = (length(id[which(!is.na(target_value_numeric))])),
+            measures_semi = (length(id[which(!is.na(target_degree_achieved) & !is.na(target_value_numeric))])) + (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])),
+            measures_quant = (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])))
+
+#turn to long for graphs 
+percentage_long_mt <- summary_target_mt %>% 
+  mutate(perc_target = (measures_target/measures_total)*100,
+         perc_semi = (measures_semi/measures_total)*100,
+         perc_quant = (measures_quant/measures_total)*100,
+         d_quant = perc_quant,
+         c_semi = perc_semi - d_quant,
+         b_target = perc_target - c_semi - d_quant,
+         a_total = 100 - b_target - c_semi - d_quant) %>% 
+         select(measure_type, measures_total, a_total, b_target, c_semi, d_quant) %>% 
+  pivot_longer(cols = c(a_total, b_target, c_semi, d_quant), names_to = "category", values_to = "no_measures")
+
+
+
+
+
+
+
+
+```
+
+```{r print report plots target available, echo=FALSE, warning = FALSE, message = FALSE}
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+target_by_country <- ggplot(percentage_long_cou, aes(x = country, y = no_measures, fill = category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(x = country, y = 100, label = paste0("n = ", measures_total)), 
+          vjust = -0.2, size = 3, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+  labs(x = "Country", y = "Percentage", title = "", fill = "Progress") +
+  theme_void() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        axis.text.y = element_text(size = 12),  
+        axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
+        plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
+        legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 2)) +  # Split legend into two rows
+  scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
+  scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05)))
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+target_by_mt <- ggplot(percentage_long_mt, aes(x = measure_type, y = no_measures, fill = category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(x = measure_type, y = 100, label = paste0("n = ", measures_total)), 
+          vjust = -0.2, size = 3, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
+  theme_void() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        axis.text.y = element_text(size = 12),  
+        axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
+        plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
+        legend.position = "none") +
+  scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
+  scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(labels = label_wrap(10), expand = expansion(add = c(1.00, 1.05)))  #label_wrap splits it into 2 rows
+
+target_by_country
+target_by_mt
+
+
+```
+
+
+```{r print panel plot for target available, echo=FALSE, warning = FALSE, message = FALSE, fig.height=9, fig.width=6.5}
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+target <- ggplot(percentage_long, aes(x = measure_type, y = no_measures, fill = category)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(aes(x = measure_type, y = 100, label = paste0("n = ", measures_total)), 
+          vjust = -0.2, size = 1.6, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
+  theme_void() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),
+        axis.text.y = element_text(size = 12),  
+        axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
+        plot.margin = margin(t = 10, r = 10, b = 10, l = 20)) +
+  scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
+scale_y_continuous(limits = c(0, 118), breaks = seq(0, 100, by = 25)) +
+scale_x_discrete(expand = expansion(add = c(1.00, 1.05)))+
+facet_wrap(~country, ncol = 3, nrow = 6)
+
+target
+
+```
 
 

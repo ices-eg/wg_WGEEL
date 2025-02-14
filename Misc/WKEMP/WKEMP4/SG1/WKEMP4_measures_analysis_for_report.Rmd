@@ -1,7 +1,7 @@
 
 ---
 title: "WKEMP4_measures_summary"
-author: "none (contact Jani H for questions)"
+author: "THIS IS OLD VERSION. Use WKEMP4_measures_analysis_JH INSTEAD. AND _JD for extra tables."
 date: "`r Sys.Date()`"
 
 output:
@@ -439,7 +439,7 @@ Graph/Table with no. of measures per type for each EMU
 NOTE THAT SOME EMU's are missing - should we link here?
 
 
-```{r NoOfMeasuresPerCountry, echo=FALSE}
+```{r NoOfMeasuresPerCountryA, echo=FALSE}
 
 
 
@@ -755,7 +755,7 @@ knitr::include_graphics("plot2.png")
 Graph/Table with no. of measures per type for each country
 
 
-```{r NoOfMeasuresPerCountry, echo=FALSE}
+```{r NoOfMeasuresPerCountryB, echo=FALSE}
 
 # Apply the function to clean the columns
 measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
