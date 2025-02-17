@@ -189,15 +189,13 @@ target
 
 measures_target_table <- measures_target %>% 
   filter(!is.na(target_value_numeric) & !is.na(target_value_achieved_numeric)) %>% 
-  select(emu_name_short, measure_type, measure_description, target_value, target_unit, target_value_achieved) %>%
-  mutate(target_value = (paste(target_value, target_unit, sep = " ")),
-         target_value_achieved = (paste(target_value_achieved, target_unit, sep = " "))) %>% 
-  select(-target_unit) %>% 
+  select(emu_name_short, measure_type, measure_description, target_value, target_value_achieved, target_unit) %>%
   arrange(emu_name_short) %>% 
   rename("EMU" = emu_name_short,
          "Target value" = target_value,
          "Value achieved" = target_value_achieved,
-         "Measure description" = measure_description)
+         "Measure description" = measure_description,
+         "Unit" = target_unit)
 
 measures_target_com <- measures_target_table %>% 
   filter(measure_type == "Commercial fishery") %>% 
