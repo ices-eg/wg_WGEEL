@@ -36,7 +36,7 @@ load("output/measures_all_cleaned.RData")
 
 #do some edits to include degree achieved
 measures_target <- measures_all_cleaned_EMP %>%
-  select(id, country, emu_name_short, measure_type, measure_description, target_value_numeric, target_degree_achieved, target_value_achieved_numeric, target_value, target_value_achieved, target_unit) %>% 
+  select(id, country, emu_name_short, measure_type, submeasure_type, measure_description, target_value_numeric, target_degree_achieved, target_value_achieved_numeric, target_value, target_value_achieved, target_unit, effectiveness_monitored, estimated_effect_size, effect_size_unit) %>% 
   mutate(target_degree_achieved = ifelse(!is.na(target_value_achieved_numeric), NA, target_degree_achieved),
          measure_type = recode(measure_type, "Commercial_fishery" = "Commercial fishery", "Eel_governance" = "Eel governance", "Eel_trade_and_marketing" = "Eel trade and marketing", "Habitat_improvement" = "Habitat improvement", "Hydropower_and_obstacles" = "Hydropower and obstacles", "Recreational_fishery" = "Recreational fishery", "Scientific_monitoring" = "Scientific monitoring"))
   
@@ -123,6 +123,9 @@ percentage_long_mt <- summary_target_mt %>%
 
 ```
 
+## 1. TARGET
+
+\
 ```{r print report plots target available, echo=FALSE, warning = FALSE, message = FALSE}
 
 # Create the stacked bar chart with total counts as labels at the top of each bar
@@ -136,7 +139,8 @@ target_by_country <- ggplot(percentage_long_cou, aes(x = country, y = no_measure
         axis.text.y = element_text(size = 12),  
         axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
-        legend.position = "bottom") +
+        legend.position = "bottom",
+        legend.title = element_blank()) +
   scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
   scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
   scale_x_discrete(expand = expansion(add = c(1.00, 1.05)))
@@ -152,7 +156,8 @@ target_by_mt <- ggplot(percentage_long_mt, aes(x = measure_type, y = no_measures
         axis.text.y = element_text(size = 12),  
         axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
-        legend.position = "none") +
+        legend.position = "none",
+        legend.title = element_blank()) +
   scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
   scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
   scale_x_discrete(expand = expansion(add = c(1.00, 1.05)),
@@ -161,7 +166,9 @@ target_by_mt <- ggplot(percentage_long_mt, aes(x = measure_type, y = no_measures
 target_by_country
 target_by_mt
 ```
-
+\
+**Fig XX** Number of measures where targets and/or their achievement were reported, by measure type (top) and country (bottom). Values on the y-axis represent percentages in the respective categories, while absolute numbers of measures are displayed above the bars. Only measures reported as planned within EMP are considered. 
+Note, that for few measures a level of achievement was reported (either quantitative or semi-quantitative) but no target value was provided; these were counted as "No target".
 
 ```{r print panel plot for target available, echo=FALSE, warning = FALSE, message = FALSE, fig.height=9, fig.width=6.5}
 
@@ -184,76 +191,90 @@ facet_wrap(~country, ncol = 3, nrow = 6)
 target
 
 ```
-
+\
+**Fig ANNEX XX** Number of measures where targets and/or their achievement were reported, by measure type per country. Values on the y-axis represent percentages in the respective categories, while absolute numbers of measures are displayed above the bars. Only measures reported as planned within EMP are considered.
+Note, that for few measures a level of achievement was reported (either quantitative or semi-quantitative) but no target value was provided; these were counted as "No target".
 ```{r targets table, echo=FALSE, warning = FALSE, message = FALSE}
 
 measures_target_table <- measures_target %>% 
   filter(!is.na(target_value_numeric) & !is.na(target_value_achieved_numeric)) %>% 
-  select(emu_name_short, measure_type, measure_description, target_value, target_value_achieved, target_unit) %>%
-  arrange(emu_name_short) %>% 
+  select(emu_name_short, measure_type, measure_description, target_value, target_value_achieved, target_unit, effectiveness_monitored, estimated_effect_size, effect_size_unit) %>%
+  mutate(across(everything(), ~ replace_na(.x, "")),
+         effect = paste(estimated_effect_size, effect_size_unit, sep = " ")) %>% 
+  select(-estimated_effect_size, -effect_size_unit) %>%
+  arrange(emu_name_short, measure_type) %>% 
   rename("EMU" = emu_name_short,
          "Target value" = target_value,
          "Value achieved" = target_value_achieved,
          "Measure description" = measure_description,
-         "Unit" = target_unit)
+         "Target unit" = target_unit,
+         "Affected stock indicator" = effectiveness_monitored,
+         "Effect size (stock indicator)" = effect)
 
 measures_target_com <- measures_target_table %>% 
   filter(measure_type == "Commercial fishery") %>% 
-  rename("Measure type" = measure_type)
+  select(-measure_type)
 
 measures_target_rec <- measures_target_table %>% 
   filter(measure_type == "Recreational fishery") %>% 
-  rename("Measure type" = measure_type)
+  select(-measure_type)
 
 measures_target_sto <- measures_target_table %>% 
   filter(measure_type == "Stocking") %>% 
-  rename("Measure type" = measure_type)
+  select(-measure_type)
 
 measures_target_h <- measures_target_table %>% 
   filter(measure_type == "Hydropower and obstacles") %>% 
-  rename("Measure type" = measure_type)
+  select(-measure_type)
 
 
 ```
-
+\
+**Tab XX** Table of measures, as reported by countries, under the measure type "Commercial fishery", where a quantitative estimate of both, the target value and the level of achievement was available, grouped by EMU and submeasure type. Where available, a measure of the effectiveness (quantified as a change in the stock indicators SigmaF, SigmaH or Bcurrent) is provided as reported by countires. Only measures reported as planned within EMP are considered. 
 ```{r targets table com, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(measures_target_com) %>% autofit() 
+flextable(measures_target_com) %>% set_table_properties(layout = "autofit") 
   
 
-```
 
+```
+\
+**Tab XX** Table of measures, as reported by countries, under the measure type "Recreational fishery fishery", where a quantitative estimate of both, the target value and the level of achievement was available, grouped by EMU and submeasure type. Where available, a measure of the effectiveness (quantified as a change in the stock indicators SigmaF, SigmaH or Bcurrent) is provided as reported by countires. Only measures reported as planned within EMP are considered.
 ```{r targets table rec, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(measures_target_rec) %>% autofit()
+flextable(measures_target_rec) %>% set_table_properties(layout = "autofit")
 
 ```
-
+\
+**Tab XX** Table of measures, as reported by countries, under the measure type "Stocking", where a quantitative estimate of both, the target value and the level of achievement was available, grouped by EMU and submeasure type. Where available, a measure of the effectiveness (quantified as a change in the stock indicators SigmaF, SigmaH or Bcurrent) is provided as reported by countires. Only measures reported as planned within EMP are considered.
 ```{r targets table sto, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(measures_target_sto) %>% autofit()
+flextable(measures_target_sto) %>% set_table_properties(layout = "autofit")
 
 ```
-
+\
+**Tab XX** Table of measures, as reported by countries, under the measure type "Hydropower and obstacles", where a quantitative estimate of both, the target value and the level of achievement was available, grouped by EMU and submeasure type. Where available, a measure of the effectiveness (quantified as a change in the stock indicators SigmaF, SigmaH or Bcurrent) is provided as reported by countires. Only measures reported as planned within EMP are considered.
 ```{r targets table h, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(measures_target_h) %>% autofit()
+flextable(measures_target_h) %>% set_table_properties(layout = "autofit")
 
 ```
-
+\
 ```{r prepare table with stock indicators where known, echo=FALSE, warning = FALSE, message = FALSE}
 
 indicators_table <- measures_all_cleaned %>% 
   select(emu_name_short, measure_type, submeasure_type, effectiveness_monitored, estimated_effect_size, effect_size_unit, effect_size_true) %>% 
   filter(effect_size_true != "Not monitored" & estimated_effect_size != 0) %>% 
-  mutate(effect_size = paste(estimated_effect_size, effect_size_unit, sep = " ")) %>%  
+  mutate(across(everything(), ~ replace_na(.x, "")),
+         effect_size = paste(estimated_effect_size, effect_size_unit, sep = " ")) %>%  
   select(-effect_size_true, -estimated_effect_size, -effect_size_unit) %>% 
   arrange(emu_name_short) %>% 
   rename("EMU" = emu_name_short,
          "Effect size" = effect_size,
          "Parameter" = effectiveness_monitored,
          "Submeasure" = submeasure_type,
-         "Measure type" = measure_type)
+         "Measure type" = measure_type) 
+  
 
 table_F <- indicators_table %>% 
   filter(Parameter == "ΔΣF")
@@ -266,22 +287,32 @@ table_B <- indicators_table %>%
 
 
 ```
+\
+
+## 2. EFFECTIVENESS (STOCK INDICATORS)
+
+\
+**Tab XX** Table of measures, as reported by countries, where a quantitative estimate of the effect on sigmaF was available; grouped by EMU, measure type and submeasure type. Only measures reported as planned within EMP are considered.
+\
 
 ```{r table F, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(table_F) %>% autofit()
+flextable(table_F) %>% set_table_properties(layout = "autofit")
 
 ```
 
+\
+**Tab XX** Table of measures, as reported by countries, where a quantitative estimate of the effect on sigmaH was available; grouped by EMU, measure type and submeasure type. Only measures reported as planned within EMP are considered.
 ```{r table A, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(table_A) %>% autofit()
+flextable(table_A) %>% set_table_properties(layout = "autofit")
 
 ```
-
+\
+**Tab XX** Table of measures, as reported by countries, where a quantitative estimate of the effect on Bcurrent was available; grouped by EMU, measure type and submeasure type. Only measures reported as planned within EMP are considered.
 ```{r table B, echo=FALSE, warning = FALSE, message = FALSE}
 
-flextable(table_B) %>% autofit()
+flextable(table_B) %>% set_table_properties(layout = "autofit")
 
 ```
 
