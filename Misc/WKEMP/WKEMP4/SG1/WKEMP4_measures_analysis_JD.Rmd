@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis", "stringr") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -36,8 +36,11 @@ load("output/measures_all_cleaned.RData")
 
 #do some edits to include degree achieved
 measures_target <- measures_all_cleaned_EMP %>%
-  select(id, country, measure_type, target_value_numeric, target_degree_achieved, target_value_achieved_numeric) %>% 
-  mutate(target_degree_achieved = ifelse(!is.na(target_value_achieved_numeric), NA, target_degree_achieved))
+  select(id, country, emu_name_short, measure_type, measure_description, target_value_numeric, target_degree_achieved, target_value_achieved_numeric, target_value, target_value_achieved, target_unit) %>% 
+  mutate(target_degree_achieved = ifelse(!is.na(target_value_achieved_numeric), NA, target_degree_achieved),
+         measure_type = recode(measure_type, "Commercial_fishery" = "Commercial fishery", "Eel_governance" = "Eel governance", "Eel_trade_and_marketing" = "Eel trade and marketing", "Habitat_improvement" = "Habitat improvement", "Hydropower_and_obstacles" = "Hydropower and obstacles", "Recreational_fishery" = "Recreational fishery", "Scientific_monitoring" = "Scientific monitoring"))
+  
+  
          
 
 # 1. by country & measure_type
@@ -152,7 +155,8 @@ target_by_mt <- ggplot(percentage_long_mt, aes(x = measure_type, y = no_measures
         legend.position = "none") +
   scale_fill_viridis_d(labels = c("a_total" = "No target", "b_target" = "Target only", "c_semi" = "Achievement semi-quantified", "d_quant" = "Achievement quantified")) +
   scale_y_continuous(limits = c(0, 120), breaks = seq(0, 100, by = 25)) +
-  scale_x_discrete(expand = expansion(add = c(1.00, 1.05)))
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05)),
+                   labels = function(x) str_wrap(x, width = 13))
 
 target_by_country
 target_by_mt
@@ -181,6 +185,64 @@ target
 
 ```
 
+```{r targets table, echo=FALSE, warning = FALSE, message = FALSE}
+
+measures_target_table <- measures_target %>% 
+  filter(!is.na(target_value_numeric) & !is.na(target_value_achieved_numeric)) %>% 
+  select(emu_name_short, measure_type, measure_description, target_value, target_unit, target_value_achieved) %>%
+  mutate(target_value = (paste(target_value, target_unit, sep = " ")),
+         target_value_achieved = (paste(target_value_achieved, target_unit, sep = " "))) %>% 
+  select(-target_unit) %>% 
+  arrange(emu_name_short) %>% 
+  rename("EMU" = emu_name_short,
+         "Target value" = target_value,
+         "Value achieved" = target_value_achieved,
+         "Measure description" = measure_description)
+
+measures_target_com <- measures_target_table %>% 
+  filter(measure_type == "Commercial fishery") %>% 
+  rename("Measure type" = measure_type)
+
+measures_target_rec <- measures_target_table %>% 
+  filter(measure_type == "Recreational fishery") %>% 
+  rename("Measure type" = measure_type)
+
+measures_target_sto <- measures_target_table %>% 
+  filter(measure_type == "Stocking") %>% 
+  rename("Measure type" = measure_type)
+
+measures_target_h <- measures_target_table %>% 
+  filter(measure_type == "Hydropower and obstacles") %>% 
+  rename("Measure type" = measure_type)
+
+
+```
+
+```{r targets table com, echo=FALSE, warning = FALSE, message = FALSE}
+
+flextable(measures_target_com) %>% autofit() 
+  
+
+```
+
+```{r targets table rec, echo=FALSE, warning = FALSE, message = FALSE}
+
+flextable(measures_target_rec) %>% autofit()
+
+```
+
+```{r targets table sto, echo=FALSE, warning = FALSE, message = FALSE}
+
+flextable(measures_target_sto) %>% autofit()
+
+```
+
+```{r targets table h, echo=FALSE, warning = FALSE, message = FALSE}
+
+flextable(measures_target_h) %>% autofit()
+
+```
+
 ```{r prepare table with stock indicators where known, echo=FALSE, warning = FALSE, message = FALSE}
 
 indicators_table <- measures_all_cleaned %>% 
@@ -190,7 +252,7 @@ indicators_table <- measures_all_cleaned %>%
   select(-effect_size_true, -estimated_effect_size, -effect_size_unit) %>% 
   arrange(emu_name_short) %>% 
   rename("EMU" = emu_name_short,
-         "Effect_size" = effect_size,
+         "Effect size" = effect_size,
          "Parameter" = effectiveness_monitored,
          "Submeasure" = submeasure_type,
          "Measure type" = measure_type)
