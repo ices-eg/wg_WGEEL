@@ -163,8 +163,13 @@ references_all <- map_dfr(files_17, function(x) {
 })
 
 #create readable table for report Annex
+removed_delete <- measures_all %>%
+  filter(country == "Great_Britain") 
+
+measures_all_short <- anti_join(measures_all, removed_delete)
+
 measures_all_short <- measures_all_cleaned %>% 
-  select(-id, -c(26:47))
+  select(-id, -c(32:47))
 
 #save result
 save(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.RData")
