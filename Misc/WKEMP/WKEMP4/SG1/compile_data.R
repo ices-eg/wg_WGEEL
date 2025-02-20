@@ -162,6 +162,14 @@ references_all <- map_dfr(files_17, function(x) {
   return(df)
 })
 
+#create readable table for report Annex
+measures_all_short <- measures_all_cleaned %>% 
+  select(-id, -c(26:47))
+
 #save result
 save(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.RData")
 write.csv2(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.csv", row.names = FALSE)
+
+#save "nicer" table as RData and csv
+save(measures_all_short, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_short.RData")
+write.csv2(measures_all_short, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_short.csv", row.names = FALSE)
