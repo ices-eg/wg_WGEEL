@@ -311,12 +311,16 @@ ImpactCountTable_combined <- merge(ImpactCountTable_combined, TotalCounts_combin
 # Create the third graph with measures on x-axis and faceted by country using percentages
 plot3 <- ggplot(ImpactCountTable_combined, aes(x = measure_type, y = percentage, fill = impact)) +
   geom_bar(stat = "identity") +
-  geom_text(aes(x = measure_type, y = 100, label = paste0("", total_count)), 
-            vjust = 0.22, size = 2, inherit.aes = FALSE) +
   facet_wrap(~ country, ncol = 3) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 4.5),  # Adjust size for legend text
+        legend.title = element_text(size = 6),  # Adjust size for legend title
+        legend.key.size = unit(0.5, "lines")) +  # Adjust size for legend colored boxes
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
+            vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
   scale_fill_viridis_d()
 
 # Save the plot with a specified height
@@ -663,7 +667,7 @@ plot3_progress <- ggplot(ProgressCountTable_combined, aes(x = measure_type, y = 
         legend.text = element_text(size = 4.5),  # Adjust size for legend text
         legend.title = element_text(size = 6),  # Adjust size for legend title
         legend.key.size = unit(0.5, "lines")) +  # Adjust size for legend colored boxes
-  geom_text(aes(x = measure_type, y = 97, label = paste0("", total_count)), 
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
             vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
   scale_fill_viridis_d()
 
@@ -937,11 +941,11 @@ plot3_effectiveness <- ggplot(EffectivenessCountTable_combined, aes(x = measure_
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
-        strip.text = element_text(size = 6),  # Adjust size for facet titles
-        legend.text = element_text(size = 6),  # Adjust size for legend text
-        legend.title = element_text(size = 8),  # Adjust size for legend title
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 4.5),  # Adjust size for legend text
+        legend.title = element_text(size = 6),  # Adjust size for legend title
         legend.key.size = unit(0.5, "lines")) +  # Adjust size for legend colored boxes
-  geom_text(aes(x = measure_type, y = 97, label = paste0("", total_count)), 
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
             vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
   scale_fill_viridis_d()
 
