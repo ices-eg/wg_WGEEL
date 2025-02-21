@@ -171,6 +171,12 @@ measures_all_short <- anti_join(measures_all, removed_delete)
 measures_all_short <- measures_all_cleaned %>% 
   select(-id, -c(32:47))
 
+#create a table only with countries who responded to one of the calls
+measures_all_response <- measures_all_cleaned %>% 
+  filter(country != "Croatia" & country != "Estonia" & country != "Italy" & country != "Latvia" & country != "Luxembourg" & country != "Slovenia")
+
+length(unique(measures_all_response$emu_name_short))
+
 #save result
 save(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.RData")
 write.csv2(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.csv", row.names = FALSE)
