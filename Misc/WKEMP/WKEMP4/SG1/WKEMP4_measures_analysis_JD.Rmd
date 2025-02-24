@@ -177,7 +177,7 @@ Note, that for few measures a level of achievement was reported (either quantita
 target <- ggplot(percentage_long, aes(x = measure_type, y = no_measures, fill = category)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(x = measure_type, y = 105, label = paste0("", measures_total)), 
-            vjust = 0.22, size = 1.5, inherit.aes = FALSE, angle = 0) +
+            vjust = 0.22, size = 2, inherit.aes = FALSE, angle = 0) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_minimal() +  # Changed to theme_minimal to match other graphs
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
