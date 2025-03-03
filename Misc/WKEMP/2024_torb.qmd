@@ -56,7 +56,7 @@ library(viridis)
 library(stringr)
 library(vegan)
 library(sf)
-
+library(flextable)
 library(RPostgres)
 library(getPass)
 library(tidyr)
@@ -86,7 +86,7 @@ dbDisconnect(con)
 trendtable <- function(dat = precodata_all, ind = "suma"){
   dat |>
     filter(aggreg_level == "emu") |>
-    filter(eel_year >= 2017) |>
+    filter(eel_year >= 2007) |>
     select(all_of(c("eel_year",ind, "eel_emu_nameshort"))) |>
     filter(!is.na(.data[[ind]])) |>
     group_by(eel_emu_nameshort) |>
@@ -278,6 +278,7 @@ sumftab <- trendtable(ind = "sumf")
 sumhtab <- trendtable(ind = "sumh")
 sumatab <- trendtable(ind = "suma")
 biomasstrendtab <- trendtable(ind = "bcurrent")
+biomasswstrendtab <- trendtable(ind = "bcurrent_without_stocking")
 ```
 
 ## Changes in achieving specific target indicators
@@ -449,7 +450,7 @@ Figure `r run_bookmark("figtrendbiomass", runs_figure)`: Time series of reported
 <br>
 
 ::: {custom-style="Image Caption"}
-Table `r run_bookmark("tbl-trendbiomass", runs_table)`: Results of Mann-Kendall test for monotonic trends per EMU for $B_{current}$ (kg). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. Trend indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) report the same value for several yearsand this might affect the results of the trend test.
+Table `r run_bookmark("tbl-trendbiomass", runs_table)`: Results of Mann-Kendall tests for monotonic trends per EMU for $B_{current}$ (kg). 'n' represents the number of years for which estimates are available, while Δ is the difference between the first and the last reported values. Tau represents the direction of the trend (positive = increase, negative = decrease) and p-values indicate the significance of the trend. Arrows indicates the detection of a significant increasing (↗) or decreasing trend (↘). Some countries (e.g. NL and FR) have been reporting the same value for several years and this might affect the results of the trend test. For France, $B_{current\_without\_stocking}$ since $B_{current}$ was not reported.
 :::
 
 
@@ -457,6 +458,12 @@ Table `r run_bookmark("tbl-trendbiomass", runs_table)`: Results of Mann-Kendall 
 
 ```{r}
 #| label: flextabletrendbiomass
+
+biomasstrendtab <- biomasstrendtab |>
+  bind_rows(biomasswstrendtab |> filter(!EMU %in% biomasstrendtab$EMU) |>
+              mutate("without stocking" = "x")) |>
+  arrange(EMU)
+
 flextable(biomasstrendtab |>
             mutate(across(all_of(c("Initial","Final","Δ")),round),
                    trend = ifelse(`tau Kendall` < 0 & `p-value Kendall` <= 0.05, 
