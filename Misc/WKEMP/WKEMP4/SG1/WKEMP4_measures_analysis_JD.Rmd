@@ -12,7 +12,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 
 # define libraries needed
-libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis", "stringr") 
+libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis", "stringr", "openxlsx") 
 
 #define libraries already installed
 installed_libs <- libs %in% rownames(installed.packages())
@@ -36,7 +36,7 @@ load("output/measures_all_cleaned.RData")
 
 #do some edits to include degree achieved
 measures_target <- measures_all_cleaned_EMP %>%
-  select(id, country, emu_name_short, measure_type, submeasure_type, measure_description, target_value_numeric, target_degree_achieved, target_value_achieved_numeric, target_value, target_value_achieved, target_unit, effectiveness_monitored, estimated_effect_size, effect_size_unit) %>% 
+  select(id, country, emu_name_short, measure_type, submeasure_type, measure_description, target_value_numeric, target_degree_achieved, target_value_achieved_numeric, target_value, target_value_achieved, target_unit, effectiveness_monitored, estimated_effect_size, effect_size_unit, progress) %>% 
   mutate(target_degree_achieved = ifelse(!is.na(target_value_achieved_numeric), NA, target_degree_achieved),
          measure_type = recode(measure_type, "Commercial_fishery" = "Commercial fishery", "Eel_governance" = "Eel governance", "Eel_trade_and_marketing" = "Eel trade and marketing", "Habitat_improvement" = "Habitat improvement", "Hydropower_and_obstacles" = "Hydropower and obstacles", "Recreational_fishery" = "Recreational fishery", "Scientific_monitoring" = "Scientific monitoring"))
   
@@ -114,10 +114,33 @@ percentage_long_mt <- summary_target_mt %>%
          select(measure_type, measures_total, a_total, b_target, c_semi, d_quant) %>% 
   pivot_longer(cols = c(a_total, b_target, c_semi, d_quant), names_to = "category", values_to = "no_measures")
 
+#added a table for advice
+summary_target_advice <- measures_target %>% 
+  group_by(measure_type) %>% 
+  summarize(fully_implemented = (length(id[which(progress == "Fully_implemented")])),
+            partially_implemented = (length(id[which(progress == "Partially_implemented")])),
+            not_implemented = (length(id[which(progress == "Not_implemented")])),
+            not_pertinent = (length(id[which(progress == "NP")])),
+            stopped = (length(id[which(progress == "Stopped")])),
+            no_data = (length(id[which(is.na(progress))])),  
+            measures_total = length(id),
+            measures_target = (length(id[which(!is.na(target_value_numeric))])),
+            measures_semi = (length(id[which(!is.na(target_degree_achieved) & !is.na(target_value_numeric))])) + (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))])),
+            measures_quant = (length(id[which(!is.na(target_value_achieved_numeric) & !is.na(target_value_numeric))]))) %>% 
+  mutate("Fully implemented" = paste(fully_implemented, " (", round((fully_implemented/measures_total)*100, 1), "%", ")", sep = ""),
+         "Partially implemented" = paste(partially_implemented, " (", round((partially_implemented/measures_total)*100, 1), "%", ")", sep = ""),
+         "Not implemented" = paste(not_implemented, " (", round((not_implemented/measures_total)*100, 1), "%", ")", sep = ""),
+         "Not pertinent" = paste(not_pertinent, " (", round((not_pertinent/measures_total)*100, 1), "%", ")", sep = ""),
+         "Stopped" = paste(stopped, " (", round((stopped/measures_total)*100, 1), "%", ")", sep = ""),
+         "No data" = paste(no_data, " (", round((no_data/measures_total)*100, 1), "%", ")", sep = ""),
+         "Total no of EMP measures" = measures_total,
+         "Specific target set/Monitoring reported" = paste(measures_target, measures_semi, sep = "/")) %>% 
+  rename("Measure Type" = measure_type) %>% 
+  select(1, 12:19)
+ 
 
 
-
-
+write.xlsx(summary_target_advice, file = "summary_target_advice.xlsx")
 
 
 
