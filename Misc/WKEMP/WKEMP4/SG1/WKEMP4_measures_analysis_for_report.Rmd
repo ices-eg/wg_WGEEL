@@ -10,6 +10,9 @@ output:
 
 ---
 
+############OLD VERSION. USE ONLY FOR FINDING CODE NOT FOR PRINTING####
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
@@ -209,8 +212,8 @@ removed_non_EMP$country <- sapply(removed_non_EMP$country, clean_names)
 # Replace values in the impact column
 removed_non_EMP$impact <- gsub("Indirect", "Not direct", removed_non_EMP$impact)
 
-# Replace NA values in the impact column with "None"
-removed_non_EMP$impact[is.na(removed_non_EMP$impact)] <- "None"
+# Replace NA values in the impact column with "Not reported"
+removed_non_EMP$impact[is.na(removed_non_EMP$impact)] <- "Not reported"
 
 # Create a contingency table for measure_type and impact
 ImpactCountTable_measure <- table(removed_non_EMP$measure_type, removed_non_EMP$impact)
@@ -311,16 +314,23 @@ ImpactCountTable_combined <- merge(ImpactCountTable_combined, TotalCounts_combin
 # Create the third graph with measures on x-axis and faceted by country using percentages
 plot3 <- ggplot(ImpactCountTable_combined, aes(x = measure_type, y = percentage, fill = impact)) +
   geom_bar(stat = "identity") +
-  geom_text(aes(x = measure_type, y = 100, label = paste0("", total_count)), 
-            vjust = 0.22, size = 2, inherit.aes = FALSE) +
   facet_wrap(~ country, ncol = 3) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  scale_fill_viridis_d()
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 6),  # Adjust size for legend text
+        legend.title = element_text(size = 8),  # Adjust size for legend title
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
+            vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
 
 # Save the plot with a specified height
-ggsave("facet_plot.jpg", plot = plot3, height = 7, width = 4)  # Adjust the height and width as needed
+ggsave("facet_plot.jpg", plot = plot3, height = 7, width = 5)  # Adjust the height and width as needed
 
 # Include the saved plot in the RMarkdown document
 knitr::include_graphics("facet_plot.jpg")
@@ -550,7 +560,11 @@ ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = pro
             vjust = -0.2, size = 3, inherit.aes = FALSE) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),  # Adjust size for x-axis labels
+        legend.text = element_text(size = 10),  # Adjust size for legend text
+        legend.title = element_text(size = 10),  # Adjust size for legend title
+        legend.key.size = unit(0.5, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
   scale_fill_viridis_d()
 
 
@@ -660,21 +674,25 @@ plot3_progress <- ggplot(ProgressCountTable_combined, aes(x = measure_type, y = 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
         strip.text = element_text(size = 5),  # Adjust size for facet titles
-        legend.text = element_text(size = 4.5),  # Adjust size for legend text
-        legend.title = element_text(size = 6),  # Adjust size for legend title
-        legend.key.size = unit(0.5, "lines")) +  # Adjust size for legend colored boxes
-  geom_text(aes(x = measure_type, y = 97, label = paste0("", total_count)), 
+        legend.text = element_text(size = 6),  # Adjust size for legend text
+        legend.title = element_text(size = 8),  # Adjust size for legend title
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
             vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
-  scale_fill_viridis_d()
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  guides(fill = guide_legend(nrow = 2)) +  # Make legend two rows
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
 
 # Save the plot with a specified height
-ggsave("facet_progress.jpg", plot = plot3_progress, height = 7, width = 4)  # Adjust the height and width as needed
+ggsave("facet_progress.jpg", plot = plot3_progress, height = 7, width = 5)  # Adjust the height and width as needed
 
 # Include the saved plot in the RMarkdown document
 knitr::include_graphics("facet_progress.jpg")
 
 ```
-```{r ImplementationPercentage_byCountry, echo=FALSE}
+```{r ImplementationPercentage_byCountry_OLD, include=FALSE}
 # Function to replace underscores with spaces and capitalize the first letter of each word
 clean_names <- function(name) {
   if (!is.na(name)) {
@@ -937,16 +955,19 @@ plot3_effectiveness <- ggplot(EffectivenessCountTable_combined, aes(x = measure_
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
-        strip.text = element_text(size = 6),  # Adjust size for facet titles
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
         legend.text = element_text(size = 6),  # Adjust size for legend text
         legend.title = element_text(size = 8),  # Adjust size for legend title
-        legend.key.size = unit(0.5, "lines")) +  # Adjust size for legend colored boxes
-  geom_text(aes(x = measure_type, y = 97, label = paste0("", total_count)), 
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
             vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
-  scale_fill_viridis_d()
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
 
 # Save the plot with a specified height
-ggsave("facet_effectiveness.jpg", plot = plot3_effectiveness, height = 7, width = 4)  # Adjust the height and width as needed
+ggsave("facet_effectiveness.jpg", plot = plot3_effectiveness, height = 7, width = 5)  # Adjust the height and width as needed
 
 # Include the saved plot in the RMarkdown document
 knitr::include_graphics("facet_effectiveness.jpg")

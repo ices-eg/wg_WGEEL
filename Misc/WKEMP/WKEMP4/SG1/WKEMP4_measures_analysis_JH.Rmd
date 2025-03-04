@@ -274,12 +274,12 @@ ggplot(ImpactCountTable_country_long, aes(x = country, y = percentage, fill = im
 plot3 <- ggplot(ImpactCountTable_combined, aes(x = measure_type, y = percentage, fill = impact)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
-            vjust = -0.2, size = 1.6, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+            vjust = -0.2, size = 2, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
   facet_wrap(~ country, ncol = 3, nrow = 6) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
   theme_void() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),
-        axis.text.y = element_text(size = 12),  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7),
+        axis.text.y = element_text(size = 9),  
         axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
         legend.position = "bottom") +
@@ -534,12 +534,12 @@ ggplot(ProgressCountTable_country_long, aes(x = country, y = percentage, fill = 
 plot3_progress <- ggplot(ProgressCountTable_combined, aes(x = measure_type, y = percentage, fill = progress)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
-            vjust = -0.5, size = 1.6, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+            vjust = -0.5, size = 2, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
   facet_wrap(~ country, ncol = 3, nrow = 6) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_void() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),
-        axis.text.y = element_text(size = 12),  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7),
+        axis.text.y = element_text(size = 9),  
         axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
         legend.position = "bottom") +
@@ -663,6 +663,7 @@ THESE GRAPHS USE effect_size_true
 ```{r test, include=TRUE}
 #clean one entry
 measures_all_cleaned_EMP$effect_size_true <- gsub("Î”Î£F", "ΔΣF", measures_all_cleaned_EMP$effect_size_true)
+measures_all_cleaned_EMP$effect_size_true <- gsub("Other", "Not monitored", measures_all_cleaned_EMP$effect_size_true)
 
 # Create a contingency table that includes NA values
 ProgressCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$effect_size_true)
@@ -793,12 +794,12 @@ ggplot(EffectivenessCountTable_country_long, aes(x = country, y = percentage, fi
 plot3_effectiveness <- ggplot(EffectivenessCountTable_combined, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(x = measure_type, y = 105, label = paste0("n = ", total_count)), 
-            vjust = -0.5, size = 1.6, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+            vjust = -0.5, size = 2, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
   facet_wrap(~ country, ncol = 3, nrow = 6) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
   theme_void() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),
-        axis.text.y = element_text(size = 12),  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 7),
+        axis.text.y = element_text(size = 9),  
         axis.title.y = element_text(size = 12, angle = 90, vjust = 3),
         plot.margin = margin(t = 10, r = 10, b = 10, l = 20),
         legend.position = "bottom") +
@@ -1020,7 +1021,7 @@ target_by_mt
 target <- ggplot(percentage_long, aes(x = measure_type, y = no_measures, fill = category)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_text(aes(x = measure_type, y = 100, label = paste0("n = ", measures_total)), 
-          vjust = -0.2, size = 1.6, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
+          vjust = -0.2, size = 2, inherit.aes = FALSE, angle = 45, hjust = -0.2) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_void() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),
