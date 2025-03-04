@@ -140,7 +140,7 @@ summary_target_advice <- measures_target %>%
  
 
 
-write.xlsx(summary_target_advice, file = "summary_target_advice.xlsx")
+flextable(summary_target_advice) %>% set_table_properties(layout = "autofit")
 
 
 
@@ -349,6 +349,12 @@ flextable(table_B) %>% set_table_properties(layout = "autofit")
 ```
 
 
+**Tab XX** This was added very late for the advice...
+```{r table for advice, echo=FALSE, warning = FALSE, message = FALSE}
+
+flextable(summary_target_advice) %>% set_table_properties(layout = "autofit")
+
+```
 
 
 
