@@ -8,7 +8,7 @@
 
 
 # put the current year there
-CY<-2024
+CY<-2025
 
 inactivedeadline <- 4 #this ensure that we don't ask new data for time series that are inactive since more than 4 years
 # function to load packages if not available
