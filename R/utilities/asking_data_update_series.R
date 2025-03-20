@@ -378,7 +378,11 @@ create_datacall_file_series_sampling <- function(country, name, ser_typ_id, type
     
     newbiom <- existing_metric %>% 
       dplyr::mutate_at(.vars="gr_year",tidyr::replace_na,replace=CY-1) %>%
-      dplyr::filter(gr_year>=(CY-10)) %>%
+      dplyr::filter(gr_year>=(CY)) %>% # change in 2025, following bug #360: data
+                                        #providers have no way to specify NC so we keep
+                                        #asking them data they don't have for past years. 
+                                        # Consequently we only ask last year data
+      #dplyr::filter(gr_year>=(CY-10)) %>%
       tidyr::complete(!!sym(ifelse(type=="series","ser_nameshort","sai_name")),gr_year=(CY-10):CY) 
     newbiom <- newbiom %>%
       dplyr::filter(0==rowSums(!is.na(newbiom %>% select(!any_of(c("gr_comment",
