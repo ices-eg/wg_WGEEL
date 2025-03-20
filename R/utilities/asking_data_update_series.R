@@ -567,7 +567,7 @@ create_datacall_file_series_sampling <- function(country, name, ser_typ_id, type
 
 
 # recruitment ---------------------------------------------------
-CY<-2024
+CY<-2025
 country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
                   "NO","PL","SI","TN","TR","BE")
 #update_referential_sheet("Eel_Data_Call_Annex_Time_Series")
