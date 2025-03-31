@@ -785,12 +785,12 @@ Implementing the WKFEA roadmap [@ices2021] is critical to achieving or deliverin
 The traceability of glass eel landings and of their subsequent trade are crucial for legal enforcement, conservation, population recovery, and adherence to international conservation agreements. The European eel regulation requires monitoring of glass eels (those under 12 cm) designated for restocking as well as those for consumption. It also mandates that EMPs specify the quantity of eels under 20 cm needed for restocking to enhance silver eel escapement levels. It is necessary to identify whether the eels are destined for restocking (R) or consumption (C). The consumption category encompasses both glass eels directly consumed and those raised in aquaculture for later consumption as adults.
 
 <br>
-Among the glass eel producing countries of Europe, France monitors the RC category using a quota system, the UK monitors trade but has left the EU so does not take part in this reporting, Portugal has not reported any data, and Spain has no specific traceability system for glass eels, and a general system applied to all fishery products that does not allow the use (R or C)  and country of destination to be identified. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings, once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
+Among the glass eel producing countries of Europe, France monitors the RC category using a quota system, the UK monitors trade but has left the EU so does not take part in this reporting, Portugal has not reported any data, and Spain has no specific traceability system for glass eels, and a general system applied to all fishery products that does not allow the use (R or C)  and country of destination to be identified. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings (with the amount of reserved glass eel reported in Figure @fig-check_proportion), once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
 
 Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spanish traders, but since Spain is lacking a traceability system, this does not necessarily imply that the glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
 
 <br>
-Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination.. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
+Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
 <br>
 
 There is a clear need for an international traceability scheme during trade to monitor the destination of caught glass eels. Spain’s failure to monitor the destination of glass eels and Portugal’s lack of reporting mean that traceability cannot be applied at the source. The failure of any country (Belgium, Germany, Italy, Latvia, Lithuania, Denmark) to monitor trade origin, destination, or RC category means it is currently impossible to track the destination of glass eels.
@@ -809,8 +809,70 @@ In conclusion, the glass eel traceability system in Europe is inefficient and fr
 
 <b>
 Recommendation:
--	Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means until they are released into the water to avoid that glass eels are diverted to other, potentially illegal, uses.
--	The traceability system should separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities. 
+-	Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means that a separate monitoring of the material type (R or C) is carried out throughout the trade chain, until they are released into the water. This monitoring would avoid that glass eels are diverted to other, potentially illegal, uses.
+-	The traceability system should also separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities. 
+
+```{r }
+#| label: fig-check_proportion
+#| fig-width: 6.3
+#| fig-height: 6.3
+#| fig-cap: "Proportion of glass eel marked as restocking material reported by France, `trade only` identifies the proportion of glass eel that was used in trade, `including France restocking` incudes the amount of glass eel released in France as part of the restocking program."
+
+wgeelwd <- "C:/workspace/wg_WGEEL"
+load(file = file.path(
+  wgeelwd, "Misc",
+  "WKEMP", "data_dependencies", "annex16.RData"
+))
+fr_reserve <- bind_rows(
+  l12 %>%
+    filter(eel_cou_code == "FR" &
+      capture_trade_final_use == "landings_commercial") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "trade only"
+    ),
+  l12 %>%
+    filter(eel_cou_code == "FR") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "Including France restocking"
+    )
+)
+
+
+g <- ggplot(fr_reserve) +
+  geom_point(aes(x = season, y = proportion_restocked, color = category)) +
+  geom_path(aes(
+    x = season, 
+    y = proportion_restocked,
+    color = category, 
+    lty = category,
+    group = category
+  )) +
+  scale_color_brewer(palette = "Set1") +
+  ylim(c(0, 1)) +
+  ylab("Proportion restocked in France") +
+  geom_hline(yintercept=0.6, lty=2) +
+  annotate("text", x = 1, y = 0.63, label = "60%") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+fileres <- file.path(params$image_path,"proportion_restocked.png")
+ggsave(file = fileres, height = 16/2.54, width = 16/2.54)
+knitr::include_graphics(fileres)
+```
+
 
 \newpage
 

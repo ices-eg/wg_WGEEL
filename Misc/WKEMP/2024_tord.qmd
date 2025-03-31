@@ -56,6 +56,7 @@ objective of the Eel Regulation is to reduce anthropogenic mortalities,
 we suggest that each management measures should be associated with a
 measure of its effect on sumF at the EMU scale.
 
+```{=html}
 <!---Mortality targets (objective for sum F and sum H) and their change
 should be adopted in eel management plans. These targets should be
 compatible with the restoration of the eel population in the long term
@@ -63,7 +64,8 @@ compatible with the restoration of the eel population in the long term
 effort should be evaluated against the attainment of those targets.
  Hilaire : I would remove this paragraph: setting intermediate is a management question
 not a scientific one. For ICES, given the situation, we can only set one target and
-recommendation: sumA=0 / Cédric OK removed --> 
+recommendation: sumA=0 / Cédric OK removed -->
+```
 
 ## On fishing effort EC request 2.3
 
@@ -74,10 +76,11 @@ mortality can be complex and are often non linear (see for example
 various examples from Mediterranean fisheries
 [@scientifictechnicalandeconomiccommitteeforfisheriesstecf2022c]).
 Recently, an example in the Minho river illustrated the potential
-ineffectiveness of fishing effort regulation and possible resulting biases in the
-analysis of CPUE [@stratoudakis2024]. As such, we consider that the effectiveness
-of any fishing effort reduction should be monitored through its final effect on the
-reduction of fishing mortality.
+ineffectiveness of fishing effort regulation and possible resulting
+biases in the analysis of CPUE [@stratoudakis2024]. As such, we consider
+that the effectiveness of any fishing effort reduction should be
+monitored through its final effect on the reduction of fishing
+mortality.
 
 ```         
      Note : This is be covered in previous paragraph, do we need more ref to previous WKEMP to explain that we cannot work on fishing effort ?
@@ -125,11 +128,11 @@ quantification at the EMU scale will require at some points data on the
 spatial distribution of eels. For downstream migration mortality, a
 combination of a repartition model (EDA like statistical repartition
 model as envisioned in the WKFEA roadmap) and dam data should be used to
-assess the effect of barriers (TODO cite WKFEA roadmap). The effect of
-trap and transport or mitigation measures applied should be quantified
-at the regional level as modification/ reduction of sumH.
+assess the effect of barriers (\[\@ices2021\]). The effect of trap and
+transport or mitigation measures applied should be quantified at the
+regional level as modification/ reduction of sumH.
 
-A future listing of the barriers with in order :
+A future listing of the barriers with in order \[[@reporto2024]:
 
 -   The location of hydropower plant without specification of type or
     equipment flow.
@@ -139,7 +142,7 @@ A future listing of the barriers with in order :
 
 -   Detailed data on turbine type (equipment flow of the turbine, type
     of turbine, rotation speed, diameter, height of dam) should allow
-    for the application of model types (refs, + ref to SUDOANG tool)
+    for the application of model types [@gomes2008; @tomanova2023].
 
 -   A direct measurement or specific model allowing the evaluation of
     mortality on site.
@@ -164,5 +167,4 @@ Historical transport should also be evaluated.
 ##   On other targets EC request 6.2
 
 ```         
-    No idea what this is....
 ```

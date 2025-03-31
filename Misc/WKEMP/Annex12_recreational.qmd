@@ -13,7 +13,8 @@ message: false
 source("../../R/utilities/detect_missing_data.R")
 
 countries <- c("BE","CZ","DE","EE","FI","FR","DE","GR","IE","IT","LV","LT","LU","NL","PL","PT","ES","SE")
-files = list.files(path = "../../../../WKEMP/WKEMP4/Annex 12/",
+wd <- "W:/annex12-Recreational"
+files = list.files(path = wd,
                    full.names = TRUE)
 library(readxl)
 datas <- list()
@@ -24,8 +25,8 @@ library(dplyr)
 library(RPostgres)
 library(yaml)
 import <- function(cou_code){
-  file = files[grepl(paste0(cou_code, ".xlsx$"), 
-                     files)]
+  file = files[grepl(cou_code,files) &grepl(".xlsx",files)]
+  if (length(file)==0)     stop(sprintf("country %s is not present, check your files"), cou_code)               
   datas <- read_excel(file, sheet = "fisher_data")
   g <- ggplot(datas %>%
                 filter(!is.na(eel_value)), aes(x=eel_year, y = eel_value, col = eel_typ_name)) +
@@ -39,7 +40,7 @@ import <- function(cou_code){
     ggtitle(cou_code)
   ggsave(paste0("2024/image/Annex 12_",cou_code,".png"),
          width = 16/2.54, 
-         height = 12/2.54,
+         height = 16/2.54,
          dpi = 300)
   datas
 }
@@ -128,7 +129,7 @@ For recreational landings, more information is available in WGEEL reports. Even 
 cou_code= "BE"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 - no specific licenses for eel reported
@@ -171,7 +172,7 @@ tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
 cou_code= "CZ"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 - there are no specific licenses for eel reported
@@ -197,12 +198,12 @@ tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
 ```{r DEgraph}
 #| echo: false
 #| fig.width: 6.3
-#| fig.height: 4.8
+#| fig.height: 10
 #| fig.cap: "trends in the number of recreational fishermen"
 cou_code= "DE"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
@@ -266,7 +267,7 @@ tab <- detect_missing_data(cou_code,2007, 2022, con, typ_id = 6)
 cou_code= "EE"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
@@ -311,12 +312,13 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 cou_code= "ES"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r EStable}
 #| echo: false
+#| warning: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -326,7 +328,7 @@ create_kendall_table(tab)
 
 
 - both eel specific licenses and all fishermen are reported
-- weirdly, all fishermen is sometimes smaller than all fishermen
+- weirdly, all fishermen is sometimes smaller than eel fishermen
 - negative trends in most reported cases
 - no recreational in ES_Astu, ES_Cata, ES_Murci over the period reported
 - missing emus: `r paste(sort(setdiff(emus$emu_nameshort[emus$emu_cou_code ==cou_code],unique(datas[[cou_code]]$eel_emu_nameshort))), collapse = ", ")`
@@ -334,8 +336,8 @@ create_kendall_table(tab)
 
 ```{r ESlandings}
 #| echo: false
-#| fig.width: 6.3
-#| fig.height: 4.8
+#| fig.width: 10
+#| fig.height: 10
 #| fig.cap: "reported recreational landings"
 fig_rec_landings(cou_code)
 ```
@@ -359,12 +361,13 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 cou_code= "FI"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r FItable}
 #| echo: false
+#| warnings: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -401,8 +404,8 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 
 ```{r FRlandings}
 #| echo: false
-#| fig.width: 6.3
-#| fig.height: 4.8
+#| fig.width: 10
+#| fig.height: 10
 #| fig.cap: "reported recreational landings"
 cou_code="FR"
 fig_rec_landings(cou_code)
@@ -476,12 +479,13 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 cou_code= "IT"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r ITtable}
 #| echo: false
+#| warning: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -498,8 +502,8 @@ create_kendall_table(tab)
 
 ```{r ITlandings}
 #| echo: false
-#| fig.width: 6.3
-#| fig.height: 4.8
+#| fig.width: 10
+#| fig.height: 12
 #| fig.cap: "reported recreational landings"
 fig_rec_landings(cou_code)
 ```
@@ -527,12 +531,13 @@ filter(landings, eel_emu_nameshort %in% unique(datas[[cou_code]]$eel_emu_namesho
 cou_code= "LT"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r LTtable}
 #| echo: false
+#| warning: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -568,7 +573,7 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 ```
 
 # LV
-no data reported
+
 
 
 ```{r LVlandings}
@@ -606,12 +611,13 @@ no data reported (neither number of fishermen nor landings)
 cou_code= "NL"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r NLtable}
 #| echo: false
+#| warning: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -657,7 +663,7 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 cou_code= "PL"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
@@ -693,12 +699,13 @@ table(tab$eel_emu_nameshort,tab$eel_lfs_code)
 cou_code= "PT"
 
 datas[[cou_code]] <- import(cou_code)
-knitr::include_graphics(paste0("Annex 12_",cou_code,".png"))
+knitr::include_graphics(paste0("2024/image/Annex 12_",cou_code,".png"))
 ```
 
 
 ```{r PTtable}
 #| echo: false
+#| warning: false
 #| tab.cap: "Significance of trends in the number of recreational fishermen"
 
 tab <- create_tab(cou_code)
@@ -774,8 +781,8 @@ annex12 <- do.call(bind_rows,datas) %>%
   arrange(eel_emu_nameshort, eel_year)
 
 save(annex12,
-  file = "annex12.rdata")
-
+  file = file.path(wd,"annex12.rdata"))
+write.csv2(annex12, file = file.path(wd,"annex12.csv"))
 dbDisconnect(con)
 
 ```

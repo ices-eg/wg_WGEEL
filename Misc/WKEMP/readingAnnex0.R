@@ -24,16 +24,16 @@ load("data_dependencies/readingAnnex0.RData")
 load("../../R/shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata")
 
 
-annex0provided <- function(status) {
+annex0provided <- function(status, annex) {
   if (status %in% c("Yes", "No")) {
     result <- provided |>
       select(annex, country_code, annex_provided, why_not_provided, comment) |>
-      filter(annex_provided == status & annex == "Annex 10")
+      filter(annex_provided == status )
   }
   if (status == "NA") {
     result <- provided |>
       select(annex, country_code, annex_provided, why_not_provided, comment) |>
-      filter(is.na(annex_provided) & annex == "Annex 10")
+      filter(is.na(annex_provided) )
   }
   result
 }
@@ -41,6 +41,16 @@ annex0provided <- function(status) {
 annex0provided("Yes")
 annex0provided("No")
 annex0provided("NA")
+
+
+ provided_sel <- provided
+ write.csv2(provided_sel, file=file.path(params$data_path, "annex0_answers.csv"))
+  provided_sel <- merge(country_p, provided_sel, by.x = "cou_code", by.y = "country_code", all.x = T) |>
+    mutate(annex_provided = case_when(
+      is.na(annex)
+      ~ "No_annex_0",
+      TRUE ~ annex_provided
+    ))
 
 
 ###########################
@@ -56,8 +66,8 @@ annex_availability <- function(annex_name) {
   provided_sel <- st_transform(provided_sel, crs = 3035)
   provided_sel <- provided_sel |>
     mutate(
-      x = map_dbl(geometry, ~ st_point_on_surface(.x)[[1]]),
-      y = map_dbl(geometry, ~ st_point_on_surface(.x)[[2]])
+      x = map_dbl(geom, ~ st_point_on_surface(.x)[[1]]),
+      y = map_dbl(geom, ~ st_point_on_surface(.x)[[2]])
     )
 
   plot <- ggplot() +
@@ -98,8 +108,8 @@ provided_all <- merge(country_p, provided, by.x = "cou_code", by.y = "country_co
 provided_all <- st_transform(provided_all, crs = 3035)
 provided_all <- provided_all |>
   mutate(
-    x = map_dbl(geometry, ~ st_point_on_surface(.x)[[1]]),
-    y = map_dbl(geometry, ~ st_point_on_surface(.x)[[2]])
+    x = map_dbl(geom, ~ st_point_on_surface(.x)[[1]]),
+    y = map_dbl(geom, ~ st_point_on_surface(.x)[[2]])
   )
 
 ggplot(st_transform(country_p, crs = 3035)) +
