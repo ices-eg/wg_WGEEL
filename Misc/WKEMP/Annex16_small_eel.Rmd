@@ -87,15 +87,51 @@ openxlsx::write.xlsx(l20, file.path(datawd, "annex16_less_than_20cm.xlsx"))
 
 
 ```{r check_proportion, include=TRUE, eval=TRUE, echo=FALSE}
-wgeelwd <- "C:/workspace/wg_WGEEL"
+wgeelwd <- "../.."
 load(file = file.path(
   wgeelwd, "Misc",
   "WKEMP", "data_dependencies", "annex16.RData"
 ))
+
+
+g <- ggplot(l12 |> 
+        mutate(capture_trade_final_use = gsub("_"," ",capture_trade_final_use)) |>
+         filter(!eel_cou_code %in% c("IE","FR") & !startsWith(capture_trade_final_use, "landings")) |>
+         group_by(eel_cou_code, capture_trade_final_use, year ) |>
+         summarize(value_kg = sum(value_kg, na.rm =TRUE)) |>
+         ungroup() |>
+         na.omit(),
+       aes(x = year, y = value_kg, col=eel_cou_code)) +
+  geom_line() +
+  facet_wrap(~capture_trade_final_use, scales = "free", ncol = 2, nrow=3) +
+  ylab("quantity (Kg)") +
+  scale_color_brewer("", palette = "Set1") +
+  theme(legend.position = "bottom")+
+  xlab("")
+ggsave("2024/image/annex16_less_than_12cm.png", g, width = 6.3, height = 6.3, units = "in", dpi = 300)
+
+g <- ggplot(l20 |> 
+         mutate(capture_trade_final_use = gsub("_"," ",production_trade_final_use)) |>
+           filter(!eel_cou_code %in% c("IE","FR") & !startsWith(production_trade_final_use, "trade")) |>
+         group_by(eel_cou_code, production_trade_final_use, year) |>
+         summarize(value_kg = sum(value_kg, na.rm =TRUE)) |>
+         ungroup() |>
+         na.omit(),
+       aes(x = year, y = value_kg, col=eel_cou_code)) +
+  geom_line() +
+  facet_wrap(~production_trade_final_use, scales = "free") +
+  ylab("quantity (Kg)") +
+  scale_color_brewer("", palette = "Set1") +
+  theme(legend.position = "bottom")+
+  xlab("")
+ggsave("2024/image/annex16_less_than_20cm.png", g, width = 6.3, height = 4, units = "in", dpi = 300)
+
+
+
 fr_reserve <- bind_rows(
   l12 %>%
     filter(eel_cou_code == "FR" &
-      capture_trade_final_use == "landings_commercial") %>%
+             capture_trade_final_use == "landings_commercial") %>%
     group_by(season, glass_eel_category) %>%
     summarize(value_kg = sum(value_kg)) %>%
     pivot_wider(
@@ -129,5 +165,34 @@ ggplot(fr_reserve) +
   )) +
   ylim(c(0, 1)) +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom")+
+  ylab("proportion") +
+  xlab("")
+
+
+
+```
+
+
+```{r}
+cred <- read_yaml("../../credentials.yml")
+con <- dbConnect(Postgres(), dbname = cred$dbname, host = cred$host, port = cred$port, user = cred$user, password = cred$password)
+landings = dbGetQuery(con, "select eel_year, eel_typ_id, eel_cou_code, eel_value from datawg.t_eelstock_eel where eel_typ_id in (4,6) and eel_qal_id in (1,2,4) and eel_year >=2007 and eel_lfs_code='G'")
+dbDisconnect(con)
+g <- landings |>
+  na.omit() |>
+  group_by(eel_year,eel_cou_code,eel_typ_id) |>
+  summarize(eel_value=sum(eel_value/1000, na.rm = TRUE))|>
+  ungroup() |>
+  mutate(eel_typ_id = ifelse(eel_typ_id == 4, "commercial", "recreational")) |>
+  ggplot(aes(x=eel_year, y=eel_value, col=eel_cou_code)) +
+  geom_line() +
+  facet_wrap(~eel_typ_id, scales = "free") +
+  ylab("landings (t)") +
+  xlab("")+
+  scale_color_brewer("", palette = "Set1") 
+
+ggsave("2024/image/glasseel_landings.png", g, width = 6.3, height = 4, units = "in", dpi = 300)
+
+
 ```

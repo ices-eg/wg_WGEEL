@@ -1,7 +1,7 @@
 
 ---
 title: "WKEMP4_measures_summary"
-author: "none (contact Jani H for questions)"
+author: "THIS IS OLD VERSION. Use WKEMP4_measures_analysis_JH INSTEAD. AND _JD for extra tables."
 date: "`r Sys.Date()`"
 
 output:
@@ -10,8 +10,11 @@ output:
 
 ---
 
+############OLD VERSION. USE ONLY FOR FINDING CODE NOT FOR PRINTING####
+
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
 # define libraries needed
 libs <- c("readxl", "dplyr", "tidyr", "flextable", "knitr", "kableExtra", "officer", "readr", "tibble", "ggplot2", "viridis") 
@@ -27,17 +30,36 @@ if (any(installed_libs == F)) {
 # load libraries needed
 invisible(lapply(libs, library, character.only = T))
 
+# Function to replace underscores with spaces and capitalize the first letter of each word
+clean_names <- function(name) {
+  if (!is.na(name)) {
+    name <- gsub("_", " ", name)
+    name <- tools::toTitleCase(name)
+  }
+  return(name)
+}
+
 ```
 
 
-```{r Import_files, include=FALSE}
+```{r Import_files, echo=FALSE}
 
 ### The folder where all the excel files are in. CHANGE IF NEEDED
+load("./output/measures_all_cleaned_EMP.RData")
+load("./output/removed_non_EMP.RData")
 load("./output/measures_all.RData")
-measures_all = read.csv2("measures_all_cleaned_EMP.csv")
+
+#measures_all = read.csv2("measures_all_cleaned_EMP.csv")
 
 standards <- read_excel("standards.xlsx")
 all_emus = read.csv2("all_emus.csv")
+
+
+# ONE CZ "Other" changed to trap and transport
+measures_all_cleaned_EMP$measure_type <- gsub("Other", "Hydropower_and_obstacles", measures_all_cleaned_EMP$measure_type)
+
+#Change values
+measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
 
 ```
 
@@ -53,70 +75,408 @@ all_emus = read.csv2("all_emus.csv")
 ```
 
 
+
+```{r MeasuresPlannedPerCountry, echo=FALSE}
+
+# Create the new data frame with country and measure_planned
+ImpactByCountry <- measures_all %>%
+  select(country, measure_planned)
+
+# Combine NA and specific text to "Other"
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(measure_planned = ifelse(is.na(measure_planned) | 
+                                  measure_planned == "The EMU has not reported any information for that sub measure", 
+                                  "Other", 
+                                  measure_planned))
+
+# Clean NAs (if any remain)
+ImpactByCountry$measure_planned[is.na(ImpactByCountry$measure_planned)] <- "N/A"
+
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(country = as.character(country),
+         country = trimws(country),
+         country = ifelse(is.na(country) | 
+                          country == "The EMU has not reported any information for that sub measure" | 
+                          country == "The EMU has not reported any information", 
+                          "NA", 
+                          country))
+
+# Summarise the count of measures planned for each country and measure_planned
+ImpactByCountry <- ImpactByCountry %>%
+  group_by(country, measure_planned) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+# Create the stacked bar chart
+ggplot(ImpactByCountry, aes(x = factor(country), y = count, fill = factor(measure_planned))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Country", y = "Number of measures planned", title = "", fill = "Measure Planned") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+#SHould we divide by number of EMUs? 
+#Do we use all data measures_all?
+
+```
+```{r MeasuresPlannedPerCountryBversion, echo=FALSE}
+
+clean_names <- function(name) {
+  if (!is.na(name)) {
+    name <- gsub("_", " ", name)
+    name <- tools::toTitleCase(name)
+  }
+  return(name)
+}
+
+# Create the new data frame with country, measure_planned, and emu_name_short
+ImpactByCountry <- measures_all %>%
+  select(country, measure_planned, emu_name_short)
+
+# Combine NA and specific text to "Other"
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(measure_planned = ifelse(is.na(measure_planned) | 
+                                  measure_planned == "The EMU has not reported any information for that sub measure", 
+                                  "Other", 
+                                  measure_planned))
+
+# Count the number of EMUs for each country
+EMUCountByCountry <- ImpactByCountry %>%
+  group_by(country) %>%
+  summarise(emu_count = n_distinct(emu_name_short))
+
+# Merge the EMU count back into the main data frame
+ImpactByCountry <- ImpactByCountry %>%
+  left_join(EMUCountByCountry, by = "country")
+
+# Clean NAs (if any remain)
+ImpactByCountry$measure_planned[is.na(ImpactByCountry$measure_planned)] <- "N/A"
+
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(country = as.character(country),
+         country = trimws(country),
+         country = ifelse(is.na(country) | 
+                          country == "The EMU has not reported any information for that sub measure" | 
+                          country == "The EMU has not reported any information", 
+                          "NA", 
+                          country))
+
+# Summarise the count of measures planned for each country and measure_planned
+ImpactByCountry <- ImpactByCountry %>%
+  group_by(country, measure_planned, emu_count) %>%
+  summarise(count = n()) %>%
+  ungroup()
+
+# Assuming ImpactByCountry is your data frame
+ImpactByCountry <- ImpactByCountry[ImpactByCountry$country != "Great_Britain", ]
+
+# Apply the function to the measure_planned column
+ImpactByCountry$measure_planned <- sapply(ImpactByCountry$measure_planned, clean_names)
+# Apply the function to the measure_planned column
+ImpactByCountry$country <- sapply(ImpactByCountry$country, clean_names)
+
+# Add a column for the original counts before normalizing
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(original_count = count)
+
+# Divide each country's values by the number of EMUs
+ImpactByCountry <- ImpactByCountry %>%
+  mutate(count = count / emu_count)
+
+# Calculate the total count for each country
+ImpactByCountry <- ImpactByCountry %>%
+  group_by(country) %>%
+  mutate(total_count = sum(original_count)) %>%
+  ungroup()
+
+# Create the stacked bar chart with total counts as part of the X-axis labels
+ImpactByCountry$country_label <- paste(ImpactByCountry$country, " (n=", ImpactByCountry$total_count, ")", sep = "")
+
+ggplot(ImpactByCountry, aes(x = factor(country_label), y = count, fill = factor(measure_planned))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Country", y = "Number of measures planned (normalised*)", title = "", fill = "Measure Planned") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+```
+
+```{r Impact_nonEMP_only, echo=FALSE}
+
+
+# Apply the function to the impact, measure_type, and country columns
+removed_non_EMP$impact <- sapply(removed_non_EMP$impact, clean_names)
+removed_non_EMP$measure_type <- sapply(removed_non_EMP$measure_type, clean_names)
+removed_non_EMP$country <- sapply(removed_non_EMP$country, clean_names)
+
+# Replace values in the impact column
+removed_non_EMP$impact <- gsub("Indirect", "Not direct", removed_non_EMP$impact)
+
+# Replace NA values in the impact column with "Not reported"
+removed_non_EMP$impact[is.na(removed_non_EMP$impact)] <- "Not reported"
+
+# Create a contingency table for measure_type and impact
+ImpactCountTable_measure <- table(removed_non_EMP$measure_type, removed_non_EMP$impact)
+
+# Convert the table to a data frame
+ImpactCountTable_measure <- as.data.frame.matrix(ImpactCountTable_measure)
+
+# Normalize the data to get percentages
+ImpactCountTable_measure_percent <- sweep(ImpactCountTable_measure, 1, rowSums(ImpactCountTable_measure), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+ImpactCountTable_measure_long <- as.data.frame(ImpactCountTable_measure_percent)
+ImpactCountTable_measure_long$measure_type <- rownames(ImpactCountTable_measure_long)
+ImpactCountTable_measure_long <- tidyr::gather(ImpactCountTable_measure_long, key = "impact", value = "percentage", -measure_type)
+
+# Assuming ImpactCountTable contains the original counts
+ImpactCountTable_measure_counts_long <- as.data.frame(ImpactCountTable_measure)
+ImpactCountTable_measure_counts_long$measure_type <- rownames(ImpactCountTable_measure_counts_long)
+ImpactCountTable_measure_counts_long <- tidyr::gather(ImpactCountTable_measure_counts_long, key = "impact", value = "count", -measure_type)
+
+# Calculate the total counts for each measure_type
+TotalCounts_measure <- aggregate(count ~ measure_type, data = ImpactCountTable_measure_counts_long, sum)
+colnames(TotalCounts_measure)[2] <- "total_count"
+
+# Merge the totals with the percentages
+ImpactCountTable_measure_long <- merge(ImpactCountTable_measure_long, TotalCounts_measure, by = "measure_type")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(ImpactCountTable_measure_long, aes(x = measure_type, y = percentage, fill = impact)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts_measure, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+# Create a contingency table for country and impact
+ImpactCountTable_country <- table(removed_non_EMP$country, removed_non_EMP$impact)
+
+# Convert the table to a data frame
+ImpactCountTable_country <- as.data.frame.matrix(ImpactCountTable_country)
+
+# Normalize the data to get percentages
+ImpactCountTable_country_percent <- sweep(ImpactCountTable_country, 1, rowSums(ImpactCountTable_country), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+ImpactCountTable_country_long <- as.data.frame(ImpactCountTable_country_percent)
+ImpactCountTable_country_long$country <- rownames(ImpactCountTable_country_long)
+ImpactCountTable_country_long <- tidyr::gather(ImpactCountTable_country_long, key = "impact", value = "percentage", -country)
+
+# Assuming ImpactCountTable contains the original counts
+ImpactCountTable_country_counts_long <- as.data.frame(ImpactCountTable_country)
+ImpactCountTable_country_counts_long$country <- rownames(ImpactCountTable_country_counts_long)
+ImpactCountTable_country_counts_long <- tidyr::gather(ImpactCountTable_country_counts_long, key = "impact", value = "count", -country)
+
+# Calculate the total counts for each country
+TotalCounts_country <- aggregate(count ~ country, data = ImpactCountTable_country_counts_long, sum)
+colnames(TotalCounts_country)[2] <- "total_count"
+
+# Merge the totals with the percentages
+ImpactCountTable_country_long <- merge(ImpactCountTable_country_long, TotalCounts_country, by = "country")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(ImpactCountTable_country_long, aes(x = country, y = percentage, fill = impact)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts_country, aes(x = country, y = 100, label = paste0("n = ", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Country", y = "Percentage", title = "", fill = "Impact") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+# Create a contingency table for measure_type, country, and impact
+ImpactCountTable_combined <- table(removed_non_EMP$measure_type, removed_non_EMP$country, removed_non_EMP$impact)
+
+# Convert the table to a data frame
+ImpactCountTable_combined <- as.data.frame(ImpactCountTable_combined)
+
+# Normalize the data to get percentages within each measure type and country
+ImpactCountTable_combined <- ImpactCountTable_combined %>%
+  group_by(Var1, Var2) %>%
+  mutate(percentage = Freq / sum(Freq) * 100) %>%
+  ungroup()
+
+# Rename columns for clarity
+colnames(ImpactCountTable_combined) <- c("measure_type", "country", "impact", "count", "percentage")
+
+# Calculate the total counts for each measure_type within each country
+TotalCounts_combined <- ImpactCountTable_combined %>%
+  group_by(measure_type, country) %>%
+  summarise(total_count = sum(count)) %>%
+  ungroup()
+
+# Merge the totals with the combined data
+ImpactCountTable_combined <- merge(ImpactCountTable_combined, TotalCounts_combined, by = c("measure_type", "country"))
+
+# Create the third graph with measures on x-axis and faceted by country using percentages
+plot3 <- ggplot(ImpactCountTable_combined, aes(x = measure_type, y = percentage, fill = impact)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ country, ncol = 3) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 6),  # Adjust size for legend text
+        legend.title = element_text(size = 8),  # Adjust size for legend title
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
+            vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
+
+# Save the plot with a specified height
+ggsave("facet_plot.jpg", plot = plot3, height = 7, width = 5)  # Adjust the height and width as needed
+
+# Include the saved plot in the RMarkdown document
+knitr::include_graphics("facet_plot.jpg")
+
+```
+
+```{r Impact_nonEMP_only__COUNTRIES, include=FALSE}
+
+# Apply the function to the impact and measure_type columns
+removed_non_EMP$impact <- sapply(removed_non_EMP$impact, clean_names)
+removed_non_EMP$measure_type <- sapply(removed_non_EMP$measure_type, clean_names)
+
+# Replace values in the impact column
+removed_non_EMP$impact <- gsub("Indirect", "Not direct", removed_non_EMP$impact)
+
+# Filter out rows where country is NA
+removed_non_EMP <- subset(removed_non_EMP, !is.na(country))
+
+# Create a contingency table that has only the needed data
+ImpactCountTable <- table(removed_non_EMP$measure_type, removed_non_EMP$impact, removed_non_EMP$country)
+
+# Convert the table to a data frame
+ImpactCountTable <- as.data.frame(ImpactCountTable)
+
+# Rename columns for clarity
+colnames(ImpactCountTable) <- c("measure_type", "impact", "country", "count")
+
+# Normalize the data to get percentages
+ImpactCountTable <- ImpactCountTable %>%
+  group_by(measure_type, country) %>%
+  mutate(percentage = count / sum(count) * 100)
+
+# Calculate the total counts for each measure_type and country
+TotalCounts <- ImpactCountTable %>%
+  group_by(measure_type, country) %>%
+  summarise(total_count = sum(count))
+
+# Merge the totals with the percentages
+ImpactCountTable <- merge(ImpactCountTable, TotalCounts, by = c("measure_type", "country"))
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+p <- ggplot(ImpactCountTable, aes(x = measure_type, y = percentage, fill = impact)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+            vjust = 0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Impact") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d() +
+  facet_wrap(~ country, ncol = 2) +  # Change the number of columns here
+  theme(strip.text = element_text(face = "bold"))  # Bold the country names
+
+# Save the plot with increased height
+ggsave("plot.png", plot = p, width = 11.5, height = 14, units = "in")  # Adjust the height as needed
+
+# Include the saved plot in the RMarkdown document
+knitr::include_graphics("plot.png")
+```
+
+
 ```{r TableAboutDIrectAndQuantifiable, echo=FALSE}
 
+# Function to create summary tables for each measure_type
+create_summary_table <- function(data, measure_type) {
+  data %>%
+    filter(measure_type == !!measure_type) %>%
+    group_by(submeasure_type) %>%
+    summarise(
+      total = n(),
+      Other = paste0(round(sum(replace_na(effectiveness_monitored == "Other", 0)) / total * 100), "%"),
+      ΔBcurrent = paste0(round(sum(replace_na(effectiveness_monitored == "ΔBcurrent", 0)) / total * 100), "%"),
+      ΔΣH = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣH", 0)) / total * 100), "%"),
+      ΔΣF = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣF", 0)) / total * 100), "%"),
+      ΔΣA = paste0(round(sum(replace_na(effectiveness_monitored == "ΔΣA", 0)) / total * 100), "%"),
+      `Not monitored` = paste0(round((total - (sum(replace_na(effectiveness_monitored == "Other", 0)) + sum(replace_na(effectiveness_monitored == "ΔBcurrent", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣH", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣF", 0)) + sum(replace_na(effectiveness_monitored == "ΔΣA", 0)))) / total * 100), "%")
+    )
+}
 
 # Filter the data frame for quantifiable measures only
-measures_quantifiable <- measures_all %>%
+measures_quantifiable <- measures_all_cleaned_EMP %>%
   filter(std_quantifiable %in% c("y"))
 
-# Count the number of each submeasure_type and calculate the percentages, QUANTIFIABLES
-submeasure_count_quantifiables <- measures_quantifiable %>%
-  group_by(submeasure_type) %>%
-  summarise(
-    total = n(),
-    Other = paste0(round(sum(effectiveness_monitored == "Other") / total * 100), "%"),
-    ΔBcurrent = paste0(round(sum(effectiveness_monitored == "ΔBcurrent") / total * 100), "%"),
-    ΔΣH = paste0(round(sum(effectiveness_monitored == "ΔΣH") / total * 100), "%"),
-    ΔΣF = paste0(round(sum(effectiveness_monitored == "ΔΣF") / total * 100), "%"),
-    ΔΣA = paste0(round(sum(effectiveness_monitored == "ΔΣA") / total * 100), "%"),
-    `Not monitored` = paste0(round((total - (sum(effectiveness_monitored == "Other") + sum(effectiveness_monitored == "ΔBcurrent") + sum(effectiveness_monitored == "ΔΣH") + sum(effectiveness_monitored == "ΔΣF") + sum(effectiveness_monitored == "ΔΣA"))) / total * 100), "%")
-  )
+# Get unique measure types
+measure_types <- unique(measures_quantifiable$measure_type)
+
+# Create summary tables for each measure type
+quantifiable_tables <- lapply(measure_types, function(mt) {
+  create_summary_table(measures_quantifiable, mt)
+})
+
+# Print each table using kable
+for (i in seq_along(quantifiable_tables)) {
+  cat("\n### Measure Type:", measure_types[i], "\n")
+  print(kable(quantifiable_tables[[i]], caption = paste("Count of quantifiable measures for", measure_types[i], "and whether they are monitored or not")))
+}
 
 # Filter the data frame for direct measures only
 measures_direct <- measures_all %>%
-  filter(std_direct %in% c("y")) 
+  filter(std_direct %in% c("y"))
 
-# Count the number of each submeasure_type and calculate the percentages, DIRECTS
-submeasure_count_directs <- measures_direct %>%
-  group_by(submeasure_type) %>%
-  summarise(
-    total = n(),
-    Other = paste0(round(sum(effectiveness_monitored == "Other") / total * 100), "%"),
-    ΔBcurrent = paste0(round(sum(effectiveness_monitored == "ΔBcurrent") / total * 100), "%"),
-    ΔΣH = paste0(round(sum(effectiveness_monitored == "ΔΣH") / total * 100), "%"),
-    ΔΣF = paste0(round(sum(effectiveness_monitored == "ΔΣF") / total * 100), "%"),
-    ΔΣA = paste0(round(sum(effectiveness_monitored == "ΔΣA") / total * 100), "%"),
-    `Not monitored` = paste0(round((total - (sum(effectiveness_monitored == "Other") + sum(effectiveness_monitored == "ΔBcurrent") + sum(effectiveness_monitored == "ΔΣH") + sum(effectiveness_monitored == "ΔΣF") + sum(effectiveness_monitored == "ΔΣA"))) / total * 100), "%")
-  )
+# Create summary tables for each measure type
+direct_tables <- lapply(measure_types, function(mt) {
+  create_summary_table(measures_direct, mt)
+})
 
-# Print using kable
-kable(submeasure_count_directs, caption = "Count of direct measures and whether they are monitored or not")
-kable(submeasure_count_quantifiables, caption = "Count of quantifiable measures and whether they are monitored or not")
+# Print each table using kable
+for (i in seq_along(direct_tables)) {
+  cat("\n### Measure Type:", measure_types[i], "\n")
+  print(kable(direct_tables[[i]], caption = paste("Count of direct measures for", measure_types[i], "and whether they are monitored or not")))
+}
 
 ```
 
-Graph/Table with no. of measures per type for each country
-
-
-```{r NoOfMeasuresPerCountry, echo=FALSE}
-
-# Create the MeasuresPerType to show data
-MeasuresPerType <- measures_all %>%
-  count(country, measure_type) %>%
-  spread(key = measure_type, value = n, fill = 0)
-
-# Print using kable
-kable(MeasuresPerType, caption = "Number of Measures Per Country")
-
-
-```
 
 Graph/Table with no. of measures per type for each EMU
 NOTE THAT SOME EMU's are missing - should we link here?
 
 
-```{r NoOfMeasuresPerEMU, echo=FALSE}
+```{r NoOfMeasuresPerCountryA, echo=FALSE}
+
+
+
+# Create the MeasuresPerTypeEMU to list it in new df
+MeasuresPerTypeEMU <- measures_all_cleaned_EMP %>%
+  group_by(country) %>%
+  summarise(
+    `no. of EMUs` = n_distinct(emu_name_short),
+    .groups = 'drop'
+  )
+
+# Count the number of each measure_type per country
+MeasuresPerType <- measures_all_cleaned_EMP %>%
+  count(country, measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# Combine the two data frames
+final_table <- MeasuresPerType %>%
+  left_join(MeasuresPerTypeEMU, by = "country") %>%
+  select(country, `no. of EMUs`, everything())
+
+# Print the table using kable
+kable(final_table, caption = "Number of Measures Per Country and EMU")
+
+```
+
+```{r NoOfMeasuresPerEMU, include=FALSE}
 
 # Create the MeasuresPerTypeEMU to list it in new df
 MeasuresPerTypeEMU <- measures_all %>%
@@ -148,29 +508,22 @@ Graph of implementation percentage - stacked bars by measure type (implemented/p
 
 ```{r ImplementationPercentage, echo=FALSE}
 
-# Function to replace underscores with spaces and capitalize the first letter of each word
-clean_names <- function(name) {
-  if (!is.na(name)) {
-    name <- gsub("_", " ", name)
-    name <- tools::toTitleCase(name)
-  }
-  return(name)
-}
-
 # Apply the function to the progress column
-measures_all$progress <- sapply(measures_all$progress, clean_names)
-
+measures_all_cleaned_EMP$progress <- sapply(measures_all_cleaned_EMP$progress, clean_names)
 # Apply the function to the measure_type column
-measures_all$measure_type <- sapply(measures_all$measure_type, clean_names)
+measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
 
 # Replace values in the progress column
-measures_all$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all$progress)
-measures_all$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all$progress)
-#ONE CZ "Other" changed to trap and transport
-measures_all$measure_type <- gsub("Other", "Hydropower and Obstacles", measures_all$measure_type)
+measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+# ONE CZ "Other" changed to trap and transport
+measures_all_cleaned_EMP$measure_type <- gsub("Other", "Hydropower and Obstacles", measures_all_cleaned_EMP$measure_type)
 
-# Create a contingency table that has only the needed data
-ProgressCountTable <- table(measures_all$measure_type, measures_all$progress)
+# Combine NA and "Not Available / Not Pertinent" into one category
+measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
+
+# Create a contingency table that includes NA values
+ProgressCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$progress)
 
 # Convert the table to a data frame
 ProgressCountTable <- as.data.frame.matrix(ProgressCountTable)
@@ -192,6 +545,11 @@ ProgressCountTable_counts_long <- tidyr::gather(ProgressCountTable_counts_long, 
 TotalCounts <- aggregate(count ~ measure_type, data = ProgressCountTable_counts_long, sum)
 colnames(TotalCounts)[2] <- "total_count"
 
+
+# Set the levels of the 'progress' factor in the desired order
+ProgressCountTable_long$progress <- factor(ProgressCountTable_long$progress, 
+                                           levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
+
 # Merge the totals with the percentages
 ProgressCountTable_long <- merge(ProgressCountTable_long, TotalCounts, by = "measure_type")
 
@@ -199,29 +557,435 @@ ProgressCountTable_long <- merge(ProgressCountTable_long, TotalCounts, by = "mea
 ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = progress)) +
   geom_bar(stat = "identity") +
   geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
-          vjust = -0.2, size = 3, inherit.aes = FALSE) +
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
   labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),  # Adjust size for x-axis labels
+        legend.text = element_text(size = 10),  # Adjust size for legend text
+        legend.title = element_text(size = 10),  # Adjust size for legend title
+        legend.key.size = unit(0.5, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
   scale_fill_viridis_d()
 
+
+#PLOT 2
+
+# Apply the function to the progress and country columns
+measures_all_cleaned_EMP$progress <- sapply(measures_all_cleaned_EMP$progress, clean_names)
+measures_all_cleaned_EMP$country <- sapply(measures_all_cleaned_EMP$country, clean_names)
+
+# Replace values in the progress column
+measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+
+# Combine NA and "Not Available / Not Pertinent" into one category
+measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
+
+# Create a contingency table for country and progress
+ProgressCountTable_country <- table(measures_all_cleaned_EMP$country, measures_all_cleaned_EMP$progress)
+
+# Convert the table to a data frame
+ProgressCountTable_country <- as.data.frame.matrix(ProgressCountTable_country)
+
+# Normalize the data to get percentages
+ProgressCountTable_country_percent <- sweep(ProgressCountTable_country, 1, rowSums(ProgressCountTable_country), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+ProgressCountTable_country_long <- as.data.frame(ProgressCountTable_country_percent)
+ProgressCountTable_country_long$country <- rownames(ProgressCountTable_country_long)
+ProgressCountTable_country_long <- tidyr::gather(ProgressCountTable_country_long, key = "progress", value = "percentage", -country)
+
+# Assuming ProgressCountTable contains the original counts
+ProgressCountTable_country_counts_long <- as.data.frame(ProgressCountTable_country)
+ProgressCountTable_country_counts_long$country <- rownames(ProgressCountTable_country_counts_long)
+ProgressCountTable_country_counts_long <- tidyr::gather(ProgressCountTable_country_counts_long, key = "progress", value = "count", -country)
+
+# Calculate the total counts for each country
+TotalCounts_country <- aggregate(count ~ country, data = ProgressCountTable_country_counts_long, sum)
+colnames(TotalCounts_country)[2] <- "total_count"
+
+# Set the levels of the 'progress' factor in the desired order
+ProgressCountTable_country_long$progress <- factor(ProgressCountTable_country_long$progress, 
+                                                   levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(ProgressCountTable_country_long, aes(x = country, y = percentage, fill = progress)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts_country, aes(x = country, y = 100, label = paste0("n=", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Country", y = "Percentage", title = "", fill = "Progress") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),  # Adjust size for x-axis labels
+        legend.text = element_text(size = 10),  # Adjust size for legend text
+        legend.title = element_text(size = 10),  # Adjust size for legend title
+        legend.key.size = unit(0.5, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  guides(fill = guide_legend(nrow = 2)) +  # Split legend into two rows
+  scale_fill_viridis_d()
+
+
+### PLOT 3
+
+# Apply the function to the progress, measure_type, and country columns
+measures_all_cleaned_EMP$progress <- sapply(measures_all_cleaned_EMP$progress, clean_names)
+measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
+measures_all_cleaned_EMP$country <- sapply(measures_all_cleaned_EMP$country, clean_names)
+
+# Replace values in the progress column
+measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+
+# Combine NA and "Not Available / Not Pertinent" into one category
+measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
+
+# Create a contingency table for measure_type, country, and progress
+ProgressCountTable_combined <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$country, measures_all_cleaned_EMP$progress)
+
+# Convert the table to a data frame
+ProgressCountTable_combined <- as.data.frame(ProgressCountTable_combined)
+
+# Normalize the data to get percentages within each measure type and country
+ProgressCountTable_combined <- ProgressCountTable_combined %>%
+  group_by(Var1, Var2) %>%
+  mutate(percentage = Freq / sum(Freq) * 100) %>%
+  ungroup()
+
+# Rename columns for clarity
+colnames(ProgressCountTable_combined) <- c("measure_type", "country", "progress", "count", "percentage")
+
+# Calculate the total counts for each measure_type within each country
+TotalCounts_combined <- ProgressCountTable_combined %>%
+  group_by(measure_type, country) %>%
+  summarise(total_count = sum(count)) %>%
+  ungroup()
+
+# Merge the totals with the combined data
+ProgressCountTable_combined <- merge(ProgressCountTable_combined, TotalCounts_combined, by = c("measure_type", "country"))
+
+# Set the levels of the 'progress' factor in the desired order
+ProgressCountTable_combined$progress <- factor(ProgressCountTable_combined$progress, 
+                                               levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / not Pertinent"))
+
+# Create the third graph with measures on x-axis and faceted by country using percentages
+plot3_progress <- ggplot(ProgressCountTable_combined, aes(x = measure_type, y = percentage, fill = progress)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ country, ncol = 3) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 6),  # Adjust size for legend text
+        legend.title = element_text(size = 8),  # Adjust size for legend title
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
+            vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  guides(fill = guide_legend(nrow = 2)) +  # Make legend two rows
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
+
+# Save the plot with a specified height
+ggsave("facet_progress.jpg", plot = plot3_progress, height = 7, width = 5)  # Adjust the height and width as needed
+
+# Include the saved plot in the RMarkdown document
+knitr::include_graphics("facet_progress.jpg")
+
 ```
+```{r ImplementationPercentage_byCountry_OLD, include=FALSE}
+# Function to replace underscores with spaces and capitalize the first letter of each word
+clean_names <- function(name) {
+  if (!is.na(name)) {
+    name <- gsub("_", " ", name)
+    name <- tools::toTitleCase(name)
+  }
+  return(name)
+}
+
+# Apply the function to the progress column
+measures_all_cleaned_EMP$progress <- sapply(measures_all_cleaned_EMP$progress, clean_names)
+# Apply the function to the measure_type column
+measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
+
+# Replace values in the progress column
+measures_all_cleaned_EMP$progress <- gsub("NA", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+measures_all_cleaned_EMP$progress <- gsub("NP", "Not Available / Not Pertinent", measures_all_cleaned_EMP$progress)
+# ONE CZ "Other" changed to trap and transport
+measures_all_cleaned_EMP$measure_type <- gsub("Other", "Hydropower and Obstacles", measures_all_cleaned_EMP$measure_type)
+
+# Combine NA and "Not Available / Not Pertinent" into one category
+measures_all_cleaned_EMP$progress[is.na(measures_all_cleaned_EMP$progress)] <- "Not Available / Not Pertinent"
+
+# Ensure 'progress' column has all levels
+measures_all_cleaned_EMP$progress <- factor(measures_all_cleaned_EMP$progress, 
+                                            levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / Not Pertinent"))
+
+# Create a contingency table that includes NA values
+ProgressCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$progress, measures_all_cleaned_EMP$country)
+
+# Convert the table to a data frame
+ProgressCountTable <- as.data.frame(ProgressCountTable)
+
+# Normalize the data to get percentages
+ProgressCountTable_percent <- ProgressCountTable %>%
+  group_by(Var1, Var3) %>%
+  mutate(Freq = Freq / sum(Freq) * 100)
+
+# Rename columns for clarity
+colnames(ProgressCountTable_percent) <- c("measure_type", "progress", "country", "percentage")
+
+# Calculate the total counts for each measure_type and country
+TotalCounts <- ProgressCountTable %>%
+  group_by(Var1, Var3) %>%
+  summarise(total_count = sum(Freq))
+
+# Rename columns for clarity
+colnames(TotalCounts) <- c("measure_type", "country", "total_count")
+
+# Merge the totals with the percentages
+ProgressCountTable_long <- merge(ProgressCountTable_percent, TotalCounts, by = c("measure_type", "country"))
+
+# Set the levels of the 'progress' factor in the desired order
+ProgressCountTable_long$progress <- factor(ProgressCountTable_long$progress, 
+                                           levels = c("Fully Implemented", "Partially Implemented", "Stopped", "Not Implemented", "Not Available / Not Pertinent"))
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+p2 = ggplot(ProgressCountTable_long, aes(x = measure_type, y = percentage, fill = progress)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(x = measure_type, y = 95, label = paste0("n = ", total_count)), 
+            vjust = -0.5, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Progress") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        strip.text = element_text(face = "bold")) +
+  scale_fill_viridis_d() +
+  facet_wrap(~ country, ncol = 3)
+
+# Save the plot with increased height
+ggsave("plot2.png", plot = p2, width = 11.5, height = 14, units = "in")  # Adjust the height as needed
+
+# Include the saved plot in the RMarkdown document
+knitr::include_graphics("plot2.png")
+```
+
+
+
+Graph/Table with no. of measures per type for each country
+
+
+```{r NoOfMeasuresPerCountryB, echo=FALSE}
+
+# Apply the function to clean the columns
+measures_all_cleaned_EMP$measure_type <- sapply(measures_all_cleaned_EMP$measure_type, clean_names)
+
+# Create the MeasuresPerType to show data
+MeasuresPerType <- measures_all_cleaned_EMP %>%
+  count(country, measure_type) %>%
+  spread(key = measure_type, value = n, fill = 0)
+
+# Calculate the total measures per country
+TotalMeasuresPerCountry <- measures_all_cleaned_EMP %>%
+  count(country) %>%
+  rename(total = n)
+
+# Merge the total measures with the MeasuresPerType
+MeasuresPerType <- MeasuresPerType %>%
+  left_join(TotalMeasuresPerCountry, by = "country")
+
+# Calculate the percentage and format the values
+MeasuresPerType <- MeasuresPerType %>%
+  mutate(across(-c(country, total), ~ paste0(.x, " (", round(.x / total * 100, 1), "%)")))
+
+# Remove the total column as it's no longer needed
+MeasuresPerType <- MeasuresPerType %>%
+  select(-total)
+
+
+# Print using kable
+kable(MeasuresPerType, caption = "Number of Measures Per Country with Percentages")
+
+```
+
 
 Graph of effectiveness monitored - stacked bars by measure type (implemented, etc
 
 We may need to check if a value is provided
 
-
 ```{r EffectivenesMonitored, echo=FALSE}
-# Replace values in the effectiveness_monitored column
-measures_all$effectiveness_monitored <- gsub("Î”Î£F", "ΔΣF", measures_all$effectiveness_monitored)
-measures_all$effectiveness_monitored <- gsub("Î”Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
-measures_all$effectiveness_monitored <- gsub("%Bcurrent", "ΔBcurrent", measures_all$effectiveness_monitored)
-measures_all$effectiveness_monitored <- gsub("Î”Î£H", "ΔΣH", measures_all$effectiveness_monitored)
-measures_all$effectiveness_monitored <- gsub("other", "Other", measures_all$effectiveness_monitored)
+
+# Define a function to clean the effectiveness_monitored column
+clean_effectiveness <- function(effectiveness) {
+  effectiveness <- gsub("Î”Î£F", "ΔΣF", effectiveness)
+  effectiveness <- gsub("Î”Bcurrent", "ΔBcurrent", effectiveness)
+  effectiveness <- gsub("%Bcurrent", "ΔBcurrent", effectiveness)
+  effectiveness <- gsub("Î”Î£H", "ΔΣH", effectiveness)
+  effectiveness <- gsub("other", "Other", effectiveness)
+  effectiveness[is.na(effectiveness) | effectiveness == "NA" | effectiveness == "Other"] <- "Not monitored"
+  return(effectiveness)
+}
+
+# Apply the function to the effectiveness_monitored column
+measures_all_cleaned_EMP$effectiveness_monitored <- clean_effectiveness(measures_all_cleaned_EMP$effectiveness_monitored)
 
 # Create a contingency table
-EffectivenessCountTable <- table(measures_all$measure_type, measures_all$effectiveness_monitored)
+EffectivenessCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$effectiveness_monitored)
+
+# Drop the rows for "Eel Governance" and "Eel Trade and Marketing"
+EffectivenessCountTable <- EffectivenessCountTable[!rownames(EffectivenessCountTable) %in% c("Eel Governance", "Eel Trade and Marketing"), ]
+
+# Convert the table to a data frame
+EffectivenessCountTable <- as.data.frame.matrix(EffectivenessCountTable)
+
+# Calculate the total counts for each measure type
+TotalCounts <- data.frame(
+  measure_type = rownames(EffectivenessCountTable),
+  total_count = rowSums(EffectivenessCountTable)
+)
+
+# Normalize the data to get percentages
+EffectivenessCountTable_percent <- sweep(EffectivenessCountTable, 1, rowSums(EffectivenessCountTable), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+EffectivenessCountTable_long <- as.data.frame(EffectivenessCountTable_percent)
+EffectivenessCountTable_long$measure_type <- rownames(EffectivenessCountTable_long)
+EffectivenessCountTable_long <- tidyr::gather(EffectivenessCountTable_long, key = "effectiveness_monitored", value = "percentage", -measure_type)
+
+# Merge the totals with the percentages
+EffectivenessCountTable_long <- merge(EffectivenessCountTable_long, TotalCounts, by = "measure_type")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(EffectivenessCountTable_long, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts, aes(x = measure_type, y = 100, label = paste0("n = ", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  scale_fill_viridis_d()
+
+### PLOT 2
+
+# Apply the function to the effectiveness_monitored and country columns
+measures_all_cleaned_EMP$effectiveness_monitored <- clean_effectiveness(measures_all_cleaned_EMP$effectiveness_monitored)
+measures_all_cleaned_EMP$country <- sapply(measures_all_cleaned_EMP$country, clean_names)
+
+# Drop the rows for "Eel Governance" and "Eel Trade and Marketing"
+measures_all_cleaned_EMP_effectiveness <- measures_all_cleaned_EMP[!measures_all_cleaned_EMP$measure_type %in% c("Eel Governance", "Eel Trade and Marketing"), ]
+
+# Create a contingency table for country and effectiveness_monitored
+EffectivenessCountTable_country <- table(measures_all_cleaned_EMP_effectiveness$country, measures_all_cleaned_EMP_effectiveness$effectiveness_monitored)
+
+# Convert the table to a data frame
+EffectivenessCountTable_country <- as.data.frame.matrix(EffectivenessCountTable_country)
+
+# Normalize the data to get percentages
+EffectivenessCountTable_country_percent <- sweep(EffectivenessCountTable_country, 1, rowSums(EffectivenessCountTable_country), FUN = "/") * 100
+
+# Convert the data frame to long format for ggplot2
+EffectivenessCountTable_country_long <- as.data.frame(EffectivenessCountTable_country_percent)
+EffectivenessCountTable_country_long$country <- rownames(EffectivenessCountTable_country_long)
+EffectivenessCountTable_country_long <- tidyr::gather(EffectivenessCountTable_country_long, key = "effectiveness_monitored", value = "percentage", -country)
+
+# Assuming EffectivenessCountTable contains the original counts
+EffectivenessCountTable_country_counts_long <- as.data.frame(EffectivenessCountTable_country)
+EffectivenessCountTable_country_counts_long$country <- rownames(EffectivenessCountTable_country_counts_long)
+EffectivenessCountTable_country_counts_long <- tidyr::gather(EffectivenessCountTable_country_counts_long, key = "effectiveness_monitored", value = "count", -country)
+
+# Calculate the total counts for each country
+TotalCounts_country <- aggregate(count ~ country, data = EffectivenessCountTable_country_counts_long, sum)
+colnames(TotalCounts_country)[2] <- "total_count"
+
+# Merge the totals with the percentages
+EffectivenessCountTable_country_long <- merge(EffectivenessCountTable_country_long, TotalCounts_country, by = "country")
+
+# Create the stacked bar chart with total counts as labels at the top of each bar
+ggplot(EffectivenessCountTable_country_long, aes(x = country, y = percentage, fill = effectiveness_monitored)) +
+  geom_bar(stat = "identity") +
+  geom_text(data = TotalCounts_country, aes(x = country, y = 100, label = paste0("n=", total_count)), 
+            vjust = -0.2, size = 3, inherit.aes = FALSE) +
+  labs(x = "Country", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8),  # Adjust size for x-axis labels
+        legend.text = element_text(size = 9),  # Adjust size for legend text
+        legend.title = element_text(size = 10),  # Adjust size for legend title
+        legend.key.size = unit(1, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom",  # Move legend to the bottom
+        legend.box = "horizontal",  # Arrange legend items horizontally
+        legend.spacing.x = unit(0.5, 'cm')) +  # Adjust spacing between legend items
+  guides(fill = guide_legend(nrow = 2)) +  # Make legend two rows
+  scale_fill_viridis_d()
+
+### PLOT 3
+
+# Apply the function to the effectiveness_monitored, measure_type, and country columns
+measures_all_cleaned_EMP_effectiveness$effectiveness_monitored <- clean_effectiveness(measures_all_cleaned_EMP_effectiveness$effectiveness_monitored)
+measures_all_cleaned_EMP_effectiveness$measure_type <- sapply(measures_all_cleaned_EMP_effectiveness$measure_type, clean_names)
+measures_all_cleaned_EMP_effectiveness$country <- sapply(measures_all_cleaned_EMP_effectiveness$country, clean_names)
+
+# Create a contingency table for measure_type, country, and effectiveness_monitored
+EffectivenessCountTable_combined <- table(measures_all_cleaned_EMP_effectiveness$measure_type, measures_all_cleaned_EMP_effectiveness$country, measures_all_cleaned_EMP_effectiveness$effectiveness_monitored)
+
+EffectivenessCountTable_country <- EffectivenessCountTable_country[!rownames(EffectivenessCountTable_country) %in% c("Eel Governance", "Eel Trade and Marketing"), ]
+
+# Convert the table to a data frame
+EffectivenessCountTable_combined <- as.data.frame(EffectivenessCountTable_combined)
+
+# Normalize the data to get percentages within each measure type and country
+EffectivenessCountTable_combined <- EffectivenessCountTable_combined %>%
+  group_by(Var1, Var2) %>%
+  mutate(percentage = Freq / sum(Freq) * 100) %>%
+  ungroup()
+
+# Rename columns for clarity
+colnames(EffectivenessCountTable_combined) <- c("measure_type", "country", "effectiveness_monitored", "count", "percentage")
+
+# Calculate the total counts for each measure_type within each country
+TotalCounts_combined <- EffectivenessCountTable_combined %>%
+  group_by(measure_type, country) %>%
+  summarise(total_count = sum(count)) %>%
+  ungroup()
+
+# Merge the totals with the combined data
+EffectivenessCountTable_combined <- merge(EffectivenessCountTable_combined, TotalCounts_combined, by = c("measure_type", "country"))
+
+# Create the third graph with measures on x-axis and faceted by country using percentages
+plot3_effectiveness <- ggplot(EffectivenessCountTable_combined, aes(x = measure_type, y = percentage, fill = effectiveness_monitored)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~ country, ncol = 3) +
+  labs(x = "Measure Type", y = "Percentage", title = "", fill = "Effectiveness Monitored") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6),  # Adjust size for x-axis labels
+        strip.text = element_text(size = 5),  # Adjust size for facet titles
+        legend.text = element_text(size = 6),  # Adjust size for legend text
+        legend.title = element_text(size = 8),  # Adjust size for legend title
+        legend.key.size = unit(0.8, "lines"),  # Adjust size for legend colored boxes
+        legend.position = "bottom") +  # Move legend to the bottom
+  geom_text(aes(x = measure_type, y = 105, label = paste0("", total_count)), 
+            vjust = 0.22, size = 1.5, inherit.aes = FALSE) +
+  scale_fill_viridis_d() +
+  scale_y_continuous(limits = c(0, 107), breaks = seq(0, 100, by = 25)) +
+  scale_x_discrete(expand = expansion(add = c(1.00, 1.05))) 
+
+# Save the plot with a specified height
+ggsave("facet_effectiveness.jpg", plot = plot3_effectiveness, height = 7, width = 5)  # Adjust the height and width as needed
+
+# Include the saved plot in the RMarkdown document
+knitr::include_graphics("facet_effectiveness.jpg")
+
+```
+
+
+```{r EffectivenesMonitored_old, echo=FALSE}
+
+# Replace values in the effectiveness_monitored column
+measures_all_cleaned_EMP$effectiveness_monitored <- gsub("Î”Î£F", "ΔΣF", measures_all_cleaned_EMP$effectiveness_monitored)
+measures_all_cleaned_EMP$effectiveness_monitored <- gsub("Î”Bcurrent", "ΔBcurrent", measures_all_cleaned_EMP$effectiveness_monitored)
+measures_all_cleaned_EMP$effectiveness_monitored <- gsub("%Bcurrent", "ΔBcurrent", measures_all_cleaned_EMP$effectiveness_monitored)
+measures_all_cleaned_EMP$effectiveness_monitored <- gsub("Î”Î£H", "ΔΣH", measures_all_cleaned_EMP$effectiveness_monitored)
+measures_all_cleaned_EMP$effectiveness_monitored <- gsub("other", "Other", measures_all_cleaned_EMP$effectiveness_monitored)
+
+# Create a contingency table
+EffectivenessCountTable <- table(measures_all_cleaned_EMP$measure_type, measures_all_cleaned_EMP$effectiveness_monitored)
 
 # Convert the table to a data frame
 EffectivenessCountTable <- as.data.frame.matrix(EffectivenessCountTable)
@@ -253,17 +1017,16 @@ By year implemented measures with direct effect - stacked bar (high/medium low i
 NOTE THE YEAR NA IS DIVIDED BY 10
 
 ```{r ByYearImplementedMeasures, echo=FALSE}
-
-measures_all$impact <- gsub("high", "High", measures_all$impact)
-measures_all$impact <- gsub("indirect", "Not direct", measures_all$impact)
-measures_all$impact <- gsub("none", "None", measures_all$impact)
-
+# Update the impact column values
+measures_all_cleaned_EMP$impact <- gsub("high", "High", measures_all_cleaned_EMP$impact)
+measures_all_cleaned_EMP$impact <- gsub("indirect", "Not direct", measures_all_cleaned_EMP$impact)
+measures_all_cleaned_EMP$impact <- gsub("none", "None", measures_all_cleaned_EMP$impact)
 
 # Create the new data frame with year_of_full_implementation and impact
-ImpactByYear <- measures_all %>%
+ImpactByYear <- measures_all_cleaned_EMP %>%
   select(year_of_full_implementation, impact)
 
-#clean NAs
+# Clean NAs
 ImpactByYear$impact[is.na(ImpactByYear$impact)] <- "N/A"
 
 ImpactByYear <- ImpactByYear %>%
@@ -275,8 +1038,7 @@ ImpactByYear <- ImpactByYear %>%
                                               "NA", 
                                               year_of_full_implementation))
 
-
-# Adjust the count of "NA" entries by dividing by 10 and rename to "NA / 10"
+# Adjust the count of "NA" entries by dividing by 10 and rename to "NA *"
 ImpactByYear <- ImpactByYear %>%
   group_by(year_of_full_implementation, impact) %>%
   summarise(count = n()) %>%
@@ -291,7 +1053,6 @@ ggplot(ImpactByYear, aes(x = factor(year_of_full_implementation), y = count, fil
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   scale_fill_viridis_d()
-
 ```
 
 ```{r ImpactVsMeasure, echo=FALSE}
@@ -336,7 +1097,7 @@ ggplot(ImpactByType, aes(x = factor(measure_type), y = count, fill = factor(impa
 ```{r OnlyHighImpact, echo=FALSE}
 
 # Filter the data frame for EMU only
-measures_HighImpact <- measures_all %>%
+measures_HighImpact <- measures_all_cleaned_EMP %>%
   filter(impact %in% c("High", "Intermediate", "Low"))
 
 

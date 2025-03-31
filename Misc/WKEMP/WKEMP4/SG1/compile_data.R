@@ -1,9 +1,18 @@
 ##### data for the script is on Ices SP (working documents/SG1) using the same folder structure as specified in this script #####
 
+# List all currently loaded packages, excluding the default ones
+default_packages <- c("base", "stats", "graphics", "grDevices", "utils", "datasets", "methods")
+loaded_libs <- setdiff(.packages(), default_packages)
+
+# Detach each non-default package
+for(lib in loaded_libs) {
+  detach(paste("package:", lib, sep=""), character.only = TRUE, unload = TRUE)
+}
+
+#load libraries
 library(readxl)
 library(tidyverse)
 library(icesTAF)
-
 
 # 1. ANNEX 14 ####
 
@@ -58,6 +67,36 @@ measures_all <- measures_all %>%
   rename(id = new_id) %>% 
   relocate(id, .before = country)
 
+#get rows where target_value, target_value_achieved or effect_size_monitored is a number
+convertible_values_tv <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$target_value)))]
+convertible_values_tva <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$target_value_achieved)))]
+convertible_values_em <- measures_all$id[!is.na(suppressWarnings(as.numeric(measures_all$estimated_effect_size)))]
+
+#### ADD HERE VECTORS FOR THE THREE COLUMS WHERE THERE IS TEXT WHICH IMPLIES THERE IS A MONITORING/TARGET #####
+#measures_all <- measures_all %>% 
+  #relocate(target_value, .before = country) %>% 
+  #relocate(target_value_achieved, .before = country) %>% 
+  #relocate(estimated_effect_size, .before = country)
+
+add_target <- c("dc2021_322", "dc2021_1486","dc2021_472", "dc2021_104")
+add_target_achieved <- c("dc2021_320", "dc2021_317", "dc2021_322", "dc2021_324", "dc2021_318", "dc2021_472", "dc2024_1605")
+add_effect <- c("dc2021_392", "dc2021_393", "d2021_348", "dc2021_349", "dc2021_350", "dc2021_359", "dc2021_240")
+
+
+
+#create columns for target_value, target_value_achieved or effect_size_monitored wherer only the numerics are available
+measures_all <- measures_all %>% 
+  mutate(target_value_numeric = as.numeric(ifelse(id %in% convertible_values_tv, target_value, NA)),
+         target_value_achieved_numeric = as.numeric(ifelse(id %in% convertible_values_tva, target_value_achieved, NA)),
+         effect_size_numeric = as.numeric(ifelse(id %in% convertible_values_em, estimated_effect_size, NA)),
+         achieved_per = target_value_achieved_numeric/target_value_numeric,
+         effect_size_true = ifelse(effectiveness_monitored != "Not monitored" & !is.na(effectiveness_monitored) & !is.na(effect_size_numeric), effectiveness_monitored, "Not monitored"), 
+         target_value_numeric = ifelse(id %in% add_target, "yes", target_value_numeric),
+         target_value_achieved_numeric = ifelse(id %in% add_target_achieved, "yes", target_value_achieved_numeric),
+         effect_size_numeric = ifelse(id %in% add_effect, "yes", effect_size_numeric),
+         quantifiable = ifelse(std_quantifiable != "n" & !is.na(std_quantifiable), std_quantifiable,
+                               ifelse(!is.na(target_value_numeric), "y", "n")))
+
 
 
 
@@ -74,6 +113,7 @@ removed_non_EMP <- measures_all_cleaned %>%
   filter(!measure_planned %in% c("EMP", "EMP_amended"))
 
 measures_all_cleaned_EMP <- anti_join(measures_all_cleaned, removed_non_EMP)
+
 
 
 #create output directory
@@ -94,6 +134,8 @@ write.csv2(removed_UK_delete, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_UK_de
 
 save(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.RData")
 write.csv2(removed_non_EMP, file = "Misc/WKEMP/WKEMP4/SG1/output/removed_non_EMP.csv", row.names = FALSE)
+
+
 
 # 2. ANNEX 17
 
@@ -120,6 +162,25 @@ references_all <- map_dfr(files_17, function(x) {
   return(df)
 })
 
+#create readable table for report Annex
+removed_delete <- measures_all %>%
+  filter(country == "Great_Britain") 
+
+measures_all_short <- anti_join(measures_all, removed_delete)
+
+measures_all_short <- measures_all_cleaned %>% 
+  select(-id, -c(32:47))
+
+#create a table only with countries who responded to one of the calls
+measures_all_response <- measures_all_cleaned %>% 
+  filter(country != "Croatia" & country != "Estonia" & country != "Italy" & country != "Latvia" & country != "Luxembourg" & country != "Slovenia")
+
+length(unique(measures_all_response$emu_name_short))
+
 #save result
 save(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.RData")
 write.csv2(references_all, file = "Misc/WKEMP/WKEMP4/SG1/output/references_all.csv", row.names = FALSE)
+
+#save "nicer" table as RData and csv
+save(measures_all_short, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_short.RData")
+write.csv2(measures_all_short, file = "Misc/WKEMP/WKEMP4/SG1/output/measures_all_short.csv", row.names = FALSE)

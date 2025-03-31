@@ -3,8 +3,28 @@ library(flextable)
 library(ggplot2)
 library(dplyr)
 library(gt)
+library(officedown)
 library(officer)
 
+add_figure_caption <- function(bkm){
+  run_autonum(seq_id = "Figure", pre_label = "", bkm = bkm, tnd = 1, tns = '.')
+}
+
+add_table_caption <- function(bkm){
+  run_autonum(seq_id = "Table", pre_label = "", bkm = bkm, tnd = 1, tns = '.')
+}
+
+runs_figure <- list(
+  run_word_field("STYLEREF 1 \\s"),
+  ftext("."),
+  run_autonum(seq_id = "Figure", pre_label = "", post_label = "")
+)
+
+runs_table <- list(
+  run_word_field("STYLEREF 1 \\s"),
+  ftext("."),
+  run_autonum(seq_id = "Table", pre_label = "", post_label = "")
+)
 
 library(knitr)
 knit_print.flextable <- function (x, ...) {
@@ -112,4 +132,36 @@ flextable2ICES <- function(x){
           part = "header") |>
     fit_to_width(16/2.54)
 }
+
+
+
+knit_print.run_reference <- function(x, ...) {
+  is_quarto <- flextable:::is_in_quarto()
+  title <- ""
+  if (is_quarto) {
+    title <- opts_current_table()$cap.pre
+  }
+  if (grepl("docx", opts_knit$get("rmarkdown.pandoc.to"))) {
+    knit_print(asis_output(
+      paste(title, "`", to_wml(x), "`{=openxml}", sep = "")
+    ))
+  } else if (is_quarto) {
+    knit_print(asis_output(
+      paste("@", x$id, sep = "")
+    ))
+  } else {
+    knit_print(asis_output(
+      paste("\\@ref(tab:", x$id, ")", sep = "")
+    ))
+  }
+}
+
+
+
+registerS3method(
+  "knit_print", 'flextable', knit_print.run_reference, 
+  envir = asNamespace("flextable") 
+  # important to overwrite {flextable}s knit_print
+)
+
 
