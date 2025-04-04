@@ -2,6 +2,7 @@
 # File create to build excel files sent to persons responsible for recruitment data
 # Author Cedric Briand
 # This script will create an excel sheet per country that currently have recruitment series
+# NOTE THIS works in R4.3.2 in windows, but not R4.4.4
 #######################################################################################
 # put the current year there
 if (Sys.info()["user"] %in% c("hilaire.drouineau", "hdrouineau")) {
