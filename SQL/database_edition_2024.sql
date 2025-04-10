@@ -1290,7 +1290,7 @@ CREATE OR REPLACE VIEW datawg.precodata_all AS
         END), tr_country_cou.cou_order, all_level.eel_emu_nameshort;
         
       
- # CHECK units
+-- CHECK units
  
  WITH unidata as(
  SELECT DISTINCT ser_uni_code AS uni_code, 't_series_ser(ser_uni_code)' AS "table"  FROM datawg.t_series_ser 
@@ -1304,6 +1304,31 @@ UNION
   SELECT DISTINCT typ_uni_code AS uni_code, 'tr_typeseries_typ' AS "table"  FROM ref.tr_typeseries_typ)
 
 SELECT * FROM unidata WHERE uni_code IS NOT NULL ORDER BY "table", uni_code
+      
+-- check more details on units     
+ 
+ WITH unidata as(
+ SELECT DISTINCT ON (ser_uni_code, ser_nameshort, ser_cou_code) 
+ ser_uni_code AS uni_code,
+ ser_nameshort,
+ ser_comment,
+ ser_method,
+ ser_sam_gear,
+ ser_cou_code, 't_series_ser(ser_uni_code)' AS "table"  FROM datawg.t_series_ser 
+ UNION 
+  SELECT DISTINCT on (ser_effort_uni_code, ser_nameshort, ser_cou_code) 
+  ser_effort_uni_code AS uni_code,
+   ser_nameshort,
+ ser_comment,
+ ser_method,
+ ser_sam_gear, 
+  ser_cou_code, 't_series_ser(ser_effort_uni_code)' AS "table"  FROM datawg.t_series_ser 
+)
+
+SELECT * FROM unidata 
+WHERE uni_code IN ('kg/d', 'kg/boat/d', 'nr haul', 'nr electrofishing', 'nr/haul', 'nr net.night', 'nr fyke.d', 'nr/net/day')
+ORDER BY "table", uni_code
+
       
       
       

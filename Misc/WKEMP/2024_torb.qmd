@@ -86,7 +86,7 @@ dbDisconnect(con)
 trendtable <- function(dat = precodata_all, ind = "suma"){
   dat |>
     filter(aggreg_level == "emu") |>
-    filter(eel_year >= 2007) |>
+    filter(eel_year >= 2017) |>
     select(all_of(c("eel_year",ind, "eel_emu_nameshort"))) |>
     filter(!is.na(.data[[ind]])) |>
     group_by(eel_emu_nameshort) |>
@@ -324,9 +324,11 @@ Since lifespans vary among regions from a few years to decades and since the rec
 Figure `r run_reference("fignatmort")` indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density-dependent natural mortality is mainly restricted to younger ages.
 
 ```{r plot}
+#| label: fig-natmort
 #| echo: false
 #| warning: false
 #| error: false
+#| fig-cap: "Reduction of average natural mortality over the lifespan that would be required to achieve the management target in an  EMU given different levels of recruitment (x-axis) and lifespan (facet). The two vertical lines indicate the recruitment estimates from the WGEEL glass eel indices lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^"
 #| fig.height: 6.3
 #| fig.width: 6.3
 
@@ -382,10 +384,12 @@ Figure `r run_bookmark("fignatmort", runs_figure)`: Reduction of average natural
 Figure `r run_reference("figtrendbiomass")` and Table `r run_reference("tbl-trendbiomass")` show the time series of reported escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. In each EMU, a Mann-Kendall trend test was used to test for the existence of a significant monotonic time trend. Some negative significant trends in escapement are still detected (Table `r run_reference('tbl-trendbiomass')`), which might be due to a delayed effect of the decline in recruitment.
 
 ```{r}
+#| label: fig-trendbiomass
 #| echo: false
 #| fig-height: 6.3
 #| fig-width: 6.3
-
+#| fig-cap: "Trends in reported Bcurrent/B0. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
+#| 
 if (!dir.exists(file.path(params$image_path,"trendbiomassplots"))) {
   dir.create(file.path(params$image_path,"trendbiomassplots"))
 }
@@ -410,7 +414,7 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   theme_bw() +
   ylab(expression(B[current] / B[0])) +
   xlab("") +
-  xlim(2007, 2023) +
+  xlim(2007, 2020) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = file.path(params$image_path,"trend_biomass.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
@@ -477,8 +481,10 @@ flextable(biomasstrendtab |>
 The patterns are very similar when $B_{current\_without\_stocking}$ is plotted (Figure `r run_reference("@fig-trendbiomasswithoutstocking")`), with the escapements often shifted downward. This suggests that restocking does not have a major effect on recent trends in escapement.
 
 ```{r}
+#| label: fig-trendbiomasswithoutstocking
 #| fig-height: 6.3
 #| fig-width: 6.3
+#| fig-cap: "Trends in reported $B_{current\_without\_stocking}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
 indicator <- indicator %>%
   mutate(eel_cou_code = ifelse(eel_cou_code == substr(eel_emu_nameshort, 1, 2),
                                eel_cou_code,
@@ -516,8 +522,10 @@ Figure `r run_bookmark("fig-trendbiomasswithoutstocking", runs_figure)` Trends i
 Figure `r run_reference("fig-trendmortasumf")` and Table `r run_reference("tbl-trendsumf")` show the time series of reported fishing mortality per EMU and the results of the Mann-Kendall trend tests.
 
 ```{r}
+#| label: fig-trendmortasumf
 #| fig-height: 6.3
 #| fig-width: 6.3
+#| fig-cap: "Trends in reported ΣF. Each coloured line represents a specific EMU."
 sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -567,8 +575,10 @@ Interestingly, the reduction in fishing mortality is more visible than the incre
 Figure `r run_reference("fig-trendmortasumh")` and Table `r run_reference("tbl-trendsumh")` show the time series of reported other anthropogenic mortalities and the results of the Mann-Kendall trend tests. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for.
 
 ```{r}
+#| label: fig-trendmortasumh
 #| fig-height: 6.3
 #| fig-width: 6.3
+#| fig-cap: "Trends in reported ΣH. Each coloured line represents a specific EMU."
 sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -621,8 +631,10 @@ flextable( sumhtab |>
 Figure `r run_reference("fig-trendmortasuma")` and Table `r run_reference('tbl-trendsuma')` show the reported times series of reported total anthropogenic mortalities and the results of the Mann-Kendall trend tests.
 
 ```{r}
+#| label: fig-trendmortasuma
 #| fig-height: 6.3
 #| fig-width: 6.3
+#| fig-cap: "Trends in reported ΣA. Each coloured line represents a specific EMU."
 suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -683,11 +695,13 @@ Few EMUs are in the green area, i.e. have both achieved the management target an
 Many EMUs are still in the red zone. While not achieving the 40% pristine escapement is not surprising given the current low recruitment levels, it indicates that anthropogenic mortalities have not been reduced enough yet to achieve an escapement of 40% of what would occur given current level of recruitment in the absence of any anthropogenic pressures.
 
 ```{r}
+#| label: fig-precoemu
 #| message: false
 #| warning: false
 #| echo: false
 #| fig-width: 6.3
 #| fig-height: 3.94
+#| fig-cap: "Precautionary Diagram for Eel Management Units (ICES 2021b), presenting the reported data for 2021, 2022 and 2023: status of the stock (horizontal, spawner escapement ($B_{current}$) expressed as a percentage of the pristine escapement ($B_0$)) and the anthropogenic impacts (vertical, expressed as lifetime mortality ΣA, resp. lifetime survival %SPR). The limit anthropogenic mortality (Amgt) was set as 0.92, corresponding to the 40% biomass limit (B mgt). Points circled with black stand for EMU in which $B_{current\_without\_stocking}$ was used to replace missing $B_{current}$"
 #|
 img <- file.path(params$image_path,"preco_emu.png")
 g = trace_precodiag3(precodata_all,"emu",last_year=2023,years=2021:2023, bwithout_replace = TRUE)
@@ -864,7 +878,7 @@ f |>
 
 ### Conclusions
 
-As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that the current low recruitment all over the distribution area, drastically reduces the possibility to achieve the 40% escapement target of the Eel Regulation, in any EMUs. This would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
+As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, the target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
 
 Implementing the WKFEA roadmap [@ices2021] is critical to achieving or delivering more standardised methods and more informative results in the future.
 
@@ -872,19 +886,95 @@ Implementing the WKFEA roadmap [@ices2021] is critical to achieving or deliverin
 
 The traceability of glass eel landings and of their subsequent trade are crucial for legal enforcement, conservation, population recovery, and adherence to international conservation agreements. The European eel regulation requires monitoring of glass eels (those under 12 cm) designated for restocking as well as those for consumption. It also mandates that EMPs specify the quantity of eels under 20 cm needed for restocking to enhance silver eel escapement levels. It is necessary to identify whether the eels are destined for restocking (R) or consumption (C). The consumption category encompasses both glass eels directly consumed and those raised in aquaculture for later consumption as adults.
 
-<br> Among the glass eel producing countries of Europe, France monitors the RC category using a quota system, the UK monitors trade but has left the EU so does not take part in this reporting, Portugal has not reported any data, and Spain has no specific traceability system for glass eels, and a general system applied to all fishery products that does not allow the use (R or C) and country of destination to be identified. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings, once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
+<br>
+Among the glass eel producing countries of Europe, France monitors the RC category using a quota system, the UK monitors trade but has left the EU so does not take part in this reporting, Portugal has not reported any data, and Spain has no specific traceability system for glass eels, and a general system applied to all fishery products that does not allow the use (R or C)  and country of destination to be identified. In France, quotas are divided among commercial fishers and other users, with a portion often designated for restocking purposes. Although France has an internal traceability system to follow the use of the glass eels landings (with the amount of reserved glass eel reported in Figure @fig-check_proportion), once they leave the country, the use for which they were exported (restocking or consumption) cannot be guaranteed. Ensuring this would require tracing the glass eels until they are released into the water in the glass eel source country or in others.
 
 Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spanish traders, but since Spain is lacking a traceability system, this does not necessarily imply that the glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
 
-<br> Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but does not specify the countries of origin or destination.. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report. <br>
+<br>
+Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
+<br>
 
-There is a clear need for an international traceability scheme during trade to monitor the destination of caught glass eels. Spain’s failure to monitor the destination of glass eels and Portugal’s lack of reporting mean that traceability cannot be applied at the source. The failure of any country (Belgium, Germany, Italy, Latvia, Lithuania, Denmark) to monitor trade origin, destination, or RC category means it is currently impossible to track the destination of glass eels. The use of size categories like 12 cm and 20 cm is confusing. Reports of 20 cm eels are inconsistent, with some countries reporting trade of larger eels but not in the 20 cm category. Due to significant growth variation in eels, separating them by size has little biological basis and quickly mixes different cohorts. Only the separation of glass eels and other categories should be used practically.
+There is a clear need for an international traceability scheme during trade to monitor the destination of caught glass eels. Spain’s failure to monitor the destination of glass eels and Portugal’s lack of reporting mean that traceability cannot be applied at the source. The failure of any country (Belgium, Germany, Italy, Latvia, Lithuania, Denmark) to monitor trade origin, destination, or RC category means it is currently impossible to track the destination of glass eels.
+The use of size categories like 12 cm and 20 cm is confusing. Reports of 20 cm eels are inconsistent, with some countries reporting trade of larger eels but not in the 20 cm category. Due to significant growth variation in eels, separating them by size has little biological basis and quickly mixes different cohorts. Only the separation of glass eels and other categories should be used practically.
 
-<br> Even when RC categories are reported, they are not traced or separated, making it impossible to ensure that glass eels reserved for restocking are used for that purpose. Also, not having different categories for directly consumed glass eels or those used in the aquaculture complicates the tracking and management of eel stocks. Without clear categorization, there is a risk that eels meant for conservation efforts, such as restocking programs, could be diverted to the consumption or aquaculture markets. Additionally, combining these eels in one category can lead to inaccuracies in data on catch volumes and trade. Categorizing them separately, could improve traceability and ensure that eels destined for restocking programs are not diverted for other uses.
+<br>
+Even when RC categories are reported, they are not traced or separated, making it impossible to ensure that glass eels reserved for restocking are used for that purpose. Also, not having different categories for directly consumed glass eels or those used in the aquaculture complicates the tracking and management of eel stocks. Without clear categorization, there is a risk that eels meant for conservation efforts, such as restocking programs, could be diverted to the consumption or aquaculture markets. Additionally, combining these eels in one category can lead to inaccuracies in data on catch volumes and trade. Categorizing them separately, could improve traceability and ensure that eels destined for restocking programs are not diverted for other uses. 
 
-<br> Finally, the lack of effective traceability severely impairs accurate eel stock assessments. Without it, data on catch volumes, origins, and destinations are unreliable, complicating efforts to estimate true fishing pressure and mortality rates. This gap not only weakens scientific assessments but also hinders conservation efforts, as much of the catch and trade may go unreported, often due to illegal fishing. Traceability is also essential for assessing the effectiveness of restocking programs and their impact on biomass indicators. In conclusion, the glass eel traceability system in Europe is inefficient and fragmented: - Some countries have reported internal traceability systems, but there is no traceability at the transnational level. - The lack of transnational traceability raises concerns about the actual use of these eels, especially for restocking purposes. - The size categories (\<12 cm and 20 cm) lack a strong biological basis, as growth variations among eels make them difficult to classify. Only the separation of glass eels from other types should be considered in practice. - The lack of effective traceability severely impairs accurate eel stock assessments.
+<br>
+Finally, the lack of effective traceability severely impairs accurate eel stock assessments. Without it, data on catch volumes, origins, and destinations are unreliable, complicating efforts to estimate true fishing pressure and mortality rates. This gap not only weakens scientific assessments but also hinders conservation efforts, as much of the catch and trade may go unreported, often due to illegal fishing. Traceability is also essential for assessing the effectiveness of restocking programs and their impact on biomass indicators. 
+In conclusion, the glass eel traceability system in Europe is inefficient and fragmented:
+-	Some countries have reported internal traceability systems, but there is no traceability at the transnational level.
+-	The lack of transnational traceability raises concerns about the actual use of these eels, especially for restocking purposes.
+-	The size categories (<12 cm and 20 cm) lack a strong biological basis, as growth variations among eels make them difficult to classify. Only the separation of glass eels from other types should be considered in practice.
+-	The lack of effective traceability severely impairs accurate eel stock assessments.
 
-<b> Recommendation: - Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means until they are released into the water to avoid that glass eels are diverted to other, potentially illegal, uses. - The traceability system should separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities.
+<b>
+Recommendation:
+-	Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means that a separate monitoring of the material type (R or C) is carried out throughout the trade chain, until they are released into the water. This monitoring would avoid that glass eels are diverted to other, potentially illegal, uses.
+-	The traceability system should also separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities. 
+
+```{r }
+#| label: fig-check_proportion
+#| fig-width: 6.3
+#| fig-height: 6.3
+#| fig-cap: "Proportion of glass eel marked as restocking material reported by France, `trade only` identifies the proportion of glass eel that was used in trade, `including France restocking` incudes the amount of glass eel released in France as part of the restocking program."
+
+wgeelwd <- "C:/workspace/wg_WGEEL"
+load(file = file.path(
+  wgeelwd, "Misc",
+  "WKEMP", "data_dependencies", "annex16.RData"
+))
+fr_reserve <- bind_rows(
+  l12 %>%
+    filter(eel_cou_code == "FR" &
+      capture_trade_final_use == "landings_commercial") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "trade only"
+    ),
+  l12 %>%
+    filter(eel_cou_code == "FR") %>%
+    group_by(season, glass_eel_category) %>%
+    summarize(value_kg = sum(value_kg)) %>%
+    pivot_wider(
+      id_cols = season, names_from = "glass_eel_category",
+      values_from = "value_kg"
+    ) %>%
+    mutate(
+      proportion_restocked = restocking / (restocking + consumption),
+      category = "Including France restocking"
+    )
+)
+
+
+g <- ggplot(fr_reserve) +
+  geom_point(aes(x = season, y = proportion_restocked, color = category)) +
+  geom_path(aes(
+    x = season, 
+    y = proportion_restocked,
+    color = category, 
+    lty = category,
+    group = category
+  )) +
+  scale_color_brewer(palette = "Set1") +
+  ylim(c(0, 1)) +
+  ylab("Proportion restocked in France") +
+  geom_hline(yintercept=0.6, lty=2) +
+  annotate("text", x = 1, y = 0.63, label = "60%") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+fileres <- file.path(params$image_path,"proportion_restocked.png")
+ggsave(file = fileres, height = 16/2.54, width = 16/2.54)
+knitr::include_graphics(fileres)
+```
+
 
 \newpage
 
@@ -949,6 +1039,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_bio
 <br>
 
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemubiom
 #| echo: false
@@ -975,7 +1066,10 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
+
+
 
 ## Trends in mortalities
 
@@ -1008,6 +1102,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 <br>
 
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusumf
 #| echo: false
@@ -1037,6 +1132,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
 
 ### Trends in other anthropogenic mortalities
@@ -1065,7 +1161,9 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 
 ```
 
+
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusumh
 #| echo: false
@@ -1095,6 +1193,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
 
 ### Trends in total anthropogenic mortalities
@@ -1124,6 +1223,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 ```
 
 ::: {custom-style="Image Caption"}
+
 ```{r}
 #| label: generateemusuma
 #| echo: false
@@ -1153,7 +1253,9 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
+
 :::
+
 
 # Precautionary diagrams at country scale
 

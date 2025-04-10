@@ -13,7 +13,7 @@ library(readxl)
 library(openxlsx)
 ```
 ```{r load, include=FALSE, eval=FALSE, echo=FALSE}
-datawd <- "W:/annex16-Eelless12"
+datawd <- "Z:/06. Data/annex16-Eelless12"
 setwd(datawd)
 files <- list.files(".")
 # remove comments

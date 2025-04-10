@@ -2,19 +2,19 @@
 <diagram version="1" name="wkeeldata4.erd">
 	<entities>
 		<data-source id="postgres-jdbc-180a9103c44-2c2c093378634dab">
-			<entity id="1" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="1" x="715" y="1122">
+			<entity id="1" name="t_fish_fi" fq-name="datawg.t_fish_fi" order="1" x="935" y="1122">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="2" name="t_series_ser" fq-name="datawg.t_series_ser" order="3" x="715" y="319">
+			<entity id="2" name="t_series_ser" fq-name="datawg.t_series_ser" order="3" border-width="3" x="693" y="415">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="3" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="4" x="373" y="919">
+			<entity id="3" name="t_fishseries_fiser" fq-name="datawg.t_fishseries_fiser" order="4" x="369" y="889">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="4" name="t_group_gr" fq-name="datawg.t_group_gr" order="5" x="715" y="76">
+			<entity id="4" name="t_group_gr" fq-name="datawg.t_group_gr" order="5" x="1337" y="74">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
@@ -30,7 +30,7 @@
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
-			<entity id="8" name="t_metricgroup_meg" fq-name="datawg.t_metricgroup_meg" order="7" x="373" y="151">
+			<entity id="8" name="t_metricgroup_meg" fq-name="datawg.t_metricgroup_meg" order="7" x="523" y="137">
 				<path name="datawg"/>
 				<path name="wgeel"/>
 			</entity>
