@@ -892,6 +892,8 @@ There is a clear need for an international traceability scheme during trade to m
 Trends in indicators
 :::
 
+
+
 # Trends per emu
 
 ## Trends in biomass
@@ -1180,4 +1182,102 @@ knitr::include_graphics(img)
 
 \newpage
 
-# References
+
+# Annex advice
+
+
+
+
+::: {custom-style="Image Caption"}
+Table A1: Summary of stock indicators reported to ICES by Member States and other eel-range states (UK and Norway) in 2024, and the change of stock indicators between the first reporting after 2007 and the most recent reported year (time period may differ between countries and stock indicators). Colour indicates whether stock indicators comply with the management target for biomass (Bcurrent/B0 > 0.4) or the suggested threshold for the sum of anthropogenic mortalities (ΣA < 0.92), or whether it has improved with respect to these targets since implementation (Green = compliance/improved; red = no compliance/not improved; light grey = threshold for mortality is uncertain since escapement biomass is below 40% of pristine escapement; dark grey = data not available). For France, $B_{current\_without\_stocking}$ since $B_{current}$ was not reported.
+:::
+
+<br>
+
+```{r}
+#| label: advicetab
+
+
+
+precodata_all2 <- precodata_all |>
+  mutate(b_b0 = ifelse(!startsWith(eel_emu_nameshort, "FR"),
+                       bcurrent,
+                       bcurrent_without_stocking)/b0)
+
+
+biomasstrendtab <- trendtable(precodata_all2, "b_b0")
+
+
+
+
+tab <- biomasstrendtab |>
+  select(all_of(c("EMU", "Final","Initial", "Δ"))) |>
+  rename(c("Bf" = "Final","BD" ="Δ", "Bi" = "Initial")) |>
+  full_join(sumatab |>
+  select(all_of(c("EMU", "Final","Initial", "Δ"))) |>
+  rename(c("Af" = "Final","AD" ="Δ", "Ai" = "Initial"))) |>
+  filter(!endsWith(EMU, "total")) |>
+  mutate(Country = substring(EMU, 1, 2)) |>
+  arrange(Country, EMU)
+  
+flex <- flextable(tab |>
+                    mutate(across(!all_of(c("EMU", "Country")), ~ round(.x, digits = 3))) |>
+                    select(all_of(c("Country","EMU", "Bf","Af","BD","AD","Bi","Ai")))) |>
+  flextable2ICES() 
+
+
+
+for (col in c("Bi", "Bf", "Ai","Af")){
+  thres <- ifelse (startsWith(col, "B"), 0.4, 0.92)
+  sign <- ifelse(startsWith(col, "B"), ">=", "<=")
+  isign <- ifelse(startsWith(col, "B"), "<", ">")
+  flex <- flex |>
+    bg(i=as.formula(paste0("~`",col,"`",isign,thres)), j = col, bg="#FF7256") |>
+    bg(i=as.formula(paste0("~`",col,"`",sign,thres)), j = col, bg="#7CCD7C")
+}
+
+
+for (col in c("BD", "AD")){
+  thres <-  0
+  sign <- ">="
+  isign <- "<"
+  flex <- flex |>
+    bg(i=as.formula(paste0("~`",col,"`",isign,thres)), j = col, bg="#FF7256") |>
+    bg(i=as.formula(paste0("~`",col,"`",sign,thres)), j = col, bg="#7CCD7C")
+}
+
+for (col in c("Bi", "Bf", "BD","Ai", "Af", "AD")){
+  flex <- flex |>
+    bg(i=as.formula(paste0("~is.na(`", col, "`)")), j = col, bg ="#808080")
+}
+
+
+for (col in c("Bi", "Bf", "BD","Ai", "Af", "AD")){
+  flex <- flex |>
+    bg(i=as.formula(paste0("~is.na(`", col, "`)")), j = col, bg ="#808080")
+}
+
+
+flex <- flex |>
+  bg(i=~`Af`<0.92 & `Bf` <0.4, j = "Af", bg ="#D9D9D9") 
+  
+flex |> 
+  set_header_labels(values = list("Country" = "Country",
+  "EMU" = "EMU",
+  "Bf" = "Bf",
+  "BD" = "BD",
+  "Bi" = "Bi",
+  "Af" = "ΣA (last reported year)",
+  "AD" = "Change in ΣA since implementation", 
+  "Ai"= "ΣA (first reported year)")) |> 
+  flextable:::compose(part = "header", i = 1, j = "Bf",
+         value = as_paragraph("B", as_sub("current"),"/B", as_sub("0")," (last reported year)")) |>
+  flextable:::compose(part = "header", i = 1, j = "BD",
+         value = as_paragraph("change in B", as_sub("current"),"/B", as_sub("0")," since implementation")) |> 
+  flextable:::compose(part = "header", i = 1, j = "Bi",
+         value = as_paragraph("B", as_sub("current"),"/B", as_sub("0")," (first reported year)")) |>
+  merge_v("Country")
+
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
+
+```
