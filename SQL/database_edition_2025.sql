@@ -195,3 +195,11 @@ ukemu AS (
 SELECT * FROM allemus WHERE nbval>=5 
 )
 SELECT count(*) FROM ukemu; -- 34
+
+
+
+
+SELECT count(*),  gea_issscfg_code , gea_name_en FROM datawg.t_series_ser AS tss
+JOIN "ref".tr_gear_gea AS gea ON ser_sam_gear = gea_id
+GROUP BY gea_issscfg_code, gea_name_en
+
