@@ -64,13 +64,5 @@
 ## Annex 9
 * Annex provided, but no data provided
 
-## Annex 10
 
-### samplinginfo
-
-
-### group metrics
-
-
-### individual metrics
 
