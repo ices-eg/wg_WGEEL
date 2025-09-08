@@ -8248,3 +8248,6 @@ GRANT ALL ON TABLE wkeelmigration.litteratured TO wgeel;
 -- PostgreSQL database dump complete
 --
 
+
+insert into ref.tr_datasource_dts values ('dc_2025', 'dc_2025	Joint EIFAAC/GFCM/ICES Eel Data Call 2025');
+
