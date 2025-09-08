@@ -195,3 +195,61 @@ ukemu AS (
 SELECT * FROM allemus WHERE nbval>=5 
 )
 SELECT count(*) FROM ukemu; -- 34
+
+
+
+
+SELECT count(*),  gea_issscfg_code , gea_name_en FROM datawg.t_series_ser AS tss
+JOIN "ref".tr_gear_gea AS gea ON ser_sam_gear = gea_id
+GROUP BY gea_issscfg_code, gea_name_en
+
+
+
+  UPDATE datawg.t_eelstock_eel
+  SET eel_hty_code='F',eel_comment='C and F have been switched this is inland',eel_qal_id=-24, eel_area_division= NULL
+  WHERE eel_id=569486; --1
+  
+  
+  UPDATE datawg.t_eelstock_eel SET 
+  eel_qal_id = -24, 
+  eel_qal_comment = 'This is a duplicate between dc_2017 reported without habitat and dc_2018 reported with habitat'
+WHERE eel_value is not NULL
+  AND eel_qal_id in (1,2,3,4)
+  AND eel_cou_code = 'EE'  
+  AND eel_hty_code IS NULL
+  AND eel_typ_id= 11;  --14 data removed from the db
+  
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=427887;
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=509584;
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=561395;
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=428311;
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=555731;
+UPDATE datwgeel.t_eelstock_eel
+  SET eel_area_division='27.3.d'
+  WHERE eel_id=555732;
+
+  
+
+UPDATE "ref".tr_emu_emu e SET geom = ee.geom
+FROM "ref".tr_emusplit_ems ee 
+WHERE ee.emu_nameshort='GR_NorW'
+AND e.emu_nameshort='GR_EaMT';
+
+UPDATE "ref".tr_emu_emu e SET geom = ee.geom
+FROM "ref".tr_emusplit_ems ee 
+WHERE ee.emu_nameshort='GR_EaMT'
+AND e.emu_nameshort='GR_NorW';
+
+
+
+
