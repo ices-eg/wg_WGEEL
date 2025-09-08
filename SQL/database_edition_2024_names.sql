@@ -38,7 +38,7 @@ There is a hierachy that we don''t really need but we can keep the original code
 
 -- COLUMNS -------------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.tr_country_cou.cou_code IS 'Country codeISO 3166-1 (two letter code)';
+COMMENT ON COLUMN ref.tr_country_cou.cou_code IS 'Country code ISO 3166-1 (two letter code)';
 COMMENT ON COLUMN ref.tr_country_cou.cou_country IS 'Name of the country ISO 3166 Name';
 COMMENT ON COLUMN ref.tr_country_cou.cou_order IS 'Order of the countries, from North to South starting from the Baltic, including UK and Ireland in the North Sea, legacy of ordering of recruitment tables';
 COMMENT ON COLUMN ref.tr_country_cou.geom IS 'Geometry (polygon) of the country,  multipolygons from addy pope, University of Edimburg
