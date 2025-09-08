@@ -86,7 +86,7 @@ dbDisconnect(con)
 trendtable <- function(dat = precodata_all, ind = "suma"){
   dat |>
     filter(aggreg_level == "emu") |>
-    filter(eel_year >= 2017) |>
+    filter(eel_year >= 2007) |>
     select(all_of(c("eel_year",ind, "eel_emu_nameshort"))) |>
     filter(!is.na(.data[[ind]])) |>
     group_by(eel_emu_nameshort) |>
@@ -324,11 +324,9 @@ Since lifespans vary among regions from a few years to decades and since the rec
 Figure `r run_reference("fignatmort")` indicates that for lifespans shorter than 15 years, the reduction of natural mortality should be larger than 0.138 year^-1^, a value often used for the eel [@dekker2000]. The situation is of course even worse if considering the North Sea index rather than the Elsewhere Europe index. Even at very long lifespan (30 years), the natural mortality should be reduced by 0.05 year^-1^ (i.e. a reduction of M of about 36% compared to the standard 0.138 year^-1^ value) when assuming that current recruitment is 8% of pristine recruitment (\~ what Elsewhere Europe index indicates). This reduction is the average value over the whole lifespan of the individual, while density-dependent natural mortality is mainly restricted to younger ages.
 
 ```{r plot}
-#| label: fig-natmort
 #| echo: false
 #| warning: false
 #| error: false
-#| fig-cap: "Reduction of average natural mortality over the lifespan that would be required to achieve the management target in an  EMU given different levels of recruitment (x-axis) and lifespan (facet). The two vertical lines indicate the recruitment estimates from the WGEEL glass eel indices lagged according to the lifespan (i.e. lines for lifespan 5 corresponds to the recruitment estimates in 2024-5=1999). The horizontal line corresponds to a natural mortality of 0.138 year^-1^"
 #| fig.height: 6.3
 #| fig.width: 6.3
 
@@ -384,12 +382,10 @@ Figure `r run_bookmark("fignatmort", runs_figure)`: Reduction of average natural
 Figure `r run_reference("figtrendbiomass")` and Table `r run_reference("tbl-trendbiomass")` show the time series of reported escapement. Given the uncertainty and inconsistencies in the estimation of $B_0$, the trend is likely to be more reliable than the absolute value. We observe for example that in some EMUs $B_{current}$/$B_0$ is above 40% before the implementation of EMPs, despite the low recruitments in the late 2000s, questioning the estimates of $B_0$. In each EMU, a Mann-Kendall trend test was used to test for the existence of a significant monotonic time trend. Some negative significant trends in escapement are still detected (Table `r run_reference('tbl-trendbiomass')`), which might be due to a delayed effect of the decline in recruitment.
 
 ```{r}
-#| label: fig-trendbiomass
 #| echo: false
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported Bcurrent/B0. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
-#| 
+
 if (!dir.exists(file.path(params$image_path,"trendbiomassplots"))) {
   dir.create(file.path(params$image_path,"trendbiomassplots"))
 }
@@ -414,7 +410,7 @@ g <- ggplot(indicator %>% filter(!is.na(bcurrent / b0)), aes(x = eel_year, y = b
   theme_bw() +
   ylab(expression(B[current] / B[0])) +
   xlab("") +
-  xlim(2007, 2020) +
+  xlim(2007, 2023) +
   facet_wrap(~eel_cou_code, drop = TRUE, scales = "free_y")
 
 ggsave(g, filename = file.path(params$image_path,"trend_biomass.png"), width = 16 / 2.54, height = 16 / 2.54, dpi = 300)
@@ -481,10 +477,8 @@ flextable(biomasstrendtab |>
 The patterns are very similar when $B_{current\_without\_stocking}$ is plotted (Figure `r run_reference("@fig-trendbiomasswithoutstocking")`), with the escapements often shifted downward. This suggests that restocking does not have a major effect on recent trends in escapement.
 
 ```{r}
-#| label: fig-trendbiomasswithoutstocking
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported $B_{current\_without\_stocking}/B_0$. Each coloured line represents a specific EMU. The horizontal red line indicates the target according to the Eel Regulation."
 indicator <- indicator %>%
   mutate(eel_cou_code = ifelse(eel_cou_code == substr(eel_emu_nameshort, 1, 2),
                                eel_cou_code,
@@ -522,10 +516,8 @@ Figure `r run_bookmark("fig-trendbiomasswithoutstocking", runs_figure)` Trends i
 Figure `r run_reference("fig-trendmortasumf")` and Table `r run_reference("tbl-trendsumf")` show the time series of reported fishing mortality per EMU and the results of the Mann-Kendall trend tests.
 
 ```{r}
-#| label: fig-trendmortasumf
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣF. Each coloured line represents a specific EMU."
 sumf <- ggplot(indicator %>% filter(!is.na(sumf)), aes(x = eel_year, y = sumf)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -575,10 +567,8 @@ Interestingly, the reduction in fishing mortality is more visible than the incre
 Figure `r run_reference("fig-trendmortasumh")` and Table `r run_reference("tbl-trendsumh")` show the time series of reported other anthropogenic mortalities and the results of the Mann-Kendall trend tests. In many EMUs, $\sum H$ is very small or equal to zero suggesting that only a part of the mortalities is accounted for.
 
 ```{r}
-#| label: fig-trendmortasumh
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣH. Each coloured line represents a specific EMU."
 sumh <- ggplot(indicator %>% filter(!is.na(sumh)), aes(x = eel_year, y = sumh)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -631,10 +621,8 @@ flextable( sumhtab |>
 Figure `r run_reference("fig-trendmortasuma")` and Table `r run_reference('tbl-trendsuma')` show the reported times series of reported total anthropogenic mortalities and the results of the Mann-Kendall trend tests.
 
 ```{r}
-#| label: fig-trendmortasuma
 #| fig-height: 6.3
 #| fig-width: 6.3
-#| fig-cap: "Trends in reported ΣA. Each coloured line represents a specific EMU."
 suma <- ggplot(indicator %>% filter(!is.na(suma)), aes(x = eel_year, y = suma)) +
   geom_hline(yintercept = 0.92, col = "red") +
   geom_line(aes(group = eel_emu_nameshort, col = eel_cou_code)) +
@@ -878,7 +866,7 @@ f |>
 
 ### Conclusions
 
-As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that achieving the 40% pristine escapement in an EMU, the target of the Eel Regulation, is almost impossible given the current depletion of recruitment and would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
+As during most recent WKEMP report [@ices2022], the caveats associated with the estimation of the different indicators and the lack of standardised methods among countries, hinder the comparison of escapement and mortalities among countries and with respect to the management target and mortality reference value. Moreover, a simulation exercise confirms that the current low recruitment all over the distribution area, drastically reduces the possibility to achieve the 40% escapement target of the Eel Regulation, in any EMUs. This would require either an unlikely reduction of natural mortality that density-dependent effects are not likely to explain or favourable local conditions of recruitement while recruitment trends are thought to be rather homogeneous other the distribution area. Following @ices2022, we consider that trends are more reliable since methods used by countries are consistent through time. The escapement appears to be still declining, but this is not surprising given the delayed effect of declines in recruitment. Compared to @ices2022, significant negative trends in anthropogenic mortalities are more frequent, suggesting an improvement in the situation. However, we still observe some increasing trends and some levels of fishing mortality that are of the same order of magnitude as the 0.92 year^-1^ limit, even in countries in which escapement relies mainly on restocking. Reported values of other anthropogenic mortalities are smaller, but those estimates only account for a limited part of the stressors thought to apply to these areas.
 
 Implementing the WKFEA roadmap [@ices2021] is critical to achieving or delivering more standardised methods and more informative results in the future.
 
@@ -892,7 +880,7 @@ Among the glass eel producing countries of Europe, France monitors the RC catego
 Among the receiving countries, the Netherlands, Finland, Greece, Poland, the Czech Republic, and Sweden report import and export data, including the RC category. The Netherlands have reported the import of glass eels from Spanish traders, but since Spain is lacking a traceability system, this does not necessarily imply that the glass eels were caught in Spain. Greece also claims to import glass eel for stocking from Spain, but notes that the glass eels come from France. This could be explained by the fact that Spanish traders import glass eels from France.
 
 <br>
-Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the  kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but  does not specify the countries of origin or destination. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
+Belgium, Germany, Italy, Latvia, and Lithuania did not report Annex 16, (or reported it empty), while Latvia states it does not use small eels but engages in restocking. Denmark reports the kilograms of eels used for aquaculture pre-growing for restocking, trade exports, and aquaculture consumption; but does not specify the countries of origin or destination. Albania, Turkey, Tunisia, and Norway do not use restocking or aquaculture and thus did not report.
 <br>
 
 There is a clear need for an international traceability scheme during trade to monitor the destination of caught glass eels. Spain’s failure to monitor the destination of glass eels and Portugal’s lack of reporting mean that traceability cannot be applied at the source. The failure of any country (Belgium, Germany, Italy, Latvia, Lithuania, Denmark) to monitor trade origin, destination, or RC category means it is currently impossible to track the destination of glass eels.
@@ -914,17 +902,13 @@ Recommendation:
 -	Implementing a mandatory transnational traceability system to track eels from capture to their final destination to ensure the compliance with environmental regulations and international treaties and a proper stock assessment. In the case of restocked eels, this means that a separate monitoring of the material type (R or C) is carried out throughout the trade chain, until they are released into the water. This monitoring would avoid that glass eels are diverted to other, potentially illegal, uses.
 -	The traceability system should also separate glass eels intended for direct consumption from those intended for growing in aquaculture facilities. 
 
+
 ```{r }
-#| label: fig-check_proportion
 #| fig-width: 6.3
 #| fig-height: 6.3
-#| fig-cap: "Proportion of glass eel marked as restocking material reported by France, `trade only` identifies the proportion of glass eel that was used in trade, `including France restocking` incudes the amount of glass eel released in France as part of the restocking program."
 
-wgeelwd <- "C:/workspace/wg_WGEEL"
-load(file = file.path(
-  wgeelwd, "Misc",
-  "WKEMP", "data_dependencies", "annex16.RData"
-))
+
+load(file = file.path("data_dependencies", "annex16.RData"))
 fr_reserve <- bind_rows(
   l12 %>%
     filter(eel_cou_code == "FR" &
@@ -975,12 +959,17 @@ ggsave(file = fileres, height = 16/2.54, width = 16/2.54)
 knitr::include_graphics(fileres)
 ```
 
+::: {custom-style="Image Caption"}
+Figure: `r run_bookmark("fig-check_proportion", runs_figure)`: Proportion of glass eel marked as restocking material reported by France, `trade only` identifies the proportion of glass eel that was used in trade, `including France restocking` incudes the amount of glass eel released in France as part of the restocking program.
+:::
 
 \newpage
 
 ::: {custom-style="Annex heading"}
 Trends in indicators
 :::
+
+
 
 # Trends per emu
 
@@ -1037,7 +1026,6 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_bio
 <br>
 
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemubiom
 #| echo: false
@@ -1064,10 +1052,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
-
-
 
 ## Trends in mortalities
 
@@ -1100,7 +1085,6 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 <br>
 
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusumf
 #| echo: false
@@ -1130,7 +1114,6 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
 
 ### Trends in other anthropogenic mortalities
@@ -1159,9 +1142,7 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 
 ```
 
-
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusumh
 #| echo: false
@@ -1191,7 +1172,6 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
 
 ### Trends in total anthropogenic mortalities
@@ -1221,7 +1201,6 @@ knitr::include_graphics(file.path(params$image_path,"trendbiomassplots/trend_sum
 ```
 
 ::: {custom-style="Image Caption"}
-
 ```{r}
 #| label: generateemusuma
 #| echo: false
@@ -1251,9 +1230,7 @@ src <- lapply(2:ceiling(length(emus)/16), function(i){
 res <- knitr::knit_child(text = src, quiet = TRUE)
 cat(res, sep = '\n')
 ```
-
 :::
-
 
 # Precautionary diagrams at country scale
 
@@ -1282,4 +1259,102 @@ knitr::include_graphics(img)
 
 \newpage
 
-# References
+
+# Annex advice
+
+
+
+
+::: {custom-style="Image Caption"}
+Table A1: Summary of stock indicators reported to ICES by Member States and other eel-range states (UK and Norway) in 2024, and the change of stock indicators between the first reporting after 2007 and the most recent reported year (time period may differ between countries and stock indicators). Colour indicates whether stock indicators comply with the management target for biomass (Bcurrent/B0 > 0.4) or the suggested threshold for the sum of anthropogenic mortalities (ΣA < 0.92), or whether it has improved with respect to these targets since implementation (Green = compliance/improved; red = no compliance/not improved; light grey = threshold for mortality is uncertain since escapement biomass is below 40% of pristine escapement; dark grey = data not available). For France, $B_{current\_without\_stocking}$ since $B_{current}$ was not reported.
+:::
+
+<br>
+
+```{r}
+#| label: advicetab
+
+
+
+precodata_all2 <- precodata_all |>
+  mutate(b_b0 = ifelse(!startsWith(eel_emu_nameshort, "FR"),
+                       bcurrent,
+                       bcurrent_without_stocking)/b0)
+
+
+biomasstrendtab <- trendtable(precodata_all2, "b_b0")
+
+
+
+
+tab <- biomasstrendtab |>
+  select(all_of(c("EMU", "Final","Initial", "Δ"))) |>
+  rename(c("Bf" = "Final","BD" ="Δ", "Bi" = "Initial")) |>
+  full_join(sumatab |>
+  select(all_of(c("EMU", "Final","Initial", "Δ"))) |>
+  rename(c("Af" = "Final","AD" ="Δ", "Ai" = "Initial"))) |>
+  filter(!endsWith(EMU, "total")) |>
+  mutate(Country = substring(EMU, 1, 2)) |>
+  arrange(Country, EMU)
+  
+flex <- flextable(tab |>
+                    mutate(across(!all_of(c("EMU", "Country")), ~ round(.x, digits = 3))) |>
+                    select(all_of(c("Country","EMU", "Bf","Af","BD","AD","Bi","Ai")))) |>
+  flextable2ICES() 
+
+
+
+for (col in c("Bi", "Bf", "Ai","Af")){
+  thres <- ifelse (startsWith(col, "B"), 0.4, 0.92)
+  sign <- ifelse(startsWith(col, "B"), ">=", "<=")
+  isign <- ifelse(startsWith(col, "B"), "<", ">")
+  flex <- flex |>
+    bg(i=as.formula(paste0("~`",col,"`",isign,thres)), j = col, bg="#FF7256") |>
+    bg(i=as.formula(paste0("~`",col,"`",sign,thres)), j = col, bg="#7CCD7C")
+}
+
+
+for (col in c("BD", "AD")){
+  thres <-  0
+  sign <- ">="
+  isign <- "<"
+  flex <- flex |>
+    bg(i=as.formula(paste0("~`",col,"`",isign,thres)), j = col, bg="#FF7256") |>
+    bg(i=as.formula(paste0("~`",col,"`",sign,thres)), j = col, bg="#7CCD7C")
+}
+
+for (col in c("Bi", "Bf", "BD","Ai", "Af", "AD")){
+  flex <- flex |>
+    bg(i=as.formula(paste0("~is.na(`", col, "`)")), j = col, bg ="#808080")
+}
+
+
+for (col in c("Bi", "Bf", "BD","Ai", "Af", "AD")){
+  flex <- flex |>
+    bg(i=as.formula(paste0("~is.na(`", col, "`)")), j = col, bg ="#808080")
+}
+
+
+flex <- flex |>
+  bg(i=~`Af`<0.92 & `Bf` <0.4, j = "Af", bg ="#D9D9D9") 
+  
+flex |> 
+  set_header_labels(values = list("Country" = "Country",
+  "EMU" = "EMU",
+  "Bf" = "Bf",
+  "BD" = "BD",
+  "Bi" = "Bi",
+  "Af" = "ΣA (last reported year)",
+  "AD" = "Change in ΣA since implementation", 
+  "Ai"= "ΣA (first reported year)")) |> 
+  flextable:::compose(part = "header", i = 1, j = "Bf",
+         value = as_paragraph("B", as_sub("current"),"/B", as_sub("0")," (last reported year)")) |>
+  flextable:::compose(part = "header", i = 1, j = "BD",
+         value = as_paragraph("change in B", as_sub("current"),"/B", as_sub("0")," since implementation")) |> 
+  flextable:::compose(part = "header", i = 1, j = "Bi",
+         value = as_paragraph("B", as_sub("current"),"/B", as_sub("0")," (first reported year)")) |>
+  merge_v("Country")
+
+  #bg(i=~`p-value Kendall`<=0.05 & `tau Kendall`<0,bg="red")
+
+```
