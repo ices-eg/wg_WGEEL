@@ -47,7 +47,7 @@
 
 
 ## Annex 5
-
+* 292 new values inserted in the database
 
 
 ## Annex 6
