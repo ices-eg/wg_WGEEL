@@ -65,10 +65,10 @@ Caused by error:
 
 ## Annex 6
 * 1 values updated in the db
-
+* 1 new values inserted in the database
 
 ## Annex 7
-
+* 6 new values inserted in the database
 
 
 ## Annex 8
