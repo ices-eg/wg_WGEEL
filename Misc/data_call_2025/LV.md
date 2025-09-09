@@ -34,11 +34,13 @@
 
 ### series
 
+  
 ### dataseries
-
+* 2 new values inserted in the database
 
 ### group metrics
-
+* Integrate new group metrics: Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
+DETAIL:  Key (grser_ser_id, gr_year)=(369, 2024) already exists.
 
 ### individual metrics
 
