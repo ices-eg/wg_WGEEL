@@ -914,7 +914,6 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
-  
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
             new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -1033,7 +1032,7 @@ compare_with_database_metric_ind <- function(
       duplicates <- 
           data_from_base_wide %>% 	
           dplyr::inner_join(
-              data_from_excel, 
+              data_from_excel  |> filter(!is.na(fi_id_cou)), 
               by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id_cou"), 
               suffix = c(".base", ".xls"))
    
