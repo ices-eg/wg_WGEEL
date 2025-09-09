@@ -25,8 +25,7 @@
 * 1 and 9 new values inserted in the group and metric tables
 
 ### individual metrics
-
-
+* no data
 
 ## Annex 3
 
@@ -42,7 +41,6 @@
 ### individual metrics
 * no data
 
-
 ## Annex 4
 * 22 new values inserted in the database
 
@@ -52,15 +50,14 @@
 ## Annex 6
 *  8 new values inserted in the database
 
-
 ## Annex 7
-
-
+* NO eel_value_number PROVIDED NEED TO CLARIFY
 
 ## Annex 8
+* 1 new values inserted in the database
 
-
-## Annex 10
+## Annex 9
+* Annex provided but no data
 
 ### samplinginfo
 
