@@ -762,11 +762,6 @@ compare_with_database_metric_group <- function(data_from_excel,
         select(-meg_id, -meg_qal_id, -meg_last_update, -meg_mty_id, -meg_dts_datasource) %>%
         tidyr::pivot_wider(names_from=mty_name,
             values_from=meg_value) 
-    
-    if (!"gr_id" %in% names(data_from_excel)){
-      data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)      
-    }
-    
     data_from_excel_long <- data_from_excel %>% 
         tidyr::pivot_longer(cols=any_of(metrics_group$mty_name),
             values_to="meg_value",
@@ -818,6 +813,8 @@ compare_with_database_metric_group <- function(data_from_excel,
               suffix = c(".base", ".xls"))
       
     } else { # new_group_metric there
+      
+      data_from_excel <- data_from_excel %>% mutate("gr_id" = NA)      
       
       # we use long format, new_long is any data with a change
       new_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
@@ -914,6 +911,7 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
+  
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
             new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -973,20 +971,22 @@ compare_with_database_metric_ind <- function(
     
     
     if(sheetorigin=="updated_individual_metrics"){
-     # new shouldn't exist : here we test if a fi_id is not in the db
+      
+      # new shouldn't exist : here we test if a fi_id is not in the db
       # fi_id is unique in data_from_base_wide
       new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
           by = "fi_id")    
       
       if (nrow(new)>0) {
         
-        warning(sprintf("fi_id %s currently not in db from updated_individual_metrics, will appear in new individual metrics",
+        message <- sprintf("fi_id %s currently not in db from updated_individual_metrics, will appear in new individual metrics",
             ifelse(length(unique(new$fi_id))<10,
                 paste(unique(new$fi_id),collapse=','),
-                paste0(paste(unique(new$fi_id)[1:10],collapse=','),"...(>10 values)"))))
+                paste0(paste(unique(new$fi_id)[1:10],collapse=','),"...(>10 values)")))
       }
-
-
+        
+        warning(message)
+      
       new_long <- new %>% tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
               values_to="mei_value",
               names_to="mty_name") %>% 
@@ -1003,8 +1003,7 @@ compare_with_database_metric_ind <- function(
               "fi_lfs_code",
               "fi_id_cou",
               ifelse(type=="series","ser_nameshort","sai_name"),            
-              "mei_mty_id",
-              "mei_value"), na_matches = "never")
+              "mei_mty_id"), na.matches = "never")
       
       modified_long <- modified_long[!modified_long$id %in% new$id,] 
 
@@ -1029,10 +1028,10 @@ compare_with_database_metric_ind <- function(
       # for grsa_gr_id, gr_year, gr_sai_id 
       #  or   grser_ser_id, gr_year
       # so this will check duplicates row for sure
-      duplicates <- 
+            duplicates <- 
           data_from_base_wide %>% 	
           dplyr::inner_join(
-              data_from_excel  |> filter(!is.na(fi_id_cou)), 
+              data_from_excel, 
               by = c(ifelse(type=="series","ser_nameshort","sai_name"), "fi_id_cou"), 
               suffix = c(".base", ".xls"))
    
@@ -2608,7 +2607,7 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
           WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
       .con=conn)
   res1 <- dbGetQuery(conn, sql0)
-  nr1 <- nrow(res1)
+  nr1 <- length(nrow(res1))
   sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 
           where mei_fi_id in (select fi_id from ind_tmp)",
       .con=conn)
@@ -2624,7 +2623,7 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   
   
   dbExecute(conn,"drop table if exists ind_tmp")
-  if (is.null(message)) message <- sprintf(" %s and %s new values updated in the fish and metric tables", nr1, nr2)
+  if (is.null(message)) message <- sprintf(" %s and %s new values updated in the group and metric tables", nr1, nr2)
   if (type=="series"){
     cou_code = dbGetQuery(conn,paste0("SELECT ser_cou_code FROM datawg.t_series_ser WHERE ser_id='",
             updated$fiser_ser_id[1],"';"))$ser_cou_code  
