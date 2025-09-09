@@ -56,6 +56,8 @@ Caused by error:
 
 
 ## Annex 4
+*  10 new values inserted in the database
+* 2 values updated in the db
 
 
 ## Annex 5
