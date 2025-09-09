@@ -56,15 +56,15 @@ Caused by error:
 
 
 ## Annex 4
-*  10 new values inserted in the database
+* 10 new values inserted in the database
 * 2 values updated in the db
 
 
 ## Annex 5
-
+* 12 new values inserted in the database
 
 ## Annex 6
-
+* 1 values updated in the db
 
 
 ## Annex 7
