@@ -18,14 +18,16 @@
 
 ### series
 
-### dataseries
 
+### dataseries
+* 2 new values inserted in the database
 
 ### group metrics
-
+ * 4 and 8 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* 75 and 442 new values updated in the fish and metric tables
+* 226 and 904 new values inserted in the fish and metric tables
 
 
 ## Annex 3
