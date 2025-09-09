@@ -31,25 +31,26 @@
 ## Annex 3
 
 ### series
-
+* 2 values updated in the db
 ### dataseries
-
+* 6 new values inserted in the database
+* THERE ARE VALUES IN UPDATE BUT REQUIRE CLARIFICATION
 
 ### group metrics
-
+* 1 and 9 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* no data
 
 
 ## Annex 4
-
+* 22 new values inserted in the database
 
 ## Annex 5
-
+* 112 new values inserted in the database
 
 ## Annex 6
-
+*  8 new values inserted in the database
 
 
 ## Annex 7
