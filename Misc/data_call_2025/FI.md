@@ -17,9 +17,11 @@
 ## Annex 2
 
 ### series
-
+* 1 new values inserted in the database
+* 1 values updated in the db
+  
 ### dataseries
-
+* 5 new values inserted in the database
 
 ### group metrics
 
@@ -57,9 +59,10 @@
 
 
 ## Annex 8
+* no Annex provided (no aquaculture in finland)
 
-
-## Annex 10
+## Annex 9
+* no Annex provided (data provided in series)
 
 ### samplinginfo
 
