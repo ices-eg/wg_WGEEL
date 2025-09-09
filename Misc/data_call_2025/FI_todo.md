@@ -39,13 +39,20 @@ Caused by error:
 ### series
 
 ### dataseries
+*  4 new values inserted in the database
+* 17 values updated in the db
 
 
 ### group metrics
-
+* 17 and 82 new values modified in the group and metric tables
+* 2 and 14 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* ERROR when 'proceed' to integrate individual metrics:
+Error in `filter()`:
+ℹ In argument: `is.na(fi_id)`.
+Caused by error:
+! object 'fi_id' not found
 
 
 ## Annex 4
