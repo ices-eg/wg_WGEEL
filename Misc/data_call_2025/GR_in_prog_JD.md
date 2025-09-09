@@ -3,7 +3,7 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+* Annex provided but no data (not pertinent)
 ### series
 
 ### dataseries
@@ -19,10 +19,10 @@
 ### series
 
 ### dataseries
-
+* 20 new values inserted in the database
 
 ### group metrics
-
+* 1 and 9 new values inserted in the group and metric tables
 
 ### individual metrics
 
