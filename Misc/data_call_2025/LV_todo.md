@@ -43,8 +43,8 @@
 DETAIL:  Key (grser_ser_id, gr_year)=(369, 2024) already exists.
 
 ### individual metrics
-
-
+* 305 and 1240 new values updated in the fish and metric tables
+* 77 and 462 new values inserted in the fish and metric tables
 
 ## Annex 4
 
