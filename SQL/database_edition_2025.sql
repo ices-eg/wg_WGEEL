@@ -251,5 +251,58 @@ WHERE ee.emu_nameshort='GR_EaMT'
 AND e.emu_nameshort='GR_NorW';
 
 
+-- fix error for France datasource
+
+UPDATE datawg.t_dataseries_das
+SET das_dts_datasource = 'dc_2025'
+WHERE das_dts_datasource = 'wkemp_2025'
+AND das_last_update > '2025-09-05'; --17
+
+SELECT * FROM datawg.t_fishseries_fiser as tff 
+WHERE tff.fi_dts_datasource = 'wkemp_2025'
+AND tff.fi_lastupdate  > '2025-09-05'; 
+
+UPDATE datawg.t_fishseries_fiser
+SET fi_dts_datasource = 'dc_2025'
+WHERE fi_dts_datasource = 'wkemp_2025'
+AND fi_lastupdate > '2025-09-05'; --52045
+
+SELECT * FROM datawg.t_groupseries_grser 
+WHERE gr_dts_datasource = 'wkemp_2025'
+AND gr_lastupdate  > '2025-09-05'; 
+
+UPDATE datawg.t_groupseries_grser 
+SET gr_dts_datasource = 'dc_2025'
+WHERE gr_dts_datasource = 'wkemp_2025'
+AND gr_dts_datasource > '2025-09-05'; --17
+
+SELECT * FROM datawg.t_metricgroupseries_megser
+WHERE meg_dts_datasource = 'wkemp_2025'
+AND meg_last_update   > '2025-09-05'; 
+
+UPDATE datawg.t_metricgroupseries_megser
+SET meg_dts_datasource = 'dc_2025'
+WHERE meg_dts_datasource = 'wkemp_2025'
+AND meg_last_update > '2025-09-05'; --20
+
+SELECT * FROM datawg.t_metricindseries_meiser
+WHERE mei_dts_datasource = 'wkemp_2025'
+AND mei_last_update   > '2025-09-05'; 
+
+UPDATE datawg.t_metricindseries_meiser
+SET mei_dts_datasource = 'dc_2025'
+WHERE mei_dts_datasource = 'wkemp_2025'
+AND mei_last_update   > '2025-09-05'; --52811
+
+
+SELECT * FROM datawg.t_metricindseries_meiser
+WHERE mei_fi_id = 2534672
+
+
+
+
+
+'
+
 
 

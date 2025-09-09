@@ -914,7 +914,6 @@ compare_with_database_metric_ind <- function(
     data_from_base, 
     sheetorigin = c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics"),
     type="series") {
-  browser()
   if (!sheetorigin %in% c("new_individual_metrics","updated_individual_metrics","deleted_individual_metrics")) stop ("sheetorigin should be one of
             new_individual_metrics,updated_individual_metrics,deleted_individual_metrics")
   if (nrow(data_from_excel) == 0) 
@@ -974,8 +973,7 @@ compare_with_database_metric_ind <- function(
     
     
     if(sheetorigin=="updated_individual_metrics"){
-      
-      # new shouldn't exist : here we test if a fi_id is not in the db
+     # new shouldn't exist : here we test if a fi_id is not in the db
       # fi_id is unique in data_from_base_wide
       new <-  dplyr::anti_join(data_from_excel, data_from_base_wide, 
           by = "fi_id")    
@@ -1006,7 +1004,7 @@ compare_with_database_metric_ind <- function(
               "fi_id_cou",
               ifelse(type=="series","ser_nameshort","sai_name"),            
               "mei_mty_id",
-              "mei_value"))
+              "mei_value"), na_matches = "never")
       
       modified_long <- modified_long[!modified_long$id %in% new$id,] 
 

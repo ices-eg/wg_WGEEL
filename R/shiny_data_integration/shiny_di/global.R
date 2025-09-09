@@ -127,9 +127,9 @@ onStop(function() {
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 # BEFORE WGEEL sqldf('delete from datawg.t_eelstock_eel where eel_datasource='test')
 ########################
-qualify_code<--24 # change this code here and in tr_quality_qal for next wgeel
-the_eel_datasource <- "wkemp_2025"  # change this after tests #dc_2023
-current_year <- 2024
+qualify_code<-25 # change this code here and in tr_quality_qal for next wgeel
+the_eel_datasource <- "dc_2025"  # change this after tests #dc_2023
+current_year <- 2025
 
 
 
