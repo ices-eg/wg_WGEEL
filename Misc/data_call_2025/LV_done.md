@@ -46,24 +46,25 @@
 * 77 and 462 new values inserted in the fish and metric tables
 
 ## Annex 4
-
+* 2 new values inserted in the database
 
 ## Annex 5
-
+* 2 new values inserted in the database
 
 ## Annex 6
-
+* Annex provided but no data
 
 
 ## Annex 7
-
+* Annex provided but no new data
 
 
 ## Annex 8
+* no Annex provided
 
-
-## Annex 10
-
+## Annex 9
+* Annex provided but no new data
+  
 ### samplinginfo
 
 
