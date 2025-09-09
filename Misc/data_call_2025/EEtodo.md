@@ -225,6 +225,7 @@ According to Estonian law, aquaculture companies are not obligated to provide da
 
 Not integrated yet mail sent 08/09/2025
 Missing year, date, fi_id_cou in individual metrics
+
 ### samplinginfo
 
 
