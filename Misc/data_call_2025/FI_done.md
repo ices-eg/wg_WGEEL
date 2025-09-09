@@ -5,15 +5,16 @@
 ## Annex 1
 
 ### series
-
+*  1 new values inserted in the database
+  
 ### dataseries
-
+* 3 new values inserted in the database
 
 ### group metrics
-
+* 1 and 6 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* 7 and 56 new values inserted in the fish and metric tables
 ## Annex 2
 
 ### series
@@ -27,11 +28,7 @@
 * 3 and 30 new values inserted in the group and metric tables
 
 ### individual metrics
-* ERROR when 'proceed' to integrate individual metrics:
-Error in `filter()`:
-ℹ In argument: `is.na(fi_id)`.
-Caused by error:
-! object 'fi_id' not found
+*  34 and 270 new values inserted in the fish and metric tables
 
 
 ## Annex 3
@@ -48,11 +45,7 @@ Caused by error:
 * 2 and 14 new values inserted in the group and metric tables
 
 ### individual metrics
-* ERROR when 'proceed' to integrate individual metrics:
-Error in `filter()`:
-ℹ In argument: `is.na(fi_id)`.
-Caused by error:
-! object 'fi_id' not found
+* 203 and 1429 new values inserted in the fish and metric tables
 
 
 ## Annex 4

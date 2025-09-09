@@ -2517,8 +2517,6 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
       filter(!is.na(fi_id)) %>% #the fish already exists, only a metric is new
       select(id, fi_id) %>%
       distinct()
-    
-    
     #browser()
     
     nr <- tryCatch({
