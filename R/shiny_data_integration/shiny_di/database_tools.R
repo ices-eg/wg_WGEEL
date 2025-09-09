@@ -2518,11 +2518,13 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
         filter(!is.na(fi_id)) %>% #the fish already exists, only a metric is new
         select(id, fi_id) %>%
         distinct()
+
+    
     #browser()
     
     nr <- tryCatch({
           shinybusy::show_modal_spinner(text = "writing fish", color="orange", spin="folding-cube")
-          dbWriteTable(conn,"ind_tmp",new,temporary=TRUE, overwrite=TRUE)
+          dbWriteTable(conn,"ind_tmp",new |> filter(is.na(fi_id)),temporary=TRUE, overwrite=TRUE)
           #check that fish falls into emu
           misslocated = data.frame()
           if (type != "series") {
@@ -2542,7 +2544,9 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
             
             new2 <- new %>%  #now we merge the metric table with groups table to recover fi_id
                 select(-fi_id) %>%
-                left_join(bind_rows(newfish,oldfish))
+                left_join(bind_rows(newfish,oldfish) %>% 
+                            select(fi_id, id),
+                          by = "id")
             shinybusy::show_modal_spinner(text = "writing metrics", color="red", spin="folding-cube")
             dbWriteTable(conn,"indiv_metrics_tmp",new2, temporary=TRUE)
             # insert metrics, qal_id is 1
