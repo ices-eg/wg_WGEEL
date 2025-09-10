@@ -53,6 +53,11 @@ Group variables            None
 6    1       1 ▁▁▇▁▁
 ```
 
+- a das_qal_id was missing and set afterwards with an sql query
+
+`update datawg.t_dataseries_das tdd  set das_qal_id = 1 where das_id in (select das_id from datawg.t_dataseries_das left join datawg.t_series_ser tss on ser_id = das_ser_id where tss.ser_nameshort = 'MiPoG' and das_year = 2025); `
+
+
 
 ### group metrics
 -  2 and 4 new values inserted in the group and metric tables (length weight)
