@@ -29,6 +29,7 @@
 * 75 and 442 new values updated in the fish and metric tables
 * 226 and 904 new values inserted in the fish and metric tables
 * RE-RAN UPDATE: 8 and 81 new values updated in the fish and metric tables
+* RE_RAN UPDATE 2nd time after issue with capping to 83 rows was found:  75 and 442 new values updated in the fish and metric tables
 
 
 ## Annex 3
@@ -46,6 +47,7 @@
 * 305 and 1240 new values updated in the fish and metric tables
 * 77 and 462 new values inserted in the fish and metric tables
 * RE-RAN UPDATE: 21 and 81 new values updated in the fish and metric tables
+* RE-RAN UPDATE 2nd time after issue with capping to 83 rows was found: 305 and 1240 new values updated in the fish and metric tables 
 
 ## Annex 4
 * 2 new values inserted in the database
