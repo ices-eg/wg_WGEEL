@@ -302,7 +302,11 @@ WHERE mei_fi_id = 2534672
 SELECT  eel_area_division  FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'FR' AND eel_area_division IS NO NULL;
 
 
-'
+
+DELETE FROM datawg.t_eelstock_eel where eel_cou_code = 'SE'
+and eel_typ_id in (8,9)
+AND eel_datasource = 'dc_2025'
+AND eel_qal_id = 1  --278
 
 
 
