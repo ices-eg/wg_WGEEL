@@ -1026,6 +1026,8 @@ Group variables            None
 2 sai_qal_id            0             1   1  0      1   1    1    1     1 ▁▁▇▁▁
 ```
 
+- another sampling as added in a second stage (IE_West_BurrS)
+
 ### group metrics
 -  15 and 30 new values inserted in the group and metric tables
 
@@ -1075,14 +1077,14 @@ Group variables            None
 
 ### individual metrics
 - in the template file, fixed Y/S to YS
--  3491 and 13581 new values inserted in the fish and metric tables
+- 4028 and 16673 new values inserted in the fish and metric tables
 
 ```
 [1] "this is what will be in the db"
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             3491  
+Number of rows             4028  
 Number of columns          23    
 _______________________          
 Column type frequency:           
@@ -1094,18 +1096,18 @@ Group variables            None
 
 ── Variable type: character ────────────────────────────────────────────────────
   skim_variable     n_missing complete_rate min max empty n_unique whitespace
-1 fi_comment             3489      0.000573  35  36     0        2          0
+1 fi_comment             4026      0.000497  35  36     0        2          0
 2 fi_dts_datasource         0      1          7   7     0        1          0
 3 fi_lfs_code               0      1          1   2     0        3          0
-4 fisa_geom              3491      0         NA  NA     0        0          0
-5 fi_id_cou                 0      1         11  28     0     3421          0
+4 fisa_geom              4028      0         NA  NA     0        0          0
+5 fi_id_cou                 0      1          9  28     0     3958          0
 
 ── Variable type: Date ─────────────────────────────────────────────────────────
   skim_variable n_missing complete_rate min        max        median    
-1 fi_date               0             1 2011-06-21 2025-01-28 2017-05-23
-2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+1 fi_date             455         0.887 1983-09-21 2025-01-28 2017-05-23
+2 fi_lastupdate         0         1     2025-09-10 2025-09-10 2025-09-10
   n_unique
-1       37
+1       90
 2        1
 
 ── Variable type: numeric ──────────────────────────────────────────────────────
@@ -1113,52 +1115,52 @@ Group variables            None
  1 fi_id                                                         0        1     
  2 fi_year                                                       0        1     
  3 fisa_sai_id                                                   0        1     
- 4 fisa_x_4326                                                  22        0.994 
- 5 fisa_y_4326                                                  14        0.996 
- 6 lengthmm                                                      1        1.00  
- 7 weightg                                                       0        1     
- 8 eye_diam_meanmm                                            1485        0.575 
- 9 pectoral_lengthmm                                          1488        0.574 
-10 ageyear                                                    3147        0.0985
-11 differentiated_proportion                                  3116        0.107 
-12 anguillicola_intensity                                     3116        0.107 
-13 method_sex_(1=visual,0=use_length)                         3116        0.107 
-14 method_anguillicola_(1=stereomicroscope,0=visual_obs)      3116        0.107 
-15 female_proportion                                          3119        0.107 
-16 anguillicola_proportion                                    3116        0.107 
+ 4 fisa_x_4326                                                  22        0.995 
+ 5 fisa_y_4326                                                  14        0.997 
+ 6 lengthmm                                                      2        1.00  
+ 7 weightg                                                     129        0.968 
+ 8 eye_diam_meanmm                                            2022        0.498 
+ 9 pectoral_lengthmm                                          2025        0.497 
+10 ageyear                                                    3147        0.219 
+11 differentiated_proportion                                  3116        0.226 
+12 anguillicola_intensity                                     3653        0.0931
+13 method_sex_(1=visual,0=use_length)                         3116        0.226 
+14 method_anguillicola_(1=stereomicroscope,0=visual_obs)      3653        0.0931
+15 female_proportion                                          3119        0.226 
+16 anguillicola_proportion                                    3653        0.0931
           mean        sd         p0        p25        p50        p75       p100
- 1 3836090     1008.     3834345    3835218.   3836090    3836962.   3837835   
- 2    2016.       3.58      2011       2011       2017       2018       2025   
- 3     912.       1.82       897        912        912        912        912   
- 4      -7.15     0.278       -9.31      -7.08      -7.08      -7.08      -7.08
- 5      53.8      0.174       52.8       53.8       53.8       53.8       54.1 
- 6     521.     102.         231        444        511        592       1079.  
- 7     267.     182.           0        139        215        342.      1431.  
+ 1 3843340.    1163.     3841327    3842334.   3843340.   3844347.   3845354   
+ 2    2014.       6.17      1987       2011       2016       2017       2025   
+ 3     912.       1.87       897        912        912        912        914   
+ 4      -7.47     0.869       -9.58      -7.08      -7.08      -7.08      -7.08
+ 5      53.8      0.168       52.8       53.8       53.8       53.8       54.1 
+ 6     515.     104.         231        440        505        582       1079.  
+ 7     263.     196.           0        138.       212        330       2640   
  8       5.48     1.33         1.92       4.54       5.36       6.26      12   
  9      22.9      5.84         7.2       18.6       22.3       26.6       52   
-10      15.9      3.95         7         13         16         18         30   
-11       0.992    0.0892       0          1          1          1          1   
+10      23.0      8.79         7         16         22         30         52   
+11       0.997    0.0573       0          1          1          1          1   
 12       4.82     6.60         0          1          3          6.5       48   
-13       0.736    0.441        0          0          1          1          1   
+13       0.891    0.311        0          1          1          1          1   
 14       0        0            0          0          0          0          0   
-15       0.970    0.170        0          1          1          1          1   
+15       0.798    0.402        0          1          1          1          1   
 16       0.773    0.419        0          1          1          1          1   
    hist 
  1 ▇▇▇▇▇
- 2 ▅▃▇▁▁
+ 2 ▁▁▁▇▂
  3 ▁▁▁▁▇
  4 ▁▁▁▁▇
  5 ▁▁▁▁▇
  6 ▂▇▃▁▁
- 7 ▇▃▁▁▁
+ 7 ▇▁▁▁▁
  8 ▂▇▃▁▁
  9 ▂▇▅▁▁
-10 ▂▇▆▂▁
+10 ▇▇▆▂▁
 11 ▁▁▁▁▇
 12 ▇▁▁▁▁
-13 ▃▁▁▁▇
+13 ▁▁▁▁▇
 14 ▁▁▇▁▁
-15 ▁▁▁▁▇
+15 ▂▁▁▁▇
 16 ▂▁▁▁▇
 ```
 
