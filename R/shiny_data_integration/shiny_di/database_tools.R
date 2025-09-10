@@ -798,13 +798,35 @@ compare_with_database_metric_group <- function(data_from_excel,
       
       # modified checks for changes in long format
       
+      modified_id <- numeric(0)
+      
       modified_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
                                          by = c("gr_id",
                                                 ifelse(type=="series","ser_nameshort","sai_name"), 
                                                 "gr_year",
                                                 "meg_mty_id",
                                                 "gr_number",
-                                                intersect("grsa_lfs_code",names(data_from_excel))))  
+                                                "meg_value",
+                                                intersect("grsa_lfs_code",names(data_from_excel))),
+                                         na_matches = "never") 
+      if (nrow(modified_long) > 0)
+        modified_id <- unique(modified_long$gr_id)
+      
+      deleted_id <- numeric(0)
+      
+      deleted_long <- data_from_base |>
+        filter(gr_id %in% data_from_excel_long$gr_id) |>
+        select(all_of(c("gr_id", "meg_mty_id"))) |>
+        anti_join(data_from_excel_long |>
+                    select(all_of(c("gr_id", "meg_mty_id"))),
+                  by = c("gr_id", "meg_mty_id"),
+                  na_matches = "never")
+      
+      if (nrow(deleted_long) > 0) # group for which a metric has been deleted
+        deleted_id <- unique(deleted_long$gr_id)
+      
+      modified_long <- data_from_excel_long |>
+        filter(gr_id %in% unique(c(deleted_id, modified_id)))
       
       modified_long <- modified_long[!modified_long$id %in% new$id,] 
       
@@ -962,6 +984,9 @@ compare_with_database_metric_ind <- function(
                          names_from=mty_name,
                          values_from=mei_value) %>% filter(!is.na(fi_id))
     
+    if (!"fi_id" %in% names(data_from_excel)){
+      data_from_excel <- data_from_excel %>% mutate(fi_id = NA)
+    }
     data_from_excel_long <- data_from_excel %>% 
       tidyr::pivot_longer(cols=any_of(metrics_ind$mty_name),
                           values_to="mei_value",
@@ -996,6 +1021,8 @@ compare_with_database_metric_ind <- function(
         dplyr::filter(!is.na(mei_value))
       # %>% select(-mty_name) normally don't need this
       
+      modified_id <- vector("numeric")
+      
       # tests for any change in the table
       modified_long <-  dplyr::anti_join(data_from_excel_long, data_from_base, 
                                          by = c("fi_date",
@@ -1005,6 +1032,31 @@ compare_with_database_metric_ind <- function(
                                                 ifelse(type=="series","ser_nameshort","sai_name"),            
                                                 "mei_mty_id",
                                                 "mei_value"), na_matches = "never")
+      
+      if (nrow(modified_long) > 0)
+        modified_id <- unique(modified_long$fi_id)
+      
+      # we also need to add fishes for which a metric was deleted
+      deleted_metrics <- data_from_base |>
+        filter(fi_id_cou %in% data_from_excel_long$fi_id_cou) |>
+        select(all_of(c("fi_id", "fi_id_cou", "mei_mty_id"))) |>
+        anti_join(data_from_excel_long |>
+                    select(all_of(c("fi_id", "fi_id_cou", "mei_mty_id"))), 
+                  by = c("fi_id",
+                         "fi_id_cou",
+                         "mei_mty_id"), na_matches = "never")
+      
+      deleted_id <- vector("numeric")
+      
+      if (nrow(deleted_metrics)){ # some metrics have been deleted so we need to update the fish
+        deleted_id <- unique(deleted_metrics$fi_id)
+        
+      }
+      
+      # we retrieve all the information of fish that have been modified or for 
+      #which a metric as been deleted
+      modified_long <- data_from_excel_long |>
+        filter(fi_id %in% c(deleted_id, modified_id))
       
       modified_long <- modified_long[!modified_long$id %in% new$id,] 
       

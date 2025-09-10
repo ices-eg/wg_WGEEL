@@ -20,6 +20,7 @@
 
 ### dataseries
 * 20 new values inserted in the database
+* 10 values updated in the db 
 
 ### group metrics
 * 1 and 9 new values inserted in the group and metric tables
@@ -33,7 +34,7 @@
 * 2 values updated in the db
 ### dataseries
 * 6 new values inserted in the database
-* THERE ARE VALUES IN UPDATE BUT REQUIRE CLARIFICATION
+* 17 values updated in the db
 
 ### group metrics
 * 1 and 9 new values inserted in the group and metric tables
@@ -51,7 +52,8 @@
 *  8 new values inserted in the database
 
 ## Annex 7
-* NO eel_value_number PROVIDED NEED TO CLARIFY
+* 14 values updated in the db
+* 6 new values inserted in the database
 
 ## Annex 8
 * 1 new values inserted in the database
