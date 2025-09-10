@@ -42,7 +42,7 @@
 ### group metrics
 * 17 and 82 new values modified in the group and metric tables
 * 2 and 14 new values inserted in the group and metric tables
-* RE_RUN UPDATE GROUP: 17 and 143 new values modified in the group and metric tables
+* RE_RAN UPDATE GROUP: 17 and 143 new values modified in the group and metric tables
 
 ### individual metrics
 * 203 and 1429 new values inserted in the fish and metric tables
