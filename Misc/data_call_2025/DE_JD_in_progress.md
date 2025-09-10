@@ -52,23 +52,25 @@ delete from datawg.t_samplinginfo_sai where sai_id in (select sai_id from datawg
 
 
 ## Annex 4
-
+* no new landings
+* 1108 values updated in the db (harmonize subdivision)
 
 ## Annex 5
-
+* no new data
+* 1102 values updated in the db
 
 ## Annex 6
-
+* no Annex provided
 
 
 ## Annex 7
-
+* 599 values updated in the db
 
 
 ## Annex 8
+* 2 new values inserted in the database
 
-
-## Annex 10
+## Annex 9
 
 ### samplinginfo
 
