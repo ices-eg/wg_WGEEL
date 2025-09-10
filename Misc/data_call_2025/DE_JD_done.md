@@ -71,14 +71,15 @@ delete from datawg.t_samplinginfo_sai where sai_id in (select sai_id from datawg
 * 2 new values inserted in the database
 
 ## Annex 9
-
+Before integration:
+delete from datawg.t_samplinginfo_sai where sai_id in (select sai_id from datawg.t_samplinginfo_sai tss where tss.sai_cou_code = 'DE');
 ### samplinginfo
-
+* 18 new values inserted in the database
 
 ### group metrics
-
+* no data
 
 ### individual metrics
-
+* 12874 and 69251 new values inserted in the fish and metric tables
 
 
