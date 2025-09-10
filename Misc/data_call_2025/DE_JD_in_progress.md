@@ -1,3 +1,6 @@
+Before integration:
+delete from datawg.t_samplinginfo_sai where sai_id in (select sai_id from datawg.t_samplinginfo_sai tss where tss.sai_cou_code = 'DE'); 
+
 -----------------------------------------------------------
 # DE
 -----------------------------------------------------------
