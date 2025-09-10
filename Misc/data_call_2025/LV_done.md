@@ -3,7 +3,7 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
+* Annex provided, but no data in it
 ### series
 
 ### dataseries
@@ -39,32 +39,32 @@
 * 2 new values inserted in the database
 
 ### group metrics
-* Integrate new group metrics: Error: Failed to fetch row: ERROR:  duplicate key value violates unique constraint "c_ck_uk_grser_gr"
-DETAIL:  Key (grser_ser_id, gr_year)=(369, 2024) already exists.
+*  4 and 32 new values inserted in the group and metric tables
 
 ### individual metrics
 * 305 and 1240 new values updated in the fish and metric tables
 * 77 and 462 new values inserted in the fish and metric tables
 
 ## Annex 4
-
+* 2 new values inserted in the database
 
 ## Annex 5
-
+* 2 new values inserted in the database
 
 ## Annex 6
-
+* Annex provided but no data
 
 
 ## Annex 7
-
+* Annex provided but no new data
 
 
 ## Annex 8
+* no Annex provided
 
-
-## Annex 10
-
+## Annex 9
+* Annex provided but no new data
+  
 ### samplinginfo
 
 

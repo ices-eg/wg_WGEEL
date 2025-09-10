@@ -5,15 +5,16 @@
 ## Annex 1
 
 ### series
-
+*  1 new values inserted in the database
+  
 ### dataseries
-
+* 3 new values inserted in the database
 
 ### group metrics
-
+* 1 and 6 new values inserted in the group and metric tables
 
 ### individual metrics
-
+* 7 and 56 new values inserted in the fish and metric tables
 ## Annex 2
 
 ### series

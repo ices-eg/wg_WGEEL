@@ -208,7 +208,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                  #############################
                  observeEvent(input$check_duplicate_button_ts, {
                    shinyCatch({  
-                     shinybusy::show_modal_spinner(text = "Checking File : loaddb", color="darkgreen",spin="fading-circle")
+                     shinybusy::show_modal_spinner(text = "Checking File : loaddb get data", color="darkgreen",spin="fading-circle")
                      
                      # see step0load_data returns a list with res and messages
                      # and within res data and a dataframe of errors
@@ -261,13 +261,17 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                        deleted_individual_metrics <- rename(deleted_individual_metrics,"fiser_ser_id"="ser_id")
                      }			
                      
-                     
+                     shinybusy::update_modal_spinner(text = "Checking File : loaddb t_dataseries_das")
                      t_dataseries_das <- extract_data("t_dataseries_das", quality_check=TRUE, quality = c(0,1,2,3,4), allow_NULL=TRUE)
+                     shinybusy::update_modal_spinner(text = "Checking File : loaddb t_groupseries_grser")
                      t_groupseries_grser <- extract_data("t_groupseries_grser", quality_check=FALSE) # FALSE we don't use qal_id to "ban" data
+                     shinybusy::update_modal_spinner(text = "Checking File : loaddb t_fishseries_fiser")
                      t_fishseries_fiser <- extract_data("t_fishseries_fiser", quality_check=FALSE) # we don't use qal_id to "ban" data
+                     shinybusy::update_modal_spinner(text = "Checking File : loaddb t_metricgroupseries_megser")
                      t_metricgroupseries_megser <- extract_data("t_metricgroupseries_megser", quality_check=FALSE) # we don't use qal_id to "ban" data
+                     shinybusy::update_modal_spinner(text = "Checking File : loaddb t_metricindseries_meiser")
                      t_metricindseries_meiser <- extract_data("t_metricindseries_meiser", quality_check=FALSE) # we don't use qal_id to "ban" data
-                     
+                     shinybusy::update_modal_spinner(text = "Joining files")
                      switch (loaded_data_ts$file_type,
                              "glass_eel"={
                                t_series_ser <- t_series_ser %>%  filter(ser_typ_id==1)

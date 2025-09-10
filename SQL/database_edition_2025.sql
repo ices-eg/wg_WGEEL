@@ -299,7 +299,7 @@ SELECT * FROM datawg.t_metricindseries_meiser
 WHERE mei_fi_id = 2534672
 
 
-
+SELECT  eel_area_division  FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'FR' AND eel_area_division IS NO NULL;
 
 
 '
