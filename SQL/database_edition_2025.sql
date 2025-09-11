@@ -308,5 +308,21 @@ and eel_typ_id in (8,9)
 AND eel_datasource = 'dc_2025'
 AND eel_qal_id = 1  --278
 
+CREATE TABLE tempo.fix_dates_sweden(
+fi_id integer,
+fi_date date);
+
+DELETE FROM tempo.fix_dates_sweden;
 
 
+COPY tempo.fix_dates_sweden
+FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv'
+WITH (FORMAT csv, HEADER true);
+
+
+\copy tempo.fix_dates_sweden FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv' WITH (FORMAT csv, HEADER true);
+
+
+UPDATE datawg.t_fishsamp_fisa fisa SET fi_date = tempo.fi_date
+FROM tempo.fix_dates_sweden AS tempo
+WHERE tempo.fi_id = fisa.fi_id;
