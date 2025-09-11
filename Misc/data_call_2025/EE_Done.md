@@ -230,9 +230,142 @@ Missing year, date, fi_id_cou in individual metrics
 
 
 ### group metrics
+#### new
+
+ 1 and 6 new values inserted in the group and metric tables
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             1     
+Number of columns          14    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  10    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                1             0  NA  NA     0        0          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+3 grsa_lfs_code             0             1   2   2     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-09 2025-09-09 2025-09-09
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable           n_missing complete_rate     mean sd       p0      p25
+ 1 gr_id                           0             1 6182     NA 6182     6182    
+ 2 gr_year                         0             1 2024     NA 2024     2024    
+ 3 gr_number                       0             1  200     NA  200      200    
+ 4 grsa_sai_id                     0             1  835     NA  835      835    
+ 5 lengthmm                        0             1  634.    NA  634.     634.   
+ 6 weightg                         0             1  520.    NA  520.     520.   
+ 7 ageyear                         0             1    8     NA    8        8    
+ 8 anguillicola_intensity          0             1    9     NA    9        9    
+ 9 female_proportion               0             1    0.985 NA    0.985    0.985
+10 anguillicola_proportion         0             1    0.62  NA    0.62     0.62 
+        p50      p75     p100 hist 
+ 1 6182     6182     6182     ▁▁▇▁▁
+ 2 2024     2024     2024     ▁▁▇▁▁
+ 3  200      200      200     ▁▁▇▁▁
+ 4  835      835      835     ▁▁▇▁▁
+ 5  634.     634.     634.    ▁▁▇▁▁
+ 6  520.     520.     520.    ▁▁▇▁▁
+ 7    8        8        8     ▁▁▇▁▁
+ 8    9        9        9     ▁▁▇▁▁
+ 9    0.985    0.985    0.985 ▁▁▇▁▁
+10    0.62     0.62     0.62  ▁▁▇▁▁
+
 
 
 ### individual metrics
 
+#### new
 
+200 and 1950 new values inserted in the fish and metric tables
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             200   
+Number of columns          22    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              200             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fisa_geom               200             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1   9   9     0      200          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date             200             0 Inf        -Inf       NA        
+2 fi_lastupdate         0             1 2025-09-09 2025-09-09 2025-09-09
+  n_unique
+1        0
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0          1   
+ 2 fi_year                                                       0          1   
+ 3 fisa_sai_id                                                   0          1   
+ 4 fisa_x_4326                                                 200          0   
+ 5 fisa_y_4326                                                 200          0   
+ 6 lengthmm                                                      0          1   
+ 7 weightg                                                       0          1   
+ 8 ageyear                                                      50          0.75
+ 9 eye_diam_meanmm                                               0          1   
+10 pectoral_lengthmm                                             0          1   
+11 differentiated_proportion                                     0          1   
+12 anguillicola_intensity                                        0          1   
+13 method_sex_(1=visual,0=use_length)                            0          1   
+14 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0          1   
+15 anguillicola_proportion                                       0          1   
+          mean      sd         p0        p25        p50        p75      p100
+ 1 3669806.     57.9   3669707    3669757.   3669806.   3669856.   3669906  
+ 2    2024       0        2024       2024       2024       2024       2024  
+ 3     835       0         835        835        835        835        835  
+ 4     NaN      NA          NA         NA         NA         NA         NA  
+ 5     NaN      NA          NA         NA         NA         NA         NA  
+ 6     634.     74.4       457        582        639        686.       920  
+ 7     520.    202.        160        379        492.       662.      1466  
+ 8       7.61    1.87        4          6          8          8.75      13  
+ 9       6.92    1.30        4.46       5.97       6.76       7.90      10.9
+10      26.6     4.80       16.7       23.1       26.3       30.5       38.4
+11       1       0           1          1          1          1          1  
+12       5.42    9.14        0          0          2          7         61  
+13       0.015   0.122       0          0          0          0          1  
+14       0       0           0          0          0          0          0  
+15       0.62    0.487       0          0          1          1          1  
+   hist   
+ 1 "▇▇▇▇▇"
+ 2 "▁▁▇▁▁"
+ 3 "▁▁▇▁▁"
+ 4 " "    
+ 5 " "    
+ 6 "▂▇▇▂▁"
+ 7 "▇▇▃▁▁"
+ 8 "▂▇▇▂▁"
+ 9 "▃▇▆▂▁"
+10 "▃▇▇▆▂"
+11 "▁▁▇▁▁"
+12 "▇▁▁▁▁"
+13 "▇▁▁▁▁"
+14 "▁▁▇▁▁"
+15 "▅▁▁▁▇"
 

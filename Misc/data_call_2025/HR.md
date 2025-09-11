@@ -214,8 +214,90 @@ Group variables            None
 
 ### individual metrics
 
-Mail sent to Ivana ....
-Coordinates wrong .... 
+ 562 and 6039 new values inserted in the fish and metric tables
+
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             562   
+Number of columns          23    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  16    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0             1   1   1     0        2          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   2   2     0        1          0
+4 fisa_geom               562             0  NA  NA     0        0          0
+5 fi_id_cou               562             0  NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2024-01-09 2024-12-15 2024-09-15
+2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1        5
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0         1    
+ 2 fi_year                                                       0         1    
+ 3 fisa_sai_id                                                   0         1    
+ 4 fisa_x_4326                                                   0         1    
+ 5 fisa_y_4326                                                   0         1    
+ 6 lengthmm                                                      0         1    
+ 7 weightg                                                       0         1    
+ 8 ageyear                                                       3         0.995
+ 9 eye_diam_meanmm                                               0         1    
+10 pectoral_lengthmm                                             0         1    
+11 differentiated_proportion                                     0         1    
+12 anguillicola_intensity                                       14         0.975
+13 method_sex_(1=visual,0=use_length)                            0         1    
+14 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0         1    
+15 female_proportion                                           126         0.776
+16 anguillicola_proportion                                       0         1    
+          mean      sd         p0        p25        p50        p75      p100
+ 1 3896842.    162.    3896562    3896702.   3896842.   3896983.   3897123  
+ 2    2024       0        2024       2024       2024       2024       2024  
+ 3     879.      7.99      832        880        880        880        880  
+ 4      15.7     1.41       13.6       14.0       16.0       16.8       17.7
+ 5      44.1     0.860      42.8       43.4       43.8       45.1       45.4
+ 6      53.0    68.2        11.1       33.7       41.2       49.3      575  
+ 7     200.    298.          1.94      68.0      128        225.      2658. 
+ 8       4.38    2.05        1          3          4          5         16  
+ 9       5.22    1.73        1.51       4.17       5.02       5.92      12.3
+10      17.4     7.63        2.4       12.5       16.8       21.0       52.4
+11       0.774   0.419       0          1          1          1          1  
+12       1.29    2.27        0          0          0          2         15  
+13       1       0           1          1          1          1          1  
+14       0.972   0.166       0          1          1          1          1  
+15       0.548   0.498       0          0          1          1          1  
+16       0.384   0.487       0          0          0          1          1  
+   hist 
+ 1 ▇▇▇▇▇
+ 2 ▁▁▇▁▁
+ 3 ▁▁▁▁▇
+ 4 ▇▁▃▇▅
+ 5 ▃▇▂▁▇
+ 6 ▇▁▁▁▁
+ 7 ▇▁▁▁▁
+ 8 ▇▅▁▁▁
+ 9 ▂▇▃▁▁
+10 ▃▇▂▁▁
+11 ▂▁▁▁▇
+12 ▇▁▁▁▁
+13 ▁▁▇▁▁
+14 ▁▁▁▁▇
+15 ▆▁▁▁▇
+16 ▇▁▁▁▅
 
 
 

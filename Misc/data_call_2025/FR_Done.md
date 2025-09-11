@@ -90,42 +90,50 @@ Group variables            None
 6 das_qal_id           11         0.353      2.5      1.64    1        1      2.5     4         4 ▇▁▁▁▇
 
 #### Modified data
-
-41 values updated in the db
-
+271 and 278 new values updated in the fish and metric tables
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             41    
-Number of columns          10    
+Number of rows             271   
+Number of columns          12    
 _______________________          
 Column type frequency:           
-  character                3     
-  Date                     1     
+  character                4     
+  Date                     2     
   numeric                  6     
 ________________________         
 Group variables            None  
 
-── Variable type: character ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable      n_missing complete_rate min max empty n_unique whitespace
-1 das_comment                1         0.976  60 209     0       11          0
-2 das_dts_datasource        31         0.244   7   7     0        3          0
-3 das_qal_comment           41         0      NA  NA     0        0          0
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0         1      27  38     0        5          0
+2 fi_dts_datasource         0         1       7   7     0        1          0
+3 fi_lfs_code              56         0.793   1   1     0        2          0
+4 fi_id_cou               271         0      NA  NA     0        0          0
 
-── Variable type: Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable   n_missing complete_rate min        max        median     n_unique
-1 das_last_update         0             1 2025-09-08 2025-09-08 2025-09-08        1
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 1997-07-20 2024-03-07 1999-04-23
+2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1       44
+2        1
 
-── Variable type: numeric ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate     mean        sd        p0      p25     p50     p75    p100 hist 
-1 das_id                0         1       4212.    2704.   1741      1751     2757    6512       8496 ▇▁▁▁▃
-2 das_value             0         1     111800.  560038.      0.0982    0.903    1.55    6.42 3499511 ▇▁▁▁▁
-3 das_ser_id            0         1         57.0     56.0    42        42       42      42        300 ▇▁▁▁▁
-4 das_year              0         1       2012.       9.75 1994      2004     2014    2021       2024 ▃▃▃▃▇
-5 das_effort            1         0.976    332.     108.    101       262.     380.    425.       432 ▂▁▂▂▇
-6 das_qal_id            0         1          1        0       1         1        1       1          1 ▁▁▇▁▁
-
-
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable             n_missing complete_rate        mean         sd
+1 fi_id                             0        1      2549725.    42007.    
+2 fi_year                           0        1         2001.        5.58  
+3 fiser_ser_id                      0        1           61.2       0.954 
+4 lengthmm                          2        0.993      129.       73.5   
+5 differentiated_proportion       266        0.0185       0         0     
+6 weightg                         267        0.0148       0.186     0.0306
+           p0         p25         p50         p75        p100 hist 
+1 2488020     2534724.    2534792     2537260.    2712693     ▁▇▁▁▁
+2    1997        1999        1999        1999        2024     ▇▁▁▁▁
+3      61          61          61          61          67     ▇▁▁▁▁
+4      52          92         115         142         505     ▇▂▁▁▁
+5       0           0           0           0           0     ▁▁▇▁▁
+6       0.157       0.162       0.185       0.209       0.219 ▇▁▁▃▃
 ### group metrics
 
 #### new group metrics
