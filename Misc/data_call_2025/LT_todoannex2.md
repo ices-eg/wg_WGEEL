@@ -8,22 +8,123 @@ No recrutment series
 
 Mail sent to Linas => pb with ind metrics.
 ### series
-
+9 values updated in the db
+LT_total > LT_Lith
 ### dataseries
 
 Note : Cédric I have put the missing lines (automatically filled in)
 with as das_qal_id 0 (missing data).
+Had to change KerY to KreY as there was a duplicate
 
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             49    
+Number of columns          10    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  6     
+________________________         
+Group variables            None  
 
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min max empty n_unique whitespace
+1 das_comment               45        0.0816  32  37     0        2          0
+2 das_dts_datasource         0        1        7   7     0        1          0
+3 das_qal_comment           49        0       NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable   n_missing complete_rate min        max        median    
+1 das_last_update         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate       mean     sd    p0     p25   p50
+1 das_id                0        1      10082      14.3   10058 10070   10082
+2 das_value            45        0.0816    47.8    40.1      10    15.2    46
+3 das_ser_id            0        1        399.     32.3     344   407     408
+4 das_year              0        1       2019.      3.13   2015  2016    2018
+5 das_effort           45        0.0816    12.8     8.69      1    10.8    14
+6 das_qal_id            0        1          0.0816  0.277     0     0       0
+      p75  p100 hist 
+1 10094   10106 ▇▇▇▇▇
+2    78.5    89 ▇▁▁▁▇
+3   427     428 ▅▁▁▇▆
+4  2022    2024 ▇▇▃▂▆
+5    16      22 ▃▁▁▇▃
+6     0       1 ▇▁▁▁▁
 
 ### group metrics
 
-Cédric : Changed kertY to kertY
+Cédric : Changed kertY to kreY => Linas check this please, you had twice kerY in the file !
+ 4 and 41 new values inserted in the group and metric tables
+ Mail sent to Linas
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             4     
+Number of columns          18    
+_______________________          
+Column type frequency:           
+  character                2     
+  Date                     1     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                4             0  NA  NA     0        0          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 gr_id                                                         0          1   
+ 2 gr_year                                                       0          1   
+ 3 gr_number                                                     0          1   
+ 4 grser_ser_id                                                  0          1   
+ 5 lengthmm                                                      0          1   
+ 6 weightg                                                       0          1   
+ 7 ageyear                                                       0          1   
+ 8 anguillicola_intensity                                        0          1   
+ 9 f_mean_lengthmm                                               0          1   
+10 f_mean_weightg                                                0          1   
+11 f_mean_age                                                    0          1   
+12 method_sex_(1=visual,0=use_length)                            0          1   
+13 method_anguillicola_(1=stereomicroscope,0=visual_obs)         3          0.25
+14 female_proportion                                             0          1   
+15 anguillicola_proportion                                       0          1   
+       mean      sd     p0      p25      p50      p75    p100 hist 
+ 1 6376.     1.29   6374   6375.    6376.    6376.    6377    ▇▇▁▇▇
+ 2 2024      0      2024   2024     2024     2024     2024    ▁▁▇▁▁
+ 3   47.8   40.1      10     15.2     46       78.5     89    ▇▁▁▁▇
+ 4  397.    36.5     344    391.     408.     413      428    ▃▁▁▇▃
+ 5  552.    31.4     525    532.     544.     564.     596    ▇▁▃▁▃
+ 6  315.    56.6     275.   287.     294.     322.     399    ▇▁▁▁▂
+ 7    9.4    3.03      6.4    7.52     8.9     10.8     13.4  ▇▇▇▁▇
+ 8    4.42   2.33      1      3.92     5.35     5.85     6    ▃▁▁▃▇
+ 9  552.    31.4     525    532.     544.     564.     596    ▇▁▃▁▃
+10  315.    56.6     275.   287.     294.     322.     399    ▇▁▁▁▂
+11    9.4    3.03      6.4    7.52     8.9     10.8     13.4  ▇▇▇▁▇
+12    1      0         1      1        1        1        1    ▁▁▇▁▁
+13    0     NA         0      0        0        0        0    ▁▁▇▁▁
+14    1      0         1      1        1        1        1    ▁▁▇▁▁
+15    0.508  0.0727    0.4    0.498    0.535    0.545    0.56 ▂▁▁▁▇
 
 
 ### individual metrics
 
-
+I suspect there is a problem with names again, stopping here, mail sent to Linas.
 
 ## Annex 3
 

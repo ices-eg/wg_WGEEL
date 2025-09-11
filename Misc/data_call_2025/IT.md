@@ -484,4 +484,90 @@ Error in proceedfunction(path, conn, ...): fishes do not fall in emu: c("IT_24_0
 "IT_24_79", "IT_24_79", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_80", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_81", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_82", "IT_24_83", "IT_24_83", "IT_24_83", "IT_24_83", "IT_24_83", "IT_24_83", "IT_24_83", 
 "IT_24_83", "IT_24_83", "IT_24_83", "IT_24_84", "IT_24_84", "IT_24_84", "IT_24_84
 
-Mails sent to Chiara.
+Mail sent to Chiara.
+The coordinates were reversed between X and Y, correction by Chiara.
+
+ 278 and 2459 new values inserted in the fish and metric tables
+ 
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             278   
+Number of columns          23    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  16    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              278             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   2     0        3          0
+4 fisa_geom               278             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1   8   9     0      278          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2019-09-01 2024-12-01 2024-12-01
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        4
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0         1    
+ 2 fi_year                                                       0         1    
+ 3 fisa_sai_id                                                   0         1    
+ 4 fisa_x_4326                                                   0         1    
+ 5 fisa_y_4326                                                   0         1    
+ 6 lengthmm                                                      0         1    
+ 7 weightg                                                       0         1    
+ 8 ageyear                                                      41         0.853
+ 9 eye_diam_meanmm                                              30         0.892
+10 pectoral_lengthmm                                            30         0.892
+11 differentiated_proportion                                     0         1    
+12 method_sex_(1=visual,0=use_length)                            0         1    
+13 female_proportion                                             0         1    
+14 anguillicola_intensity                                      166         0.403
+15 method_anguillicola_(1=stereomicroscope,0=visual_obs)       166         0.403
+16 anguillicola_proportion                                     166         0.403
+          mean      sd         p0        p25       p50        p75      p100
+ 1 3935566.     80.4   3935428    3935497.   3935566.  3935636.   3935705  
+ 2    2023.      1.55     2019       2024       2024      2024       2024  
+ 3     871.      3.90      865        868        871       874        877  
+ 4      12.3     1.67        8.61      12.1       12.2      12.9       15.4
+ 5      43.1     1.96       39.0       42.2       43.1      44.6       45.7
+ 6     576.    172.        255        440.       557       689.      1010  
+ 7     518.    504.         18.7      154.       338.      697.      2124  
+ 8       7       2.34        3          5          7         8         15  
+ 9       7.48    1.89        3.5        6.04       7.5       8.91      13.5
+10      24.4     6.97       10         20         24        29         49  
+11       0.942   0.233       0          1          1         1          1  
+12       1       0           1          1          1         1          1  
+13       0.827   0.379       0          1          1         1          1  
+14       3.62    7.38        0          0          0         5         50  
+15       0       0           0          0          0         0          0  
+16       0.429   0.497       0          0          0         1          1  
+   hist 
+ 1 ▇▇▇▇▇
+ 2 ▁▁▁▁▇
+ 3 ▅▅▇▂▅
+ 4 ▂▂▇▂▂
+ 5 ▂▁▇▂▇
+ 6 ▃▇▇▃▂
+ 7 ▇▃▁▁▁
+ 8 ▇▇▆▁▁
+ 9 ▃▇▇▂▁
+10 ▃▇▆▂▁
+11 ▁▁▁▁▇
+12 ▁▁▇▁▁
+13 ▂▁▁▁▇
+14 ▇▁▁▁▁
+15 ▁▁▇▁▁
+16 ▇▁▁▁▆
+
