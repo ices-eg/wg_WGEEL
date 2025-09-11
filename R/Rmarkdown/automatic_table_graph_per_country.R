@@ -12,12 +12,11 @@ getUsername <- function(){
 	return(name)
 }
 if (getUsername() == "cedric.briand") setwd("C:/workspace/gitwgeel/R/Rmarkdown")
-if (getUsername() == "hilaire.drouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
+if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
 load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 cou_code <- unique(landings$eel_cou_code[!is.na(landings$eel_cou_code)])
-dir.create("C:/workspace/gitwgeel/R/Rmarkdown/2020",showWarnings = FALSE)
-dir.create("C:/workspace/gitwgeel/R/Rmarkdown/files",showWarnings = FALSE)
-CY <- 2020
+CY <- 2025
+
 if (exists("params")) rm(params)
 # North Sea
 for (cou in c("DK","NL","DE")){
