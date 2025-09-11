@@ -83,6 +83,11 @@ params:
 #CY=2023
 CY=lubridate::year(Sys.time())
 
+path <- paste0(gsub("wg_WGEEL(.+|$)","", getwd()),
+               "/wg_WGEEL/R/utilities/")
+api <- yaml::read_yaml(paste0(path,
+                              "stadia.yml"))
+ggmap::register_stadiamaps(api$api)
 
 output_format = knitr::opts_knit$get("rmarkdown.pandoc.to")
 if (is.null(output_format)){
@@ -748,8 +753,8 @@ map_yellow_recruitment <- function(){
 		zoomlat <- ceiling(log2(180 * 2/latlength))
 		zoom <- max(zoomlon, zoomlat)
 		names(location)=c("left","bottom","right","top")
-		mymap <-get_stamenmap(location,zoom=zoom,
-				maptype = "terrain-background",
+		mymap <-get_stadiamap(location,zoom=zoom,
+				maptype = "stamen_terrain_background",
 				source="stamen")
 		
 		g <- ggmap(mymap)+
@@ -822,8 +827,8 @@ map_recruitment <- function(){
 		zoom <- max(zoomlon, zoomlat)
 		names(location)=c("left","bottom","right","top")
 
-		mymap <-get_stamenmap(location,zoom=zoom,
-				maptype = "terrain-background",
+		mymap <-get_stadiamap(location,zoom=zoom,
+				maptype = "stamen_terrain_background",
 				source="stamen")
 		
 		g <- ggmap(mymap)+
@@ -873,8 +878,8 @@ map_ys <- function(){
 		zoom <- max(zoomlon, zoomlat)
 		names(location)=c("left","bottom","right","top")
 		
-		mymap <-get_stamenmap(location,zoom=zoom,
-				maptype = "terrain-background",
+		mymap <-get_stadiamap(location,zoom=zoom,
+				maptype = "stamen_terrain_background",
 				source="stamen")
 		
 		g <- ggmap(mymap)+							

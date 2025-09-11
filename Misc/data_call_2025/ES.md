@@ -1105,7 +1105,57 @@ Group variables            None
 ```
 
 ## Annex 8
-- no data
+- file transmitted by Maria K after the start of the meeting
+-  1 new values inserted in the database
+
+```
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             1     
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0             1   8   8     0        1          0
+ 2 eel_cou_code              0             1   2   2     0        1          0
+ 3 eel_lfs_code              0             1   2   2     0        1          0
+ 4 eel_hty_code              1             0  NA  NA     0        0          0
+ 5 eel_area_division         1             0  NA  NA     0        0          0
+ 6 eel_qal_comment           1             0  NA  NA     0        0          0
+ 7 eel_comment               0             1  77  77     0        1          0
+ 8 eel_missvaluequal         1             0  NA  NA     0        0          0
+ 9 eel_datasource            0             1   7   7     0        1          0
+10 eel_dta_code              0             1   6   6     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median    
+1 eel_datelastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate   mean sd     p0    p25    p50    p75
+1 eel_id                0             1 608806 NA 608806 608806 608806 608806
+2 eel_typ_id            0             1     11 NA     11     11     11     11
+3 eel_year              0             1   2024 NA   2024   2024   2024   2024
+4 eel_value             0             1 356970 NA 356970 356970 356970 356970
+5 eel_qal_id            0             1      1 NA      1      1      1      1
+    p100 hist 
+1 608806 ▁▁▇▁▁
+2     11 ▁▁▇▁▁
+3   2024 ▁▁▇▁▁
+4 356970 ▁▁▇▁▁
+5      1 ▁▁▇▁▁
+```
 
 ## Annex 9
 
