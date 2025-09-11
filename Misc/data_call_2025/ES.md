@@ -1052,6 +1052,57 @@ empty file
   - in delete data, we removed extra columns that had been added
   - there are duplicates so ask Esti and Maria to fix them
 
+- 42 values deleted in the db (ES_Anda)
+-  36 new values inserted in the database
+
+```
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             36    
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0             1   7   7     0        2          0
+ 2 eel_cou_code              0             1   2   2     0        1          0
+ 3 eel_lfs_code              0             1   1   2     0        6          0
+ 4 eel_hty_code              0             1   1   1     0        2          0
+ 5 eel_area_division        36             0  NA  NA     0        0          0
+ 6 eel_qal_comment          36             0  NA  NA     0        0          0
+ 7 eel_comment              36             0  NA  NA     0        0          0
+ 8 eel_missvaluequal        36             0  NA  NA     0        0          0
+ 9 eel_datasource            0             1   7   7     0        1          0
+10 eel_dta_code              0             1   6   6     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median    
+1 eel_datelastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate     mean         sd       p0      p25
+1 eel_id                0             1 602316.      10.5   602298   602307. 
+2 eel_typ_id            0             1      8.5      0.507      8        8  
+3 eel_year              0             1   2016.       3.80    2011     2014  
+4 eel_value             0             1 131966.  480746.         4.5     83.7
+5 eel_qal_id            0             1      1        0          1        1  
+       p50     p75    p100 hist 
+1 602316.  602324.  602333 ▇▇▇▇▇
+2      8.5      9        9 ▇▁▁▁▇
+3   2016.    2018     2024 ▂▇▂▁▂
+4    484.    4692  2100063 ▇▁▁▁▁
+5      1        1        1 ▁▁▇▁▁
+```
 
 ## Annex 8
 - no data
