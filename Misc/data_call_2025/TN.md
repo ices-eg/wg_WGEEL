@@ -24,8 +24,8 @@ no data
   reported)
   - put data 2024 in updated data and change year to 2023
   
-- 32 values deleted in the db (data that had been reported as 2023 but were 2022)
-- 16 values updated in the db (data from 2024 reassigned to 2023)
+- 32 values deleted in the db (old data that had been reported as 2023 but were 2022)
+- 16 values updated in the db (old data from 2024 reassigned to 2023)
 
 ```
 [1] "this is what will be in the db"
