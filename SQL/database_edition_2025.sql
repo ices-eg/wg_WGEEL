@@ -326,3 +326,10 @@ WITH (FORMAT csv, HEADER true);
 UPDATE datawg.t_fishsamp_fisa fisa SET fi_date = tempo.fi_date
 FROM tempo.fix_dates_sweden AS tempo
 WHERE tempo.fi_id = fisa.fi_id;
+
+
+SELECT * FROM datawg.t_fishseries_fiser WHERE fi_id_cou = 'Ndie_40585'
+SELECT count(*) FROM datawg.t_fishseries_fiser 
+JOIN datawg.t_series_ser ON ser_id = fiser_ser_id
+WHERE fi_dts_datasource = 'dc_2025' 
+AND ser_cou_code = 'FR'

@@ -651,12 +651,14 @@ Deleted lines :
 
 #### updated individual metrics
 
- 59 and 81 new values updated in the fish and metric tables
+OK checked 375 lines (Guirec => OK fixed from Earlier Error)
+
+375 and 707 new values updated in the fish and metric tables
 
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             59    
+Number of rows             375   
 Number of columns          11    
 _______________________          
 Column type frequency:           
@@ -666,25 +668,34 @@ Column type frequency:
 ________________________         
 Group variables            None  
 
-── Variable type: character ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+── Variable type: character ────────────────────────────────────────────────────
   skim_variable     n_missing complete_rate min max empty n_unique whitespace
-1 fi_comment                0             1  23  23     0        1          0
-2 fi_dts_datasource         0             1   7   7     0        1          0
-3 fi_lfs_code              59             0  NA  NA     0        0          0
-4 fi_id_cou                59             0  NA  NA     0        0          0
+1 fi_comment                0       1        23  26     0        2          0
+2 fi_dts_datasource         0       1         7   7     0        1          0
+3 fi_lfs_code             373       0.00533   1   1     0        1          0
+4 fi_id_cou               374       0.00267  12  12     0        1          0
 
-── Variable type: Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate min        max        median     n_unique
-1 fi_date               0             1 1995-09-13 1996-10-17 1995-09-18        7
-2 fi_lastupdate         0             1 2025-09-09 2025-09-09 2025-09-09        1
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 1995-09-13 2023-09-19 1999-09-15
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       71
+2        1
 
-── Variable type: numeric ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate    mean     sd     p0      p25      p50     p75   p100 hist 
-1 fi_id                 0         1     290564  17.2   290535 290550.  290564   290578. 290593 ▇▇▇▇▇
-2 fi_year               0         1       1995.  0.492   1995   1995     1995     1996    1996 ▇▁▁▁▅
-3 fiser_ser_id          0         1        214   0        214    214      214      214     214 ▁▁▇▁▁
-4 lengthmm              0         1        380. 51.5      314    353      370      392.    580 ▇▇▁▁▁
-5 weightg              37         0.373    102. 70.8       51     65.8     75.5     88     331 ▇▁▁▁▁
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate    mean         sd     p0      p25
+1 fi_id                 0         1     305739. 177392.    290535 290628. 
+2 fi_year               0         1       2000.      4.18    1995   1996  
+3 fiser_ser_id          0         1        214.      0.258    214    214  
+4 lengthmm              0         1        381.     66.6      111    350  
+5 weightg              43         0.885    107.     86.4       14     71.8
+     p50     p75    p100 hist 
+1 291741 293750. 2727791 ▇▁▁▁▁
+2   1999   2002     2023 ▇▃▁▁▁
+3    214    214      219 ▇▁▁▁▁
+4    366    385      722 ▁▅▇▁▁
+5     84    100      757 ▇▁▁▁▁
 
 #### new individual metrics
  62664 and 106169 new values inserted in the fish and metric tables
@@ -733,6 +744,32 @@ Group variables            None
 5       5         18         68       1735   ▇▁▁▁▁
 6       3.75       4.61       5.73      24.5 ▇▂▁▁▁
 7      14.0       18         22.7       61.2 ▆▇▂▁▁
+
+
+I've verified the following so I think it went well despite the output, the last fish it there :
+And I don't have any new fish ???? I think most fishes were not changed....
+
+```sql
+SELECT * FROM datawg.t_fishseries_fiser WHERE fi_id_cou = 'Ndie_40585'
+
+```
+
+|fi_id|fi_date|fi_year|fi_comment|fi_lastupdate|fi_dts_datasource|fi_lfs_code|fiser_ser_id|fi_id_cou|
+|-----|-------|-------|----------|-------------|-----------------|-----------|------------|---------|
+|3814401|2022-10-06|2022||2025-09-10|dc_2025||216|Ndie_40585|
+
+
+```sql
+SELECT count(*) FROM datawg.t_fishseries_fiser 
+JOIN datawg.t_series_ser ON ser_id = fiser_ser_id
+WHERE fi_dts_datasource = 'dc_2025' 
+AND ser_cou_code = 'FR'
+AND fi_lsf_code 
+```
+
+> 125715
+
+
 
 ## Annex 3
 
@@ -941,6 +978,12 @@ Group variables            None
 12 female_proportion                          0           1       0.802    0.145    0.49     0.81     0.85     0.888     0.92 ▁▁▁▁▇
 
 ### individual metrics
+
+#### delete
+514 entries
+ 514 values deleted from fish table, cascade delete on metrics => OK
+
+
 #### new
 431 and 2514 new values inserted in the fish and metric tables
 
@@ -980,6 +1023,59 @@ Group variables            None
 7 female_proportion                         11         0.974       0.664   0.473       0         0          1         1          1   ▅▁▁▁▇
 8 eye_diam_meanmm                           18         0.958       7.42    1.36        3.3       6.51       7.3       8.15      12.7 ▁▇▇▂▁
 9 pectoral_lengthmm                         21         0.951      27.4     7.15       14        21.2       27.6      31.7       61.8 ▆▇▃▁▁
+
+Second round after delete
+
+256 and 857 new values inserted in the fish and metric tables
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             256   
+Number of columns          13    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  7     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              255       0.00391  37  37     0        1          0
+2 fi_dts_datasource         0       1         7   7     0        1          0
+3 fi_lfs_code               0       1         1   1     0        1          0
+4 fi_id_cou               256       0        NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2015-12-04 2016-02-19 2016-02-01
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       12
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate       mean     sd         p0
+1 fi_id                     0         1     3936112.    74.0  3935984   
+2 fi_year                   0         1        2015      0       2015   
+3 fiser_ser_id              0         1         195      0        195   
+4 weightg                   1         0.996     367.   253.        60   
+5 eye_diam_meanmm          83         0.676       7.93   1.26       4.35
+6 pectoral_lengthmm        81         0.684      29.1    7.11      11.2 
+7 lengthmm                  2         0.992     562.   132.       323   
+         p25       p50       p75      p100 hist 
+1 3936048.   3936112.  3936175.  3936239   ▇▇▇▇▇
+2    2015       2015      2015      2015   ▁▁▇▁▁
+3     195        195       195       195   ▁▁▇▁▁
+4     146.       305       514.     1181   ▇▅▃▁▁
+5       7.05       7.9       8.7      11.2 ▁▅▇▅▂
+6      24.2       29.5      33.7      49.8 ▂▆▇▃▁
+7     469.       566       662.      883   ▇▆▇▆▁
+
+
+
 
 
 #### modified
