@@ -8251,3 +8251,12 @@ GRANT ALL ON TABLE wkeelmigration.litteratured TO wgeel;
 
 insert into ref.tr_datasource_dts values ('dc_2025', 'dc_2025	Joint EIFAAC/GFCM/ICES Eel Data Call 2025');
 
+
+
+--- add a drop by cascade on sampling info
+ALTER TABLE datawg.t_fishsamp_fisa drop constraint c_fk_fisa_sai_id;
+ALTER TABLE datawg.t_fishsamp_fisa ADD CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (fisa_sai_id) REFERENCES datawg.t_samplinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE cascade;
+
+
+alter TABLE datawg.t_groupsamp_grsa drop CONSTRAINT c_fk_grsa_sai_id;
+ALTER TABLE datawg.t_groupsamp_grsa ADD CONSTRAINT c_fk_grsa_sai_id FOREIGN KEY (grsa_sai_id) REFERENCES datawg.t_samplinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE cascade;
