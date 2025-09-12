@@ -21,7 +21,7 @@ Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY <- 2024 # current year ==> dont forget to update the graphics path below
+CY <- 2025 # current year ==> dont forget to update the graphics path below
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
 
@@ -1132,22 +1132,23 @@ dat_ge$p_std_1960_1979_max <- exp(dat_ge$p-dat_ge$mean+1.96*dat_ge$se)
 upperlimit  <- 5
 dat_ge$p_std_1960_1979_maxgraph <- pmin(dat_ge$p_std_1960_1979_max,upperlimit-0.01)
 
-g <- ggplot(dat_ge,aes(x=year,y=p_std_1960_1979))
+g <- ggplot(dat_ge,aes(x=year,y=p_std_1960_1979  * 100))
 
 figure5_without_logscale<- g+
 		geom_line(aes(colour=area,lty=area),lwd=1)+ 		
 		scale_colour_brewer(name="area",palette="Set1")+
-		geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_maxgraph,fill=area),alpha=.3)+
+		geom_ribbon(aes(ymin=p_std_1960_1979_min * 100,ymax=p_std_1960_1979_maxgraph  * 100,fill=area),alpha=.3)+
 		coord_cartesian(ylim=c(0,500))+
 		scale_y_continuous(expression(frac(p,bar(p)[1960-1979])))+
 		theme_bw()+
-		geom_hline(yintercept=1,linetype=2)+
+		geom_hline(yintercept=100,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
 		theme(legend.box =NULL,
 				legend.key = element_rect(colour = NA, fill = 'white'),
 				legend.text = element_text(size = 10, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'),
 				legend.position = c(.8, .8))
+save_figure("figure5_without_logscale_ribbon",figure5_without_logscale,600,480)
 
 
 figure5_advice_EE<- ggplot(dat_ge %>% filter(area == "Elsewhere Europe"),
@@ -2144,7 +2145,7 @@ eel model. This treatment has been tested and has no effect on the trend
 (ICES, 2017).
 
 The reconstructed values are then aggregated using geometric means of the two
-refer-ence areas (Elsewhere Europe EE, and North Sea NS). The predictions are
+reference areas (Elsewhere Europe EE, and North Sea NS). The predictions are
 given in reference to the geometric mean of the 1960-1979 period. 
 
 As for previous working groups, data call and meeting timing means that some

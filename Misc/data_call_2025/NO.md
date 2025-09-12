@@ -448,6 +448,9 @@ Group variables            None
 5      1       1 ▁▁▇▁▁
 ```
 
+- fix with an SQL after data integration to edit a stage error 
+`update datawg.t_eelstock_eel set eel_lfs_code = 'YS' where eel_typ_id = 4 and eel_cou_code = 'NO' and eel_datasource  = 'dc_2025' and eel_year = 2024`
+
 - 366 values updated in the db
 
 ```

@@ -314,6 +314,15 @@ fi_date date);
 
 DELETE FROM tempo.fix_dates_sweden;
 
+-- add missing fao_areas to series, required to assign series to areas in
+-- recruitment analysis
+update datawg.t_series_ser set ser_area_division = '27.4.c' where ser_nameshort like 'Ems%'; --3
+update datawg.t_series_ser set ser_area_division = '27.4.b' where ser_nameshort in ('HHKGY', 'BrokGY', 'DoElY', 'VerlGY', 'LangGY', 'HoSGY') ;
+update datawg.t_series_ser set ser_area_division = '27.3.b, c' where ser_nameshort in ('FarpGY', 'WisWGY', 'WiFG');
+update datawg.t_series_ser set ser_area_division = '27.3.d' where ser_nameshort in ('WaSG', 'WaSEY');
+update datawg.t_series_ser set ser_area_division = '27.3.d' where ser_nameshort in ('NakkY');
+update datawg.t_series_ser set ser_area_division = '27.7.e' where ser_nameshort in ('BretGY');
+
 
 COPY tempo.fix_dates_sweden
 FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv'
