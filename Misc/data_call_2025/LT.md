@@ -6,10 +6,13 @@
 No recrutment series
 ## Annex 2
 
-Mail sent to Linas => pb with ind metrics.
+
 ### series
 9 values updated in the db
 LT_total > LT_Lith
+1 new series from the river outside the lake added.
+Called RkerY (along with KerY and KreY)
+This one only has group metrics for one year.
 ### dataseries
 
 Note : Cédric I have put the missing lines (automatically filled in)
@@ -59,9 +62,9 @@ Group variables            None
 
 ### group metrics
 
-Cédric : Changed kertY to kreY => Linas check this please, you had twice kerY in the file !
- 4 and 41 new values inserted in the group and metric tables
- Mail sent to Linas
+Cédric : Changed kertY to kreY 
+The first instance of KreY is changed to RkerY
+
 
 ── Data Summary ────────────────────────
                            Values
@@ -120,6 +123,9 @@ Group variables            None
 13    0     NA         0      0        0        0        0    ▁▁▇▁▁
 14    1      0         1      1        1        1        1    ▁▁▇▁▁
 15    0.508  0.0727    0.4    0.498    0.535    0.545    0.56 ▂▁▁▁▇
+
+As a second step I have deleted KreY an inserted it as RkerY
+All fixed now !
 
 
 ### individual metrics

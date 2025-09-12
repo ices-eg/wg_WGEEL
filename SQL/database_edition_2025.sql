@@ -333,3 +333,7 @@ SELECT count(*) FROM datawg.t_fishseries_fiser
 JOIN datawg.t_series_ser ON ser_id = fiser_ser_id
 WHERE fi_dts_datasource = 'dc_2025' 
 AND ser_cou_code = 'FR'
+
+
+SELECT * FROM datawg.t_groupseries_grser WHERE grser_ser_id = 344
+
