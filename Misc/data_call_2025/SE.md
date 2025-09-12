@@ -633,6 +633,54 @@ AND eel_qal_id = 1  --278
 ```
 DUPLICATES MAIL SENT TO ROB
 
+ 614 new values inserted in the database => OK
+
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             614   
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0         1       7   7     0        3          0
+ 2 eel_cou_code              0         1       2   2     0        1          0
+ 3 eel_lfs_code              0         1       1   2     0        4          0
+ 4 eel_hty_code              0         1       1   1     0        2          0
+ 5 eel_area_division       436         0.290   6   6     0        2          0
+ 6 eel_qal_comment         614         0      NA  NA     0        0          0
+ 7 eel_comment               0         1       9  32     0        4          0
+ 8 eel_missvaluequal       614         0      NA  NA     0        0          0
+ 9 eel_datasource            0         1       7   7     0        1          0
+10 eel_dta_code              0         1       6   6     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median    
+1 eel_datelastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate     mean         sd       p0     p25
+1 eel_id                0             1 609114.     177.    608808   608961.
+2 eel_typ_id            0             1      8.5      0.500      8        8 
+3 eel_year              0             1   1979.      32.5     1900     1955.
+4 eel_value             0             1 263265.  487031.         4.5   1035.
+5 eel_qal_id            0             1      1        0          1        1 
+       p50     p75     p100 hist 
+1 609114.  609268.  609421  ▇▇▇▇▇
+2      8.5      9        9  ▇▁▁▁▇
+3   1987     2005     2024  ▂▃▃▇▇
+4  23103.  278567. 3363347. ▇▁▁▁▁
+5      1        1        1  ▁▁▇▁▁
+
 
 ## Annex 8
 
@@ -644,9 +692,283 @@ Nothing !
 
 
 ### group metrics
+#### new
+ 11 and 103 new values inserted in the group and metric tables
 
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             11    
+Number of columns          19    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment               11             0  NA  NA     0        0          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+3 grsa_lfs_code             0             1   1   1     0        2          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable             n_missing complete_rate      mean       sd       p0
+ 1 gr_id                             0        1      6337        3.32   6332    
+ 2 gr_year                           0        1      2011.       6.41   2006    
+ 3 gr_number                         0        1       218.      89.8      77    
+ 4 grsa_sai_id                       0        1       806        5.55    803    
+ 5 lengthmm                          0        1       527.     158.      418.   
+ 6 weightg                           0        1       371.     496.      126.   
+ 7 ageyear                           4        0.636    10.1      3.33      8.09 
+ 8 differentiated_proportion         0        1         1        0         1    
+ 9 f_mean_lengthmm                   0        1       527.     158.      418.   
+10 f_mean_weightg                    0        1       371.     496.      126.   
+11 f_mean_age                        4        0.636    10.1      3.33      8.09 
+12 s_in_ys_proportion                0        1         0.179    0.398     0    
+13 female_proportion                 0        1         0.977    0.0215    0.930
+14 anguillicola_proportion           0        1         0.0794   0.147     0    
+15 anguillicola_intensity           10        0.0909    0.337   NA         0.337
+          p25       p50       p75     p100 hist 
+ 1 6334.      6337      6340.     6342     ▇▅▅▅▅
+ 2 2008.      2009      2011      2024     ▇▃▁▁▂
+ 3  188.       236       242       419     ▃▅▇▁▂
+ 4  804        804       804.      822     ▇▁▁▁▁
+ 5  451.       469.      477.      926.    ▇▁▁▁▁
+ 6  152.       173.      187.     1695.    ▇▁▁▁▁
+ 7    8.40       9.00      9.79     17.5   ▇▂▁▁▂
+ 8    1          1         1         1     ▁▁▇▁▁
+ 9  451.       469.      477.      926.    ▇▁▁▁▁
+10  152.       173.      187.     1695.    ▇▁▁▁▁
+11    8.40       9.00      9.79     17.5   ▇▂▁▁▂
+12    0          0         0         1     ▇▁▁▁▂
+13    0.970      0.979     0.994     1     ▂▂▂▇▇
+14    0.00385    0.0167    0.0854    0.495 ▇▁▁▁▁
+15    0.337      0.337     0.337     0.337 ▁▁▇▁▁
+
+#### modified
+ 7 and 72 new values modified in the group and metric tables
+
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             7     
+Number of columns          19    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                0             1  88 396     0        7          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+3 grsa_lfs_code             0             1   1   2     0        2          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable             n_missing complete_rate     mean        sd      p0
+ 1 gr_id                             0         1     5444.    593.      4100   
+ 2 gr_year                           0         1     2022.      1.38    2020   
+ 3 gr_number                         0         1      108.     49.1       48   
+ 4 grsa_sai_id                       0         1      818.      9.08     801   
+ 5 lengthmm                          0         1      679.     61.1      592.  
+ 6 weightg                           0         1      749.    186.       487.  
+ 7 ageyear                           0         1       18.3     4.16      13.2 
+ 8 differentiated_proportion         0         1        1       0          1   
+ 9 f_mean_lengthmm                   1         0.857  693.     52.2      630.  
+10 f_mean_weightg                    1         0.857  756.    203.       487.  
+11 f_mean_age                        1         0.857   17.8     4.28      13.2 
+12 s_in_ys_proportion                0         1        0.511   0.341      0.24
+13 female_proportion                 0         1        0.994   0.00787    0.98
+14 anguillicola_proportion           0         1        0.487   0.0345     0.42
+15 anguillicola_intensity            2         0.714    1.38    0.244      1   
+        p25     p50      p75    p100 hist 
+ 1 5634.    5682    5684     5686    ▁▁▁▁▇
+ 2 2021     2021    2022.    2024    ▂▇▂▂▂
+ 3   71       92     149      173    ▇▇▁▃▇
+ 4  816      823     823      823    ▂▂▁▁▇
+ 5  632.     683.    734.     745.   ▂▅▂▁▇
+ 6  612.     796.    896.     942.   ▅▁▂▂▇
+ 7   15.6     17      20.9     25.1  ▇▇▃▃▃
+ 8    1        1       1        1    ▁▁▇▁▁
+ 9  645.     707.    735.     745.   ▅▁▂▁▇
+10  587.     833.    909.     942.   ▅▁▁▂▇
+11   15.3     16.5    19.4     25.1  ▇▇▃▁▃
+12    0.275    0.34    0.725    1    ▇▂▁▁▃
+13    0.99     1       1        1    ▂▁▃▁▇
+14    0.48     0.5     0.5      0.53 ▂▁▂▇▂
+15    1.32     1.4     1.53     1.64 ▃▁▃▃▇
 
 ### individual metrics
 
+#### modified
+
+18135 entries 123729 lines
+
+```sql
+CREATE TABLE tempo.fix_dates_sweden(
+fi_id integer,
+fi_date date);
+```
+
+```psql
+\copy tempo.fix_dates_sweden FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv' WITH (FORMAT csv, HEADER true);
+```
+COPY 18135
+
+```sql
+UPDATE datawg.t_fishsamp_fisa fisa SET fi_date = tempo.fi_date
+FROM tempo.fix_dates_sweden AS tempo
+WHERE tempo.fi_id = fisa.fi_id; -- 18135
+```
+
+Last file sent by Rob (those fishes have really been changed)
+ 252 and 1403 new values updated in the fish and metric tables
+
+ 
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             252   
+Number of columns          21    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  14    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0             1  28  31     0       24          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   2     0        3          0
+4 fisa_geom               252             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1  13  13     0      252          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date              42         0.833 2021-08-12 2024-06-07 2021-08-20
+2 fi_lastupdate         0         1     2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       11
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable             n_missing complete_rate        mean         sd
+ 1 fi_id                             0        1      3202293.    497118.   
+ 2 fi_year                           0        1         2021.         0.621
+ 3 fisa_sai_id                       0        1          810.         7.14 
+ 4 fisa_x_4326                       0        1           15.7        0.822
+ 5 fisa_y_4326                       0        1           56.8        1.37 
+ 6 lengthmm                         14        0.944      770.       111.   
+ 7 weightg                           0        1         1071.       492.   
+ 8 ageyear                          42        0.833       14.2        4.88 
+ 9 differentiated_proportion        42        0.833        1          0    
+10 female_proportion                43        0.829        1          0    
+11 anguillicola_proportion          42        0.833        0.524      0.501
+12 anguillicola_intensity          242        0.0397       1.6        2.37 
+13 eye_diam_meanmm                 220        0.127       10.5        1.47 
+14 pectoral_lengthmm               220        0.127       44.3        5.53 
+          p0       p25       p50       p75      p100 hist 
+ 1 2092782   3424062.  3424124.  3424187.  3424789   ▂▁▁▁▇
+ 2    2020      2021      2021      2021      2024   ▁▇▁▁▁
+ 3     801       809       809       809       823   ▂▇▁▁▃
+ 4      15.2      15.2      15.2      15.3      17.3 ▇▁▁▁▂
+ 5      56.0      56.1      56.1      56.1      59.5 ▇▁▁▁▂
+ 6     547       682.      764.      844      1110   ▅▇▇▃▁
+ 7     299.      664      1012.     1404.     2430   ▇▇▆▃▂
+ 8       5        11        14        17        27   ▅▆▇▂▂
+ 9       1         1         1         1         1   ▁▁▇▁▁
+10       1         1         1         1         1   ▁▁▇▁▁
+11       0         0         1         1         1   ▇▁▁▁▇
+12       0         0         0.5       2.5       7   ▇▁▂▁▁
+13       4.8      10.0      10.5      11.3      13   ▁▁▂▇▃
+14      25.7      42.1      45.0      46.6      53.3 ▁▁▃▇▃
 
 
+#### New
+
+2717 entries  
+
+ 383 and 2717 new values inserted in the fish and metric tables
+
+
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             383   
+Number of columns          21    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  14    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              383             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fisa_geom               383             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1  13  13     0      383          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2024-05-17 2024-10-21 2024-08-07
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       29
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable             n_missing complete_rate        mean       sd
+ 1 fi_id                             0         1     3898293     111.    
+ 2 fi_year                           0         1        2024       0     
+ 3 fisa_sai_id                       0         1         815.      6.73  
+ 4 fisa_x_4326                       0         1          15.8     0.801 
+ 5 fisa_y_4326                       0         1          57.6     1.63  
+ 6 lengthmm                          0         1         763.    132.    
+ 7 weightg                           0         1        1022.    537.    
+ 8 ageyear                          70         0.817      12.3     5.37  
+ 9 differentiated_proportion         1         0.997       1       0     
+10 female_proportion                 1         0.997       0.997   0.0512
+11 anguillicola_proportion           1         0.997       0.390   0.488 
+12 eye_diam_meanmm                 227         0.407       7.97    2.01  
+13 pectoral_lengthmm               227         0.407      33.6     8.32  
+14 anguillicola_intensity          203         0.470       0.622   1.66  
+           p0        p25        p50        p75      p100 hist 
+ 1 3898102    3898198.   3898293    3898388.   3898484   ▇▇▇▇▇
+ 2    2024       2024       2024       2024       2024   ▁▁▇▁▁
+ 3     809        809        809        822        823   ▇▁▁▁▇
+ 4      15.2       15.2       15.2       15.8       17.3 ▇▃▁▁▃
+ 5      56.1       56.1       56.1       59.2       59.5 ▇▁▁▁▇
+ 6     390        674.       762        854.      1112   ▁▅▇▅▁
+ 7      85.7      658.       961       1373.      3110.  ▅▇▃▁▁
+ 8       5          8         10         17         30   ▇▂▅▁▁
+ 9       1          1          1          1          1   ▁▁▇▁▁
+10       0          1          1          1          1   ▁▁▁▁▇
+11       0          0          0          1          1   ▇▁▁▁▅
+12       4.47       5.95       8.28       9.61      12.0 ▇▅▅▇▃
+13      16.6       25.5       35.1       39.9       53.0 ▅▇▇▇▂
+14       0          0          0          1         12   ▇▁▁▁▁

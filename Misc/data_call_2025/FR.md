@@ -90,50 +90,50 @@ Group variables            None
 6 das_qal_id           11         0.353      2.5      1.64    1        1      2.5     4         4 ▇▁▁▁▇
 
 #### Modified data
-271 and 278 new values updated in the fish and metric tables
+41 values updated in the db
+
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             271   
-Number of columns          12    
+Number of rows             41    
+Number of columns          10    
 _______________________          
 Column type frequency:           
-  character                4     
-  Date                     2     
+  character                3     
+  Date                     1     
   numeric                  6     
 ________________________         
 Group variables            None  
 
 ── Variable type: character ────────────────────────────────────────────────────
-  skim_variable     n_missing complete_rate min max empty n_unique whitespace
-1 fi_comment                0         1      27  38     0        5          0
-2 fi_dts_datasource         0         1       7   7     0        1          0
-3 fi_lfs_code              56         0.793   1   1     0        2          0
-4 fi_id_cou               271         0      NA  NA     0        0          0
+  skim_variable      n_missing complete_rate min max empty n_unique whitespace
+1 das_comment                1         0.976  60 209     0       11          0
+2 das_dts_datasource        31         0.244   7   7     0        3          0
+3 das_qal_comment           41         0      NA  NA     0        0          0
 
 ── Variable type: Date ─────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate min        max        median    
-1 fi_date               0             1 1997-07-20 2024-03-07 1999-04-23
-2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  skim_variable   n_missing complete_rate min        max        median    
+1 das_last_update         0             1 2025-09-11 2025-09-11 2025-09-11
   n_unique
-1       44
-2        1
+1        1
 
 ── Variable type: numeric ──────────────────────────────────────────────────────
-  skim_variable             n_missing complete_rate        mean         sd
-1 fi_id                             0        1      2549725.    42007.    
-2 fi_year                           0        1         2001.        5.58  
-3 fiser_ser_id                      0        1           61.2       0.954 
-4 lengthmm                          2        0.993      129.       73.5   
-5 differentiated_proportion       266        0.0185       0         0     
-6 weightg                         267        0.0148       0.186     0.0306
-           p0         p25         p50         p75        p100 hist 
-1 2488020     2534724.    2534792     2537260.    2712693     ▁▇▁▁▁
-2    1997        1999        1999        1999        2024     ▇▁▁▁▁
-3      61          61          61          61          67     ▇▁▁▁▁
-4      52          92         115         142         505     ▇▂▁▁▁
-5       0           0           0           0           0     ▁▁▇▁▁
-6       0.157       0.162       0.185       0.209       0.219 ▇▁▁▃▃
+  skim_variable n_missing complete_rate     mean        sd        p0      p25
+1 das_id                0         1       4212.    2704.   1741      1751    
+2 das_value             0         1     111800.  560038.      0.0982    0.903
+3 das_ser_id            0         1         57.0     56.0    42        42    
+4 das_year              0         1       2012.       9.75 1994      2004    
+5 das_effort            1         0.976    332.     108.    101       262.   
+6 das_qal_id            0         1          1        0       1         1    
+      p50     p75    p100 hist 
+1 2757    6512       8496 ▇▁▁▁▃
+2    1.55    6.42 3499511 ▇▁▁▁▁
+3   42      42        300 ▇▁▁▁▁
+4 2014    2021       2024 ▃▃▃▃▇
+5  380.    425.       432 ▂▁▂▂▇
+6    1       1          1 ▁▁▇▁▁
+Search:
+
 ### group metrics
 
 #### new group metrics
@@ -246,6 +246,51 @@ Group variables            None
 5 weightg           51223        0.0147       7.97     5.28       0.165       5       7       9      54 ▇▂▁▁▁
 
 #### Modified 
+
+271 and 278 new values updated in the fish and metric tables
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             271   
+Number of columns          12    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  6     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0         1      27  38     0        5          0
+2 fi_dts_datasource         0         1       7   7     0        1          0
+3 fi_lfs_code              56         0.793   1   1     0        2          0
+4 fi_id_cou               271         0      NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 1997-07-20 2024-03-07 1999-04-23
+2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1       44
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable             n_missing complete_rate        mean         sd
+1 fi_id                             0        1      2549725.    42007.    
+2 fi_year                           0        1         2001.        5.58  
+3 fiser_ser_id                      0        1           61.2       0.954 
+4 lengthmm                          2        0.993      129.       73.5   
+5 differentiated_proportion       266        0.0185       0         0     
+6 weightg                         267        0.0148       0.186     0.0306
+           p0         p25         p50         p75        p100 hist 
+1 2488020     2534724.    2534792     2537260.    2712693     ▁▇▁▁▁
+2    1997        1999        1999        1999        2024     ▇▁▁▁▁
+3      61          61          61          61          67     ▇▁▁▁▁
+4      52          92         115         142         505     ▇▂▁▁▁
+5       0           0           0           0           0     ▁▁▇▁▁
+6       0.157       0.162       0.185       0.209       0.219 ▇▁▁▃▃
 
  56 and 56 new values updated in the fish and metric tables
 
@@ -606,12 +651,14 @@ Deleted lines :
 
 #### updated individual metrics
 
- 59 and 81 new values updated in the fish and metric tables
+OK checked 375 lines (Guirec => OK fixed from Earlier Error)
+
+375 and 707 new values updated in the fish and metric tables
 
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             59    
+Number of rows             375   
 Number of columns          11    
 _______________________          
 Column type frequency:           
@@ -621,34 +668,41 @@ Column type frequency:
 ________________________         
 Group variables            None  
 
-── Variable type: character ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+── Variable type: character ────────────────────────────────────────────────────
   skim_variable     n_missing complete_rate min max empty n_unique whitespace
-1 fi_comment                0             1  23  23     0        1          0
-2 fi_dts_datasource         0             1   7   7     0        1          0
-3 fi_lfs_code              59             0  NA  NA     0        0          0
-4 fi_id_cou                59             0  NA  NA     0        0          0
+1 fi_comment                0       1        23  26     0        2          0
+2 fi_dts_datasource         0       1         7   7     0        1          0
+3 fi_lfs_code             373       0.00533   1   1     0        1          0
+4 fi_id_cou               374       0.00267  12  12     0        1          0
 
-── Variable type: Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate min        max        median     n_unique
-1 fi_date               0             1 1995-09-13 1996-10-17 1995-09-18        7
-2 fi_lastupdate         0             1 2025-09-09 2025-09-09 2025-09-09        1
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 1995-09-13 2023-09-19 1999-09-15
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       71
+2        1
 
-── Variable type: numeric ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate    mean     sd     p0      p25      p50     p75   p100 hist 
-1 fi_id                 0         1     290564  17.2   290535 290550.  290564   290578. 290593 ▇▇▇▇▇
-2 fi_year               0         1       1995.  0.492   1995   1995     1995     1996    1996 ▇▁▁▁▅
-3 fiser_ser_id          0         1        214   0        214    214      214      214     214 ▁▁▇▁▁
-4 lengthmm              0         1        380. 51.5      314    353      370      392.    580 ▇▇▁▁▁
-5 weightg              37         0.373    102. 70.8       51     65.8     75.5     88     331 ▇▁▁▁▁
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate    mean         sd     p0      p25
+1 fi_id                 0         1     305739. 177392.    290535 290628. 
+2 fi_year               0         1       2000.      4.18    1995   1996  
+3 fiser_ser_id          0         1        214.      0.258    214    214  
+4 lengthmm              0         1        381.     66.6      111    350  
+5 weightg              43         0.885    107.     86.4       14     71.8
+     p50     p75    p100 hist 
+1 291741 293750. 2727791 ▇▁▁▁▁
+2   1999   2002     2023 ▇▃▁▁▁
+3    214    214      219 ▇▁▁▁▁
+4    366    385      722 ▁▅▇▁▁
+5     84    100      757 ▇▁▁▁▁
 
 #### new individual metrics
-
-6342 and 10070 new values inserted in the fish and metric tables
-
+ 62664 and 106169 new values inserted in the fish and metric tables
 ── Data Summary ────────────────────────
                            Values
 Name                       datadb
-Number of rows             6342  
+Number of rows             62664 
 Number of columns          13    
 _______________________          
 Column type frequency:           
@@ -658,27 +712,64 @@ Column type frequency:
 ________________________         
 Group variables            None  
 
-── Variable type: character ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+── Variable type: character ────────────────────────────────────────────────────
   skim_variable     n_missing complete_rate min max empty n_unique whitespace
-1 fi_comment             6342         0      NA  NA     0        0          0
-2 fi_dts_datasource         0         1       7   7     0        1          0
-3 fi_lfs_code            4921         0.224   1   1     0        2          0
-4 fi_id_cou              1168         0.816   8  12     0     5174          0
+1 fi_comment            62664             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code           62664             0  NA  NA     0        0          0
+4 fi_id_cou                 0             1   4  10     0    62664          0
 
-── Variable type: Date ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable n_missing complete_rate min        max        median     n_unique
-1 fi_date               0             1 2021-07-26 2024-10-17 2024-09-02       69
-2 fi_lastupdate         0             1 2025-09-09 2025-09-09 2025-09-09        1
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2002-05-27 2023-11-06 2017-07-11
+2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1      707
+2        1
 
-── Variable type: numeric ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
-  skim_variable     n_missing complete_rate       mean       sd         p0        p25       p50        p75      p100 hist 
-1 fi_id                     0        1      3576192.   1831.    3573022    3574607.   3576192.  3577778.   3579363   ▇▇▇▇▇
-2 fi_year                   0        1         2024.      0.570    2021       2024       2024      2024       2024   ▁▁▁▁▇
-3 fiser_ser_id              0        1          257.     56.8       213        217        219       303        376   ▇▁▃▁▂
-4 lengthmm                  0        1          204.    115.         51        122        168       254.       790   ▇▃▁▁▁
-5 weightg                3267        0.485       46.7    96.8         1          4         13        41       1176   ▇▁▁▁▁
-6 eye_diam_meanmm        6015        0.0516       4.70    1.52        1.67       3.61       4.6       5.73      10.6 ▃▇▅▁▁
-7 pectoral_lengthmm      6016        0.0514      17.9     6.47        5.8       13.1       17.2      22.0       36.8 ▃▇▆▂▁
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate       mean       sd         p0
+1 fi_id                     0        1      3720406.   18090.   3689074   
+2 fi_year                   0        1         2017.       4.15    2002   
+3 fiser_ser_id              0        1          278.      63.9      213   
+4 lengthmm                  0        1          244.     137.        50   
+5 weightg               20648        0.670       65.3    122.         1   
+6 eye_diam_meanmm       61919        0.0119       4.83     1.62       1.46
+7 pectoral_lengthmm     61920        0.0119      19.0      6.76       4.93
+         p25        p50        p75      p100 hist 
+1 3704740.   3720406.   3736071.   3751737   ▇▇▇▇▇
+2    2013       2017       2020       2023   ▁▁▆▆▇
+3     218        301        306        376   ▇▁▅▁▃
+4     141        208        320       1242   ▇▃▁▁▁
+5       5         18         68       1735   ▇▁▁▁▁
+6       3.75       4.61       5.73      24.5 ▇▂▁▁▁
+7      14.0       18         22.7       61.2 ▆▇▂▁▁
+
+
+I've verified the following so I think it went well despite the output, the last fish it there :
+And I don't have any new fish ???? I think most fishes were not changed....
+
+```sql
+SELECT * FROM datawg.t_fishseries_fiser WHERE fi_id_cou = 'Ndie_40585'
+
+```
+
+|fi_id|fi_date|fi_year|fi_comment|fi_lastupdate|fi_dts_datasource|fi_lfs_code|fiser_ser_id|fi_id_cou|
+|-----|-------|-------|----------|-------------|-----------------|-----------|------------|---------|
+|3814401|2022-10-06|2022||2025-09-10|dc_2025||216|Ndie_40585|
+
+
+```sql
+SELECT count(*) FROM datawg.t_fishseries_fiser 
+JOIN datawg.t_series_ser ON ser_id = fiser_ser_id
+WHERE fi_dts_datasource = 'dc_2025' 
+AND ser_cou_code = 'FR'
+AND fi_lsf_code 
+```
+
+> 125715
+
+
 
 ## Annex 3
 
@@ -888,6 +979,12 @@ Group variables            None
 
 ### individual metrics
 
+#### delete
+514 entries
+ 514 values deleted from fish table, cascade delete on metrics => OK
+
+
+#### new
 431 and 2514 new values inserted in the fish and metric tables
 
 ── Data Summary ────────────────────────
@@ -927,6 +1024,111 @@ Group variables            None
 8 eye_diam_meanmm                           18         0.958       7.42    1.36        3.3       6.51       7.3       8.15      12.7 ▁▇▇▂▁
 9 pectoral_lengthmm                         21         0.951      27.4     7.15       14        21.2       27.6      31.7       61.8 ▆▇▃▁▁
 
+Second round after delete
+
+256 and 857 new values inserted in the fish and metric tables
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             256   
+Number of columns          13    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  7     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              255       0.00391  37  37     0        1          0
+2 fi_dts_datasource         0       1         7   7     0        1          0
+3 fi_lfs_code               0       1         1   1     0        1          0
+4 fi_id_cou               256       0        NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2015-12-04 2016-02-19 2016-02-01
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1       12
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate       mean     sd         p0
+1 fi_id                     0         1     3936112.    74.0  3935984   
+2 fi_year                   0         1        2015      0       2015   
+3 fiser_ser_id              0         1         195      0        195   
+4 weightg                   1         0.996     367.   253.        60   
+5 eye_diam_meanmm          83         0.676       7.93   1.26       4.35
+6 pectoral_lengthmm        81         0.684      29.1    7.11      11.2 
+7 lengthmm                  2         0.992     562.   132.       323   
+         p25       p50       p75      p100 hist 
+1 3936048.   3936112.  3936175.  3936239   ▇▇▇▇▇
+2    2015       2015      2015      2015   ▁▁▇▁▁
+3     195        195       195       195   ▁▁▇▁▁
+4     146.       305       514.     1181   ▇▅▃▁▁
+5       7.05       7.9       8.7      11.2 ▁▅▇▅▂
+6      24.2       29.5      33.7      49.8 ▂▆▇▃▁
+7     469.       566       662.      883   ▇▆▇▆▁
+
+
+
+
+
+#### modified
+ 3818 and 17922 new values updated in the fish and metric tables
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             3818  
+Number of columns          15    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  9     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0             1  22  47     0        5          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        1          0
+4 fi_id_cou              3818             0  NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 1997-02-15 2024-05-14 2021-12-05
+2 fi_lastupdate         0             1 2025-09-10 2025-09-10 2025-09-10
+  n_unique
+1       90
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable                      n_missing complete_rate        mean
+1 fi_id                                      0         1     2910628.   
+2 fi_year                                    0         1        2021.   
+3 fiser_ser_id                               0         1         223.   
+4 eye_diam_meanmm                         2411         0.369       7.12 
+5 pectoral_lengthmm                       2412         0.368      24.4  
+6 lengthmm                                  41         0.989     418.   
+7 weightg                                   44         0.988     153.   
+8 method_sex_(1=visual,0=use_length)        39         0.990       0    
+9 female_proportion                         39         0.990       0.263
+        sd         p0        p25        p50        p75      p100 hist 
+1 7710.    2821152    2910499.   2911454.   2912408.   2913362   ▁▁▁▁▇
+2    1.47     1996       2021       2021       2021       2023   ▁▁▁▁▇
+3    2.17      195        223        223        223        223   ▁▁▁▁▇
+4    1.07        2.95       6.45       7.02       7.58      12.6 ▁▆▇▁▁
+5    5.47       10.1       21.0       23.0       26.6       53.2 ▁▇▂▁▁
+6   88.4       226        361        394        456       1034   ▇▇▁▁▁
+7  153.         15         84        111        173       2741   ▇▁▁▁▁
+8    0           0          0          0          0          0   ▁▁▇▁▁
+9    0.440       0          0          0          1          1   ▇▁▁▁▃
 
 ## Annex 4
 

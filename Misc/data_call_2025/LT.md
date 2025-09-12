@@ -3,71 +3,501 @@
 -----------------------------------------------------------
 
 ## Annex 1
-
-### series
-
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
+No recrutment series
 ## Annex 2
 
-### series
 
+### series
+9 values updated in the db
+LT_total > LT_Lith
+1 new series from the river outside the lake added.
+Called RkerY (along with KerY and KreY)
+This one only has group metrics for one year.
 ### dataseries
 
+Note : Cédric I have put the missing lines (automatically filled in)
+with as das_qal_id 0 (missing data).
+Had to change KerY to KreY as there was a duplicate
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             49    
+Number of columns          10    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  6     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min max empty n_unique whitespace
+1 das_comment               45        0.0816  32  37     0        2          0
+2 das_dts_datasource         0        1        7   7     0        1          0
+3 das_qal_comment           49        0       NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable   n_missing complete_rate min        max        median    
+1 das_last_update         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate       mean     sd    p0     p25   p50
+1 das_id                0        1      10082      14.3   10058 10070   10082
+2 das_value            45        0.0816    47.8    40.1      10    15.2    46
+3 das_ser_id            0        1        399.     32.3     344   407     408
+4 das_year              0        1       2019.      3.13   2015  2016    2018
+5 das_effort           45        0.0816    12.8     8.69      1    10.8    14
+6 das_qal_id            0        1          0.0816  0.277     0     0       0
+      p75  p100 hist 
+1 10094   10106 ▇▇▇▇▇
+2    78.5    89 ▇▁▁▁▇
+3   427     428 ▅▁▁▇▆
+4  2022    2024 ▇▇▃▂▆
+5    16      22 ▃▁▁▇▃
+6     0       1 ▇▁▁▁▁
 
 ### group metrics
+
+Cédric : Changed kertY to kreY 
+The first instance of KreY is changed to RkerY
+
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             4     
+Number of columns          18    
+_______________________          
+Column type frequency:           
+  character                2     
+  Date                     1     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                4             0  NA  NA     0        0          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 gr_id                                                         0          1   
+ 2 gr_year                                                       0          1   
+ 3 gr_number                                                     0          1   
+ 4 grser_ser_id                                                  0          1   
+ 5 lengthmm                                                      0          1   
+ 6 weightg                                                       0          1   
+ 7 ageyear                                                       0          1   
+ 8 anguillicola_intensity                                        0          1   
+ 9 f_mean_lengthmm                                               0          1   
+10 f_mean_weightg                                                0          1   
+11 f_mean_age                                                    0          1   
+12 method_sex_(1=visual,0=use_length)                            0          1   
+13 method_anguillicola_(1=stereomicroscope,0=visual_obs)         3          0.25
+14 female_proportion                                             0          1   
+15 anguillicola_proportion                                       0          1   
+       mean      sd     p0      p25      p50      p75    p100 hist 
+ 1 6376.     1.29   6374   6375.    6376.    6376.    6377    ▇▇▁▇▇
+ 2 2024      0      2024   2024     2024     2024     2024    ▁▁▇▁▁
+ 3   47.8   40.1      10     15.2     46       78.5     89    ▇▁▁▁▇
+ 4  397.    36.5     344    391.     408.     413      428    ▃▁▁▇▃
+ 5  552.    31.4     525    532.     544.     564.     596    ▇▁▃▁▃
+ 6  315.    56.6     275.   287.     294.     322.     399    ▇▁▁▁▂
+ 7    9.4    3.03      6.4    7.52     8.9     10.8     13.4  ▇▇▇▁▇
+ 8    4.42   2.33      1      3.92     5.35     5.85     6    ▃▁▁▃▇
+ 9  552.    31.4     525    532.     544.     564.     596    ▇▁▃▁▃
+10  315.    56.6     275.   287.     294.     322.     399    ▇▁▁▁▂
+11    9.4    3.03      6.4    7.52     8.9     10.8     13.4  ▇▇▇▁▇
+12    1      0         1      1        1        1        1    ▁▁▇▁▁
+13    0     NA         0      0        0        0        0    ▁▁▇▁▁
+14    1      0         1      1        1        1        1    ▁▁▇▁▁
+15    0.508  0.0727    0.4    0.498    0.535    0.545    0.56 ▂▁▁▁▇
+
+As a second step I have deleted KreY an inserted it as RkerY
+All fixed now !
 
 
 ### individual metrics
 
+Confirmed by Linas that all is good, only KerY sampled this year.
+191 and 2011 new values inserted in the fish and metric tables
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             191   
+Number of columns          20    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  14    
+________________________         
+Group variables            None  
 
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              191         0      NA  NA     0        0          0
+2 fi_dts_datasource         0         1       7   7     0        1          0
+3 fi_lfs_code               0         1       1   1     0        1          0
+4 fi_id_cou                27         0.859   1   2     0       89          0
 
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date             181        0.0524 2024-05-15 2024-05-15 2024-05-15
+2 fi_lastupdate         0        1      2025-09-12 2025-09-12 2025-09-12
+  n_unique
+1        1
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0         1    
+ 2 fi_year                                                       0         1    
+ 3 fiser_ser_id                                                  0         1    
+ 4 lengthmm                                                      0         1    
+ 5 weightg                                                       0         1    
+ 6 ageyear                                                       0         1    
+ 7 eye_diam_meanmm                                               0         1    
+ 8 pectoral_lengthmm                                             0         1    
+ 9 differentiated_proportion                                     0         1    
+10 method_sex_(1=visual,0=use_length)                            0         1    
+11 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0         1    
+12 female_proportion                                             0         1    
+13 anguillicola_proportion                                       0         1    
+14 anguillicola_intensity                                       90         0.529
+          mean      sd      p0      p25       p50      p75    p100 hist 
+ 1 3936591      55.3   3936496 3936544. 3936591   3936638. 3936686 ▇▇▇▇▇
+ 2    2024       0        2024    2024     2024      2024     2024 ▁▁▇▁▁
+ 3     417.     10.1       407     408      408       428      428 ▇▁▁▁▇
+ 4     560.    102.        360     480      570       640      810 ▅▇▇▆▂
+ 5     341.    195.         71     179      324       460      900 ▇▅▅▂▁
+ 6       6.57    2.80        3       5        5.5       8       26 ▇▃▁▁▁
+ 7      14.4    10.6         3       5        7        24       50 ▇▂▅▁▁
+ 8      15.1     7.85        4       8       14        22       40 ▇▃▃▂▁
+ 9       0       0           0       0        0         0        0 ▁▁▇▁▁
+10       1       0           1       1        1         1        1 ▁▁▇▁▁
+11       0.948   0.223       0       1        1         1        1 ▁▁▁▁▇
+12       1       0           1       1        1         1        1 ▁▁▇▁▁
+13       0.529   0.500       0       0        1         1        1 ▇▁▁▁▇
+14       5.36    4.20        1       3        4         6       26 ▇▂▁▁▁
 ## Annex 3
 
 ### series
 
 ### dataseries
+Note : Cédric I have put the missing lines (automatically filled in)
+with as das_qal_id 0 (missing data).
 
+ 28 new values inserted in the database
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             28    
+Number of columns          10    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  6     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min max empty n_unique whitespace
+1 das_comment               24         0.143  80 102     0        3          0
+2 das_dts_datasource         0         1       7   7     0        1          0
+3 das_qal_comment           28         0      NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable   n_missing complete_rate min        max        median    
+1 das_last_update         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate     mean     sd   p0    p25   p50    p75
+1 das_id                0         1     9962.     8.23  9948 9955.  9962. 9968. 
+2 das_value            24         0.143   52     35.4     22   27.2   43    67.8
+3 das_ser_id            0         1      371.    33.8    348  349    350   423  
+4 das_year              0         1     2018.     3.25  2015 2016   2017  2020. 
+5 das_effort           28         0      NaN     NA       NA   NA     NA    NA  
+6 das_qal_id            0         1        0.143  0.356    0    0      0     0  
+  p100 hist   
+1 9975 "▇▇▇▇▇"
+2  100 "▇▁▃▁▃"
+3  423 "▇▁▁▁▃"
+4 2024 "▇▇▂▁▅"
+5   NA " "    
+6    1 "▇▁▁▁▁"
 
 ### group metrics
 
+> Cedric fixed S in YS proportion SiesS 72 => 0.72 as this should have been a proportion
+ 4 and 55 new values inserted in the group and metric tables
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             4     
+Number of columns          23    
+_______________________          
+Column type frequency:           
+  character                2     
+  Date                     1     
+  numeric                  20    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                0             1  21  21     0        1          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 gr_id                                                         0          1   
+ 2 gr_year                                                       0          1   
+ 3 gr_number                                                     0          1   
+ 4 grser_ser_id                                                  0          1   
+ 5 lengthmm                                                      0          1   
+ 6 weightg                                                       0          1   
+ 7 ageyear                                                       0          1   
+ 8 differentiated_proportion                                     0          1   
+ 9 anguillicola_intensity                                        0          1   
+10 f_mean_lengthmm                                               0          1   
+11 f_mean_weightg                                                0          1   
+12 f_mean_age                                                    0          1   
+13 s_in_ys_proportion                                            0          1   
+14 method_sex_(1=visual,0=use_length)                            0          1   
+15 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0          1   
+16 female_proportion                                             0          1   
+17 anguillicola_proportion                                       0          1   
+18 m_mean_lengthmm                                               3          0.25
+19 m_mean_weightg                                                3          0.25
+20 m_mean_ageyear                                                3          0.25
+       mean      sd      p0      p25      p50      p75    p100 hist 
+ 1 6294.     1.29   6292    6293.    6294.    6294.    6295    ▇▇▁▇▇
+ 2 2024      0      2024    2024     2024     2024     2024    ▁▁▇▁▁
+ 3   52.2   35.1      23      27.5     43       67.8    100    ▇▁▃▁▃
+ 4  350.     1.29    348     349.     350.     350.     351    ▇▇▁▇▇
+ 5  707.    13.2     688     702.     712.     716      716    ▃▁▁▃▇
+ 6  710.    72.5     636     664.     700      746      803    ▇▇▇▁▇
+ 7   17.2    4.78     10.2    16.1     19.2     20.2     20.3  ▃▁▁▃▇
+ 8    0      0         0       0        0        0        0    ▁▁▇▁▁
+ 9    4.45   0.929     3.3     3.9      4.6      5.15     5.3  ▃▃▁▁▇
+10  710.    17.6     688     702.     712.     720.     730    ▇▁▇▇▇
+11  716.    75.9     636     664.     714.     766.     803    ▇▇▁▇▇
+12   16.1    4.31     10.2    14.6     17.0     18.6     20.2  ▇▁▇▇▇
+13    0.648  0.147     0.45    0.585    0.675    0.738    0.79 ▇▁▇▇▇
+14    1      0         1       1        1        1        1    ▁▁▇▁▁
+15    0      0         0       0        0        0        0    ▁▁▇▁▁
+16    0.99   0.0200    0.96    0.99     1        1        1    ▂▁▁▁▇
+17    0.725  0.0238    0.69    0.72     0.735    0.74     0.74 ▃▁▁▃▇
+18  414     NA       414     414      414      414      414    ▁▁▇▁▁
+19  138     NA       138     138      138      138      138    ▁▁▇▁▁
+20   16     NA        16      16       16       16       16    ▁▁▇▁▁
 
 ### individual metrics
 
+ 208 and 2238 new values inserted in the fish and metric tables
+
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             208   
+Number of columns          20    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  14    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              208             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fi_id_cou               208             0  NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date               0             1 2024-05-15 2024-09-15 2024-05-15
+2 fi_lastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        2
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0         1    
+ 2 fi_year                                                       0         1    
+ 3 fiser_ser_id                                                  0         1    
+ 4 lengthmm                                                      0         1    
+ 5 weightg                                                       0         1    
+ 6 ageyear                                                       0         1    
+ 7 eye_diam_meanmm                                               0         1    
+ 8 pectoral_lengthmm                                             0         1    
+ 9 differentiated_proportion                                     0         1    
+10 anguillicola_intensity                                       50         0.760
+11 method_sex_(1=visual,0=use_length)                            0         1    
+12 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0         1    
+13 female_proportion                                             0         1    
+14 anguillicola_proportion                                       0         1    
+          mean       sd        p0        p25      p50      p75      p100 hist 
+ 1 3897790.     60.2    3897686   3897738.   3897790. 3897841. 3897893   ▇▇▇▇▇
+ 2    2024       0         2024      2024       2024     2024     2024   ▁▁▇▁▁
+ 3     349.      1.30       348       348        349      351      351   ▇▂▁▂▅
+ 4     712.     98.1        398       660        718.     765.    1035   ▁▂▇▂▁
+ 5     739.    285.         120       578.       718.     874.    2206   ▃▇▂▁▁
+ 6      14.9     6.58         6        10         12       21       39   ▇▃▃▁▁
+ 7       8.19    1.38         4.6       7.24       8        9       13.2 ▁▇▆▂▁
+ 8      32.4     5.87        18        28         32       36       58   ▂▇▅▁▁
+ 9       0       0            0         0          0        0        0   ▁▁▇▁▁
+10       7.25    4.08         1         4          8       10       21   ▇▇▃▁▁
+11       1       0            1         1          1        1        1   ▁▁▇▁▁
+12       0       0            0         0          0        0        0   ▁▁▇▁▁
+13       0.995   0.0693       0         1          1        1        1   ▁▁▁▁▇
+14       0.769   0.422        0         1          1        1        1   ▂▁▁▁▇
 
 
 ## Annex 4
 
+ 13 new values inserted in the database
+
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             13    
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0         1       7   8     0        2          0
+ 2 eel_cou_code              0         1       2   2     0        1          0
+ 3 eel_lfs_code              0         1       1   2     0        4          0
+ 4 eel_hty_code              0         1       1   2     0        4          0
+ 5 eel_area_division         6         0.538   6   6     0        1          0
+ 6 eel_qal_comment          13         0      NA  NA     0        0          0
+ 7 eel_comment               5         0.615  30  34     0        2          0
+ 8 eel_missvaluequal         5         0.615   2   2     0        1          0
+ 9 eel_datasource            0         1       7   7     0        1          0
+10 eel_dta_code              0         1       6   6     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median    
+1 eel_datelastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate    mean       sd     p0    p25    p50
+1 eel_id                0         1     608728     3.89  608722 608725 608728
+2 eel_typ_id            0         1          4     0          4      4      4
+3 eel_year              0         1       2024.    0.480   2023   2023   2024
+4 eel_value             8         0.385   1901. 1379.        38   1435   2041
+5 eel_qal_id            0         1          1     0          1      1      1
+     p75   p100 hist 
+1 608731 608734 ▇▅▇▅▇
+2      4      4 ▁▁▇▁▁
+3   2024   2024 ▃▁▁▁▇
+4   2127   3863 ▃▃▇▁▃
+5      1      1 ▁▁▇▁▁
+
 
 ## Annex 5
+Note : I had to remove some duplicates
+ 19 new values inserted in the database
+ ── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             19    
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0         1       7   7     0        1          0
+ 2 eel_cou_code              0         1       2   2     0        1          0
+ 3 eel_lfs_code              0         1       1   1     0        3          0
+ 4 eel_hty_code              0         1       1   2     0        4          0
+ 5 eel_area_division         9         0.526   6   6     0        1          0
+ 6 eel_qal_comment          19         0      NA  NA     0        0          0
+ 7 eel_comment              12         0.368  22  34     0        2          0
+ 8 eel_missvaluequal         0         1       2   2     0        2          0
+ 9 eel_datasource            0         1       7   7     0        1          0
+10 eel_dta_code              0         1       6   6     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median    
+1 eel_datelastupdate         0             1 2025-09-11 2025-09-11 2025-09-11
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate    mean     sd     p0     p25    p50
+1 eel_id                0             1 608770   5.63  608761 608766. 608770
+2 eel_typ_id            0             1      6   0          6      6       6
+3 eel_year              0             1   2024.  0.496   2023   2023    2024
+4 eel_value            19             0    NaN  NA         NA     NA      NA
+5 eel_qal_id            0             1      1   0          1      1       1
+      p75   p100 hist   
+1 608774. 608779 "▇▇▆▇▇"
+2      6       6 "▁▁▇▁▁"
+3   2024    2024 "▅▁▁▁▇"
+4     NA      NA " "    
+5      1       1 "▁▁▇▁▁"
 
 
 ## Annex 6
-
-
+Wrong structure but no data : ignoring the file.
+NP are only needed for landings and recr. landings.
 
 ## Annex 7
 
+ 2 new values inserted in the database
 
 
 ## Annex 8
 
+No data as in many other country => we should stop trying to collect these data
+ 1 new values inserted in the database
 
-## Annex 10
+## Annex 9
 
-### samplinginfo
-
-
-### group metrics
-
-
-### individual metrics
+Nothing to do.
 
 
 

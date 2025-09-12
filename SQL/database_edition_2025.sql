@@ -308,6 +308,11 @@ and eel_typ_id in (8,9)
 AND eel_datasource = 'dc_2025'
 AND eel_qal_id = 1  --278
 
+CREATE TABLE tempo.fix_dates_sweden(
+fi_id integer,
+fi_date date);
+
+DELETE FROM tempo.fix_dates_sweden;
 
 -- add missing fao_areas to series, required to assign series to areas in
 -- recruitment analysis
@@ -318,4 +323,26 @@ update datawg.t_series_ser set ser_area_division = '27.3.d' where ser_nameshort 
 update datawg.t_series_ser set ser_area_division = '27.3.d' where ser_nameshort in ('NakkY');
 update datawg.t_series_ser set ser_area_division = '27.7.e' where ser_nameshort in ('BretGY');
 
+
+COPY tempo.fix_dates_sweden
+FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv'
+WITH (FORMAT csv, HEADER true);
+
+
+\copy tempo.fix_dates_sweden FROM 'C:/Users/cedric.briand/Downloads/fi_date_se.csv' WITH (FORMAT csv, HEADER true);
+
+
+UPDATE datawg.t_fishsamp_fisa fisa SET fi_date = tempo.fi_date
+FROM tempo.fix_dates_sweden AS tempo
+WHERE tempo.fi_id = fisa.fi_id;
+
+
+SELECT * FROM datawg.t_fishseries_fiser WHERE fi_id_cou = 'Ndie_40585'
+SELECT count(*) FROM datawg.t_fishseries_fiser 
+JOIN datawg.t_series_ser ON ser_id = fiser_ser_id
+WHERE fi_dts_datasource = 'dc_2025' 
+AND ser_cou_code = 'FR'
+
+
+SELECT * FROM datawg.t_groupseries_grser WHERE grser_ser_id = 344
 
