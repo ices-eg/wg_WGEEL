@@ -124,8 +124,67 @@ Group variables            None
 
 ### individual metrics
 
-I suspect there is a problem with names again, stopping here, mail sent to Linas.
+Confirmed by Linas that all is good, only KerY sampled this year.
+191 and 2011 new values inserted in the fish and metric tables
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             191   
+Number of columns          20    
+_______________________          
+Column type frequency:           
+  character                4     
+  Date                     2     
+  numeric                  14    
+________________________         
+Group variables            None  
 
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment              191         0      NA  NA     0        0          0
+2 fi_dts_datasource         0         1       7   7     0        1          0
+3 fi_lfs_code               0         1       1   1     0        1          0
+4 fi_id_cou                27         0.859   1   2     0       89          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date             181        0.0524 2024-05-15 2024-05-15 2024-05-15
+2 fi_lastupdate         0        1      2025-09-12 2025-09-12 2025-09-12
+  n_unique
+1        1
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0         1    
+ 2 fi_year                                                       0         1    
+ 3 fiser_ser_id                                                  0         1    
+ 4 lengthmm                                                      0         1    
+ 5 weightg                                                       0         1    
+ 6 ageyear                                                       0         1    
+ 7 eye_diam_meanmm                                               0         1    
+ 8 pectoral_lengthmm                                             0         1    
+ 9 differentiated_proportion                                     0         1    
+10 method_sex_(1=visual,0=use_length)                            0         1    
+11 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0         1    
+12 female_proportion                                             0         1    
+13 anguillicola_proportion                                       0         1    
+14 anguillicola_intensity                                       90         0.529
+          mean      sd      p0      p25       p50      p75    p100 hist 
+ 1 3936591      55.3   3936496 3936544. 3936591   3936638. 3936686 ▇▇▇▇▇
+ 2    2024       0        2024    2024     2024      2024     2024 ▁▁▇▁▁
+ 3     417.     10.1       407     408      408       428      428 ▇▁▁▁▇
+ 4     560.    102.        360     480      570       640      810 ▅▇▇▆▂
+ 5     341.    195.         71     179      324       460      900 ▇▅▅▂▁
+ 6       6.57    2.80        3       5        5.5       8       26 ▇▃▁▁▁
+ 7      14.4    10.6         3       5        7        24       50 ▇▂▅▁▁
+ 8      15.1     7.85        4       8       14        22       40 ▇▃▃▂▁
+ 9       0       0           0       0        0         0        0 ▁▁▇▁▁
+10       1       0           1       1        1         1        1 ▁▁▇▁▁
+11       0.948   0.223       0       1        1         1        1 ▁▁▁▁▇
+12       1       0           1       1        1         1        1 ▁▁▇▁▁
+13       0.529   0.500       0       0        1         1        1 ▇▁▁▁▇
+14       5.36    4.20        1       3        4         6       26 ▇▂▁▁▁
 ## Annex 3
 
 ### series

@@ -18,7 +18,7 @@ params:
     value: 1960
     input: slider
     min: 1900
-    max: 2024
+    max: 2025
     step: 1
     sep: ""
   country:   
