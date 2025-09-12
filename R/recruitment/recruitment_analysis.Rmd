@@ -1205,14 +1205,14 @@ figure5 <- g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=
 		#annotate("text",x=dat$year[length(dat$year)-2],y=datNS$p_std_1960_1979[length(datNS$p_std_1960_1979)],size=5,label=labelNS)+		
 		scale_y_log10(name=expression(frac(p,bar(p)[1960-1979])~' log scale'),
 				#limits=c(0.005,10),
-				breaks=c(0.01,0.1,1,10),
+				breaks=c(1,10,100,1000),
 				labels=c("1%","10%","100%","1000%"))+
 		theme_bw()+
 		theme(legend.box =NULL,
 				legend.key = element_rect(colour = NA, fill = 'white'),
 				legend.text = element_text(size = 10, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min,ymax=p_std_1960_1979_max,fill=area),alpha=.3)
+				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min * 100,ymax=p_std_1960_1979_max * 1000,fill=area),alpha=.3)
 
 
 figure5
