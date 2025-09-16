@@ -45,7 +45,9 @@
 
 
 ## Annex 4
-* 4 new values inserted in the database
+* 4 new values inserted in the database (first integration)
+* 1 new values inserted in the database (second integration)
+TO DO: ONE OF THE 4 NEW VALUES IN THE FIRST INTEGRATION WAS STAGE G BUT SHOULD HAVE BEEN YS. THE DATA HAS BEEN ENTERED AS YS DURING THE SECOND INTEGRATION BUT THE G ENTRY OF 280 000 kg IN 2024 NEEDS TO BE DELETED. 
 
 ## Annex 5
 * no Annex
