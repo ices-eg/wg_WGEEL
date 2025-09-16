@@ -65,10 +65,10 @@ TO DO: ONE OF THE 4 NEW VALUES IN THE FIRST INTEGRATION WAS STAGE G BUT SHOULD H
 ## Annex 9
 
 ### samplinginfo
-* missing (email sent to sukran)
+* 6 new values inserted in the database
 
 ### group metrics
-* data to be integrated once sampling info is there
+*  18 and 99 new values inserted in the group and metric tables
 
 ### individual metrics
 
