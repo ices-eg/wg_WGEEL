@@ -2638,7 +2638,6 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
 write_updated_individual_metrics <- function(path, conn, type="series"){
   metrics_ind <- tr_metrictype_mty %>% 
     filter(mty_group!="group") %>% select(mty_name,mty_id)
-  
   updated <- readxlTemplate(path = path, sheet = 1, skip = 1)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
@@ -2656,8 +2655,8 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
   sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
-          (fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
-          (i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
+          (fi_date,fisa_x_4326,fisa_y_4326,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
+          (i.fi_date::date,i.fisa_x_4326,i.fisa_y_4326,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
           ind_tmp i
           WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
                          .con=conn)
