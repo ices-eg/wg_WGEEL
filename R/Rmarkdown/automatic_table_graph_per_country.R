@@ -141,7 +141,7 @@ for (cou in c("IE","BE")){
 
  
 
-for (cou in c("TR","HR","TN","SI","GR")){
+for (cou in c("TR","HR","TN","SI","GR", "AL")){
 	rmarkdown::render("automatic_tables_graphs_per_country.Rmd", 	
 			output_file = cou,
 			output_dir =str_c("./",CY), 

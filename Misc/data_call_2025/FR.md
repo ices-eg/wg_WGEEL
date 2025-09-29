@@ -54,6 +54,19 @@ Group variables            None
 7 ser_qal_id                0             1   0    NA   0      0      0      0      0    "▁▁▇▁▁"
 8 ser_distanceseakm         1             0 NaN    NA  NA     NA     NA     NA     NA    " "    
 9 ser_sam_gear              0             1 242    NA 242    242    242    242    242    "▁▁▇▁▁"
+
+
+
+set a qal_id and das_qal_id for BretGY
+```
+select * from datawg.t_series_ser tss where tss.ser_nameshort ='BretGY';
+select * from  datawg.t_dataseries_das tdd  where das_ser_id = 485 and das_qal_id is null;
+update datawg.t_series_ser set ser_qal_id = 3, ser_qal_comment = 'inclusion to be decided during benchmark' where ser_nameshort ='BretGY';
+update datawg.t_dataseries_das tdd  set das_qal_id = 1 where das_ser_id = 485 and das_qal_id is null;
+select * from datawg.t_series_ser tss where tss.ser_nameshort ='BretGY';
+select * from  datawg.t_dataseries_das tdd  where das_ser_id = 485 and das_qal_id is null;
+```
+
 ### dataseries
 #### New data
  17 new values inserted in the database

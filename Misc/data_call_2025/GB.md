@@ -887,9 +887,245 @@ no data
 
 
 ### group metrics
+- remove a few lines that were not from annex 9 but from annex 3
+- fixed percentages to proportions
+-  4 and 40 new values inserted in the group and metric tables
 
+```
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             4     
+Number of columns          20    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  16    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                4             0  NA  NA     0        0          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+3 grsa_lfs_code             0             1   1   1     0        2          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 gr_lastupdate         0             1 2025-09-29 2025-09-29 2025-09-29
+  n_unique
+1        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 gr_id                                                         0          1   
+ 2 gr_year                                                       0          1   
+ 3 gr_number                                                     0          1   
+ 4 grsa_sai_id                                                   0          1   
+ 5 lengthmm                                                      0          1   
+ 6 weightg                                                       0          1   
+ 7 differentiated_proportion                                     0          1   
+ 8 anguillicola_intensity                                        0          1   
+ 9 f_mean_lengthmm                                               1          0.75
+10 f_mean_weightg                                                1          0.75
+11 method_sex_(1=visual,0=use_length)                            0          1   
+12 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0          1   
+13 female_proportion                                             0          1   
+14 anguillicola_proportion                                       0          1   
+15 m_mean_lengthmm                                               3          0.25
+16 m_mean_weightg                                                3          0.25
+       mean       sd      p0      p25     p50      p75     p100 hist 
+ 1 6422.      1.29   6420    6421.    6422.   6422.    6423     ▇▇▁▇▇
+ 2 2024.      0.5    2024    2024     2024    2024.    2025     ▇▁▁▁▂
+ 3   81.2    80.7      20      24.5     55.5   112.     194     ▇▃▁▁▃
+ 4  297.      0.957   296     296      296.    297.     298     ▇▁▃▁▃
+ 5  490      82.1     372     470.     514     534.     560     ▃▁▁▃▇
+ 6  229.    104.       96     174      244.    298.     332     ▃▁▃▁▇
+ 7    0.995   0.0100    0.98    0.995    1       1        1     ▂▁▁▁▇
+ 8    6.1     2.54      4.6     4.82     4.95    6.22     9.9   ▇▁▁▁▂
+ 9  529.     28.7     503     514      525     542.     560     ▇▇▁▁▇
+10  273      67.1     200     244.     287     310.     332     ▇▁▁▇▇
+11    1       0         1       1        1       1        1     ▁▁▇▁▁
+12    0       0         0       0        0       0        0     ▁▁▇▁▁
+13    0.745   0.497     0       0.735    0.99    1        1     ▂▁▁▁▇
+14    0.712   0.0559    0.64    0.685    0.72    0.747    0.769 ▇▁▇▇▇
+15  372      NA       372     372      372     372      372     ▁▁▇▁▁
+16   96      NA        96      96       96      96       96     ▁▁▇▁▁
+```
 
 ### individual metrics
+- remove a few lines that were not from annex 9 but from annex 3
+- fixed fisa_x_4326 (updated) that was detected as character instead of double
 
+- 325 and 2600 new values inserted in the fish and metric tables
 
+```
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             325   
+Number of columns          20    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  13    
+________________________         
+Group variables            None  
 
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0             1   2   2     0        1          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fisa_geom               325             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1   2   2     0        1          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date             325             0 Inf        -Inf       NA        
+2 fi_lastupdate         0             1 2025-09-29 2025-09-29 2025-09-29
+  n_unique
+1        0
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0             1
+ 2 fi_year                                                       0             1
+ 3 fisa_sai_id                                                   0             1
+ 4 fisa_x_4326                                                   0             1
+ 5 fisa_y_4326                                                   0             1
+ 6 lengthmm                                                      0             1
+ 7 weightg                                                       0             1
+ 8 differentiated_proportion                                     0             1
+ 9 anguillicola_intensity                                        0             1
+10 method_sex_(1=visual,0=use_length)                            0             1
+11 method_anguillicola_(1=stereomicroscope,0=visual_obs)         0             1
+12 female_proportion                                             0             1
+13 anguillicola_proportion                                       0             1
+          mean       sd         p0        p25        p50        p75       p100
+ 1 3937040      94.0    3936878    3936959    3937040    3937121    3937202   
+ 2    2024.      0.241     2024       2024       2024       2024       2025   
+ 3     297.      0.875      296        296        296        298        298   
+ 4      -6.43    0.0297      -6.48      -6.48      -6.41      -6.41      -6.41
+ 5      54.7     0.0604      54.6       54.6       54.6       54.7       54.7 
+ 6     509.     83.1         35        458        501        556        773   
+ 7     252.    167.          55        150        202        302       1160   
+ 8       0.988   0.110        0          1          1          1          1   
+ 9       6.26    9.79         0          0          3          9         90   
+10       1       0            1          1          1          1          1   
+11       0       0            0          0          0          0          0   
+12       0.908   0.290        0          1          1          1          1   
+13       0.68    0.467        0          0          1          1          1   
+   hist 
+ 1 ▇▇▇▇▇
+ 2 ▇▁▁▁▁
+ 3 ▇▁▁▁▃
+ 4 ▅▁▁▁▇
+ 5 ▇▁▁▁▅
+ 6 ▁▁▅▇▁
+ 7 ▇▃▁▁▁
+ 8 ▁▁▁▁▇
+ 9 ▇▁▁▁▁
+10 ▁▁▇▁▁
+11 ▁▁▇▁▁
+12 ▁▁▁▁▇
+13 ▃▁▁▁▇
+```
+
+- 1861 and 8920 new values updated in the fish and metric tables
+
+```
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             1861  
+Number of columns          25    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  18    
+________________________         
+Group variables            None  
+
+── Variable type: character ────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment                0             1  75 175     0        9          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fisa_geom              1861             0  NA  NA     0        0          0
+5 fi_id_cou              1861             0  NA  NA     0        0          0
+
+── Variable type: Date ─────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median    
+1 fi_date            1861             0 Inf        -Inf       NA        
+2 fi_lastupdate         0             1 2025-09-29 2025-09-29 2025-09-29
+  n_unique
+1        0
+2        1
+
+── Variable type: numeric ──────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate
+ 1 fi_id                                                         0        1     
+ 2 fi_year                                                       0        1     
+ 3 fisa_sai_id                                                   0        1     
+ 4 fisa_x_4326                                                   0        1     
+ 5 fisa_y_4326                                                   0        1     
+ 6 lengthmm                                                      0        1     
+ 7 weightg                                                      40        0.979 
+ 8 ageyear                                                    1353        0.273 
+ 9 anguillicola_intensity                                      294        0.842 
+10 female_proportion                                             0        1     
+11 evex_proportion                                            1690        0.0919
+12 hva_proportion                                             1690        0.0919
+13 differentiated_proportion                                  1761        0.0537
+14 method_sex_(1=visual,0=use_length)                         1761        0.0537
+15 method_anguillicola_(1=stereomicroscope,0=visual_obs)      1621        0.129 
+16 anguillicola_proportion                                    1621        0.129 
+17 eye_diam_meanmm                                            1721        0.0752
+18 pectoral_lengthmm                                          1721        0.0752
+           mean       sd         p0        p25        p50        p75       p100
+ 1 3200748      537.     3199818    3200283    3200748    3201213    3201678   
+ 2    2019.       2.96      2014       2017       2020       2022       2023   
+ 3     297.       0.837      296        296        297        298        298   
+ 4      -6.45     0.0312      -6.48      -6.48      -6.48      -6.41      -6.41
+ 5      54.7      0.0636      54.6       54.6       54.7       54.7       54.7 
+ 6     518.     113.         275        422        510        592       1045   
+ 7     300.     255.          28        130        240        380       2560   
+ 8      13.0      3.17         6         10         13         15         23   
+ 9       6.29     9.18         0          1          3          8        140   
+10       0.973    0.162        0          1          1          1          1   
+11       0.0409   0.199        0          0          0          0          1   
+12       0        0            0          0          0          0          0   
+13       1        0            1          1          1          1          1   
+14       1        0            1          1          1          1          1   
+15       0        0            0          0          0          0          0   
+16       0.712    0.454        0          0          1          1          1   
+17       1        0            1          1          1          1          1   
+18       1        0            1          1          1          1          1   
+   hist 
+ 1 ▇▇▇▇▇
+ 2 ▃▃▅▅▇
+ 3 ▇▁▅▁▅
+ 4 ▇▁▁▁▇
+ 5 ▇▁▁▁▇
+ 6 ▅▇▅▁▁
+ 7 ▇▁▁▁▁
+ 8 ▃▇▇▃▁
+ 9 ▇▁▁▁▁
+10 ▁▁▁▁▇
+11 ▇▁▁▁▁
+12 ▁▁▇▁▁
+13 ▁▁▇▁▁
+14 ▁▁▇▁▁
+15 ▁▁▇▁▁
+16 ▃▁▁▁▇
+17 ▁▁▇▁▁
+18 ▁▁▇▁▁
+```
