@@ -935,6 +935,31 @@ Group variables            None
 4     NA      NA " "    
 5     25      25 "▇▁▁▁▇"
 ```
+
+
+
+
+After the data integration, Y and S for ES_Murc where merged into YS with a SQL$
+query.
+
+```
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'Y' and eel_hty_code = 'C';
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'S' and eel_hty_code = 'C';
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'YS' and eel_hty_code = 'C';
+
+
+update datawg.t_eelstock_eel tee set eel_qal_id = 25, eel_qal_comment ='merge to YS' where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'Y' and eel_hty_code = 'C';
+update datawg.t_eelstock_eel tee set eel_qal_id = 25, eel_qal_comment ='merge to YS' where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'S' and eel_hty_code = 'C';
+update datawg.t_eelstock_eel tee set eel_value = 18833, eel_comment ='sum of Y, S, YS' where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'YS' and eel_hty_code = 'C';
+
+
+
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'Y' and eel_hty_code = 'C';
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'S' and eel_hty_code = 'C';
+select * from datawg.t_eelstock_eel tee where eel_year = 2025 and eel_typ_id =4 and tee.eel_emu_nameshort = 'ES_Murc' and eel_lfs_code = 'YS' and eel_hty_code = 'C';
+```
+
+
 ## Annex 5
 - there were a few duplicates in the template, but exactly the same
 of comment change so we accept the new version
