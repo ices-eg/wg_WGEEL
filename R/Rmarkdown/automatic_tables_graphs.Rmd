@@ -22,6 +22,16 @@ getUsername <- function(){
   return(name)
 }
 #--------------------------------
+addSmallLegend <- function(myPlot, pointSize = 1, textSize = 6, spaceLegend = 1) {
+    myPlot +
+        guides(shape = guide_legend(override.aes = list(size = pointSize)),
+               color = guide_legend(override.aes = list(size = pointSize)),
+               fill = guide_legend(override.aes = list(size = pointSize))) +
+        theme(legend.title = element_text(size = textSize), 
+              legend.text  = element_text(size = textSize),
+              legend.key.size = unit(spaceLegend, "lines"))
+}
+
 
 if (getUsername() == "phja0001") setwd("\\\\storage-og.slu.se\\home$\\phja0001\\My Documents\\Philip\\Researcher SLU\\Eel\\ICES\\2025\\wg_WGEEL_2025\\R\\Rmarkdown")
 if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
@@ -83,6 +93,8 @@ load_package("ggplot2") # for excel
 load_package("gridExtra")
 load_package("colorspace")
 load_package("ggrepel")
+load_package("patchwork")
+
 load_package("viridis")
 load_package("svglite")
 load_package("leaflet.minicharts")
@@ -299,8 +311,18 @@ nb_cou_YS_CY2_rec<-length(unique(landings_YS_rec$eel_cou_code[landings_YS_rec$ee
 - Mean Yellow and Silver eel recreational fisheries for the previous 5 years (`r CY-7`-`r CY-3`) within the EU: `r round(YS_mean_rec_CY3_CY7)`t.
 
 ### Aquaculture
+Data reported in the yearly Data Call are incomplete and WGEEL considers that they are not reliable 
+to track the trend in aquaculture. Till 2016, the WGEEL used to 
+report these figures from other sources, including FAO and FEAP 
+(Federation of European Aquaculture Producers). While those sources
+might not include aquaculture production for restocking, they could still be used
+to inform on the trend. WGEEL comments that, while aquaculture production on itself
+has no impact on the stock, part of the fisheries of wild individuals aim to seed
+the aquaculture, and as such, the demand for aquaculture remains a pressure on the
+stock.
 
-```{r keNumbersAquaculture, results="asis", eval=TRUE, echo=FALSE}
+
+```{r keNumbersAquaculture, results="asis", eval=FALSE, echo=FALSE}
 aqua<-filter_data("aquaculture", typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal))
 select_aqua<-aggregate(aqua$eel_value,by=list(aqua$eel_year),sum,na.rm=T)
 aqua_CY2<-round(select_aqua$x[select_aqua$Group.1==CY-2]/1000,2)
@@ -312,9 +334,6 @@ aqua_cou_CY2<-unique(aqua$eel_cou_code[aqua$eel_year==CY-2 & is.na(aqua$eel_miss
 ```
 
 
-- Eel aquaculture within the EU in `r CY-2`: `r round(aqua_CY2)`t, countries where data were reported: `r  paste(aqua_cou_CY2,sep="", collapse=", ")`
-- Data is shown until 2022 due to delayed reporting. Mean aquaculture for the previous 5 years (`r CY-7`-`r CY-3`) within the EU: `r round(aqua_mean_CY3_CY7)`t
-
 
 ### Release
 
@@ -324,7 +343,6 @@ rel <- filter_data("release",
     life_stage = c("G","QG","Y","S"),
     year=1950:CY-1)%>% dplyr::filter(is.na(eel_missvaluequal))
 
-#rel <- rel %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 select_rel <- aggregate(rel$eel_value,by=list(rel$eel_year,rel$eel_lfs_code),sum,na.rm=T)
 rel_CY_G <- round(sum(select_rel$x[select_rel$Group.1==CY & select_rel$Group.2 %in% c("G","QG")])/10^6,2)
 rel_CY1_G <- round(sum(select_rel$x[select_rel$Group.1==CY-1 & select_rel$Group.2 %in% c("G","QG")])/10^6,2)
@@ -362,7 +380,6 @@ rel_kg <- filter_data("release",
     life_stage = c("G","QG","Y","S"),
     year=1950:CY-1)%>% dplyr::filter(is.na(eel_missvaluequal))
 
-rel_kg <- rel_kg %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 select_rel_kg <- aggregate(rel_kg$eel_value,by=list(rel_kg$eel_year,rel_kg$eel_lfs_code),sum,na.rm=T)
 rel_CY_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1==CY & select_rel_kg$Group.2 %in% c("G","QG")])/10^3,2)
 rel_CY1_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1==CY-1 & select_rel_kg$Group.2 %in% c("G","QG")])/10^3,2)
@@ -498,26 +515,26 @@ titleG <- paste("Time-series of reported commercial glass eel fishery landings (
 
 
 
-title <- paste("Commercial landings for glass eel in all habitats")
-g_raw_Clandings_G<- ggplot(landings3) + 
-    geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-    xlab("year") + 
-    ylab("Glass eel landings (tonnes)")+
-    #ggtitle(title)+
-    scale_fill_manual("Country",values=color_countries2)+
-   theme_bw()
-#print(g_raw_Clandings_G)
-print(g_raw_Clandings_G<- subplot(g_raw_Clandings_G,
-        coeffy=1, # no need to increase the scale
-        minyear=2009, 
-        xmin=1985, 
-        xmax= Inf, 
-        ymin=500,
-        ymax=Inf,
-        ymaxbox=70))
-
-
-g_raw_Clandings_G
+# title <- paste("Commercial landings for glass eel in all habitats")
+# g_raw_Clandings_G<- ggplot(landings3) + 
+#     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
+#     xlab("year") + 
+#     ylab("Glass eel landings (tonnes)")+
+#     #ggtitle(title)+
+#     scale_fill_manual("Country",values=color_countries2)+
+#    theme_bw()
+# #print(g_raw_Clandings_G)
+# print(g_raw_Clandings_G<- subplot(g_raw_Clandings_G,
+#         coeffy=1, # no need to increase the scale
+#         minyear=2009, 
+#         xmin=1985, 
+#         xmax= Inf, 
+#         ymin=500,
+#         ymax=Inf,
+#         ymaxbox=70))
+# 
+# 
+# g_raw_Clandings_G
 
 
 
@@ -621,34 +638,28 @@ cou_string <- get_country(data=landings3)
 titleGcor <- paste0("Time-series of reported or reconstructed commercial glass eel fishery landings (tonnes) by country. To fill data gaps, non-reported countries/years combinations were reconstructed. ", cou_string ," are included, combining information from the Data Call " , CY, " and the WGEEL database updated to " ,CY, ". The inset box shows the proportion of reconstructed landings per year.")
 
 
-g_reconstructed_landings <- ggplot(landings3) + 
+g_reconstructed_landings <- addSmallLegend(ggplot(landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+
     xlab("Year") + ylab("Landings (tonnes)")+
-    coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6/1000)) +
+    coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.3/1000)) +
     scale_fill_manual("Country",values=color_countries4plot)+
     theme_bw()+
-    geom_magnify(from = c(xmin = 2010, xmax = CY, ymin = 0, ymax = 100),
-        to = c(xmin=1990, xmax=2020, ymin=700, ymax=1650), axes="xy")
+    geom_magnify(from = c(xmin = 2010, xmax = CY, ymin = 0, ymax = 75),
+        to = c(xmin=1990, xmax=2020, ymin=1300, ymax=max(landings_year$eel_value * 1.2/1000)), axes="xy") 
+  )
 
 # percentage of original data
-g_percentage_reconstructed <- ggplot(landings3)+
+g_percentage_reconstructed <- addSmallLegend(ggplot(landings3)+
     geom_col(aes(x=eel_year,y=eel_value,fill=!predicted),position='stack')+
     xlab("") + 
     ylab("")+
     scale_fill_manual(name = "Data", values=c("black","grey"),labels=c("Predicted","Raw"))+
-    theme_bw()+     
-  guides(fill = guide_legend(position = "inside")) +       
-    theme(legend.position.inside=c(.5,.6), #The coordinates for legend.position are x- and y- offsets from the bottom-left of the plot, ranging from 0 - 1
-          legend.box.background = element_rect(fill = "transparent", colour = "transparent"))
-
+    theme_bw() )
 
 g3_grob <- ggplotGrob(g_percentage_reconstructed)
-g_combined_landings_G <- g_reconstructed_landings+
-    annotation_custom(g3_grob, 
-        xmin=min(landings3$eel_year), 
-        xmax=max(landings3$eel_year), 
-        ymin=max(landings_year$eel_value)*0.99/1000, 
-        ymax=max(landings_year$eel_value)*1.5/1000)
+g_combined_landings_G <-  g_percentage_reconstructed /
+  g_reconstructed_landings + patchwork::plot_layout(heights = c(1,3))
+
 
 print(g_combined_landings_G)
 
@@ -712,7 +723,7 @@ table3<-table[,c(1,20:ncol(table))]
 cou_text3 <- get_country_table(table3[,-ncol(table3)])
 ka_com_land_YS1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries : ", cou_text1," (to be continued for other countries in next table).", sep=""))
 ka_com_land_YS2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries : ", cou_text2," (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS3 <- kable(format(table3,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries : ", cou_text3,", total.", sep=""))
+ka_com_land_YS3 <- kable(format(table3,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries : ", cou_text3,".", sep=""))
 
 
 ```
@@ -742,7 +753,7 @@ titleY <- paste0("Time-series of reported commercial yellow (Y), silver (S) and 
 g_raw_Clandings_YS<- ggplot(landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     xlab("year") + ylab("Landings (tonnes)")+
-    scale_fill_manual("Country",values=color_countries2)+
+    scale_fill_manual("Country",values=color_countries4)+
     theme_bw()+
    geom_magnify(from = c(xmin = 2010, xmax = CY-1, ymin = 0, ymax = 3500),
        to = c(xmin=1996.5, xmax=CY+3, ymin=9000, ymax=13500), axes="xy")
@@ -821,33 +832,24 @@ cou_string <- get_country(data=landings3)
 titleYcor <- paste0("Time-series of reported and reconstructed commercial yellow (Y), silver (S) and yellow-silver (YS) eel fishery landings (tonnes) 1989-", CY," by country. To fill data gaps, non-reported countries/years combinations were reconstructed. ", cou_string ," are included, combining information from the Data Call ", CY," and the WGEEL database updated to ", CY-1, ". The inset box shows the proportion of reconstructed landings per year.")
 
 
-g_reconstructed_landings <- ggplot(landings3) + 
+g_reconstructed_landings <- addSmallLegend(ggplot(landings3) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code),position='stack')+ 
     xlab("Year") + ylab("Landings (tonnes)")+
-    coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value)*1.6)) +
+    coord_cartesian(expand = FALSE, ylim = c(0, max(landings_year$eel_value))) +
     scale_fill_manual("Country",values=color_countries4plot)+
-    theme_bw()
+    theme_bw())
 
 # percentage of original data
-g_percentage_reconstructed <- ggplot(landings3)+
+g_percentage_reconstructed <- addSmallLegend(ggplot(landings3)+
     geom_col(aes(x=eel_year,y=eel_value,fill=!predicted),position='stack')+
     xlab("") + 
     ylab("")+
     scale_fill_manual(name = "Data", values=c("black","grey"),labels=c("Predicted","Raw"))+
-    theme_bw()+    
-      guides(fill = guide_legend(position = "inside")) +       
-    theme(legend.position.inside=c(.8,.7), #The coordinates for legend.position are x- and y- offsets from the bottom-left of the plot, ranging from 0 - 1
-          legend.box.background = element_rect(fill = "transparent", colour = "transparent"),
-          plot.background = element_rect(colour = "transparent",linewidth = 0))
-
+    theme_bw())
 
 g3_grob <- ggplotGrob(g_percentage_reconstructed)
-g_combined_landings_YS <- g_reconstructed_landings+
-    annotation_custom(g3_grob, 
-        xmin=min(landings3$eel_year) + 5, 
-        xmax=max(landings3$eel_year), 
-        ymin=max(landings_year$eel_value)*0.9, 
-        ymax=max(landings_year$eel_value)*1.6)
+g_combined_landings_YS <- g_percentage_reconstructed /
+  g_reconstructed_landings + patchwork::plot_layout(heights = c(1,3))
 print(g_combined_landings_YS)
 
 ```
@@ -866,7 +868,7 @@ countries restricted the season for recreational fishery in freshwater
 
 
 Recreational glass eel fishery landings decrease from over 1000 tonnes in the early
-1980s, primarily from France, (Figure \@ref(fig:recLandGfig)to values below 5t 
+1980s, primarily from France, (Figure \@ref(fig:recLandGfig) to values below 5 t 
 after 2005, with the inset revealing minimal residual catches that ceased in France
 in 2010 and in Spain in 2023 following regulatory bans.
 
@@ -874,7 +876,7 @@ in 2010 and in Spain in 2023 following regulatory bans.
 Recreational landings of yellow and silver eel combined which summed up to
 `r round(YS_CY2_rec)` t for `r CY-2` (`r nb_cou_YS_CY2_rec` countries reporting)
 and `r round(YS_CY1_rec)` t for `r CY-1`  (`r nb_cou_YS_CY1_rec` countries
-reported - \@ref(fig:recLandYSfig)). France has provided estimation for all freshwater recreational
+reported - Figure \@ref(fig:recLandYSfig)). France has provided estimation for all freshwater recreational
 fisheries in 2006, while for other years, France provided declared catch by
 recreational fishers with gear in public rivers. Sweden provided estimations for
 some years in the past based on questionnaires and calculations from *Statistics Sweden*.
@@ -946,7 +948,7 @@ g_raw_Rlandings_G <- ggplot(filter(landings3,eel_value>0)) +
     ylab("Landings (tonnes)")+
     scale_fill_manual("Country", values=color_countries4plot)+
     theme_bw()+
-    geom_magnify(from = c(xmin = 2010, xmax = CY-1, ymin = 0, ymax = 40),
+    geom_magnify(from = c(xmin = 2010, xmax = CY-1, ymin = 0, ymax = 3),
         to = c(xmin=2000, xmax=CY, ymin=500, ymax=1250), axes="xy")
 
 print(g_raw_Rlandings_G)
@@ -1077,7 +1079,6 @@ filtered_data<-filter_data("other_landings",
         typ = 33,
         life_stage = c("Y"))%>% 
     dplyr::filter(is.na(eel_missvaluequal))
-filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1194,8 +1195,8 @@ table2<-table[,c(1,9:ncol(table))]
 cou_text2 <- get_country_table(table2[,-ncol(table2)])
 #ka_release_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =
 #				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_release_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("parta:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep=""))
-ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2, " , total", sep=""))
+ka_release_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep=""))
+ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2, "", sep=""))
 
 ```
 
@@ -1660,7 +1661,7 @@ g_releasekg_Y <-  ggplot(release3) +
     xlab("year") + ylab("Release in tonnes")+
     scale_fill_manual("Country",values=color_countries4plot)+
     theme_bw()+
-    geom_magnify(from = c(xmin = 2009, xmax = CY, ymin = 0, ymax = 30),
+    geom_magnify(from = c(xmin = 2010, xmax = CY, ymin = 0, ymax = 20),
         to = c(xmin=1900, xmax=1970, ymin=100, ymax=225), axes="xy")
 
 print(g_releasekg_Y)
@@ -1752,7 +1753,7 @@ Silver eel conservation fisheries to "trap and transport" silver eels around
 hydro power and pumping stations take place e.g. in Sweden, Finland, Ireland and
 the Netherlands. In addition, in Greece and France a certain percentage of
 silver eels caught by the fishery, and therefore recorded as landings, are later
-released in the Mediterranean outside the lagoons (30% of caught silver eels) .
+released in the Mediterranean outside the lagoons (30% of caught silver eels).
 These are reported as released silver eel (Figure \@ref(fig:releasekgSf)). Spain
 has made some releases of silver eels from the Encanyissada lagoon. The quantity
 of silver eels (S) released in `r CY-2` and
@@ -1960,7 +1961,6 @@ filtered_data<-filter_data("release",
     life_stage=c("G","Y","QG","OG","YS","S"),
     year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
 #TODO REMOVE THIS NEXT YEAR
-filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2030,8 +2030,6 @@ filtered_data<-filter_data("other_landings",
     typ = 33,
     life_stage=c("G","Y","YS","S"),
     year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
-#TODO REMOVE THIS NEXT YEAR
-filtered_data <- filtered_data %>% dplyr::filter(!(eel_cou_code == 'SE' & eel_lfs_code=='Y'))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2185,9 +2183,9 @@ print(ka_release_G1)
 print(ka_release_G2)
 print(ka_release_Y)
 print(ka_release_S)
-print(ka_release_QG)
+#print(ka_release_QG)
 print(ka_release_OG)
-print(ka_aqua1)
+#print(ka_aqua1)
 print(ka_aqua2)
 print(ka_other_landings_G)
 print(ka_other_landings_Y)
