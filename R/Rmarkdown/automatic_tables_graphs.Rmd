@@ -33,6 +33,32 @@ addSmallLegend <- function(myPlot, pointSize = 1, textSize = 6, spaceLegend = 1)
 }
 
 
+flextable2ICES <- function(x){
+  x |>
+    font(fontname = "Calibri", part = "all") |>
+    fontsize(size = 8.5, part = "all") |>
+    bold(part = "header") |>
+    flextable::align(align = "left", part = "all") |>
+    flextable::border(part = "all", 
+                      border.top = fp_border(color = "black", width = 0.5),
+                      border.bottom = fp_border(color = "black", width = 0.5)) |>
+    bg(bg = "#B7D1C3", part = "header") |>
+    style(pr_p=fp_par(padding = 2),
+          part = "all") |>
+    style(pr_p=fp_par(padding = 2,
+                      border = fp_border(width = 0, col = "#B7D1C3", style = "none")),
+          part = "header") |>
+    flextable::valign(part = "body", valign = "top") |>
+  colformat_double(big.mark = ",", digits = 1) |>
+  colformat_num(j = 1, big.mark = "", digits = 0) |>
+  flextable::align(align = "right", part = "body") |>
+  flextable::align(j = 1, align = "center", part = "body") |>
+  flextable::align(align = "center", part = "header") |>
+        set_table_properties(width = 1, layout = "fixed") |>
+flextable::autofit()
+}
+
+
 if (getUsername() == "phja0001") setwd("\\\\storage-og.slu.se\\home$\\phja0001\\My Documents\\Philip\\Researcher SLU\\Eel\\ICES\\2025\\wg_WGEEL_2025\\R\\Rmarkdown")
 if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown") 
@@ -79,6 +105,9 @@ load_package("stringr")
 load_package("reshape2")
 load_package("tidyr") # unite cols in maps
 load_package("rlang")
+load_package("flextable")
+load_package("officer")
+
 load_package("sp")
 #load_package("pool")
 #load_package("DBI")
@@ -463,8 +492,18 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableComLandG<-table
+
+caption <- paste("Table 1:  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: ",
+                 get_country_table(tableComLandG), ".", sep="")
+
 ka_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),
-    format="pandoc",caption =paste("Table 1:  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: GB United Kingdom, FR France, ES Spain, PT Portugal, IT Italy.", sep=""))
+    format="pandoc",caption = caption)
+
+ka_com_land_G <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 1"), paste(":  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: ",
+                 get_country_table(tableComLandG), ".", sep="")),
+              style = "Normal", align_with_table = FALSE)
 
 
 
@@ -592,6 +631,8 @@ table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableCorLandYS<-table
 ka_cor_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+
+
 
 ```
     
@@ -721,9 +762,28 @@ table2<-table[,c(1,13:23)]
 cou_text2 <- get_country_table(table2)
 table3<-table[,c(1,20:ncol(table))]
 cou_text3 <- get_country_table(table3[,-ncol(table3)])
-ka_com_land_YS1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries : ", cou_text1," (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries : ", cou_text2," (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS3 <- kable(format(table3,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries : ", cou_text3,".", sep=""))
+caption <- 
+
+ka_com_land_YS1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep=""))
+ka_com_land_YS2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep=""))
+ka_com_land_YS3 <- kable(format(table3,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries: ", cou_text3,".", sep=""))
+
+
+
+ka_com_land_YS1 <- flextable(table1) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 2a"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+ka_com_land_YS2 <- flextable(table2) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 2b"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+ka_com_land_YS3 <- flextable(table3) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 2c"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text3," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
 
 
 ```
@@ -921,9 +981,16 @@ table$total<-as.character(table$total)
 tablerecLandG<-table
 #table1<-table[,c(1,14,15,ncol(table))]
 table$total<-as.character(table$total)
-ka_rec_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
+ka_rec_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(get_country_table(table), ".", sep="")))
 #ka_rec_land_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
 
+
+
+
+ka_rec_land_G <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 4"), paste(": Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(get_country_table(table), ".", sep=""))),
+              style = "Normal", align_with_table = FALSE)
 
 ```
 
@@ -1005,6 +1072,21 @@ cou_text2 <- get_country_table(table2[,-ncol(table2)])
 ##ka_rec_land_Y<- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 ka_rec_land_Y1<- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep=""))
 ka_rec_land_Y2<-kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2," , total.", sep=""))
+
+
+
+ka_rec_land_Y1 <- flextable(table1) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 3a"), paste(": Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
+ka_rec_land_Y2 <- flextable(table2) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 3b"), paste(": Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
 ```
 
 
@@ -1098,7 +1180,16 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableRelY<-table
-ka_other_landings_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+ka_other_landings_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep=""))
+
+
+
+ka_other_landings_Y <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 11"), paste(": other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
 
 ```
 
@@ -1197,6 +1288,22 @@ cou_text2 <- get_country_table(table2[,-ncol(table2)])
 #				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
 ka_release_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep=""))
 ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2, "", sep=""))
+
+
+
+
+ka_release_G1 <- flextable(table1) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 5a"), paste(":  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
+ka_release_G2 <- flextable(table2) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 5b"), paste(":  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text2," (to be continued for other countries in next table).", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
 
 ```
 
@@ -1322,9 +1429,17 @@ tableRelG<-table
 
 
 ka_other_landings_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =
-        paste("Other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
+        paste("Other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(get_country_table(table), ".", sep="")))
 #ka_other_landings_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5a:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries SE Sweden, EE Estonia, LV Latvia, PL Poland, DE Germany, NL Netherlands, BE Belgium(to be continued for other countries in next table).", sep=""))
 #ka_other_landings_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
+
+
+
+ka_other_landings_G <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 10"), paste(": Other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(get_country_table(table), ".", sep=""))),
+              style = "Normal", align_with_table = FALSE)
+
 
 ```
 
@@ -1532,7 +1647,18 @@ table = table[, n_order]
 names(table)[1]<-"Year"
 table[is.na(table)]<-''
 tableRelOG<-table
-ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: EE Estonia, LV Latvia, LT Lithuania, PL Poland, DE Germany, DK Denmark, ES Spain.", sep=""))
+ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep=""))
+
+
+
+
+ka_release_OG <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 9"), paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
+
 ```
 
 \newline
@@ -1592,7 +1718,15 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableRelY<-table
-ka_release_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries DE Germany, NL Netherlands, IE Ireland, ES Spain, IT Italy.", sep=""))
+ka_release_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table), ".", sep=""))
+
+
+
+ka_release_Y <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 6"), paste(": Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table), ".", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
 
 
 ```
@@ -1787,7 +1921,16 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableRelS<-table
-ka_release_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece. NL data missing for 2023.", sep=""))
+ka_release_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep=""))
+
+
+
+ka_release_S <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 7"), paste(": Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
+
 
 ```
 
@@ -1879,7 +2022,15 @@ names(table)[1]<-"Year"
 table[is.na(table)]<-''
 table$total<-as.character(table$total)
 tableRelS<-table
-ka_other_landings_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland, IE Ireland, Fr France, ES Spain, GR Greece.", sep=""))
+ka_other_landings_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep=""))
+
+
+
+ka_other_landings_S <- flextable(table) |>
+  flextable2ICES() |>
+  set_caption(as_paragraph(as_b("Table 12"), paste(": other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep="")),
+              style = "Normal", align_with_table = FALSE)
+
 
 ```
 
@@ -2171,25 +2322,25 @@ print(g_aquaculture)
 
 ```{r table, echo=FALSE, warning=FALSE, results="asis"}
 
-print(ka_com_land_G)
-print(ka_com_land_YS1)
-print(ka_com_land_YS2)
-print(ka_com_land_YS3)
-print(ka_rec_land_Y1)
-print(ka_rec_land_Y2)
-print(ka_rec_land_G)
+(ka_com_land_G)
+(ka_com_land_YS1)
+(ka_com_land_YS2)
+(ka_com_land_YS3)
+(ka_rec_land_Y1)
+(ka_rec_land_Y2)
+(ka_rec_land_G)
 #print(ka_release_G)
-print(ka_release_G1)
-print(ka_release_G2)
-print(ka_release_Y)
-print(ka_release_S)
+(ka_release_G1)
+(ka_release_G2)
+(ka_release_Y)
+(ka_release_S)
 #print(ka_release_QG)
-print(ka_release_OG)
+(ka_release_OG)
 #print(ka_aqua1)
-print(ka_aqua2)
-print(ka_other_landings_G)
-print(ka_other_landings_Y)
-print(ka_other_landings_S)
+#print(ka_aqua2)
+(ka_other_landings_G)
+(ka_other_landings_Y)
+(ka_other_landings_S)
 
 ```
 
