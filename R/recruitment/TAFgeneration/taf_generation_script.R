@@ -1,5 +1,5 @@
 library(stringr)
-CY <- 2024
+CY <- 2025
 
 # set current year
 
