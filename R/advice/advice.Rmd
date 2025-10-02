@@ -170,12 +170,7 @@ in `r CY` (provisional) and
 in `r CY-1` (updated). The yellow eel recruitment index for `r CY-1` was
 `r round(dat_ye$value_std_1960_1979[dat_ye$year == CY-1] * 100, digits = 1)`%
 (complete data) of the 1960–1979 geometric mean. Time-series from 1980
-to `r CY` show that eel recruitment remains at a very low level. **ICES
-observes that index value for 2025 value in Elsewhere Europe is higher
-than in recent years and at levels similar to values observed in the
-early 2000s. However, ICES reminds that the data for this year are still
-provisional, and that recruitment is highly stochastic by nature and as such,
-that no conclusion could be drawn from a single year.**
+to `r CY` show that eel recruitment remains at a very low level.
 
 ICES cannot assess the exploitation status relative to maximum
 sustainable yield (MSY) or precautionary approach (PA) reference points
