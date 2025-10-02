@@ -1,13 +1,15 @@
 library(icesSAG)
 library(dplyr)
-CY=2024
+CY=2025
+
+icesConnect::set_username("hilaire.drouineau@inrae.fr")
 
 cat("# Standard Graphs personal access token",
     "SG_PAT=17a43867-05e1-4919-9283-b08a00ff0099",
     sep = "\n",
     file = "~/.Renviron_SG")
-options(icesSAG.use_token = TRUE)
-stock_info <- stockInfo("ele.2737.nea", CY, "hilaire.drouineau@irstea.fr",
+options(icesSAG.use_token = FALSE)
+stock_info <- stockInfo("ele.2737.nea", CY, "hilaire.drouineau@inrae.fr",
                         StockCategory= 3.14,
                         ModelType="Other", 
                         ModelName="None",
@@ -67,5 +69,8 @@ fishdata <- stockFishdata(Year = as.integer(dat_ge_EE$year_f),
               CustomSeries8= dat_ye$yellow_eel_min  * 100,
               CustomSeries9= dat_ye$yellow_eel_max  * 100)
 
-key <- icesSAG::uploadStock(stock_info, fishdata, verbose = TRUE)
+tempfile <- paste0("SAG_", CY, ".xml")
+writeSAGxml(stock_info , fishdata, file = tempfile)
+
+uploadStock(tempfile, upload = FALSE, verbose = TRUE)
 # 
