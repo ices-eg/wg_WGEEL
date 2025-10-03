@@ -68,8 +68,11 @@ CY=2025 # this should be set to the current year, yellow eel data will be analys
 library(stringr)
 imgwd <- str_c(getwd(),"/",CY,"/00international/image/")
 tabwd <- str_c(getwd(),"/",CY,"/00international/table/")
+datawd <- str_c(getwd(),"/",CY,"/00international/data/")
 dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
+dir.create(datawd, showWarnings = FALSE)
+
 knitr::opts_chunk$set(echo = TRUE, warnings=FALSE, error = TRUE)
 knitr::opts_knit$set(root.dir = getwd())
 options(dplyr.summarise.inform = FALSE) #remove warnings of summarize
@@ -243,6 +246,8 @@ g_mean_CY2_CY6<-mean(round(select_land$x[select_land$Group.1 %in% c((CY-6):(CY-2
 cou_G_CY<-unique(landings_all$eel_cou_code[landings_all$eel_year==CY & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code=="G"])
 cou_G_CY1<-unique(landings_all$eel_cou_code[landings_all$eel_year==CY-1 & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code=="G"])
 
+save(g_CY, g_CY1, g_mean_CY2_CY6, cou_G_CY, cou_G_CY1, file = paste0(datawd,
+                                                                     "key_figures_landDGE.Rdata"))
 ```
 
 - Glass eel commercial fisheries within the EU in `r CY-1`: `r round(g_CY1)`t , countries where data were reported: `r paste(cou_G_CY1,sep="", collapse=",")`
@@ -275,6 +280,12 @@ YS_corr_CY2<-round(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-2]/1000
 YS_corr_CY1<-round(select_corr_land_YS$x[select_corr_land_YS$Group.1==CY-1]/1000,2)
 YS_corr_mean_CY3_CY7<-mean(round(select_corr_land_YS$x[select_corr_land_YS$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 
+
+
+save(YS_CY1, YS_CY2, YS_meanCY3_CY7, nb_cou_Y_CY1, nb_cou_Y_CY2,
+     YS_corr_CY2, YS_corr_CY1, YS_corr_mean_CY3_CY7,
+     file = paste0(datawd, 
+                    "key_figures_landDYS.Rdata"))
 ```
 
 - Yellow and Silver eel commercial fisheries within the EU (Y, S, YS) in `r CY-2`: `r round(YS_CY2)`t, number of countries reporting: `r nb_cou_Y_CY2`
@@ -299,7 +310,9 @@ rec_cou_G_CY1<-unique(landings_rec$eel_cou_code[landings_rec$eel_year==CY-1 & is
 
 # mean(round(select_rec$x[select_rec$Group.1 %in% c(1978:2009) & select_rec$Group.2=="G"]/1000,2))
 # mean(round(select_rec$x[select_rec$Group.1 %in% c(2010:2019) & select_rec$Group.2=="G"]/1000,2))
-
+save(rec_G_CY, rec_G_CY1, rec_mean_G_CY2_CY6, rec_cou_G_CY1, 
+     file = paste0(datawd, 
+                    "key_figures_reclandDG.Rdata"))
 
 ```
 
@@ -329,7 +342,9 @@ nb_cou_YS_CY2_rec<-length(unique(landings_YS_rec$eel_cou_code[landings_YS_rec$ee
 # mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(1978:1990)]/1000,2))
 # mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(2009:2018)]/1000,2))
 # mean(round(select_land_YS_rec$x[select_land_YS_rec$Group.1 %in% c(2019)]/1000,2))
-
+save(YS_CY1_rec, YS_CY2_rec, YS_mean_rec_CY3_CY7, nb_cou_YS_CY1_rec, nb_cou_YS_CY2_rec,
+     file = paste0(datawd, 
+                    "key_figures_reclandDYS.Rdata"))
 
 ```
 
@@ -358,7 +373,9 @@ aqua_CY2<-round(select_aqua$x[select_aqua$Group.1==CY-2]/1000,2)
 aqua_mean_CY3_CY7 <- round(mean(select_aqua$x[select_aqua$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
 aqua_cou_CY2<-unique(aqua$eel_cou_code[aqua$eel_year==CY-2 & is.na(aqua$eel_missvaluequal)])
 
-
+save(aqua_CY2, aqua_mean_CY3_CY7, aqua_cou_CY2, 
+     file = paste0(datawd, 
+                    "key_figures_aquaculture.Rdata"))
 
 ```
 
@@ -426,6 +443,10 @@ cou_CY1_relS_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-1 & is.n
 cou_CY2_relS_t <- length(unique(rel_kg$eel_cou_code[rel_kg$eel_year==CY-2 & is.na(rel_kg$eel_missvaluequal) & rel_kg$eel_lfs_code=="S"]))
 
 
+save(rel_CY_G_t, rel_CY1_G_t, rel_CY2_G_t, rel_CY1_Y_t, rel_CY1_S_t,
+     rel_CY2_Y_t, rel_CY2_S_t, cou_CY_relG_t,
+     file = paste0(datawd, 
+                    "key_figures_releases.Rdata"))
 ```
 
 
