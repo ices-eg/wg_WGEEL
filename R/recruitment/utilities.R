@@ -275,7 +275,8 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   
 # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
 # and duration
-  statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept
+  statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept,
+  qal_comment
           from datawg.series_summary where ser_typ_id=1')
   t_series_ser <- dbGetQuery(con, 'select ser_id,ser_nameshort,ser_namelong,ser_typ_id,ser_effort_uni_code,
           ser_comment,ser_uni_code,ser_lfs_code,ser_hty_code,ser_locationdescription,ser_emu_nameshort,ser_cou_code,
@@ -318,6 +319,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
 select_series <- function(wger_init, R_stations){
   selection_summary <- list() ## selection_summary is a list to store interesting statistics
   selection_summary$sites_summary <- list()
+  selection_summary$sites_summary$qal_0 <- ""
   selection_summary$sites_summary$qal_0 <- 
   wger_init %>% filter(ser_qal_id==0) %>%
       dplyr::select(site,cou_code) %>%
@@ -638,13 +640,13 @@ make_table_series <- function(selection_summary, R_stations, wger){
   R_stations$ser_namelong <- iconv(R_stations$ser_namelong,to= "UTF8")
   R_stations$ser_nameshort  <- iconv(R_stations$ser_nameshort, to ="UTF-8")
   series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
-      c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y")]
+      c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y", "ser_qal_comment")]
   #series_CY <- merge(series_CY,last_years_with_problem[,c("das_qal_id", "ser_nameshort")], by="ser_nameshort", all.x=T)
   #series_CY$das_qal_id[is.na(series_CY$das_qal_id)] <- 1
   
   series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
   #series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),	c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
-  colnames(series_CY) <-c("Site","Name","Coun.","Stage","Area","Division", "Kept")
+  colnames(series_CY) <-c("Site","Name","Coun.","Stage","Area","Division", "Kept", "Qal Comment")
 
   
   selection_summary$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
@@ -694,8 +696,7 @@ make_table_series <- function(selection_summary, R_stations, wger){
   colnames(n_y_lfs) <- c("year","glass","glass+yellow","yellow","sum")
   rownames(n_y_lfs) <- n_y_lfs$"year"
   
-  
-  printstatseries <- statseries[,c(1,3,4,5,6,7,8,9,10,11,12)]
+  printstatseries <- statseries[,c(1,3,4,5,6,7,8,9,10,11,12, 13)]
   printstatseries$sampling_type[printstatseries$sampling_type=="scientific estimate"] <- "sci. surv."
   printstatseries$sampling_type[grep("trap",printstatseries$sampling_type)] <- "trap"
   printstatseries$sampling_type[printstatseries$sampling_type=="commercial catch"] <- "com. catch"
@@ -705,7 +706,7 @@ make_table_series <- function(selection_summary, R_stations, wger){
   printstatseriesGNS <- printstatseries%>% 
       filter(life_stage=="G", areashort=="NS")%>%
       arrange(site)%>%
-      dplyr::select(1,12,2:9,11)%>%
+      dplyr::select(1,13,2:9,11:12)%>%
       dplyr::rename("code"="site",
           "area"="areashort",
           "n+"="duration",
@@ -713,13 +714,14 @@ make_table_series <- function(selection_summary, R_stations, wger){
           "life stage"="life_stage", 
           "sampling type"="sampling_type",
           "habitat"="habitat_type",
-          "kept"="series_kept")
+          "kept"="series_kept",
+          "comment"="qal_comment")
   
   
   printstatseriesGEE <- printstatseries%>% 
       filter(life_stage=="G", areashort=="EE")%>%
       arrange(site)%>%
-      dplyr::select(1,12,2:9,11)%>%
+    dplyr::select(1,13,2:9,11:12)%>%
       dplyr::rename("code"="site",
           "area"="areashort",
           "n+"="duration",
@@ -727,7 +729,8 @@ make_table_series <- function(selection_summary, R_stations, wger){
           "life stage"="life_stage", 
           "sampling type"="sampling_type",
           "habitat"="habitat_type",
-          "kept"="series_kept")
+          "kept"="series_kept",
+          "comment"="qal_comment")
   
   
   
@@ -735,7 +738,7 @@ make_table_series <- function(selection_summary, R_stations, wger){
   printstatseriesGY <- printstatseries %>% 
       filter(life_stage=="GY") %>%
       arrange(site) %>%
-      dplyr::select(1,12,2:9,11) %>%
+    dplyr::select(1,13,2:9,11:12) %>%
       dplyr::rename("code"="site",
           "area"="areashort",
           "n+"="duration",
@@ -743,13 +746,14 @@ make_table_series <- function(selection_summary, R_stations, wger){
           "life stage"="life_stage", 
           "sampling type"="sampling_type",
           "habitat"="habitat_type",
-          "kept"="series_kept")
+          "kept"="series_kept",
+          "comment"="qal_comment")
   
   
   printstatseriesY <- printstatseries%>% 
       filter(life_stage=="Y")%>%
       arrange(site)%>%
-      dplyr::select(1,12,2:9,11)%>%
+    dplyr::select(1,13,2:9,11:12)%>%
       dplyr::rename("code"="site",
           "area"="areashort",
           "n+"="duration",
@@ -757,7 +761,8 @@ make_table_series <- function(selection_summary, R_stations, wger){
           "life stage"="life_stage", 
           "sampling type"="sampling_type",
           "habitat"="habitat_type",
-          "kept"="series_kept")
+          "kept"="series_kept",
+          "comment"="qal_comment")
   
   
   ################################################################

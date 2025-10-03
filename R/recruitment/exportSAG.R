@@ -1,20 +1,18 @@
 library(icesSAG)
 library(dplyr)
-CY=2024
+CY=2025
 
-cat("# Standard Graphs personal access token",
-    "SG_PAT=17a43867-05e1-4919-9283-b08a00ff0099",
-    sep = "\n",
-    file = "~/.Renviron_SG")
+icesConnect::set_username("hilaire.drouineau@inrae.fr")
+
 options(icesSAG.use_token = TRUE)
-stock_info <- stockInfo("ele.2737.nea", CY, "hilaire.drouineau@irstea.fr",
+stock_info <- stockInfo("ele.2737.nea", CY, "hilaire.drouineau@inrae.fr",
                         StockCategory= 3.14,
                         ModelType="Other", 
                         ModelName="None",
                         CustomLimitName1="Historical reference 1960-1979",
                         CustomLimitName2="Historical reference 1960-1979",
                         CustomLimitValue1=100,
-                        CustomLimitValue2=0.1,
+                        CustomLimitValue2=100,
                         CustomSeriesName1="Elsewhere Europe index",
                         CustomSeriesName2="North Sea Index",
                         CustomSeriesName3="Yellow eel Europe index",
@@ -67,5 +65,8 @@ fishdata <- stockFishdata(Year = as.integer(dat_ge_EE$year_f),
               CustomSeries8= dat_ye$yellow_eel_min  * 100,
               CustomSeries9= dat_ye$yellow_eel_max  * 100)
 
-key <- icesSAG::uploadStock(stock_info, fishdata, verbose = TRUE)
+tempfile <- paste0("SAG_", CY, ".xml")
+writeSAGxml(stock_info , fishdata, file = tempfile)
+
+uploadStock(tempfile, upload = FALSE, verbose = TRUE)
 # 

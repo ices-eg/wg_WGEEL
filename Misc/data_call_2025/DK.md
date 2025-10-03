@@ -400,6 +400,9 @@ Group variables            None
 5      1       1 ▁▁▇▁▁
 ```
 
+- some data had been assigned to "G" in the template, it was latter reassigned
+to YS using the editdata module
+
 - 2 values updated in the db (eel_year is changed)
 
 ```
