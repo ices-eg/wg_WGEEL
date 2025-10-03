@@ -551,7 +551,8 @@ if  ((!file.exists(paste("gerem_nimble",CY,".rdata",sep=""))) ){
   library(parallel)
   cl <- makeCluster(3)
   load(paste0(wd,"/datagerem_nimble",CY,".rdata"))
-  clusterExport(cl, c("myconstants","mydata","generate_init"))
+  clusterExport(cl, c("myconstants","mydata","generate_init", "nbyear",
+                      "burnin", "sample","thin"))
   res <- parLapply(cl, 1:3, function(seed){
     library(nimble)
     source("modelCode_nimble.R")
