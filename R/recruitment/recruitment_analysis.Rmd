@@ -1745,7 +1745,7 @@ figure6_without_log_scale <- g+ geom_line(lwd=1, color="darkolivegreen")+ geom_p
 save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 
 
-figure6_advice_YY<- ggplot(dat_ye,aes(x=time,y=value_std_1960_1979 * 100))  +
+figure6_advice_YY<- ggplot(dat_ye,aes(x=year,y=value_std_1960_1979 * 100))  +
 		scale_y_continuous("Std. GLM recruitment")+	
 		geom_hline(yintercept=100,linetype=2)+
 		geom_ribbon(aes(ymin=yellow_eel_min*100,ymax=yellow_eel_max*100, fill="area"), show.legend=FALSE, alpha = .3)+
@@ -2757,22 +2757,22 @@ retro <- ((retro_EE + geom_magnify(from = list(xmin= CY -9,
                                                to = list(xmin=CY-30,
                                                          xmax=CY,
                                                          ymin=170,
-                                                         ymax=220))) +
-  (retro_YY + geom_magnify(from = list(xmin= CY -9,
+                                                         ymax=220)))) /
+  (((retro_YY + geom_magnify(from = list(xmin= CY -9,
                                                                    xmax = CY,
                                                                    ymin = 0,
                                                                    ymax = 25),
                                                to = list(xmin=CY-30,
                                                          xmax=CY,
                                                          ymin=300,
-                                                         ymax=400)))) /
-  guide_area() + plot_layout(axis_titles = "collect", 
+                                                         ymax=400)))) +
+  patchwork::plot_spacer()) / guide_area() + plot_layout(axis_titles = "collect", 
                              guides = "collect",
-                             heights =c(4, 1))
+                             heights =c(1,1,0.1), widths = c(1,1))
   
 
 save(mohn_YY, mohn_NS, mohn_EE,file=paste0(outputdatawd,"mohn.Rdata"))
-save_figure("retro_patchwork",retro,1400,400, pdf=FALSE)
+save_figure("retro_patchwork",retro,1200,800, pdf=FALSE)
 
 
 ```
