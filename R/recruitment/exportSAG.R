@@ -4,11 +4,7 @@ CY=2025
 
 icesConnect::set_username("hilaire.drouineau@inrae.fr")
 
-cat("# Standard Graphs personal access token",
-    "SG_PAT=17a43867-05e1-4919-9283-b08a00ff0099",
-    sep = "\n",
-    file = "~/.Renviron_SG")
-options(icesSAG.use_token = FALSE)
+options(icesSAG.use_token = TRUE)
 stock_info <- stockInfo("ele.2737.nea", CY, "hilaire.drouineau@inrae.fr",
                         StockCategory= 3.14,
                         ModelType="Other", 
