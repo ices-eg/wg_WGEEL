@@ -2506,27 +2506,34 @@ autofit(flextable(data = series_lost %>%
 ```{r figure5withoutlogscale, fig.cap=str_c("WGEEL glass eel recruitment index for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to ", CY,". The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) are scaled to $\\bar{p}_{1960-1979}$."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
-
+<br>
 
 
 ```{r figure6withoutlogscale, fig.cap=paste("Yellow eel recruitment for Europe updated to ", CY-1,". The yellow recruitment was estimated using a GLM (yellow eel ~ year+site) fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series. The predictions (p) are scaled to to the 1960-1979 average $\\bar{p}_{1960-1979}$."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
+<br>
 
 
 ```{r figure4annex, fig.cap=paste("Time-series of glass eel and yellow eel recruitment in Europe with",selection_summary[["sc_1979_1994_nb"]],"time-series out of the", selection_summary[["nb_series_init"]],"available to the working group. Each time-series has been scaled to its 1979-1994 average. The mean arithmetic values of the combined yellow and glass eel time-series and their bootstrap confidence interval (95%) are represented as black dots and bars. The brown line represents the mean value for yellow eel and the blue line represents the mean value for glass eel time-series. The range of these time-series is indicated by a grey shade. Note that individual time-series from Figure 6 were removed to make the mean value clearer. Also note the logarithmic scale."), fig.width=16/2.54, warning = FALSE, echo=FALSE, message = FALSE, error=FALSE}
 knitr::include_graphics(paste0(imgwd,'figure4.png'))
 ```
 
+<br>
 
 ```{r figure3logscale, fig.cap="Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period. Each time-series has been scaled to its 1979-1994 average. The mean arithmetic values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure3.png"))
 ```
+<br>
 
 
 ```{r figure3withoutlogscale, fig.cap="Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period. Each time-series has been scaled to its 1979-1994 average. Note the logarithmic scale on the y-axis. The mean arithmetic values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure3withoutlogscale.png"))
 ```
+
+
+<br>
+
 
 ```{r figureadvice, fig.cap=str_c("Annual WGEEL recruitment index for the continental North Sea (top panel) and Elsewhere Europe (center panel). The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions p have been scaled to $\\bar{p}_{1960-1979}$. Yellow eel recruitment(bottom panel)  for Europe updated to ", CY-1,". The yellow eel recruitment was estimated using a GLM (yellow eel ~ year+site) fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure_advice.png"))
@@ -2770,6 +2777,9 @@ save_figure("retro_patchwork",retro,1400,400, pdf=FALSE)
 
 ```
 
+
+<br>
+
 A retrospective analysis assesses whether the outcomes of an assessment are sensitive to the inclusion of a new year of data. 
 
 Figure \@ref(fig:retrospective) shows the variations of the GLM have varied through time. Several causes explain such variations:
@@ -2813,6 +2823,9 @@ series (Figure \@ref(fig:retrospective), upper and central panels). This is poss
 knitr::include_graphics(paste0(imgwd,"retro_patchwork.png"))
 
 ```
+
+<br>
+
 
 ## Sensitivity to individual time series
 To check the influence of each time series in the models, the GLMs were fitted while removing each time series one at a time. The effect of removing the time series was quantified through the sum of square of the difference of the predictions of the the model with all time series and the model without the corresponding time series (Figure \@ref(fig:discrepancy)). Unsurprisingly, the longest time series have the largest influence on the model results (e.g. AlbuG or EbroG), but the results are also sensitive to series that were introduced more recently (e.g. MolY or StraGY). This type of analysis might be relevant in the future before integrating any new time series.
@@ -2877,6 +2890,7 @@ save_figure("discrepancy", discrepancy_yy,
 knitr::include_graphics(paste0(imgwd,"discrepancy.png"))
 
 ```
+<br>
 
 
 ## Residuals plots
