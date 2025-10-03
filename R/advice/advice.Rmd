@@ -19,7 +19,7 @@ output:
     mapstyles:
       'Heading 3': Title 
       'Hheading 3': 'Heading 1'
-      'Normal': [Bibliography, 'First Paragraph', 'Table Caption', 'Image Caption']
+      'Normal': [Bibliography, 'First Paragraph']
 editor_options: 
   markdown: 
     wrap: 72
@@ -42,7 +42,9 @@ library(knitr)
 library(stringr)
 datawd <- paste0(getwd(), "/../recruitment/",CY,"/data/")
 imgwd <- paste0(getwd(), "/../recruitment/",CY,"/image/")
-
+keyfigfiles <- list.files(path = paste0("../Rmarkdown/", CY, "/00international/data/"),
+                          full.names = TRUE)
+for (f in keyfigfiles) load(f)
 load(file=str_c(datawd,"wger_init.Rdata"))
 load(file=str_c(datawd,"statseries.Rdata"))
 load(file=str_c(datawd,"R_stations.Rdata"))
@@ -142,7 +144,7 @@ setwd(wd)
 # ICES advice on fishing opportunities
 
 ICES advises that when the precautionary approach is applied, there
-should be zero catches in all habitats in 2025. This applies to both
+should be zero catches in all habitats in `r CY+1`. This applies to both
 recreational and commercial catches and includes catches of glass eels
 for restocking and aquaculture.
 
@@ -182,7 +184,7 @@ Therefore, while stock-size reference points are also undefined, it is
 considered that the stock size is well below potential biological limit
 reference points.
 
-```{r, fig.cap = paste0("__Figure 1__\t Indices of glass eel recruitment for the continental “North Sea” (top‑left panel) and “Elsewhere Europe” (top‑right panel) series. A statistical model was fitted to ", selection_summary$nb_series_glass_eel, " time-series comprising either pure glass eel or a mixture of glass and yellow eels (", unlist(selection_summary$nb_series_glass_eel_per_area[2,2])," “North Sea” and ", unlist(selection_summary$nb_series_glass_eel_per_area[1,2]), " “Elsewhere Europe”). The results were scaled in percentage to the 1960–1979 geometric mean. The “North Sea” series are from Norway, Sweden, Germany, Denmark, the Netherlands, UK, and Belgium; the “Elsewhere” series are from UK, Ireland, France, Spain, Portugal, and Italy. In the Baltic area, recruitment occurs at the yellow eel stage only, and series are thus not included in the glass eel recruitment index. Bottom panel: estimated yellow eel recruitment trends for Europe. A statistical model was fitted to ",  selection_summary$nb_series_older, " yellow eel time-series and scaled in percentage to the 1960–1979 geometric mean. The series are from Denmark, Germany, Ireland, Sweden, France, and UK. The horizontal blue line on each panel represents the likely Rlim (calculated from the 1960–1979 geometric mean). Ribbons show 95% prediction interval of the GLM (1.96 × standard error)."), echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, fig.ncol=2}
+```{r, fig.cap = paste0("__Figure 1__ Indices of glass eel recruitment for the continental “North Sea” (top‑left panel) and “Elsewhere Europe” (top‑right panel) series. A statistical model was fitted to ", selection_summary$nb_series_glass_eel, " time-series comprising either pure glass eel or a mixture of glass and yellow eels (", unlist(selection_summary$nb_series_glass_eel_per_area[2,2])," “North Sea” and ", unlist(selection_summary$nb_series_glass_eel_per_area[1,2]), " “Elsewhere Europe”). The results were scaled in percentage to the 1960–1979 geometric mean (Std. GLM recruitment). The “North Sea” series are from Norway, Sweden, Germany, Denmark, the Netherlands, UK, and Belgium; the “Elsewhere” series are from UK, Ireland, France, Spain, Portugal, and Italy. In the Baltic area, recruitment occurs at the yellow eel stage only, and series are thus not included in the glass eel recruitment index. Bottom panel: estimated yellow eel recruitment trends for Europe. A statistical model was fitted to ",  selection_summary$nb_series_older, " yellow eel time-series and scaled in percentage to the 1960–1979 geometric mean (Std. GLM recruitment). The series are from Denmark, Germany, Ireland, Sweden, France, and UK. The horizontal blue line on each panel represents the likely Rlim (calculated from the 1960–1979 geometric mean). Ribbons show 95% prediction interval of the GLM (1.96 × standard error)."), echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, fig.ncol=2}
 knitr::include_graphics(paste0(imgwd,"figure_advice.png"))
 
 ```
@@ -200,7 +202,7 @@ quantified [@ices2025], and no reference points are defined.
 European eel has been listed as Critically Endangered on the
 International Union for the Conservation of Nature (IUCN) Red List since
 2008 [@pike2020; @iucn2022]. It was listed in Appendix II of the
-Convention on International Trade in Endangered Species (CITES) in 2007
+Convention on International Trade of Endangered Species (CITES) in 2007
 that came into force in 2009
 [@conventiononinternationaltradeinendangeredspeciesofwildfaunaandfloracites2007;
 @conventiononinternationaltradeiendangeredspeciesofwildfaunaandfloracites2022],
@@ -237,7 +239,7 @@ flextable(basis) |>
   set_table_properties(width = 1, layout = "fixed") |>
   flextable2ICES()|>
   set_caption(as_paragraph(as_b("Table 1a"), "\tThe basis of the advice for ", as_b("fishing opportunities"),"."),
-              style = "Normal", align_with_table = FALSE)
+              word_stylename = "Table Caption", align_with_table = FALSE)
 ```
 
 <br>
@@ -259,7 +261,7 @@ flextable(basis)|>
   set_table_properties(width = 1, layout = "fixed") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 1b"), "\tThe basis of the advice for ", as_b("conservation aspects"),"."),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 <br>
@@ -275,10 +277,10 @@ index of abundance.
 The addition of new data points to all three recruitment indices
 naturally causes changes in GLM predictions of past years. Mohn’s Rho is
 calculated to evaluate the consistency of the assessment in retrospect
-(Figure 2). Mohn’s Rho is `r round(mohn_EE, 2)` for the ”Elsewhere
-Europe” index, `r round(mohn_NS, 2)` for the ”North Sea” index, and
-`r round(mohn_YY, 2)` for the ”Yellow eel” index. While exceeding 0.2,
-which is generally considered as a threshold of concern (ICES, 2023),
+(Figure 2). Mohn’s Rho is `r round(mohn_EE/100, 2)` for the ”Elsewhere
+Europe” index, `r round(mohn_NS/100, 2)` for the ”North Sea” index, and
+`r round(mohn_YY/100, 2)` for the ”Yellow eel” index. While exceeding 0.2,
+which is generally considered as a threshold of concern [@ices2023j],
 the number of series used in the eel indices may vary between assessment
 years, e.g. because of the inclusion of new series or replacement of
 existing series with other monitoring activities in the same area. This
@@ -286,10 +288,9 @@ may cause additional variation of Mohn’s Rho compared to a situation
 where variation is caused only by the addition of new data points in
 recent years.
 
+
 ```{r, fig.cap=paste0("__Figure 2__\tEuropean eel. Retrospective comparison of generalized linear model (GLM) recruitment trends for “North Sea” (Mohn’s ρ = ", round(mohn_EE, 2), "), “Elsewhere Europe” (Mohn’s ρ =", round(mohn_EE, 2), "), and “Yellow eel” (Mohn’s ρ = ", round(mohn_YY, 2),") recruitment. The GLM predictions of past years change with the addition of new data points for the most recent year and/or the addition/removal of data series. Years indicated in the legend (", CY-4, "–", CY,") show GLM predictions based on the data available in the given year for glass eel (“North Sea” and “Elsewhere Europe”) and yellow eel indices, respectively."), echo = FALSE, warning = FALSE, error = FALSE, message = FALSE, fig.width=6.3, fig.height=2.5}
 knitr::include_graphics(paste0(imgwd,"retro_patchwork.png"))
-
-
 ```
 
 <br>
@@ -335,7 +336,8 @@ Total reported commercial landings of yellow and silver eel have
 remained above 2 000 tonnes per year over the last decade, with several
 countries reporting annual landings of over 100 tonnes. Commercial glass
 eel total landings remained above 40 tonnes for the past decade, with an
-average of 57.4 tonnes. Both are in contradiction with the current
+average of `round(g_mean_CY2_CY6, digit = 1)` tonnes over the last 5 years.
+Both are in contradiction with the current
 advice.
 
 -   Restocking
@@ -437,7 +439,7 @@ flextable(tab2)  |>
   set_table_properties(width = 1, layout = "fixed")|>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 2"), "\tEuropean eel. Basis of the assessment."),
-              style = "Normal", align_with_table = FALSE) |>
+              style = "Table Caption", align_with_table = FALSE) |>
   ftExtra::colformat_md()
 ```
 
@@ -463,7 +465,7 @@ flextable(tab3) |>
   colformat_double(j = 1, big.mark = "", digits = 0) |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 3"), "\tEuropean eel. History of ICES advice."),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 \* There has never been a TAC (total allowable catch) for this stock.
@@ -471,7 +473,9 @@ flextable(tab3) |>
 \*\* ICES landings estimate for the entire stock are not complete for
 the entire range of European eel.
 
-<br> \# History of catch and landings
+<br> 
+
+# History of catch and landings
 
 Landings data are not complete for the entire natural range of European
 eel.
@@ -519,7 +523,7 @@ grouped_data |>
   flextable::align(j = 2:7, align = "right", part = "body") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 4"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 \* Preliminary data
@@ -589,7 +593,7 @@ landingsYS |>
   flextable::align(align = "center", part = "header") |>
   flextable2ICES()|>
   set_caption(as_paragraph(as_b("Table 5a"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 <br>
@@ -616,7 +620,7 @@ colformat_double(j = 1, big.mark = "", digits = 0) |>
 flextable::align(align = "center", part = "header") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 5b"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 <br>
@@ -641,7 +645,7 @@ colformat_double(j = 1, big.mark = "", digits = 0) |>
 flextable::align(align = "center", part = "header") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 5c"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 ```
 
 \* Landings from the Netherlands are incomplete before 2010.
@@ -686,7 +690,7 @@ flextable::align(align = "center", part = "header") |>
       flextable::align(j = 1, align = "center", part = "body") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 6"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 
 
 ```
@@ -746,7 +750,7 @@ landingsrecYS |>
   flextable::align(align = "center", part = "header") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 7a"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 
 
 ```
@@ -775,7 +779,7 @@ landingsrecYS |>
   flextable::align(align = "center", part = "header") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 7b"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 
 
 ```
@@ -835,7 +839,7 @@ flextable(tab) |>
   flextable::align(align = "center", part = "header") |>
   flextable2ICES() |>
   set_caption(as_paragraph(as_b("Table 8"), cap),
-              style = "Normal", align_with_table = FALSE)
+              style = "Table Caption", align_with_table = FALSE)
 
 ```
 
