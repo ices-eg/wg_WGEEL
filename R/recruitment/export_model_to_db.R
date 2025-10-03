@@ -133,4 +133,15 @@ export_model_year(year)
 # 
 # export_model_year(year)
 
+
+# ######################################---
+# # year=2025 --------------
+# ######################################---
+# 
+# year=2025
+# 
+# export_model_year(year)
+# 
+# 
+# 
 dbDisconnect(con)
