@@ -215,7 +215,20 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
           WHERE das_year in(", paste(year,year-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
   last_years_with_problem <- dbGetQuery(con, query)
+
+# Issue an error if any series in recruitment has das_qal_id NULL, the db currently still has missing quality for
+# Silver eel series, here we are creating a specific query
+# 
+  query <- "SELECT ser_nameshort, t_dataseries_das.* FROM datawg.t_dataseries_das  
+  JOIN datawg.t_series_ser ON ser_id = das_ser_id
+  WHERE das_qal_id IS NULL 
+  AND ser_qal_id = 1
+  AND ser_typ_id = 1; "
   
+  problems_of_missing_quality <- dbGetQuery(con, query)
+  ser_qal_missing <- unique(problems_of_missing_quality$ser_nameshort)
+  w <- sprintf("Series %s has missing quality, data with das_qal_id NULL will not be queried from the database, check this series and remove NULL das_qal_id", paste(ser_qal_missing, collapse = ','))
+  if (nrow(problems_of_missing_quality)>0) warning(w)
   
 # When were the series included ? -------------------------------
   
@@ -230,7 +243,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
 # catch and trap and transport series (Ems, Vidaa) but it also concerns fully scientific
 # Estimates....
   ###############################################################################
-  wger_init[,"area"] <- NA
+   wger_init[,"area"] <- NA
 # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
 # but currently wgeel only uses two areas so the following script is kept for memory
 # but mostly useless
@@ -284,7 +297,6 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
           ser_distanceseakm,ser_method,ser_sam_gear,ser_restocking from datawg.t_series_ser where ser_typ_id =1 ')
 # fix integer64 rounded to zero :-o
   statseries$missing <- as.integer(statseries$missing)
-# these data will 
   for (i in 1:length(path)){
     save(wger_init,file=str_c(path[i],"wger_init.Rdata"))
     cat("writing", str_c(path[i],"wger_init.Rdata"),"\n")
