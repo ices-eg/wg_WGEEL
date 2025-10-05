@@ -2293,7 +2293,7 @@ autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
 
 
 ```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=str_c("WGEEL glass eel recruitment index for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to ", CY,". The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) have been scaled to $\\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis.")}
-knitr::include_graphics(paste0(imgwd,"bbon.png"))
+knitr::include_graphics(paste0(imgwd,"figure5_ribbon.png"))
 ```
 
 ```{r benezech, echo = FALSE, warning=FALSE, message=FALSE}
