@@ -277,9 +277,9 @@ get_country <- function(data, country_ref_=country_ref){
 }
 
 get_country_table <- function(data, country_ref_=country_ref){
-  string_with_countries <- right_join(data.frame("cou_code" = data%>%select(-1)%>%colnames()%>%sort()),
-      country_ref_%>% select(cou_code, cou_country),
-      by="cou_code") %>% mutate(text =paste0(cou_country," (",cou_code,")")) %>% pull(text) %>% paste(collapse= ", ")
+  string_with_countries <- dplyr::left_join(data.frame("cou_code" = data%>%select(-1)%>%colnames()%>%sort()),
+      country_ref_%>% dplyr::select(cou_code, cou_country),
+      by="cou_code") %>% na.omit() %>% dplyr::mutate(text =paste0(cou_country," (",cou_code,")")) %>% pull(text) %>% paste(collapse= ", ")
   string_with_countries <- gsub( "Great Britain", "United Kingdom", string_with_countries)
   return(string_with_countries)
 }
