@@ -1274,7 +1274,7 @@ figure5 <- g+geom_line(aes(colour=area,lty=area),lwd=1.3)+geom_point(aes(colour=
 				legend.key = element_rect(colour = NA, fill = 'white'),
 				legend.text = element_text(size = 10, colour = 'black'), 
 				legend.background = element_rect(colour = NA, fill = 'white'),
-				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min * 100,ymax=p_std_1960_1979_max * 1000,fill=area),alpha=.3)
+				legend.position=c(.8,.9))+geom_ribbon(aes(ymin=p_std_1960_1979_min * 100,ymax=p_std_1960_1979_max * 100,fill=area),alpha=.3)
 
 figure5
 save_figure("figure5_ribbon",figure5,600,480)
@@ -2293,16 +2293,51 @@ autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
 
 
 ```{r figure5, fig.width=16/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=str_c("WGEEL glass eel recruitment index for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to ", CY,". The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) have been scaled to $\\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis.")}
-knitr::include_graphics(paste0(imgwd,"figure5_ribbon.png"))
+knitr::include_graphics(paste0(imgwd,"bbon.png"))
 ```
 
+```{r benezech, echo = FALSE, warning=FALSE, message=FALSE}
+source("fit_benezech.R")
+model_path <- "model_random_slope_benezech.R"
+debug(fit_modele_benezech)
+benezech_EE <- fit_modele_benezech(dat_ge, "Elsewhere Europe", model_path)
+benezech_NS <- fit_modele_benezech(dat_ge, "North Sea", model_path)
 
-In Elsewhere Europe, recruitment in 2025 is higher than in recent years and
-nearly comparable to levels observed in the early 2000s. This increase appears
-particularly marked in the northern part of the area, especially with some Irish
-series that display high residuals (Figure \@ref(fig:figuremapresidyoy)). It
-should be reminded that those results are still preliminary and will be updated
-next year once all time series will be made available
+```
+
+For the two glass eel indices, we carry out an analysis to assess the position 
+of the last values of indices compared to the overall trend. To so, we used the 
+model developed and adapted the model of Bénézech et al. (2024).
+This model fits an autoregressive model to the recruitment index from 1980 to 
+`r CY-1`, using an AR(1) model. It postulates that the recruitment follows a 
+trend that can vary with an autocorrelation. 
+
+$$
+\begin{aligned}
+& IR_t \sim LN(\mu_t,\sigma_R^2) \\
+& \mu_t = \mu_{t-1} + a_t + \eta_t \;\;\;\;\;\;\; \textrm{with } \eta_t \sim N(0, \sigma_\eta^2)  \\
+& a_t = a_{t-1} + \delta_t \;\;\;\;\;\;\;\;\;\;\;\;\;\;\;\; \textrm{with } \delta_t \sim N(0,0.25 \cdot \frac{\sigma_\eta^4}  {\sigma_R^2})
+\end{aligned}
+$$
+
+
+with $IR_t$ the recruitment index in year $t$, $\mu_t$ is the average value predicted by the recruitment and $a_t$ is the recruitment slope. $\delta_t$, and $\eta_t$ are the random noise.
+
+In France, this model is used to predict upcoming recruitment and set up yearly quota each year
+
+Then the model is used to predict the recruitment for `r CY`. Compared to Bénézech 
+et al. (2024), we removed any censorships to leave all the weights to the data 
+and removed any expertise. The distribution of the posterior `r CY` recruitment 
+is then compared to the value estimated by the WGEEL index. The model is run with
+JAGS using the exact same configuration as Bénézech et al. (2024). 
+
+The WGEEL estimated mean value of the Elsewhere Europe index corresponds to the
+`r round(benezech_EE * 100, digits = 1)`% quantile of the posterior distribution 
+of the prediction of the model of Benezech et al. (2024), while the North Sea 
+index (mean value) corresponds to the `r round(benezech_NS * 100, digits = 1)`%
+quantile. This confirms that, while the Elsewhere Europe is higher than 
+recent years and North Sea index is lower, they are both in the range of predicted values.
+
 
 ```{r figuremapresidyoy, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap=str_c("Maps of the model residuals for year", CY," in Elsewhere Europe (dots) and North Sea (triangles). A positive (red) residual indicates that the time series has a higher value than the one predicted by the model for", CY," whereas negative (blue) residuals indicate that lower values.")}
 knitr::include_graphics(paste0(imgwd,"figureResidMapyoy.png"))
