@@ -534,8 +534,9 @@ Figure \@ref(fig:corrComGfig) presents the time-series up to and including
 `r CY` for total commercial glass eel landings as reported by
 `r ncol(tableComLandG)-2` countries in the Eel Data call
 (`r paste(names(tableComLandG)[-c(1,ncol(tableComLandG))], collapse = ", ")`),
-including reconstructed data to fill data gaps. In Spain, a new commercial fishery was 
-created in the Basque Country after the closure of the recreational one.
+including reconstructed data to fill data gaps. In Spain, part of the former Basque recreational
+fishery was recommissioned as a commercial fishery following the ban of recreational
+fisheries.
 
 Glass eel landings show a sharp decline since 1980 from 2,000 t to about 40–60
 t since 2009 onwards. In `r CY`, the raw (uncorrected) landings data for glass
@@ -727,6 +728,35 @@ print(g_combined_landings_G)
 
 
 ```
+<br>
+
+
+The ratio between reported commercial landings of glass eels and the recruitment
+index in Elsewhere Europe provides a relative measure of exploitation rate
+(Figure \@ref(fig:fishingmortality)). The analysis was restricted to the
+"Elsewhere Europe" area since no commercial glass eel fisheries took place in
+the North Sea area in recent years. Moreover, the analysis was restricted to the
+post-2000 period for which data are more comprehensive. The exploitation rate
+for glass eels has decreased after the implementation of the Eel Regulation in
+2009 (Fig, 5) (data for 2009 were removed as France, which accounts for a
+significant part of the landings, did not report data for that year) and
+remained relatively stable since then. After a peak in 2024, the currently
+estimated higher recruitment for 2025 contributes to the lowest exploitation
+rate. The exploitation rate can only be estimated for glass eel : since for
+yellow eel standing stock and silver eels no reliable abundance estimates are
+available to allow comparison with landings
+
+
+```{r fishingmortality, eval=TRUE, fig.cap="Reported G and GY commercial landings divided by recruitment index for EE (including landings reported in EMUs ES_Astu, ES_Cant, ES_Cata, ES_Minh, ES_Mino, ES_Vale, FR_Adou, FR_Arto, FR_Bret, FR_Garo, FR_Loir, FR_Sein, FR_total, GB_Dee, GB_NorW, GB_Seve, GB_SouE, GB_SouW, GB_Wale, GB_total, IT_Lazi, IT_Tosc, IT_Vene). The resulting ratio was standardised by the mean value till 2008 and  is a relative proxy of the exploitation rate that informs on trends in fishing mortality. Landings data from 2000 are not available for GB. Year 2009 was removed since France, which accounts for a significant part of the landings, did not report data for this year.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+
+knitr::include_graphics(paste0("../recruitment/", CY, "/image/exploitation_rates_GE.png"))
+
+
+```
+
+<br>
+
+
 
 ### Yellow and silver eel 
 
@@ -741,8 +771,8 @@ since 2009. Reported landings from yellow and silver eel commercial fisheries
 `r CY-2` (number of countries reporting `r nb_cou_Y_CY1` and `r nb_cou_Y_CY2`).
 Yellow and silver eel commercial fisheries averaged `r round(YS_meanCY3_CY7)` t
 per year over the five previous years (from `r CY-7` to `r CY-3`). In addition
-to the data shown here, WGEEL received landings data from Egypt, but it has not
-yet been incorporated in the analyses since it is currently under evaluation.
+to the data shown here, WGEEL received landings data from Egypt, but these have not
+been incorporated in the analyses as they need evaluation.
 
 
 
@@ -934,22 +964,17 @@ g_combined_landings_YS <- g_percentage_reconstructed /
 print(g_combined_landings_YS)
 
 ```
-
+<br>
 
 ## Recreational fisheries
-
-EU Council Regulation 2023/194 and 2023/195 banned all recreational fisheries in
-marine areas. The EU Council ban was continued in 2024 by Council Regulation
-2024/257 and 2024/259. In the Mediterranean, all recreational fisheries in all
-habitats were banned since 2024 by EU Council Regulation 2023/2124. In addition,
-recreational fisheries in some countries were banned completely through local
-regulations (e.g. Ireland, UK, Portugal, Sweden, Norway, Spain) and some
-countries restricted the season for recreational fishery in freshwater
-(e.g. Finland, Denmark).
+In addition to Regulations described in chapter 1, recreational fisheries in some
+countries were banned completely through local
+regulations and some
+countries restricted the season for recreational fishery in freshwater.
 
 
-Recreational glass eel fishery landings decrease from over 1000 tonnes in the early
-1980s, primarily from France, (Figure \@ref(fig:recLandGfig) to values below 5 t 
+Recreational glass eel fishery landings decreased from over 1000 tonnes in the early
+1980s, primarily from France, (Figure \@ref(fig:recLandGfig)) to values below 5 t 
 after 2005, with the inset revealing minimal residual catches that ceased in France
 in 2010 and in Spain in 2023 following regulatory bans.
 
@@ -962,7 +987,7 @@ fisheries in 2006, while for other years, France provided declared catch by
 recreational fishers with gear in public rivers. Sweden provided estimations for
 some years in the past based on questionnaires and calculations from *Statistics Sweden*.
 Belgium data is based on a questionnaire from 2015, and did not update the date since then.
-This implies that total recreational catches for certain years is probably
+This implies that total recreational catches for certain years are probably
 underestimated. The mean landings from yellow and silver eel recreational
 fisheries over the previous five years (`r CY-7`–`r CY-3`) were
 `r round(YS_mean_rec_CY3_CY7)` t. The data for `r CY-1` is incomplete and will
@@ -1030,13 +1055,14 @@ color_countries4plot <- color_countries4[names(color_countries4)%in%levels(landi
 cou_string <- get_country(data=landings3)
 titleGrec <- paste0("Time-series of reported recreational glass eel fishery landings (tonnes), 1978-",CY, " by country, ", cou_string,". Note: Recreational fisheries for glass eel were banned in France in 2010, and in Spain 2023.")
 
-g_raw_Rlandings_G <- ggplot(filter(landings3,eel_value>0)) + 
+raw_Rlandings_G <- filter(landings3,eel_value>0)
+g_raw_Rlandings_G <- ggplot(raw_Rlandings_G) + 
     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
     xlab("year") + 
     ylab("Landings (tonnes)")+
     scale_fill_manual("Country", values=color_countries4plot)+
     theme_bw()+
-    geom_magnify(from = c(xmin = 2010, xmax = CY-1, ymin = 0, ymax = 3),
+    geom_magnify(from = c(xmin = 2010, xmax = CY, ymin = 0, ymax = 3),
         to = c(xmin=2000, xmax=CY, ymin=500, ymax=1250), axes="xy")
 
 print(g_raw_Rlandings_G)
@@ -1050,7 +1076,7 @@ print(g_raw_Rlandings_G)
 # ymaxbox=40))
 ```
 
-
+<br>
 \newline
 
 
@@ -1906,11 +1932,11 @@ print(g_releasekg_OG)
 
 Silver eel conservation fisheries to "trap and transport" silver eels around
 hydro power and pumping stations take place e.g. in Sweden, Finland, Ireland and
-the Netherlands. In addition, in Greece and France a certain percentage of
-silver eels caught by the fishery, and therefore recorded as landings, are later
-released in the Mediterranean outside the lagoons (30% of caught silver eels).
+the Netherlands. In Greece and France, a proportion of the
+silver eels caught by the fishery are recorded as landings and later
+released in the Mediterranean Sea.
 These are reported as released silver eel (Figure \@ref(fig:releasekgSf)). Spain
-has made some releases of silver eels from the Encanyissada lagoon. The quantity
+has released silver eels from the Encanyissada lagoon. The quantity
 of silver eels (S) released in `r CY-2` and
 `r CY-1` is `r round(rel_CY2_S_t)` and
 `r round(rel_CY1_S_t)` tonnes respectively (number of countries reporting:
@@ -2265,7 +2291,7 @@ print(g_other_landingskg_all)
 
 All eel aquaculture currently relies upon wild eel for seeding. WGEEL collect production
 data in its yearly data calls, but those data are known to be largely incomplete. In this context,
-WGEEL considered that those data are not relevant.  
+WGEEL considered that those data are not reliable (see chapter 3 for futher details).  
 
 
 ```{r aquat,echo=FALSE, warning=FALSE}
