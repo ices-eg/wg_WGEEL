@@ -346,3 +346,77 @@ AND ser_cou_code = 'FR'
 
 SELECT * FROM datawg.t_groupseries_grser WHERE grser_ser_id = 344
 
+-- fix duplicates in lithuania
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'LT' AND eel_typ_id = 4 AND eel_qal_id IN (1,2,4) AND eel_value >0 ORDER BY eel_year;
+
+
+SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'LT' 
+AND eel_typ_id = 4 
+AND eel_qal_id IN (1,2,4) 
+AND eel_value >0 
+AND eel_lfs_code = 'YS' 
+AND eel_hty_code !='C'
+AND eel_year > 2000;
+
+
+
+UPDATE datawg.t_eelstock_eel SET eel_qal_id =25 WHERE
+(eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2021, 'S', 'LT_Lith', 4, 'F', 1); 
+UPDATE datawg.t_eelstock_eel SET eel_qal_id =25 WHERE
+(eel_year, eel_lfs_code, eel_emu_nameshort, eel_typ_id, eel_hty_code, eel_qal_id)=(2021, 'Y', 'LT_Lith', 4, 'F', 1);
+
+UPDATE datawg.t_eelstock_eel SET eel_emu_nameshort = 'LT_Lith' 
+ eel_cou_code = 'LT' AND eel_typ_id = 4 AND eel_qal_id IN (1,2,4) AND eel_value >0; --183
+ 
+ 
+ SELECT * FROM datawg.t_dataseries_das JOIN datawg.t_series_ser ON ser_id = das_ser_id WHERE ser_nameshort = 'OriaG'
+SELECT ser_nameshort, t_dataseries_das.* FROM datawg.t_dataseries_das  
+JOIN datawg.t_series_ser ON ser_id = das_ser_id
+ WHERE das_qal_id IS NULL 
+ AND ser_qal_id = 1
+ AND ser_typ_id = 1;
+ 
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3923;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3931;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3920;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3918;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=7891;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3922;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3924;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3930;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=6860;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=8407;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=3919;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=5672;
+UPDATE datawg.t_dataseries_das
+  SET das_qal_id=1
+  WHERE das_id=8835;
+ 
+ 
+ 

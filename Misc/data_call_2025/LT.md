@@ -383,6 +383,9 @@ Group variables            None
 ## Annex 4
 
  13 new values inserted in the database
+ During WGEEL , identified duplicates
+ Removed the LT_Total and changed to LT_Lith
+ Removed duplicates values YS and Y and S reported for the same years.
 
 ── Data Summary ────────────────────────
                            Values
