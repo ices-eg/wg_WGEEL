@@ -503,15 +503,15 @@ table <- data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order  <-  n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order  <-  n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableComLandG<-table
 
 caption <- paste("Table 1:  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: ",
@@ -521,10 +521,7 @@ ka_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),
     format="pandoc",caption = caption)
 
 ka_com_land_G <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 1"), paste(":  Glass eel commercial fisheries landings (in tonnes) from 1984 to ",max(year),", reported by countries: ",
-                 get_country_table(tableComLandG), ".", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 
 
@@ -549,7 +546,7 @@ Table XXX for raw data and Table XXX for raw and corrected data).
 
 
 
-```{r comlandGfig, echo=FALSE, warning=FALSE, fig.cap=titleG, fig.height=5, fig.width=10, eval=FALSE}
+```{r comlandGfig, echo=FALSE, warning=FALSE, fig.cap=titleG, fig.height=5, fig.width=10, eval=TRUE}
 
 landings3<-grouped_data
 landings3$eel_value <- as.numeric(landings3$eel_value) / 1000
@@ -577,9 +574,9 @@ titleG <- paste("Time-series of reported commercial glass eel fishery landings (
 
 
 # title <- paste("Commercial landings for glass eel in all habitats")
-# g_raw_Clandings_G<- ggplot(landings3) + 
+# g_raw_Clandings_G<- ggplot(landings3) +
 #     geom_col(aes(x=eel_year,y=eel_value,fill=eel_cou_code), position='stack')+
-#     xlab("year") + 
+#     xlab("year") +
 #     ylab("Glass eel landings (tonnes)")+
 #     #ggtitle(title)+
 #     scale_fill_manual("Country",values=color_countries2)+
@@ -629,11 +626,11 @@ table2=dcast(landings3, eel_year~eel_cou_code, value.var = "predicted",fun = pro
 
 ```{r corrComGt, echo=FALSE, warning=FALSE}
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 
 #add a column with the sum of all the values and prod of predicted
 
@@ -649,8 +646,8 @@ for (col in 2:ncol(table)){
 
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableCorLandYS<-table
 ka_cor_com_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
@@ -724,10 +721,11 @@ g_combined_landings_G <-  g_percentage_reconstructed /
   g_reconstructed_landings + patchwork::plot_layout(heights = c(1,3))
 
 
-print(g_combined_landings_G)
+g_combined_landings_G
 
 
 ```
+
 <br>
 
 
@@ -803,38 +801,46 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 #n_order <- c(1,n_order)
 #table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
+
+
+
+countries <- setdiff(names(table), c("eel_year", "total"))
+nbcountries <- length(countries)
+set1 <- countries[seq_len(round(nbcountries/3))]
+set2 <- countries[(1+round(nbcountries/3)):round(nbcountries* 2/3)]
+set3 <- countries[(round(nbcountries* 2/3)+1):nbcountries]
+
+set1names <- country_c$cou_country[match(gsub("\\*", "", set1), country_c$cou_code)]
+set2names <- country_c$cou_country[match(gsub("\\*", "", set2), country_c$cou_code)]
+
+set3names <- country_c$cou_country[match(gsub("\\*", "", set3), country_c$cou_code)]
+
+
+
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableComLandYS<-table
-table1<-table[,c(1,2:12)]
-cou_text1 <- get_country_table(table1)
-table2<-table[,c(1,13:23)]
-cou_text2 <- get_country_table(table2)
-table3<-table[,c(1,20:ncol(table))]
-cou_text3 <- get_country_table(table3[,-ncol(table3)])
-caption <- 
+table1<-table[,c("Year", set1)]
+cou_text1ComLandYS <- get_country_table(table1)
+table2<-table[,c("Year", set2)]
+cou_text2ComLandYS <- get_country_table(table2)
+table3<-table[,c("Year", set3, "total")]
+cou_text3ComLandYS <- get_country_table(table3[,-ncol(table3)])
+names(table1) <- gsub("NL", "NL*", gsub("FR", "FR*",names(table1)))
+names(table2) <- gsub("NL", "NL*", gsub("FR", "FR*",names(table2)))
+names(table3) <- gsub("NL", "NL*", gsub("FR", "FR*",names(table3)))
 
-ka_com_land_YS1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep=""))
-ka_com_land_YS3 <- kable(format(table3,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part c  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 3), reported by countries: ", cou_text3,".", sep=""))
-
-
+yearcom_land_YS <- range(table1$Year)
 
 ka_com_land_YS1 <- flextable(table1) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 2a"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 ka_com_land_YS2 <- flextable(table2) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 2b"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 ka_com_land_YS3 <- flextable(table3) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 2c"), paste(":  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text3," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES()
 
 
 ```
@@ -907,11 +913,11 @@ table2 = dcast(grouped_data, eel_year~eel_cou_code, value.var = "predicted",fun.
 
 #ordering the column accordign to country order
 country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
-table2 = table2[, n_order]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
+# table2 = table2[, n_order]
 #add a column with the sum of all the values and prod of predicted
 
 table<-data.frame(table,total=rowSums(table[,-1],na.rm = TRUE))
@@ -925,7 +931,7 @@ for (col in 2:ncol(table)){
 
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
+#table[is.na(table)]<-''
 tableCorLandYS<-table
 ka_cor_com_land_YS <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 12: Raw+ corr commercial landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")"," for ",paste(paste(country,collapse=","), ".", sep="")))
 
@@ -964,6 +970,7 @@ g_combined_landings_YS <- g_percentage_reconstructed /
 print(g_combined_landings_YS)
 
 ```
+
 <br>
 
 ## Recreational fisheries
@@ -1015,18 +1022,18 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+##table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tablerecLandG<-table
 #table1<-table[,c(1,14,15,ncol(table))]
-table$total<-as.character(table$total)
+#table$total<-as.character(table$total)
 ka_rec_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4: Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(get_country_table(table), ".", sep="")))
 #ka_rec_land_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 4:  Glass eel recreational fisheries landings (in tonnes) from ", min(year)," to ",max(year),")",", reported by countries: FR France, ES Spain.", sep=""))
 
@@ -1034,9 +1041,7 @@ ka_rec_land_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",c
 
 
 ka_rec_land_G <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 4"), paste(": Raw recreational landings (tonnes) for glass eels  ","(",min(year),"-",max(year),")"," for ",paste(get_country_table(table), ".", sep=""))),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 ```
 
@@ -1102,36 +1107,35 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableRecLandYS<-table
 table1<-table[,c(1,2:12)]
-cou_text1 <- get_country_table(table1)
+cou_text1rec_land_Y1 <- get_country_table(table1)
 table2<-table[,c(1,13:ncol(table))]
-cou_text2 <- get_country_table(table2[,-ncol(table2)])
+cou_text2rec_land_Y <- get_country_table(table2[,-ncol(table2)])
 ##ka_rec_land_Y<- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 3: Raw recreational landings (tonnes) for yellow and silver eels  ","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_rec_land_Y1<- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep=""))
-ka_rec_land_Y2<-kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2," , total.", sep=""))
+ka_rec_land_Y1<- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1rec_land_Y1," (to be continued for other countries in next table).", sep=""))
+ka_rec_land_Y2<-kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part b,  Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 2), reported by countries: ", cou_text2rec_land_Y," , total.", sep=""))
 
 
 
 ka_rec_land_Y1 <- flextable(table1) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 3a"), paste(": Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text1," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES()
 
 ka_rec_land_Y2 <- flextable(table2) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 3b"), paste(": Recreational fisheries landings (in tonnes) for yellow eel and silver eel from ", min(year)," to ",max(year)," (part 1), reported by countries: ", cou_text2," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
+
+
+yearrec_land_Y <- range(table1$Year)
+ 
 
 
 ```
@@ -1187,7 +1191,7 @@ status with any level of certainty. Thus, efforts to improve traceability and
 the scale of demand will assist enforcement but also allow us to better
 understand what proportion of legal catch enters illegal trade, and thus
 estimate illegal catch which would inform the characterization of the impacts of
-all fisheries on the stock.
+all fisheries on the stock. More details on recent events are provided in section 3.
 
 ## Other landings
 
@@ -1217,25 +1221,22 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 table<-data.frame(table,total=rowSums(table[,-1, drop = FALSE],na.rm=T))
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
-tableRelY<-table
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
+tableotherLandingY<-table
 ka_other_landings_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 6:  other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep=""))
 
-
+cou_textotherlandingsY <- get_country_table(table) 
 
 ka_other_landings_Y <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 11"), paste(": other_landings for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES() 
 
 
 ```
@@ -1267,21 +1268,11 @@ print(g_other_landings_Y)
 
 # Releases 
 
-Data have been reported on restocking which includes eels released at the glass
-eel phase, either directly (G), after a quarantine (QG), or after a period of
-some months of growth in aquaculture (owngrown eels - OG), at the yellow eel (Y) or silver eel
-(S) stage. Dekker and Beaulaton (2016) established the start of the eel
-restocking back to 1840 and provided a review of available data since that date
-that are not included in this report (based on reported data from countries).
-They also emphasis the large variety of practices under the term *restocking*.
+Given that eels can be displaced at different life stages and transported from a few meters within the same waterbody (assisted migration) to being moved between waterbodies and/or EMUs (restocking), WGEEL broadly categories all of them as “releases”, though the term “restocking” is still used in some circumstances. As all data are grouped together, it is hard to distinguish the source of released eels, but other landings data should provide some information on the quantity of eels caught and subsequently released for assisted migration (or other purposes not including commercial or recreational fisheries). For more information, please see Stock Annex, Chapter 1.6.9.
 
-There are also some releases of mixed life stages: Glass + Yellow eel (G+Y) and
-Yellow + Silver eel (Y+S) for Ireland and Spain, but they will not be presented
-in this report. Adding to the complexity, displacements of eel can range from a
-few meters within the same waterbody (i.e. assisted migration to bypass an
-obstacle), to eel being moved between waterbodies and/or EMUs. There are still
-inconsistencies and variations in how countries report these displacements.
-Therefore, the WGEEL broadly categorizes them as "releases".
+Release data include eels released at the glass eel phase, either directly (G), or after a quarantine (QG), after a period of some months of growth in aquaculture (OG), at the yellow eel (Y) or silver eel (S) stage. There are also some releases of mixed life stages: Glass + Yellow eel (G+Y) and Yellow + Silver eel (Y+S) for Ireland and Spain, but they will not be presented in this report. Dekker and Beaulaton (2016) provide a review of available data that are not included in this report (based on reported data from countries).
+  
+
 
 ## Glass eel releases (G + QG)
 
@@ -1317,39 +1308,33 @@ table<-data.frame(table,total=rowSums(table[,-1, drop=FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableRelG<-table
 table1<-table[,c(1,2:8)]
-cou_text1 <- get_country_table(table1)
+cou_text1release_G <- get_country_table(table1)
 table2<-table[,c(1,9:ncol(table))]
-cou_text2 <- get_country_table(table2[,-ncol(table2)])
+cou_text2release_G <- get_country_table(table2[,-ncol(table2)])
 #ka_release_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =
 #				paste("Table 5: Release (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(paste(country,collapse=","), ".", sep="")))
-ka_release_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep=""))
-ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2, "", sep=""))
+ka_release_G1 <- kable(format(table1,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("part a:  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1release_G," (to be continued for other countries in next table).", sep=""))
+ka_release_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("partb:  Release of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: ", cou_text2release_G, "", sep=""))
 
 
 
 
 ka_release_G1 <- flextable(table1) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 5a"), paste(":  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text1," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES() 
 
 ka_release_G2 <- flextable(table2) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 5b"), paste(":  Release of glass eel (G) and quarantined glass eel (QG) in millions from ", min(year)," to ",max(year),")",",  reported by countries ", cou_text2," (to be continued for other countries in next table).", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES() 
 
 
 ```
@@ -1463,16 +1448,16 @@ table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
-tableRelG<-table
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
+tableotherLandingsG<-table
 
 
 ka_other_landings_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =
@@ -1481,13 +1466,10 @@ ka_other_landings_G <- kable(format(table,digt=1,drop0trailing=TRUE),format="pan
 #ka_other_landings_G2 <- kable(format(table2,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 5b:  other_landings of glass eel in millions from ", min(year)," to ",max(year),")",",  reported by countries: IE Ireland, GB United Kingdom, FR France, ES Spain, IT Italy, GR Greece.", sep=""))
 
 
+cou_textotherLandingG <- get_country_table(table)
 
 ka_other_landings_G <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 10"), paste(": Other_landings (nb in millions) of glass eels (G and OG)","(",min(year),"-",max(year),")","for",paste(get_country_table(table), ".", sep=""))),
-              style = "Normal", align_with_table = FALSE)
-
-
+  flextable2ICES() 
 ```
 
 
@@ -1576,15 +1558,15 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 table<-data.frame(table,total=rowSums(table[,-1,drop=FALSE],na.rm=T))
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableRelQG<-table
 ka_release_QG <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for quarantined glass eel from ", min(year)," to ",max(year)," in millions, reported by countries SE Sweden, FI Finland.", sep=""))
 
@@ -1685,25 +1667,23 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
+#table[is.na(table)]<-''
 tableRelOG<-table
 ka_release_OG <- kable(format(table,digt=3,drop0trailing=TRUE),format="pandoc",caption =paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep=""))
 
 
+cou_textreOG <- get_country_table(table)
 
 
 ka_release_OG <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 9"), paste("Table 9: Releases for ongrown glass eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES() 
 
 
 ```
@@ -1755,25 +1735,22 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableRelY<-table
 ka_release_Y <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table), ".", sep=""))
 
-
+cou_textrelY <- get_country_table(table)
 
 ka_release_Y <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 6"), paste(": Releases for yellow eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table), ".", sep="")),
-              style = "Normal", align_with_table = FALSE)
-
+  flextable2ICES() 
 
 
 ```
@@ -1958,24 +1935,22 @@ table = dcast(grouped_data, eel_year~eel_cou_code, value.var = "eel_value",fun.a
 table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableRelS<-table
 ka_release_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep=""))
 
-
+cou_textrelS <- get_country_table(table)
 
 ka_release_S <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 7"), paste(": Releases for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries: ", get_country_table(table),".", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 
 
@@ -2059,24 +2034,22 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
-tableRelS<-table
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
+tableotherLandingsS<-table
 ka_other_landings_S <- kable(format(table,digt=1,drop0trailing=TRUE),format="pandoc",caption =paste("Table 7: other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep=""))
 
-
+cou_textotherlandingsS <- get_country_table(table)
 
 ka_other_landings_S <- flextable(table) |>
-  flextable2ICES() |>
-  set_caption(as_paragraph(as_b("Table 12"), paste(": other_landings for silver eel from ", min(year)," to ",max(year)," in millions, reported by countries ", get_country_table(table),".", sep="")),
-              style = "Normal", align_with_table = FALSE)
+  flextable2ICES() 
 
 
 ```
@@ -2313,15 +2286,15 @@ table<-data.frame(table,total=rowSums(table[,-1],na.rm=T))
 
 
 #ordering the column accordign to country order
-country_to_order = names(table)[-1]
-n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
-n_order <- n_order+1
-n_order <- c(1,n_order)
-table = table[, n_order]
+# country_to_order = names(table)[-1]
+# n_order = order(country_ref$cou_order[match(country_to_order, country_ref$cou_code)])
+# n_order <- n_order+1
+# n_order <- c(1,n_order)
+# table = table[, n_order]
 # options(knitr.kable.NA="") this does not work
 names(table)[1]<-"Year"
-table[is.na(table)]<-''
-table$total<-as.character(table$total)
+#table[is.na(table)]<-''
+#table$total<-as.character(table$total)
 tableAqua<-table
 table1<-table[,c(1,2:8)]
 table2<-table[,c(1,9:ncol(table))]
@@ -2365,34 +2338,236 @@ print(g_aquaculture)
 \newline
 
 
-# Tables
+# Annex 9: Trends in landings and releases
 
-```{r table, echo=FALSE, warning=FALSE, results="asis"}
+
+::: {custom-style="Table Caption"}
+Table 1: Glass eel commercial fisheries landings (in tonnes) from 1984 to `r max(tableComLandG$Year)` reported by countries:
+`r get_country_table(tableComLandG)`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::                 
+                 
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
 
 (ka_com_land_G)
-(ka_com_land_YS1)
-(ka_com_land_YS2)
-(ka_com_land_YS3)
-(ka_rec_land_Y1)
-(ka_rec_land_Y2)
-(ka_rec_land_G)
-#print(ka_release_G)
-(ka_release_G1)
-(ka_release_G2)
-(ka_release_Y)
-(ka_release_S)
-#print(ka_release_QG)
-(ka_release_OG)
-#print(ka_aqua1)
-#print(ka_aqua2)
-(ka_other_landings_G)
-(ka_other_landings_Y)
-(ka_other_landings_S)
 
 ```
 
 
-```{r save_graphs_and_tables,echo=FALSE, warning=FALSE}
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 2a:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from `r min(yearcom_land_YS)` to
+`r max(yearcom_land_YS)` (part 1), reported by countries: `r cou_text1ComLandYS` (to be continued for other countries in next table). Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_com_land_YS1)
+```
+
+\* Landings from France are incomplete between 2002 and 2010.
+
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 2b:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from `r min(yearcom_land_YS)` to
+`r max(yearcom_land_YS)` (part 2), reported by countries: `r cou_text2ComLandYS` (to be continued for other countries in next table). Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_com_land_YS2)
+```
+
+
+\pagebreak
+
+
+::: {custom-style="Table Caption"}
+Table 2c:  Commercial fisheries landings (in tonnes) for yellow eel and silver eel from `r min(yearcom_land_YS)` to
+`r max(yearcom_land_YS)` (part 2), reported by countries: `r cou_text3ComLandYS`. The total 
+column is the yearly sum for all countries included in tables 2a, 2b, and 2c and 
+not just the countries listed in this particular table. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_com_land_YS3)
+```
+
+\* Landings from the Netherlands are incomplete before 2010.
+
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 3a: Recreational fisheries landings (in tonnes) for yellow eel and silver
+eel from `r min(yearrec_land_Y)` to `r max(yearrec_land_Y)` (part 1), reported by 
+countries: `r cou_text1rec_land_Y1` (to be continued for other countries in next table). Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_rec_land_Y1)
+```
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 3b: Recreational fisheries landings (in tonnes) for yellow eel and silver 
+eel from `r min(yearrec_land_Y)` to `r max(yearrec_land_Y)` (part 2), reported 
+by countries: `r cou_text2rec_land_Y`. The total 
+column is the yearly sum for all countries included in tables 3a and 2b and 
+not just the countries listed in this particular table. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_rec_land_Y2)
+```
+\pagebreak
+
+
+
+::: {custom-style="Table Caption"}
+Table 4: Raw recreational landings (tonnes) for glass eels  from `r min(tablerecLandG$Year)` 
+to `r max(tablerecLandG$Year)` for `r get_country_table(tablerecLandG)`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_rec_land_G)
+#print(ka_release_G)
+
+```
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 5a:  Release of glass eel (G) and quarantined glass eel (QG) in millions 
+from `r min(tableRelG$Year)` to `r max(tableRelG$Year)` reported by countries 
+`r cou_text1release_G` (to be continued for other countries in next table). Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+
+:::
+
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_release_G1)
+```
+\pagebreak
+
+
+::: {custom-style="Table Caption"}
+Table 5b:  Release of glass eel (G) and quarantined glass eel (QG) in millions 
+from `r min(tableRelG$Year)` to `r max(tableRelG$Year)` reported by countries 
+`r cou_text2release_G`. The total 
+column is the yearly sum for all countries included in tables 5a and 5b and 
+not just the countries listed in this particular table. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+
+:::
+
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_release_G2)
+```
+
+
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 6: Releases of yellow eel from `r min(tableRelY$Year)` to
+`r max(tableRelY$Year)` in millions, reported by countries `r cou_textrelY`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_release_Y)
+```
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 7: Releases of silver eel from `r min(tableRelS$Year)` to `r max(tableRelS$Year)`
+ in millions, reported by countries `r cou_textrelS`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_release_S)
+#print(ka_release_QG)
+```
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 8: Releases of ongrown glass eel from `r min(tableRelOG$Year)` to `r max(tableRelOG$Year)`
+in millions, reported by countries: `r cou_textreOG`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_release_OG)
+#print(ka_aqua1)
+#print(ka_aqua2)
+```
+
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 9: Other_landings of glass eels in millions from `r min(tableotherLandingsG$Year)` to `r max(tableotherLandingsG$Year)` for `r cou_textotherLandingG`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_other_landings_G)
+```
+
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 10: Other_landings of glass eels (Y) in millions from `r min(tableotherLandingY$Year)` to `r max(tableotherLandingY$Year)` for `r cou_textotherlandingsY`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_other_landings_Y)
+```
+
+\pagebreak
+
+::: {custom-style="Table Caption"}
+Table 11: Other_landings of silver eels (S) in millions from `r min(tableotherLandingsS$Year)` to `r max(tableotherLandingsS$Year)` for `r cou_textotherlandingsS`. Note that values shown as 0.0
+are due to rounding and do not correspond to an actual 0.
+:::
+
+
+```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
+(ka_other_landings_S)
+```
+
+
+
+
+```{r save_graphs_and_tables,echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, eval=FALSE}
 
 #data_directory <- wg_choose.dir(caption = "Where do you want to save the tables and the graphs")
 #setwd(data_directory)
@@ -2418,27 +2593,27 @@ ggsave(paste0(imgwd,"Raw_Rec_landings_G.png"), g_raw_Rlandings_G, device = "png"
     units = "cm")
 ggsave(paste0(imgwd,"Raw_Rec_landings_YS.png"), g_raw_Rlandings_YS, device = "png", width = 30, height = 20,  
     units = "cm")
-ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 30, height = 20,
-    units = "cm")
+# ggsave(paste0(imgwd,"Aquaculture.png"), g_aquaculture, device = "png", width = 30, height = 20,
+#     units = "cm")
 
-ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
-    units = "cm")
+# ggsave(paste0(imgwd,"Releases_G.png"), g_release_G, device = "png", width = 30, height = 20,  
+#     units = "cm")
 ggsave(paste0(imgwd,"Releaseskg_G.png"), g_releasekg_G, device = "png", width = 30, height = 20,  
     units = "cm")
-ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
-    units = "cm")
+# ggsave(paste0(imgwd,"Releases_Y.png"), g_release_Y, device = "png", width = 30, height = 20,  
+#     units = "cm")
 ggsave(paste0(imgwd,"Releases_kgY.png"), g_releasekg_Y, device = "png", width = 30, height = 20,  
     units = "cm")
 ggsave(paste0(imgwd,"Releases_kgS.png"), g_releasekg_S, device = "png", width = 30, height = 20,  
     units = "cm")
-ggsave(paste0(imgwd,"Releases_S.png"), g_release_S, device = "png", width = 30, height = 20,  
-    units = "cm")
-ggsave(paste0(imgwd,"Releases_QG.png"), g_release_QG, device = "png", width = 30, height = 20, 
-    units = "cm")
+# ggsave(paste0(imgwd,"Releases_S.png"), g_release_S, device = "png", width = 30, height = 20,  
+#     units = "cm")
+# ggsave(paste0(imgwd,"Releases_QG.png"), g_release_QG, device = "png", width = 30, height = 20, 
+#     units = "cm")
 ggsave(paste0(imgwd,"Releases_OG.png"), g_release_OG, device = "png", width = 30, height = 20, 
     units = "cm")
-ggsave(paste0(imgwd,"Releases_all.png"),g_release_all, device = "png", width = 30, height = 20, 
-    units = "cm")
+# ggsave(paste0(imgwd,"Releases_all.png"),g_release_all, device = "png", width = 30, height = 20, 
+#     units = "cm")
 ggsave(paste0(imgwd,"Raw_Corr_com_landings_YS.png"), g_combined_landings_YS, device = "png", width = 30, height = 20, 
     units = "cm")
 # example for svg
