@@ -3,7 +3,6 @@ title: "European eel (*Anguilla anguilla*) throughout its natural range"
 documentclass: report
 output: 
   officedown::rdocx_document:
-    pandoc_args: ["--lua-filter=tab.lua"]
     tables:
       caption:
        style: Table Caption
@@ -593,6 +592,9 @@ hty<-unique(filtered_data$eel_hty_code)
 landingsYS <-group_data(filtered_data,geo="country", habitat=FALSE, lfs=FALSE, na.rm=TRUE) |>
   mutate(eel_cou_code = ifelse(eel_cou_code == "NL",
                                "NL*",
+                               eel_cou_code)) |>
+  mutate(eel_cou_code = ifelse(eel_cou_code == "FR",
+                               "FR*",
                                eel_cou_code),
          eel_value = eel_value / 1000) |>
   pivot_wider(id_cols = all_of("eel_year"), 
@@ -651,6 +653,8 @@ landingsYS |>
   flextable::align(align = "center", part = "header") |>
   flextable2ICES()
 ```
+
+\* Landings from France are incomplete from 2002 to 2010.
 
 <br>
 
