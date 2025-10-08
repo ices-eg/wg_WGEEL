@@ -3,7 +3,7 @@ title: "Recruitment chapter : Report on developments on the state of the Europea
 author: "WGEEL"
 date: "`r Sys.Date()`"
 documentclass: article
-output: 
+output:
   bookdown::word_document2:
     fig_caption: yes
     number_sections: no
@@ -2522,7 +2522,7 @@ Tt should be reminded that those results are still preliminary and will
 be updated next year once all time series will be made available.
 
 
-```{r benezech, echo = FALSE, warning=FALSE, message=FALSE}
+```{r benezech, echo = FALSE, warning=FALSE, message=FALSE, results = "hide"}
 if (params$regenerate | ! file.exists(paste0(outputdatawd,"benezech.Rdata"))){
   source("fit_benezech.R")
   model_path <- "model_random_slope_benezech.R"
@@ -2724,12 +2724,13 @@ recruitment is positive, the NULL hypothesis $H0:b>0$ is tested.
 ****************************************************************
 
 
-# Annex 9:	Recruitment additional information
+# Annex 10:	Recruitment additional information
 
+::: {custom-style="Table Caption"}
+Table 1: Short description of the `r selection_summary$nb_series_glass_eel` Glass eel in the recruitment index calculation updated to `r CY`.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to Water Framework Directive).
+:::
 
-
-
-```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table 1: Short description of the ",selection_summary$nb_series_glass_eel," Glass eel in the recruitment index calculation updated to ", CY,".  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to Water Framework Directive).")}
+```{r xstatseriesGEE, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 autofit(flextable(data = bind_rows(printstatseriesGNS, 
                                    printstatseriesGEE, 
                                    printstatseriesGY) |> 
@@ -2749,7 +2750,12 @@ autofit(flextable(data = bind_rows(printstatseriesGNS,
 
 <br>
 
-```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, tab.cap= str_c("Table 2: Short description of the ",selection_summary$selection_summary$nb_for_yellow_eel_glm," Yellow eel  in the recruitment index calculation.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to Water Framework Directive).")}
+
+::: {custom-style="Table Caption"}
+Table 2: Short description of the `r selection_summary$selection_summary$nb_for_yellow_eel_glm` yellow eel  in the recruitment index calculation.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to Water Framework Directive).
+:::
+
+```{r xstatseriesY, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 autofit(flextable(data = printstatseriesY |>
                     filter(kept == 1) |>
                     arrange(code) |>
@@ -2764,8 +2770,14 @@ autofit(flextable(data = printstatseriesY |>
   flextable2ICES()
 ```
 
+<br>
 
-```{r xstatseriesexcluded, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE, tab.cap=str_c("Table 3: Short description of the series that were excluded from the analysis.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). ")}
+::: {custom-style="Table Caption"}
+Table 3: Short description of the series that were excluded from the analysis.  EE:  Elsewhere Europe, NS: North Sea. Min and max indicate the first year and last year in the records, and missing indicated the number of missing/excluded years. Unit for the data collected is given (nr = number; index = calculated value fol-lowing a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water (according to the EU Water Framework Directive, WFD), F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to WFD). 
+:::
+
+
+```{r xstatseriesexcluded, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 autofit(flextable(data = bind_rows(printstatseriesGNS, 
                                    printstatseriesGEE, 
                                    printstatseriesGY,
@@ -2789,7 +2801,12 @@ autofit(flextable(data = bind_rows(printstatseriesGNS,
 
 <br>
 
-```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE, tab.cap=str_c("Table 4: Short description of the data points (i.e. series x year) that have been excluded (kept = 3) or for which some warning were raised (kept = 4)  in the recruitment index calculation in " ,CY, " and ", CY-1, ".  EE:  Elsewhere Europe, NS: North Sea. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to the EU Water Framework Directive, WFD).")}
+
+::: {custom-style="Table Caption"}
+Table 4: Short description of the data points (i.e. series x year) that have been excluded (kept = 3) or for which some warning were raised (kept = 4)  in the recruitment index calculation in `r CY` and `r CY-1`.  EE:  Elsewhere Europe, NS: North Sea. Life stage: GY = glass eel and yellow eel, G = glass eel, Y = yellow eel. Unit for the data collected is given (nr = number; index = calculated value following a specified protocol, nr/m2 = number per square metre, nr/h = number per hour, kg/boat/d = kg per boat per day). Habitat: C = coastal water, F = freshwater, MO = marine water (open sea), T = transitional water with lower salinity (according to the EU Water Framework Directive, WFD).
+:::
+
+```{r xseriesprob, echo=FALSE, warning = FALSE, message = FALSE, error=FALSE,echo=FALSE}
 series_prob <- series_prob |>
   arrange(Stage, Name)
 autofit(flextable(data = series_prob |> arrange(Name) |> rename(code = Name))%>%
@@ -2800,7 +2817,11 @@ autofit(flextable(data = series_prob |> arrange(Name) |> rename(code = Name))%>%
 <br>
 
 
-```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE, tab.cap=str_c("Table 5: Series updated to ",CY, ". Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division.")}
+::: {custom-style="Table Caption"}
+Table 5: Series updated to `r CY`. Codes for stages are G = glass eel, GY = glass eel + yellow eel, Y = yellow eel, Area NS = North Sea, EE = Elsewhere Europe, Division = FAO marine division.
+:::
+
+```{r tableseriesCY,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE}
 autofit(flextable(data = series_CY |> 
                     left_join(R_stations |>
                                 dplyr::select(all_of(c("ser_nameshort", 'ser_cou_code'))) |>
@@ -2813,7 +2834,13 @@ autofit(flextable(data = series_CY |>
   flextable2ICES()
 ```
 
-```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("Table 6: Series updated to ",CY-1, " see table XXX for codes.")}
+<br>
+
+::: {custom-style="Table Caption"}
+Table 6: Series updated to `r CY-1` see table XXX for codes.
+:::
+
+```{r xseriesCYm1, echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE}
 autofit(flextable(data = series_CYm1|> 
                     left_join(R_stations |>
                                 dplyr::select(all_of(c("ser_nameshort", 'ser_cou_code'))) |>
@@ -2837,15 +2864,20 @@ autofit(flextable(data = series_lost %>%
 ```
 
 # Annex 10:  Additional recruitment figures
+
+<br>
+
 ```{r figure5withoutlogscale, fig.cap=str_c("WGEEL glass eel recruitment index for the continental North Sea and Elsewhere Europe series with 95% confidence intervals updated to ", CY,". The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) are scaled to $\\bar{p}_{1960-1979}$."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure5_without_logscale_ribbon.png"))
 ```
+
 <br>
 
 
 ```{r figure6withoutlogscale, fig.cap=paste("Yellow eel recruitment for Europe updated to ", CY-1,". The yellow recruitment was estimated using a GLM (yellow eel ~ year+site) fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series. The predictions (p) are scaled to to the 1960-1979 average $\\bar{p}_{1960-1979}$."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure6_without_log_scale.png"))
 ```
+
 <br>
 
 
@@ -2858,6 +2890,7 @@ knitr::include_graphics(paste0(imgwd,'figure4.png'))
 ```{r figure3logscale, fig.cap="Time-series of glass eel and yellow eel recruitment in European rivers with time-series having data for the 1979-1994 period. Each time-series has been scaled to its 1979-1994 average. The mean arithmetic values and their bootstrap confidence interval (95%) are represented as black dots and bars. Geometric means are presented in red.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure3.png"))
 ```
+
 <br>
 
 
@@ -2869,29 +2902,18 @@ knitr::include_graphics(paste0(imgwd,"figure3withoutlogscale.png"))
 <br>
 
 
-```{r figureadvice, fig.cap=str_c("Annual WGEEL recruitment index for the continental North Sea (top panel) and Elsewhere Europe (center panel). The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions p have been scaled to $\\bar{p}_{1960-1979}$. Yellow eel recruitment(bottom panel)  for Europe updated to ", CY-1,". The yellow eel recruitment was estimated using a GLM (yellow eel ~ year+site) fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$. Note the logarithmic scale on the y-axis."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r figureadvice, fig.cap=str_c("Annual WGEEL recruitment index for the continental North Sea (top panel) and Elsewhere Europe (center panel). The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions p have been scaled to $\\bar{p}_{1960-1979}$. Yellow eel recruitment(bottom panel)  for Europe updated to ", CY-1,". The yellow eel recruitment was estimated using a GLM (yellow eel ~ year+site) fitted to",selection_summary[["nb_for_yellow_eel_glm"]],"yellow eel time-series $p$ and scaled to the 1960-1979 average $\\bar{p}_{1960-1979}$."), fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 knitr::include_graphics(paste0(imgwd,"figure_advice.png"))
 ```
 
-
+<br>
 
 <!-- TAF_REMOVE -->
 ```{r TAF,  eval= FALSE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 source("TAFgeneration/taf_generation_script.R")
 ```
 
-# Annex 8: Quality analysis
-
-
-
-<br>
-
-
-
-<br>
-
-
-## Sensitivity to individual time series
+# Annex 8: Sensitivity of recruitment indices to individual time series
 To check the influence of each time series in the models, the GLMs were fitted while removing each time series one at a time. The effect of removing the time series was quantified through the sum of square of the difference of the predictions of the the model with all time series and the model without the corresponding time series (Figure \@ref(fig:discrepancy)). Unsurprisingly, the longest time series have the largest influence on the model results (e.g. AlbuG or EbroG), but the results are also sensitive to series that were introduced more recently (e.g. MolY or StraGY). This type of analysis might be relevant in the future before integrating any new time series.
 
 ```{r discrepancy,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, fig.cap="Influence of each time series on the final index. The influence is quantified as the sum of square difference between a model with all data and a model without the corresponding time series. The colour indicates the year when the time series was used in the assessment for the first time."}
@@ -2939,13 +2961,15 @@ if (params$regenerate | !file.exists(paste0(imgwd,"discrepancy.png"))){
     mutate(sites=factor(sites,levels=as.character(sites))) 
   
   
-  discrepancy_yy <- ggplot(bind_rows(disc_yoy,disc_older %>% mutate(area="yellow")) %>% arrange(desc(diff)) %>% mutate(intro_year=ifelse(is.na(intro_year),CY,intro_year)),aes(x=sites,y=diff,fill=intro_year))+
+  discrepancy_yy <- ggplot(bind_rows(disc_yoy,disc_older %>% mutate(area="Yellow")) %>%
+                             mutate(area = factor(area, levels = c("North Sea", "Elsewhere Europe", "Yellow"))) %>%
+                                                    arrange(desc(diff)) %>% mutate(intro_year=ifelse(is.na(intro_year),CY,intro_year)),aes(x=sites,y=diff,fill=intro_year))+
     facet_wrap(~area,scales="free") +
     geom_bar(stat="identity")+
+    ylab("Sum of squares") +
+    xlab("Time series") +
     coord_flip()+
     scale_fill_viridis_d("inclusion in assessment") + 
-    xlab("Sum of squares") +
-    ylab("Time series") +
     theme_bw()
   
   save_figure("discrepancy", discrepancy_yy,
@@ -2955,6 +2979,7 @@ if (params$regenerate | !file.exists(paste0(imgwd,"discrepancy.png"))){
 knitr::include_graphics(paste0(imgwd,"discrepancy.png"))
 
 ```
+
 <br>
 
 
