@@ -414,7 +414,7 @@ cou_CY2_relS <- length(unique(rel$eel_cou_code[rel$eel_year==CY-2 & is.na(rel$ee
 - Number of glass eels (G, QG) released in `r CY-2`: `r round(rel_CY2_G)` millions, number of countries reporting: `r paste(cou_CY2_relG,sep="", collapse=", ")`
 - Number of glass eels (G, QG) released in `r CY-1`: `r round(rel_CY1_G)` millions, number of countries reporting: `r paste(cou_CY1_relG,sep="", collapse=", ")`
 - Number of glass eels (G, QG) released in `r CY`: `r round (rel_CY_G)` millions, data incomplete, number of countries reporting: `r paste(cou_CY_relG,sep="", collapse=", ")`
-- Number of yellow eels (Y) released in `r `CY-1`: `r round(rel_CY1_Y)` millions, number of countries reporting: `r paste(cou_CY1_relY,sep="", collapse=", ")`
+- Number of yellow eels (Y) released in `r CY-1`: `r round(rel_CY1_Y)` millions, number of countries reporting: `r paste(cou_CY1_relY,sep="", collapse=", ")`
 - Number of yellow eels (Y) released in `r CY-2`: `r round(rel_CY1_Y)` millions, number of countries reporting: `r paste(cou_CY2_relY,sep="", collapse=", ")`
 - Number of silver eels (S) released in `r CY-1`: `r round(rel_CY1_S)` millions, number of countries reporting: `r paste(cou_CY1_relS,sep="", collapse=", ")`
 - Number of silver eels (S) released in `r CY-2`: `r round(rel_CY2_S)` millions, number of countries reporting: `r  paste(cou_CY2_relS,sep="", collapse=", ")`
