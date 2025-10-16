@@ -746,7 +746,7 @@ grouped_data <-group_data(filtered_data,geo="country",habitat=FALSE,lfs=FALSE,na
                          na.rm = TRUE) ) |>
   arrange(Year)
 
-grouped_data$Year[nrow(grouped_data)] <- paste0(grouped_data$Year[nrow(grouped_data)], "*")
+#grouped_data$Year[nrow(grouped_data)] <- paste0(grouped_data$Year[nrow(grouped_data)], "*")
 
 
 grouped_data |>
