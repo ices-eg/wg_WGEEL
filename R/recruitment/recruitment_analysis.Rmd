@@ -2194,16 +2194,7 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
   # knitr::include_graphics(paste0(imgwd,"retro_YY.png"))
   # knitr::include_graphics(paste0(imgwd,"retro_YY_magnify.png"))
   
-  retro <- ((retro_EE + geom_magnify(from = list(xmin= CY -9,
-                                                 xmax = CY,
-                                                 ymin = 0,
-                                                 ymax = 20),
-                                     to = list(xmin=CY-30,
-                                               xmax=CY,
-                                               ymin=140,
-                                               ymax=190),
-                                     axes = "xy")) +
-              (retro_NS + geom_magnify(from = list(xmin= CY -9,
+  retro <- (((retro_NS + geom_magnify(from = list(xmin= CY -9,
                                                    xmax = CY,
                                                    ymin = 0,
                                                    ymax = 2),
@@ -2211,7 +2202,17 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                                  xmax=CY,
                                                  ymin=160,
                                                  ymax=220),
-                                     axes = "xy"))) /
+                                     axes = "xy")) +
+              (retro_EE + geom_magnify(from = list(xmin= CY -9,
+                                                 xmax = CY,
+                                                 ymin = 0,
+                                                 ymax = 20),
+                                     to = list(xmin=CY-30,
+                                               xmax=CY,
+                                               ymin=140,
+                                               ymax=190),
+                                     axes = "xy")) 
+              ) /
     (((retro_YY + geom_magnify(from = list(xmin= CY -9,
                                            xmax = CY,
                                            ymin = 0,
@@ -2221,9 +2222,11 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                          ymin=250,
                                          ymax=400),
                                      axes = "xy"))) +
-       patchwork::plot_spacer()) / guide_area() + plot_layout(axis_titles = "collect", 
-                                                              guides = "collect",
-                                                              heights =c(1,1,0.1), widths = c(1,1))
+       patchwork::plot_spacer()) / guide_area()) + 
+    plot_layout(axis_titles = "collect", 
+                guides = "collect",
+                heights =c(1,1,0.1),
+                widths = c(1,1))
   
   
   save(mohn_YY, mohn_NS, mohn_EE,file=paste0(outputdatawd,"mohn.Rdata"))
