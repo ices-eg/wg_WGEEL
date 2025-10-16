@@ -1227,7 +1227,7 @@ figure5_advice_EE<- ggplot(dat_ge %>% filter(area == "Elsewhere Europe"),
 		geom_line(lwd=1, aes(col=area), show.legend=FALSE)+ 		
 		geom_ribbon(aes(ymin=p_std_1960_1979_min*100,ymax=p_std_1960_1979_maxgraph*100,fill=area),alpha=.3, show.legend=FALSE)+
 		coord_cartesian(ylim=c(0,5*100))+
-		scale_y_continuous("Std. GLM recruitment")+
+		scale_y_continuous("Index (%)")+
 		theme_bw()+
 		geom_hline(yintercept=100,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
@@ -1242,7 +1242,7 @@ figure5_advice_NS<- ggplot(dat_ge %>% filter(area == "North Sea"),
 		geom_line(lwd=1, aes(col=area), show.legend=FALSE)+ 		
 		geom_ribbon(aes(ymin=p_std_1960_1979_min*100,ymax=p_std_1960_1979_maxgraph*100,fill=area),alpha=.3, show.legend=FALSE)+
 		coord_cartesian(ylim=c(0,5*100))+
-		scale_y_continuous("Std. GLM recruitment")+
+		scale_y_continuous("Index (%)")+
 		theme_bw()+
 		geom_hline(yintercept=100,linetype=2)+
 		geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
@@ -1750,7 +1750,7 @@ save_figure("figure6_without_log_scale",figure6_without_log_scale,600,480)
 
 
 figure6_advice_YY<- ggplot(dat_ye,aes(x=year,y=value_std_1960_1979 * 100))  +
-		scale_y_continuous("Std. GLM recruitment")+	
+		scale_y_continuous("Index (%)")+	
 		geom_hline(yintercept=100,linetype=2)+
 		geom_ribbon(aes(ymin=yellow_eel_min*100,ymax=yellow_eel_max*100, fill="area"), show.legend=FALSE, alpha = .3)+
 		geom_line(lwd=1, aes(col="area"), show.legend=FALSE)+ 		
@@ -2095,7 +2095,7 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
     geom_line(aes(col=as.factor(AssessmentYear))) +
     #  facet_wrap(~area) +
     guides(lty = "none") + 
-    ylab(expression(frac(p,bar(p)[1960-1979])))+	
+    ylab("Index (%)")+	
     geom_hline(yintercept=100,linetype=2)+
     geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
     ggtitle("Glass eel Elsewhere Europe recruitment index")+
@@ -2110,7 +2110,9 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                                          to = list(xmin=CY-30,
                                                                    xmax=CY,
                                                                    ymin=150,
-                                                                   ymax=200)),600,480, pdf=FALSE)
+                                                                   ymax=200),
+                                                         axes = "xy"),
+              600,480, pdf=FALSE)
   
   
   # knitr::include_graphics(paste0(imgwd,"retro_EE.png"))
@@ -2131,7 +2133,7 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
     geom_line(aes(col=as.factor(AssessmentYear))) +
     #  facet_wrap(~area) +
     guides(lty = "none") + 
-    ylab(expression(frac(p,bar(p)[1960-1979])))+	
+    ylab("Index (%)")+	
     geom_hline(yintercept=100,linetype=2)+
     geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
     ggtitle("Glass eel North Sea recruitment index") +
@@ -2146,7 +2148,9 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                                          to = list(xmin=CY-30,
                                                                    xmax=CY,
                                                                    ymin=170,
-                                                                   ymax=220)),600,480, pdf=FALSE)
+                                                                   ymax=220),
+                                                         axes = "xy"),
+              600,480, pdf=FALSE)
   
   
   # knitr::include_graphics(paste0(imgwd,"retro_NS.png"))
@@ -2167,7 +2171,7 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
     geom_line(aes(col=as.factor(AssessmentYear))) +
     #  facet_wrap(~area) +
     guides(lty = "none") + 
-    ylab(expression(frac(p,bar(p)[1960-1979])))+	
+    ylab("Index (%)")+	
     geom_hline(yintercept=100,linetype=2)+
     geom_hline(yintercept=0,linetype=1,color = "grey30",size = 0.6)+
     ggtitle("Yellow eel recruitment index") +
@@ -2182,7 +2186,9 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                                          to = list(xmin=CY-30,
                                                                    xmax=CY,
                                                                    ymin=300,
-                                                                   ymax=400)),600,480, pdf=FALSE)
+                                                                   ymax=400),
+                                                         axes = "xy"),
+              600,480, pdf=FALSE)
   
   
   # knitr::include_graphics(paste0(imgwd,"retro_YY.png"))
@@ -2195,23 +2201,26 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
                                      to = list(xmin=CY-30,
                                                xmax=CY,
                                                ymin=140,
-                                               ymax=190))) +
+                                               ymax=190),
+                                     axes = "xy")) +
               (retro_NS + geom_magnify(from = list(xmin= CY -9,
                                                    xmax = CY,
                                                    ymin = 0,
                                                    ymax = 2),
                                        to = list(xmin=CY-30,
                                                  xmax=CY,
-                                                 ymin=170,
-                                                 ymax=220)))) /
+                                                 ymin=160,
+                                                 ymax=220),
+                                     axes = "xy"))) /
     (((retro_YY + geom_magnify(from = list(xmin= CY -9,
                                            xmax = CY,
                                            ymin = 0,
                                            ymax = 25),
                                to = list(xmin=CY-30,
                                          xmax=CY,
-                                         ymin=300,
-                                         ymax=400)))) +
+                                         ymin=250,
+                                         ymax=400),
+                                     axes = "xy"))) +
        patchwork::plot_spacer()) / guide_area() + plot_layout(axis_titles = "collect", 
                                                               guides = "collect",
                                                               heights =c(1,1,0.1), widths = c(1,1))
@@ -2664,12 +2673,7 @@ knitr::include_graphics(paste0(imgwd,"retro_patchwork.png"))
 The status of European eel remains critical. After high levels in the late
 1970s, the European eel recruitment declined dramatically in the 1980s and has
 since remained low. Indices of both glass and yellow eel recruitment strongly
-declined from 1980 to 2011. In 2025, the Elsewhere Europe recruitment index
-reached 12.4% of the 1960-1979 geometric mean (provisional), a level not
-observed since the early 2000s. However, this still represents a very low
-proportion of the historical baseline and must be interpreted with caution given
-the stochastic nature of recruitment.
-Index values correspond to
+declined from 1980 to 2011. Index values correspond to
 the recruitment as a percentage of the 1960–1979 geometric mean. Glass eel
 recruitment in the “North Sea” index area was
 `r round(100*synthesis[nrow(synthesis),"North Sea"], digits =1)`% in `r CY`
