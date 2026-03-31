@@ -539,7 +539,7 @@ Glass eel landings show a sharp decline since 1980 from 2,000 t to about 40–60
 t since 2009 onwards. In `r CY`, the raw (uncorrected) landings data for glass
 eels is `r tableComLandG$total[tableComLandG$Year==CY]` t, while it was
 `r tableComLandG$total[tableComLandG$Year==(CY-1)]` t in `r CY-1` (Annex XXX
-Table XXX for raw data and Table XXX for raw and corrected data). 
+Table XXX). 
 
 
 

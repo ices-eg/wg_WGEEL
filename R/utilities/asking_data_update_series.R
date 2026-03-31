@@ -8,7 +8,7 @@
 
 
 # put the current year there
-CY<-2025
+CY<-2026
 
 inactivedeadline <- 4 #this ensure that we don't ask new data for time series that are inactive since more than 4 years
 # function to load packages if not available
@@ -567,7 +567,7 @@ create_datacall_file_series_sampling <- function(country, name, ser_typ_id, type
 
 
 # recruitment ---------------------------------------------------
-CY <- 2025
+CY <- 2026
 country_code <- c("DK","ES","EE","IE","SE","GB","FI","IT","GR","DE","LV","FR","NL","LT","PT",
                   "NO","PL","SI","TN","TR","BE")
 #update_referential_sheet("Eel_Data_Call_Annex_Time_Series")
@@ -613,7 +613,6 @@ dirs = list.dirs("data/datacall_template/",full.names=FALSE)
 dirs = dirs[-match(c("00template/saved","","00template"),dirs)] 
 for (country in dirs ){
   gc()
-  cat("country: ",country,"\n")
   create_datacall_file_series_sampling(country, 
                               name="Eel_Data_Call_Annex9_Other_Sampling_Data", 
                               ser_typ_id=0,
