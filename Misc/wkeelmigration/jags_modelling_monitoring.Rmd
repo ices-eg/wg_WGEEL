@@ -25,17 +25,20 @@ library(ggplot2)
 library(doParallel)
 library(RColorBrewer)
 library(ggthemes)
+library(rnaturalearthdata)
+library(rnaturealearth)
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 library(kableExtra)
 
 library(sf)
 library(RPostgreSQL)
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+
+con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel",user="hilaire")
 emu=st_read("../../data/shapefiles/tr_emu_emu.shp")
 names(emu)[1]="name_short"
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
+cou <- rnaturalearth::ne_countries(continent = c("Europe", "Africa"), scale =10, returnclass = "sf") |>
+  st_transform(crs = 3035)
 months=c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC")
 
 dbDisconnect(con)
@@ -209,6 +212,42 @@ names(recruitment_wide)[-(1:4)] <- paste("m",
                                         names(recruitment_wide)[-(1:4)],
                                         sep="")
 ```
+
+
+```{r maprecruit}
+average_pattern <- recruitment_subset |>
+  group_by(ser_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(ser_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE)) |>
+  ungroup() |>
+  left_join(ser2, by = "ser_nameshort")
+
+
+
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = c(3000000, 4500000),
+           ylim = c(2000000, 4500000)) +
+  xlab("") +
+  ylab("")
+```
+
+
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
@@ -657,6 +696,42 @@ It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not 
 
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
+
+
+
+```{r mapsilver}
+average_pattern <- silvereel_subset |>
+  group_by(ser_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(ser_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE)) |>
+  ungroup() |>
+  left_join(ser2, by = "ser_nameshort")
+average_pattern$ser_y[average_pattern$ser_nameshort=="DaugS"] <- 57.049729
+average_pattern$ser_x[average_pattern$ser_nameshort=="DaugS"] <- 24.059393
+
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("")
+```
+
 
 ```{r}
 silvereel_wide <- silvereel_wide %>%

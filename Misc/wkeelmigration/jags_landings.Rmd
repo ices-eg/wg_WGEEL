@@ -35,14 +35,19 @@ library(kableExtra)
 source("closure_vs_landings.R")
 library(sf)
 library(RPostgreSQL)
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+library(yaml)
+cred = read_yaml("../../credentials.yml")
+con = dbConnect(PostgreSQL(),dbname=cred$dbname,host = cred$host,port=cred$port,user=cred$user,password=cred$password)
 #emu <- st_read(con,query="select * from carto.emu")
 emu=st_read("../../data/shapefiles/tr_emu_emu.shp")
 names(emu)[1]="name_short"
 emu$name_short[emu$name_short=="ES_Mino"]="ES_MINH"
 emu$name_short[emu$name_short=="ES_Minh"]="ES_Mino"
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
+emu = st_make_valid(emu)
+emu$emu_x <- st_coordinates(st_centroid(emu$geometry))[,1]
+emu$emu_y <- st_coordinates(st_centroid(emu$geometry))[,2]
+cou <- rnaturalearth::ne_countries(continent = c("Europe", "Africa"), scale =10, returnclass = "sf") |>
+  st_transform(crs = 3035)
 dbDisconnect(con)
 months=c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC")
 pal= brewer.pal(7,"Set2")
@@ -155,6 +160,43 @@ It leads to a dataset with `r nrow(glasseel_wide)` rows.
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months / closed months, and we compute proportions per month for each year.
 
+```{r mapglasseel}
+average_pattern <- glasseel_subset |>
+    group_by(emu_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(emu_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  left_join(emu, by = c("emu_nameshort" = "name_short"))
+  
+  
+  
+  
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(emu_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("")
+```
+
+
+
+
 ```{r}
 glasseel_wide <- glasseel_wide %>%
   replace_na(replace=list(m1=0,
@@ -172,7 +214,8 @@ glasseel_wide <- glasseel_wide %>%
 glasseel_wide[, -(1:3)] <- glasseel_wide[, -(1:3)] + 1e-3
 total_catch_year <- rowSums(glasseel_wide[, paste("m", 1:12, sep="")])
 glasseel_wide <- glasseel_wide %>%
-  mutate_at(.vars=paste("m",1:12,sep=""),function(x) x/total_catch_year)
+  ungroup() |>
+  mutate(across(starts_with("m"), ~ .x/total_catch_year))
 ```
 
 The Commission asks us to compare the pattern before and after 2007, probably to see the effect of the Eel Regulation. It is therefore necessary to build a period index. However, since most countries implemented their EMPs only in 2009/2010, we split in 2010.
@@ -2496,6 +2539,7 @@ Now we should carry out data selection, more specifically, we want to eliminate 
 ```{r, warning=FALSE}
 silvereel_coastal <- subset(silvereel, silvereel$hty_code !="F")
 kept_seasons <- lapply(unique(silvereel_coastal$emu_nameshort), function(s){
+  print(s)
   sub_silver <- subset(silvereel_coastal, silvereel_coastal$emu_nameshort==s)
   kept <- good_coverage_wave(sub_silver)
   #we remove season in which we have less than 50 kg of landings
@@ -2554,6 +2598,45 @@ table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where w
 It leads to a dataset with `r nrow(silvereel_coastal_wide)` rows. 
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months / closed months, and we compute proportions per month for each year.
+
+```{r mapgsilvereel_coastal_subset}
+average_pattern <- silvereel_coastal_subset |>
+  mutate(emu_nameshort = gsub("_.$","", emu_nameshort)) |>
+  mutate(emu_nameshort = gsub("_MO$","", emu_nameshort)) |>
+  group_by(emu_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(emu_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  left_join(emu, by = c("emu_nameshort" = "name_short"))
+  
+
+average_pattern$emu_x[average_pattern$emu_nameshort == "DK_total"] = emu$emu_x[emu$name_short == "DK_Inla"]
+average_pattern$emu_y[average_pattern$emu_nameshort == "DK_total"] = emu$emu_y[emu$name_short == "DK_Inla"]
+  
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(emu_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("")
+```
+
+
 
 ```{r}
 silvereel_coastal_wide <- silvereel_coastal_wide %>%
@@ -3057,6 +3140,43 @@ silvereel_freshwater_wide <- silvereel_freshwater_wide[data_poor$zero < 10
 table_datapoor(data_poor %>% filter(zero > 9 | tot<50)) #we remove years where we have less than 2 months)
 
 ```
+
+```{r mapgsilvereel_freshwater_subset}
+average_pattern <- silvereel_freshwater_subset |>
+  mutate(emu_nameshort = gsub("_.$","", emu_nameshort)) |>
+  mutate(emu_nameshort = gsub("_MO$","", emu_nameshort)) |>
+  group_by(emu_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(emu_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  left_join(emu, by = c("emu_nameshort" = "name_short"))
+
+average_pattern$emu_x[average_pattern$emu_nameshort == "DK_total"] = emu$emu_x[emu$name_short == "DK_Inla"]
+average_pattern$emu_y[average_pattern$emu_nameshort == "DK_total"] = emu$emu_y[emu$name_short == "DK_Inla"]
+  
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(emu_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("")
+```
+
 
 
 It leads to a dataset with `r nrow(silvereel_freshwater_wide)` rows. 

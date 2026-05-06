@@ -16,9 +16,6 @@ opts_knit$set(eval.after = 'fig.cap') # to be used in chunks used only to plot p
 knitr::opts_chunk$set(echo=FALSE)
 options(knitr.table.format = 'html') # options pour kable
 options(knitr.kable.NA = '.')
-setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
-source("..\\..\\R\\utilities\\load_library.R")
-source("functions.R")
 load_package("readxl")
 load_package("stringr")
 load_package("pool")
@@ -31,20 +28,40 @@ load_package("ggforce") # better circular plots using ggplot
 load_package("printr")
 load_package("kableExtra")
 
-source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
-source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
-load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
-datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
-datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated commercial\\"
+if (Sys.info()["user"] != "hdrouineau"){
+  setwd("C:\\workspace\\gitwgeel\\Misc\\wkeelmigration\\")
+source("..\\..\\R\\utilities\\load_library.R")
+source("functions.R")
 
-imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+  source("..\\..\\R\\shiny_data_integration\\shiny_di\\loading_functions.R")
+  source("..\\..\\R\\shiny_data_integration\\shiny_di\\database_reference.R") # extract_ref
+  load(file=str_c("C:\\workspace\\gitwgeel\\R\\shiny_data_integration\\shiny_di","\\common\\data\\init_data.Rdata"))  
+  datawd <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\source\\"
+  imgwd <- "C:\\workspace\\wgeeldata\\wkeelmigration\\image\\"
+  datawd1 <- "C:\\Users\\cedric.briand\\OneDrive - EPTB Vilaine\\Projets\\GRISAM\\2020\\wkeemigration\\Treated commercial\\"
+  
+}
+if(sys.user()=="hdrouineau"){
+  source("../../R/utilities/load_library.R")
+source("functions.R")
+  source("../../R/shiny_data_integration/shiny_di/loading_functions.R")
+  source("../../R/shiny_data_integration/shiny_di/database_reference.R") # extract_ref
+  load(file="../../R/shiny_data_integration/shiny_di/common/data/init_data.Rdata")  
+  datawd <- "../../../../wkeelmigration/source/"
+  imgwd <- "../../../../wkeelmigration/image/"
+  datawd1 <- "../../../../wkeelmigration/Treated commercial/"
+  }
+
+
 
 library("sf")
 library("ggspatial")
 
-dsn <-  paste0("PG:dbname='wgeel' host='localhost' port ='5436'",
-		" user='", userlocal,
-		"' password='", passwordlocal,"'")
+cred = yaml::read_yaml("../../credentials.yml")
+
+dsn <-  paste0("PG:dbname='",cred$dbname,"' host='",
+cred$host,"' port ='", cred$port,"'  user='", cred$user,
+		"' password='", cred$password,"'")
 ```
 
 ## Map data
@@ -169,7 +186,7 @@ files otherwise the rbind later crashes for conflicting formats.
 
 ```{r readfiles, echo=FALSE, include=FALSE, eval=FALSE}
 # load data seasonality ------------------------------------------------------------------------------
-load( file=str_c(datawd,"saved_data.Rdata"))
+load( paste0(datawd,"saved_data.Rdata"))
 load(file=str_c(datawd,"cou.Rdata"))
 
 fall <- list.files(datawd, pattern='.xl')
