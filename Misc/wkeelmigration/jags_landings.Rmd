@@ -477,7 +477,7 @@ formatted_patter = format_pattern(pat_group, keep_period = TRUE)
 
 
 
-ggplot(cou) +
+g <- ggplot(cou) +
   geom_sf() +
   theme_bw() +
   geom_polygon(data = formatted_patter,
@@ -495,7 +495,8 @@ ggplot(cou) +
   xlab("") +
   ylab("") +
   facet_wrap(~period)
-ggsave("glasseel_landings.png", height=12/2.54, width = 16/2.54, dpi = 300)
+save(g, file = "glasseel_landings.rdata")
+ggsave("glasseel_landings.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
 ```
 
 
@@ -2740,7 +2741,7 @@ formatted_patter = format_pattern(pat_group,
 
 
 
-ggplot(cou) +
+g <- ggplot(cou) +
   geom_sf() +
   theme_bw() +
   geom_polygon(data = formatted_patter,
@@ -2758,7 +2759,8 @@ ggplot(cou) +
   xlab("") +
   ylab("") +
   facet_wrap(~period)
-ggsave("silver_landings_marine_coastal_transitional.png", height=12/2.54, width = 16/2.54, dpi = 300)
+save(g, file = "silver_landings_marine_coastal_transitional_ggplot.rdata")
+ggsave("silver_landings_marine_coastal_transitional.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
 ```
 
 
@@ -3279,7 +3281,7 @@ formatted_patter = format_pattern(pat_group,
 
 
 
-ggplot(cou) +
+g <- ggplot(cou) +
   geom_sf() +
   theme_bw() +
   geom_polygon(data = formatted_patter,
@@ -3297,7 +3299,8 @@ ggplot(cou) +
   xlab("") +
   ylab("") +
   facet_wrap(~period)
-ggsave("silver_landings_freshwater.png", height=12/2.54, width = 16/2.54, dpi = 300)
+save(g, file = "silver_landings_freshwater_ggplot.rdata")
+ggsave("silver_landings_freshwater.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
 ```
 
 

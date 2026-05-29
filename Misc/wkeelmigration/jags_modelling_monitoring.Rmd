@@ -541,7 +541,7 @@ formatted_patter = format_pattern(pat_group,
 
 
 
-ggplot(cou) +
+g <- ggplot(cou) +
   geom_sf() +
   theme_bw() +
   geom_polygon(data = formatted_patter,
@@ -559,7 +559,9 @@ ggplot(cou) +
   xlab("") +
   ylab("") +
   facet_wrap(~period)
-ggsave("glasseel_monitoring.png", height=12/2.54, width = 16/2.54, dpi = 300)
+
+save(g, file="glasseel_monitoring_ggplot.rdata")
+ggsave("glasseel_monitoring.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
 ```
 
 The 1st cluster corresponds to series from the SoutWestern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 2 and 3 correspond to series in Great Britain or Germany, 4 to Ireland and 5 to Norway. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
@@ -1029,7 +1031,7 @@ formatted_patter = format_pattern(pat_group,
 
 
 
-ggplot(cou) +
+g <- ggplot(cou) +
   geom_sf() +
   theme_bw() +
   geom_polygon(data = formatted_patter,
@@ -1047,7 +1049,9 @@ ggplot(cou) +
   xlab("") +
   ylab("") +
   facet_wrap(~period)
-ggsave("silver_monitoring.png", height=12/2.54, width = 16/2.54, dpi = 300)
+
+save(g, file = "silver_monitoringggplot.rdata")
+ggsave("silver_monitoring.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
 ```
 
 The spatial pattern is a bit less obvious than for glass eel. However, looking at the map, we see that clusters 6 and  5, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 6 in the south, and most clusters 5 in the north). Cluster 2 is more typical of the Baltic Sea and clusster 4 from eastern Scotland.
