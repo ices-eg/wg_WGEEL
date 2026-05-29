@@ -44,8 +44,11 @@ EU_closures=unique(EU_closures[, c("emu_nameshort","lfs_code","hty_code","month"
 EU_closures=EU_closures[!duplicated(EU_closures[,c("emu_nameshort","lfs_code","hty_code","month")]), ]
 
 all_year <- EMP_closures %>%
-  filter(month==13) %>% slice(rep(1:n(), each = 12))
-all_year$month=factor(1:12,levels=1:13)
+  filter(month==13)
+all_year$month <- factor(rep(12, nrow(all_year)), levels = 1:13)
+all_year <- all_year %>%
+  slice(rep(1:n(), each = 12))
+#all_year$month=factor(1:12,levels=1:13)
 
 EMP_closures <- bind_rows(EMP_closures %>% filter(month!=13),
                           all_year)
