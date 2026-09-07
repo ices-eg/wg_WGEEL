@@ -2638,7 +2638,7 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
 write_updated_individual_metrics <- function(path, conn, type="series"){
   metrics_ind <- tr_metrictype_mty %>% 
     filter(mty_group!="group") %>% select(mty_name,mty_id)
-  updated <- readxlTemplate(path = path, sheet = 1, skip = 1)	
+  updated <- readxlTemplate(path = path, sheet = 1, skip = 0)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(updated$fi_id)) == 0)
