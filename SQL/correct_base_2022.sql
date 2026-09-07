@@ -9,13 +9,13 @@ CREATEDB -U postgres wgeel0609
 TODO CHECK these two lines
 /*
  * 
- * D�TAIL : La ligne en échec contient (408546, 11, 2015, 750000, IT_total, IT, Y, F, null, 1, Value updated from SIPAM GFCM, null, 2022-08-29, null, dc_2018, Public).
+ * D�TAIL : La ligne en échec contient (408546, 11, 2015, 750000, IT_total, IT, Y, F, null, 1, Value updated from SIPAM GFCM, null, 2022-08-29, null, dc_2018, Public).
 CONTEXTE : COPY t_eelstock_eel, ligne 147 : « 408546   11      2015    750000  IT_total        IT      Y       F   \N       1       Value updated from SIPAM GFCM   \N      2022-08-29      \N      dc_2018 Pu... »
-pg_restore: de l'entr�e TOC 4447 ; 2606 5515293 FK CONSTRAINT t_eelstock_eel_percent t_eelstock_eel_percent_percent_id_fkey wgeel
+pg_restore: de l'entr�e TOC 4447 ; 2606 5515293 FK CONSTRAINT t_eelstock_eel_percent t_eelstock_eel_percent_percent_id_fkey wgeel
 pg_restore: erreur : could not execute query: ERREUR:  une instruction insert ou update sur la table « t_eelstock_eel_percent » viole la contrainte de clé
 étrangère « t_eelstock_eel_percent_percent_id_fkey »
-D�TAIL : La clé (percent_id)=(513110) n'est pas présente dans la table « t_eelstock_eel ».
-La commande �tait : ALTER TABLE ONLY datawg.t_eelstock_eel_percent
+D�TAIL : La clé (percent_id)=(513110) n'est pas présente dans la table « t_eelstock_eel ».
+La commande �tait : ALTER TABLE ONLY datawg.t_eelstock_eel_percent
     ADD CONSTRAINT t_eelstock_eel_percent_percent_id_fkey FOREIGN KEY (percent_id) REFERENCES datawg.t_eelstock_eel(eel_id) ON DELETE CASCADE;
  * 
  * 
@@ -103,8 +103,8 @@ CREATE TABLE temp_groupseries AS SELECT ser.ser_nameshort, ser.ser_id, grser.* F
 -- pg_dump -U postgres --table temp_groupsamp --table temp_groupseries -f "temp_restore_group.sql" wgeel0609
 -- pg_dump -U postgres --table temp_groupseries -f "temp_groupseries.sql" wgeelhilaire
 
--- psql -U postgres -h 185.135.126.250 -f "temp_restore_group.sql" wgeel
--- psql -U postgres -h 185.135.126.250 -f "temp_groupseries.sql" wgeel
+-- psql -U postgres -h db.mercure.eaux-et-vilaine.bzh -f "temp_restore_group.sql" wgeel
+-- psql -U postgres -h db.mercure.eaux-et-vilaine.bzh -f "temp_groupseries.sql" wgeel
 
 
 
@@ -324,7 +324,7 @@ grser_ser_id FROM diff; --6
 -- on wgeel0609
 CREATE TABLE temp_groupseries0609 AS SELECT ser.ser_nameshort, ser.ser_id, grser.* FROM datawg.t_groupseries_grser grser JOIN datawg.t_series_ser ser  ON (grser_ser_id = ser_id)  ; --2165
  -- pg_dump -U postgres --table temp_groupseries0609 -f "temp_groupseries0609.sql" wgeel0609
- -- psql -U postgres -h 185.135.126.250 -f "temp_groupseries0609.sql" wgeel
+ -- psql -U postgres -h db.mercure.eaux-et-vilaine.bzh -f "temp_groupseries0609.sql" wgeel
 
 
 WITH oldgr AS (

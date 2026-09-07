@@ -419,4 +419,33 @@ UPDATE datawg.t_dataseries_das
   WHERE das_id=8835;
  
  
- 
+ SELECT * FROM datawg.t_eelstock_eel 
+WHERE eel_cou_code = 'EG' 
+AND eel_typ_id = 4 
+AND eel_value >0 ;
+
+
+SELECT * FROM datawg.t_series_ser JOIN
+datawg.t_dataseries_das ON das_ser_id = ser_id 
+WHERE ser_nameshort = 'GB_Seve_Frome_HIST'
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id
+WHERE ser_nameshort = 'GB_Seve_Frome_HIST'
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_groupseries_grser AS tgg ON grser_ser_id =ser_id 
+JOIN datawg.t_metricindseries_megser ON meg_gr_id = gr_id
+WHERE ser_nameshort = 'GB_Seve_Frome_HIST'
+
+
+
+SELECT * FROM datawg.t_series_ser 
+JOIN datawg.t_fishseries_fiser  ON fiser_ser_id =ser_id
+JOIN datawg.t_metricindseries_meiser ON mei_fi_id=fi_id
+WHERE ser_nameshort = 'GB_Seve_Frome_HIST'
+
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'LU'
+
