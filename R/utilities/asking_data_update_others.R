@@ -12,8 +12,8 @@ if (Sys.info()["user"] %in% c("hilaire.drouineau", "hdrouineau")) {
 } else {
   setwd("~")
 }
-CY <- 2025
-datasource <- "dc_2025"
+CY <- 2026
+datasource <- "dc_2026"
 
 
 # function to load packages if not available

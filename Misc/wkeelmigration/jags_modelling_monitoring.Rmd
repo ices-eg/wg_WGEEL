@@ -22,20 +22,24 @@ library(tidyr)
 library(runjags)
 library(coda)
 library(ggplot2)
+source("create_graph.R")
 library(doParallel)
 library(RColorBrewer)
 library(ggthemes)
+library(rnaturalearthdata)
+library(rnaturalearth)
 pal= brewer.pal(7,"Set2")
 cols <- c("1" = pal[1], "2"= pal[2],"3" = pal[3], "4" = pal[4],  "5" = pal[5], "6"=pal[6], "7"=pal[7])
 library(kableExtra)
 
 library(sf)
-library(RPostgreSQL)
-con<-dbConnect(PostgreSQL(),host="localhost",dbname="wgeel_old",user="hilaire")
+library(RPostgres)
+
+con<-dbConnect(Postgres(),host="localhost",dbname="wgeel",user="hilaire")
 emu=st_read("../../data/shapefiles/tr_emu_emu.shp")
 names(emu)[1]="name_short"
-cou <- st_read("/mnt/SIG/01-REFERENTIELS/LIMITES_ADMINISTRATIVES_monde/world_countries_WGS84.shp")
-cou <- st_transform(cou, crs=4326)
+cou <- rnaturalearth::ne_countries(continent = c("Europe", "Africa"), scale =10, returnclass = "sf") |>
+  st_transform(crs = 3035)
 months=c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC")
 
 dbDisconnect(con)
@@ -59,7 +63,58 @@ Among mixed GY, only 4 of them are not already used by the WGEEL, so we will hav
 ```{r}
 ser2[ser2$ser_lfs_code=="GY", c("ser_nameshort","ser_comment","ser_lfs_code")]
 ```
+```{r pattern_function}
+get_pattern_month <- function(res,type="cluster"){
+  res_mat <- as.matrix(as.mcmc.list(res))
+  if (type=="cluster"){
+    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
+  } else {
+    sub_mat <- as.data.frame(res_mat[,grep("alpha_group",colnames(res_mat))])
+  }
+  sub_mat <- sub_mat %>% 
+    pivot_longer(cols=1:ncol(sub_mat),
+                 names_to="param",
+                 values_to="proportion")
+  tmp <- lapply(gsub("alpha_group", "toto", as.character(sub_mat$param)),function(p) strsplit(p,"[[:punct:]]"))
+  sub_mat$cluster<-as.factor(
+    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
+  sub_mat$month <- as.character(lapply(tmp,
+                                       function(tt) paste("m",
+                                                          tt[[1]][3],
+                                                          sep="")))
+  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
+  sub_mat
+}
 
+
+
+get_pattern_month2 <- function(res,mydata){
+  
+  tmp <- strsplit(as.character(group_name),
+                  "\\.")
+  ser <- as.character(lapply(tmp,function(tt){
+    tt[1]
+  }))
+  period <- as.character(lapply(tmp,function(tt){
+    tt[2]
+  }))
+  res_mat <- as.matrix(as.mcmc.list(res))
+  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
+
+  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
+    name_col <- paste("cluster[",id,"]",sep="")
+    freq <- table(res_mat[,name_col])
+    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
+    c(max_class,freq[as.character(1:nbclus)])
+  }))
+  storage.mode(clus) <- "numeric"
+  classes <- as.data.frame(clus)
+  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
+  cbind.data.frame(data.frame(ser=ser, period=period,country=country),
+                   classes)
+}
+
+```
 
 # Glass Eel
 ## Data availability
@@ -210,6 +265,42 @@ names(recruitment_wide)[-(1:4)] <- paste("m",
                                         sep="")
 ```
 
+
+```{r maprecruit}
+average_pattern <- recruitment_subset |>
+  group_by(ser_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(ser_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE)) |>
+  ungroup() |>
+  left_join(ser2, by = "ser_nameshort")
+
+
+
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = c(3000000, 4500000),
+           ylim = c(2000000, 4500000)) +
+  xlab("") +
+  ylab("")
+```
+
+
+
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
 ```{r}
@@ -296,6 +387,42 @@ best_recruitment <- data.frame(nbclus=2:(ncol(comparison)+1),
                                               silhouette=comparison[2, ],
                                               used=comparison[3, ])
 
+
+
+cl <- makeCluster(3, 'FORK')
+comparisonwaic <- parSapply(cl,2:7,
+       function(nbclus){
+         library(R2jags)
+         mydata <- build_data(nbclus)
+
+             m1.jags <- jags(data = mydata, 
+                inits = list(generate_init(nbclus, mydata)[[1]]), 
+                parameters.to.save = c("alpha_group",
+                                       "cluster"), 
+                model.file = "jags_model.txt",
+                n.chains = 1, 
+                n.iter = 10000+200000, 
+                n.burnin = 200000, 
+                n.thin = 1, n.adapt = 4000)
+samples.m1 <- jags.samples(m1.jags$model, 
+                           c("WAIC","deviance"), 
+                           type = "mean", 
+                           n.iter = 5000,
+                           n.burnin = 2000,
+                           n.thin = 1)
+samples.m1$p_waic <- samples.m1$WAIC
+samples.m1$waic <- samples.m1$deviance + samples.m1$p_waic
+tmp <- sapply(samples.m1, sum)
+waic.m1 <- round(c(waic = tmp[["waic"]], p_waic = tmp[["p_waic"]]),1)
+waic.m1["waic"]
+
+             
+             
+             
+         
+      })
+stopCluster(cl)
+
 ```
 
 ```{R}
@@ -342,25 +469,6 @@ Once fitted, we can plot monthly pattern per cluster
 load("recruitment_jags.rdata")
 nbclus <- 5
 mydata <-build_data(5)
-get_pattern_month <- function(res,type="cluster"){
-  res_mat <- as.matrix(as.mcmc.list(res))
-  if (type=="cluster"){
-    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
-  }
-  sub_mat <- sub_mat %>% 
-    pivot_longer(cols=1:ncol(sub_mat),
-                 names_to="param",
-                 values_to="proportion")
-  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
-  sub_mat$cluster<-as.factor(
-    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
-  sub_mat$month <- as.character(lapply(tmp,
-                                       function(tt) paste("m",
-                                                          tt[[1]][3],
-                                                          sep="")))
-  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
-  sub_mat
-}
 
 
 pat=get_pattern_month(myfit_recruitment)
@@ -391,33 +499,8 @@ groups <- interaction(recruitment_wide$ser_nameshort,
                                             drop=TRUE)
 group_name <- levels(groups)
 
-get_pattern_month <- function(res,mydata){
-  
-  tmp <- strsplit(as.character(group_name),
-                  "\\.")
-  ser <- as.character(lapply(tmp,function(tt){
-    tt[1]
-  }))
-  period <- as.character(lapply(tmp,function(tt){
-    tt[2]
-  }))
-  res_mat <- as.matrix(as.mcmc.list(res))
-  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
 
-  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
-    name_col <- paste("cluster[",id,"]",sep="")
-    freq <- table(res_mat[,name_col])
-    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
-    c(max_class,freq[as.character(1:nbclus)])
-  }))
-  storage.mode(clus) <- "numeric"
-  classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
-  cbind.data.frame(data.frame(ser=ser, period=period,country=country),
-                   classes)
-}
-
-myclassif <- get_pattern_month(myfit_recruitment)
+myclassif <- get_pattern_month2(myfit_recruitment)
 col_toreorder=grep("clus[0-9]",names(myclassif))
 names(myclassif)[col_toreorder]=paste("clus",
                                       match(paste("clus",1:nbclus,sep=""),
@@ -430,6 +513,57 @@ myclassif$cluster=factor(match(myclassif$cluster,clus_order),
 
 table_classif(myclassif,"series")
 ```
+
+
+
+```{r mapglasseeloutput}
+pat_group <- get_pattern_month(myfit_recruitment, "group")
+
+
+
+
+
+pat_group <- pat_group |>
+  group_by(month, cluster) |>
+  summarize(proportion = median(proportion), .groups = "keep") |>
+  ungroup() |>
+  mutate(das_month = as.numeric(gsub("m","", month))) |>
+  rename(das_value = proportion) |>
+  mutate(group_name= group_name[as.integer(as.character(cluster))]) |>
+  mutate(ser_nameshort = stringr::str_extract(group_name, "^[^\\.]+"),
+         period = stringr::str_extract(group_name, "(?<=\\.)[^\\.]+$")) |>
+  mutate(period = ifelse(period == 1, "2000-2009", "2010-2020")) |>
+  left_join(ser2, by = "ser_nameshort")
+
+formatted_patter = format_pattern(pat_group, 
+                                  multiplier = 200000, 
+                                  keep_period = TRUE)
+
+
+
+g <- ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("") +
+  facet_wrap(~period)
+
+save(g, file="glasseel_monitoring_ggplot.rdata")
+ggsave("glasseel_monitoring.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
+```
+
 The 1st cluster corresponds to series from the SoutWestern Europe, whatever the period. Cluster 2 corresponds to North Europe. Cluster 2 and 3 correspond to series in Great Britain or Germany, 4 to Ireland and 5 to Norway. These results confirm the spatial pattern in recruitment seasonality and highlight that no major changes have occured after 2010.
 
 Showing it on a map:
@@ -658,6 +792,42 @@ It leads to a dataset with `r nrow(silvereel_wide)` rows. Since seasons are not 
 
 We now replace NA value per zero since we selected our dataseries with missing months corresponding to insignificant months, and we compute proportions per month for each year.
 
+
+
+```{r mapsilver}
+average_pattern <- silvereel_subset |>
+  group_by(ser_nameshort, das_month) |>
+  summarize(das_value = sum(das_value, na.rm = TRUE), .groups = "keep") |>
+  ungroup() |>
+  group_by(ser_nameshort) |>
+  mutate(das_value = das_value/sum(das_value, na.rm = TRUE)) |>
+  ungroup() |>
+  left_join(ser2, by = "ser_nameshort")
+average_pattern$ser_y[average_pattern$ser_nameshort=="DaugS"] <- 57.049729
+average_pattern$ser_x[average_pattern$ser_nameshort=="DaugS"] <- 24.059393
+
+formatted_patter = format_pattern(average_pattern)
+
+ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("")
+```
+
+
 ```{r}
 silvereel_wide <- silvereel_wide %>%
   replace_na(replace=list(m1=0,
@@ -714,7 +884,7 @@ comparison <- parSapply(cl, 2:7,
          while (!adapted){
            tryCatch({
              runjags.options(adapt.incomplete="error")
-             res <- run.jags("jags_model.txt", monitor= c("deviance",
+             res <- run.jags("jags_model.txt", monitor= c("deviance","WAIC",
                                                           "alpha_group",
                                                           "cluster"),
                         summarise=FALSE, adapt=40000, method="parallel",
@@ -788,25 +958,6 @@ Once we fitted, we can plot monthly pattern per cluster
 load("silver_jags.rdata")
 nbclus <- 6
 mydata <-build_data(6)
-get_pattern_month <- function(res,type="cluster"){
-  res_mat <- as.matrix(as.mcmc.list(res))
-  if (type=="cluster"){
-    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
-  }
-  sub_mat <- sub_mat %>% 
-    pivot_longer(cols=1:ncol(sub_mat),
-                 names_to="param",
-                 values_to="proportion")
-  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
-  sub_mat$cluster<-as.factor(
-    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
-  sub_mat$month <- as.character(lapply(tmp,
-                                       function(tt) paste("m",
-                                                          tt[[1]][3],
-                                                          sep="")))
-  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
-  sub_mat
-}
 
 pat=get_pattern_month(myfit_silver)
 clus_order=c("1", "3", "4", "5", "6","2")
@@ -832,33 +983,8 @@ groups <- interaction(silvereel_wide$ser_nameshort,
 group_name <- levels(groups)
 
 
-get_pattern_month <- function(res,mydata){
-  
-  tmp <- strsplit(as.character(group_name),
-                  "\\.")
-  ser <- as.character(lapply(tmp,function(tt){
-    tt[1]
-  }))
-  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
-  period <- as.character(lapply(tmp,function(tt){
-    tt[2]
-  }))
-  res_mat <- as.matrix(as.mcmc.list(res))
-  
-  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
-    name_col <- paste("cluster[",id,"]",sep="")
-    freq <- table(res_mat[,name_col])
-    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
-    c(max_class,freq[as.character(1:nbclus)])
-  }))
-  storage.mode(clus) <- "numeric"
-  classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
-  cbind.data.frame(data.frame(ser=ser, period=period, country=country),
-                   classes)
-}
 
-myclassif_silver <- get_pattern_month(myfit_silver)
+myclassif_silver <- get_pattern_month2(myfit_silver)
 col_toreorder=grep("clus[0-9]",names(myclassif_silver))
 names(myclassif_silver)[col_toreorder]=paste("clus",
                                       match(paste("clus",1:nbclus,sep=""),
@@ -871,6 +997,63 @@ myclassif_silver$cluster=factor(match(myclassif_silver$cluster,clus_order),
 
 table_classif(myclassif_silver, "series")
 ```
+
+
+
+```{r mapglasseeloutput}
+pat_group <- get_pattern_month(myfit_silver, "group")
+
+
+
+
+
+pat_group <- pat_group |>
+  group_by(month, cluster) |>
+  summarize(proportion = median(proportion), .groups = "keep") |>
+  ungroup() |>
+  mutate(das_month = as.numeric(gsub("m","", month))) |>
+  rename(das_value = proportion) |>
+  mutate(group_name= group_name[as.integer(as.character(cluster))]) |>
+  mutate(ser_nameshort = stringr::str_extract(group_name, "^[^\\.]+"),
+         period = stringr::str_extract(group_name, "(?<=\\.)[^\\.]+$")) |>
+  mutate(period = ifelse(period == 1, "2000-2009", "2010-2020")) |>
+  left_join(ser2, by = "ser_nameshort")
+
+
+pat_group$ser_y[pat_group$ser_nameshort=="DaugS"] <- 57.049729
+pat_group$ser_x[pat_group$ser_nameshort=="DaugS"] <- 24.059393
+
+formatted_patter = format_pattern(pat_group, 
+                                  multiplier = 300000, 
+                                  keep_period = TRUE)
+
+
+
+
+
+g <- ggplot(cou) +
+  geom_sf() +
+  theme_bw() +
+  geom_polygon(data = formatted_patter,
+               aes(x = x,
+                   y = y,
+                   fill = as.factor(month),
+                   col = as.factor(month),
+                   group = interaction(ser_nameshort, as.factor(month))),
+               alpha = .3,
+               inherit.aes = FALSE)   +
+  scale_color_manual("Month", values = palette) +
+  scale_fill_manual("Month", values = palette) +
+  coord_sf(xlim = range(formatted_patter$x),
+           ylim = range(formatted_patter$y)) +
+  xlab("") +
+  ylab("") +
+  facet_wrap(~period)
+
+save(g, file = "silver_monitoringggplot.rdata")
+ggsave("silver_monitoring.png", g, height=12/2.54, width = 16/2.54, dpi = 300)
+```
+
 The spatial pattern is a bit less obvious than for glass eel. However, looking at the map, we see that clusters 6 and  5, which display similar seasonality, are more located on the Western coasts of Europe (with most cluster 6 in the south, and most clusters 5 in the north). Cluster 2 is more typical of the Baltic Sea and clusster 4 from eastern Scotland.
 
 ```{r}
@@ -1158,25 +1341,6 @@ Once fitted, we can plot monthly pattern per cluster
 load("yellow_jags.rdata")
 nbclus <- 4
 mydata <-build_data(nbclus)
-get_pattern_month <- function(res,type="cluster"){
-  res_mat <- as.matrix(as.mcmc.list(res))
-  if (type=="cluster"){
-    sub_mat <- as.data.frame(res_mat[,grep("esp",colnames(res_mat))])
-  }
-  sub_mat <- sub_mat %>% 
-    pivot_longer(cols=1:ncol(sub_mat),
-                 names_to="param",
-                 values_to="proportion")
-  tmp <- lapply(as.character(sub_mat$param),function(p) strsplit(p,"[[:punct:]]"))
-  sub_mat$cluster<-as.factor(
-    as.integer(lapply(tmp, function(tt) tt[[1]][2])))
-  sub_mat$month <- as.character(lapply(tmp,
-                                       function(tt) paste("m",
-                                                          tt[[1]][3],
-                                                          sep="")))
-  sub_mat$month <- factor(sub_mat$month, levels=paste("m", 1:12, sep=""))
-  sub_mat
-}
 
 pat=get_pattern_month(myfit_yellow)
 clus_order=c("3","4","2","1")
@@ -1207,33 +1371,8 @@ groups <- interaction(yelloweel_wide$ser_nameshort,
 group_name <- levels(groups)
 
 
-get_pattern_month <- function(res,mydata){
-  
-  tmp <- strsplit(as.character(group_name),
-                  "\\.")
-  ser <- as.character(lapply(tmp,function(tt){
-    tt[1]
-  }))
-  country <- ser2$ser_cou_code[match(ser, ser2$ser_nameshort)]
-  period <- as.character(lapply(tmp,function(tt){
-    tt[2]
-  }))
-  res_mat <- as.matrix(as.mcmc.list(res))
-  
-  clus <- t(sapply(seq_len(length(unique(groups))), function(id){
-    name_col <- paste("cluster[",id,"]",sep="")
-    freq <- table(res_mat[,name_col])
-    max_class <- names(freq)[order(freq,decreasing=TRUE)[1]]
-    c(max_class,freq[as.character(1:nbclus)])
-  }))
-  storage.mode(clus) <- "numeric"
-  classes <- as.data.frame(clus)
-  names(classes) <- c("cluster", paste("clus",1:nbclus,sep=""))
-  cbind.data.frame(data.frame(ser=ser, period=period, country=country),
-                   classes)
-}
 
-myclassif_yellow <- get_pattern_month(myfit_yellow)
+myclassif_yellow <- get_pattern_month2(myfit_yellow)
 col_toreorder=grep("clus[0-9]",names(myclassif_yellow))
 names(myclassif_yellow)[col_toreorder]=paste("clus",
                                       match(paste("clus",1:nbclus,sep=""),

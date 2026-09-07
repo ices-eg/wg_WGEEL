@@ -142,7 +142,7 @@ good_coverage_wave <- function(mydata, stage=NULL){
                                                        1:which(original_months==12)]
                                                       )
     
-    data_wide[data_wide$season > min(mydata$season) & data_wide$season < max(mydata$season),] <-
+    data_wide[data_wide$season > min(mydata$season),] <-
       data_wide %>%
       filter(season>min(mydata$season)) %>%
       replace_na(replace=list(`1`=0,
