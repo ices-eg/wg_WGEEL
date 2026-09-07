@@ -45,7 +45,7 @@ readxlTemplate <- function(path, sheet, dict=dictionary, skip=0){
     sheet=sheet,
     skip=skip, 
     n_max=0))
-  if (any(!names(headers) %in% names(dict))){
+    if (any(!names(headers) %in% names(dict))){
     stop(paste("column names",
                paste(sort(names(headers)[!names(headers) %in% names(dict)]),
                      collapse = ","),

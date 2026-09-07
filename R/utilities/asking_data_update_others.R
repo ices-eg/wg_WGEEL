@@ -149,7 +149,6 @@ create_datacall_file <- function(country, eel_typ_id, name, ...) {
     ## separate sheets for discarded and kept data
     data_kept <- r_coun[r_coun$qal_kept, ]
     data_kept <- data_kept[, -ncol(r_coun)]
-
     data_disc <- r_coun[!r_coun$qal_kept, ]
     data_disc <- data_disc[, -ncol(r_coun)]
 

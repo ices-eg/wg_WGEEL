@@ -64,9 +64,10 @@ importtsstep1UI <- function(id){
                                      h3("deleted individual metrics"),
                                      DT::dataTableOutput(ns("dt_deleted_individual_metrics")),
                                      uiOutput(ns("button_deleted_individual_metrics"))),
-                              column(width=6,h3("modified individual metrics"),	
-                                     DT::dataTableOutput(ns("dt_modified_individual_metrics")),
+                              column(width=6,h3("modified individual metrics"),
                                      htmlOutput(ns("step1_message_modified_individual_metrics")),
+                                     DT::dataTableOutput(ns("dt_modified_individual_metrics")),
+                                     uiOutput(ns("button_modified_individual_metrics")),
                                      h3("modified individual metrics : what changed ?"),
                                      DT::dataTableOutput(ns("dt_highlight_change_individual_metrics")))))
             ), collapsible=TRUE, width=12)
@@ -538,7 +539,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_series$new,
                                    rownames=FALSE,
                                    extensions = "Buttons",
-                                   option=list(
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -584,7 +585,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_dataseries$new,
                                    rownames=FALSE,
                                    extensions = "Buttons",
-                                   option=list(
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -628,7 +629,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_group_metrics$new,
                                    rownames=FALSE,
                                    extensions = "Buttons",
-                                   option=list(
+                                   options = list(
                                      scrollX = TRUE,
                                      scrollY = scrollY,
                                      paging = TRUE, # necessary for scroller
@@ -671,7 +672,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                        # so the app crashes here I put a button generated on the server side to download data 
                        # instead of using DT
                        limitDT <- 1000
-                       if (nrow(list_comp_individual_metrics$new)<limitDT){
+                       if (nrow(list_comp_individual_metrics$new) < limitDT){
                          
                          output$"step1_message_new_individual_metrics"<-renderUI(
                            HTML(
@@ -688,7 +689,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                            datatable(list_comp_individual_metrics$new,
                                      rownames=FALSE,
                                      extensions = c("Buttons", "Scroller"),																
-                                     option=list(
+                                     options = list(
                                        scrollX = TRUE,
                                        scrollY = scrollY,
                                        paging = TRUE, # necessary for scroller
@@ -711,7 +712,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                                      ))
                          })
                        } else {
-                         output$"step1_message_new_individual_metrics"<-renderUI(
+                         output$"step1_message_new_individual_metrics" <- renderUI(
                            HTML(
                              paste(
                                paste(
@@ -727,7 +728,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                            datatable(list_comp_individual_metrics$new,
                                      rownames=FALSE,
                                      extensions = c("Buttons", "Scroller"),																
-                                     option=list(
+                                     options = list(
                                        scrollX = TRUE,
                                        scrollY = scrollY,
                                        paging = TRUE, # necessary for scroller
@@ -795,7 +796,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_series$modified,
                                    rownames=FALSE,
                                    extensions = c("Buttons", "Scroller"),																
-                                   option=list(
+                                   options = list(
                                      scrollX = TRUE,
                                      scrollY = scrollY,
                                      paging = TRUE, # necessary for scroller
@@ -815,7 +816,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          validate(need(globaldata$connectOK,"No connection"))
                          datatable(list_comp_series$highlight_change,
                                    rownames=FALSE,
-                                   option=list(
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -861,7 +862,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_updateddataseries$modified,
                                    rownames=FALSE,
                                    extensions = "Buttons",
-                                   option=list(
+                                   options = list(
                                      # scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -886,7 +887,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          validate(need(globaldata$connectOK,"No connection"))
                          datatable(list_comp_dataseries$highlight_change,
                                    rownames=FALSE,
-                                   option=list(
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -930,7 +931,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_group_metrics$modified,
                                    rownames=FALSE,
                                    extensions = c("Buttons","Scroller"),
-                                   option=list(
+                                   options = list(
                                      scrollX = TRUE,
                                      scrollY = scrollY,
                                      paging = TRUE, # necessary for scroller
@@ -959,7 +960,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          validate(need(globaldata$connectOK,"No connection"))
                          datatable(list_comp_group_metrics$highlight_change,
                                    rownames=FALSE,
-                                   option=list(
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
@@ -972,7 +973,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                      
                      if (nrow(list_comp_individual_metrics$modified)==0) {
                        
-                       output$"step1_message_modified_individual_metrics"<-renderUI(
+                       output$"step1_message_modified_individual_metrics" <- renderUI(
                          HTML(
                            paste(
                              h4("No modified individual metrics")
@@ -984,49 +985,105 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                                         language = list(zeroRecords = "No modified individual metrics")))
                        
                      } else {
-                       output$"step1_message_modified_individual_metrics"<-renderUI(
-                         HTML(
-                           paste(
+                       limitDT <- 1000
+                       if (nrow(list_comp_individual_metrics$modified) < limitDT) {
+                         output$"step1_message_modified_individual_metrics" <- renderUI(
+                           HTML(
                              paste(
-                               h4("Table of modified individual metrics (data) (xls)"),
-                               "<p align='left'> This is the file to import ",
-                               "Please click on excel<p>"
-                             )))
-                       )
+                               paste(
+                                 h4("Table of modified individual metrics (data) (xls)"),
+                                 "<p align='left'> This is the file to import ",
+                                 "Please click on excel<p>"
+                               )))
+                         )
+                         
+                         
+                         output$dt_modified_individual_metrics  <- DT::renderDataTable({
+                           validate(need(globaldata$connectOK,"No connection"))
+                           datatable(list_comp_individual_metrics$modified,
+                                     rownames=FALSE,
+                                     extensions = "Buttons",
+                                     options = list(
+                                       scroller = TRUE,
+                                       scrollX = TRUE,
+                                       scrollY = scrollY,
+                                       order=list(3,"asc"),
+                                       lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
+                                       "pagelength"=-1,
+                                       dom= "Blfrtip",
+                                       scrollX = T,
+                                       buttons=list(
+                                         list(extend="excel",
+                                              filename = paste0("modified_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
+                                     ))
+                         })
+                       } else { # too many row
+
+                           output$"step1_message_modified_individual_metrics" <- renderUI(
+                             HTML(
+                               paste(
+                                 paste(
+                                   h4(" WARNING data nrow>", limitDT, "You have been busy mmmm ?"),
+                                   "<p align='left'>Too many lines all is kept on the server side <p>",
+                                   "<p align='left'>Click on the `Download modified Indiv metrics` button below the table <p>"
+                                   
+                                 )))
+                           )
+                           # only allow server side option and no download
+                           output$dt_modified_individual_metrics <- DT::renderDataTable(server = TRUE,{
+                             validate(need(globaldata$connectOK,"No connection"))
+                             datatable(list_comp_individual_metrics$modified,
+                                       rownames=FALSE,
+                                       extensions = c("Buttons", "Scroller"),																
+                                       options = list(
+                                         scrollX = TRUE,
+                                         scrollY = scrollY,
+                                         paging = TRUE, # necessary for scroller
+                                         deferRender = TRUE, # defer render helps with large datasets
+                                         dom = 'lBfrtip',
+                                         fixedColumns = TRUE,
+                                         searching= TRUE,																		
+                                         buttons=list(
+                                           # will allow column choice button
+                                           list(extend="colvis",
+                                                targets = 0, 
+                                                visible = FALSE)																		
+                                         )
+                                       ))
+                           }) # end renderDataTable
+                           # generate a button dynamically on the server side
+                           output$"button_modified_individual_metrics" <- renderUI({
+                             ns <- NS(id)
+                             downloadButton(ns("btn_down_mod_ind_metrics"), 
+                                            label = "Download modified Indiv metrics", 
+                                            icon = icon("table"))
+                             
+                           })
+                       
+                           output$btn_down_mod_ind_metrics <- downloadHandler(
+                             filename = function(){
+                               paste0("modified_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code,".xlsx")
+                             },											
+                             content = function(file) {
+                               write_xlsx(as.data.frame(list_comp_individual_metrics$modified), file)
+                             }
+                           )
+                           
+                       }
                        
                        
-                       output$dt_modified_individual_metrics <-DT::renderDataTable({
-                         validate(need(globaldata$connectOK,"No connection"))
-                         datatable(list_comp_individual_metrics$modified,
-                                   rownames=FALSE,
-                                   extensions = "Buttons",
-                                   option=list(
-                                     scroller = TRUE,
-                                     scrollX = TRUE,
-                                     scrollY = scrollY,
-                                     order=list(3,"asc"),
-                                     lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-                                     "pagelength"=-1,
-                                     dom= "Blfrtip",
-                                     scrollX = T,
-                                     buttons=list(
-                                       list(extend="excel",
-                                            filename = paste0("modified_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-                                   ))
-                       })
-                       
-                       
-                       output$dt_highlight_change_individual_metrics <-DT::renderDataTable({
-                         validate(need(globaldata$connectOK,"No connection"))
+                       output$dt_highlight_change_individual_metrics <- DT::renderDataTable({
+                         validate(need(globaldata$connectOK, "No connection"))
                          datatable(list_comp_individual_metrics$highlight_change,
-                                   rownames=FALSE,
-                                   option=list(
+                                   rownames = FALSE,
+                                   options = list(
                                      scroller = TRUE,
                                      scrollX = TRUE,
                                      scrollY = scrollY,
-                                     lengthMenu=list(c(-1,5,20,50),c("All","5","20","50")),
-                                     "pagelength"=-1
-                                   ))
+                                     lengthMenu = list(c(-1, 5, 20, 50), c("All", "5", "20", "50")),
+                                     "pagelength" = -1
+                                   )
+                         )
                        })
                      }
                      # step1 deleted dataseries -------------------------------------------------------------
@@ -1055,7 +1112,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_deleted_dataseries$deleted,
                                    rownames=FALSE,
                                    extensions = c("Buttons","Scroller"),
-                                   option=list(
+                                   options=list(
                                      scrollX = TRUE,
                                      scrollY = scrollY,
                                      order=list(3,"asc"),
@@ -1098,7 +1155,7 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                          datatable(list_comp_deleted_group_metrics$deleted,
                                    rownames=FALSE,
                                    extensions = c("Buttons","Scroller"),
-                                   option=list(
+                                   options=list(
                                      scrollX = TRUE,
                                      scrollY = scrollY,
                                      paging = TRUE, # necessary for scroller
@@ -1150,25 +1207,29 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                                  "<p align='left'>Please click on excel <p>"
                                )))
                          )
-                         output$dt_deleted_individual_metrics <-DT::renderDataTable(server = FALSE, 
-                                                                                    {
-                                                                                      validate(need(globaldata$connectOK,"No connection"))
-                                                                                      datatable(list_comp_individual_metrics$deleted,
-                                                                                                rownames=FALSE,
-                                                                                                extensions = "Buttons",
-                                                                                                option=list(
-                                                                                                  scroller = TRUE,
-                                                                                                  scrollX = TRUE,
-                                                                                                  scrollY = scrollY,
-                                                                                                  order=list(3,"asc"),
-                                                                                                  lengthMenu=list(c(20,50,-1),c("20","50","All")),
-                                                                                                  "pagelength"=20,
-                                                                                                  dom= "Blfrtip",
-                                                                                                  buttons=list(
-                                                                                                    list(extend="excel",
-                                                                                                         filename = paste0("deleted_individual_metrics_",loaded_data_ts$file_type,"_",Sys.Date(),"_",current_cou_code)))
-                                                                                                ))
-                                                                                    })
+                         output$dt_deleted_individual_metrics <-
+                           DT::renderDataTable(server = FALSE, {
+                             validate(need(globaldata$connectOK, "No connection"))
+                             datatable(list_comp_individual_metrics$deleted,
+                               rownames = FALSE,
+                               extensions = "Buttons",
+                               options = list(
+                                 scroller = TRUE,
+                                 scrollX = TRUE,
+                                 scrollY = scrollY,
+                                 order = list(3, "asc"),
+                                 lengthMenu = list(c(20, 50, -1), c("20", "50", "All")),
+                                 "pagelength" = 20,
+                                 dom = "Blfrtip",
+                                 buttons = list(
+                                   list(
+                                     extend = "excel",
+                                     filename = paste0("deleted_individual_metrics_", loaded_data_ts$file_type, "_", Sys.Date(), "_", current_cou_code)
+                                   )
+                                 )
+                               )
+                             )
+                           })
                        } else {  # rows >limitDT
                          output$"step1_message_deleted_individual_metrics"<-renderUI(
                            HTML(															
@@ -1179,28 +1240,30 @@ importtsstep1Server <- function(id,globaldata,loaded_data_ts, globaltspanel){
                                "<p align='left'>Click on download button below the table <p>"
                              ))
                          )
-                         output$dt_deleted_individual_metrics <-DT::renderDataTable(server = TRUE, 
-                                                                                    {
-                                                                                      validate(need(globaldata$connectOK,"No connection"))
-                                                                                      datatable(list_comp_individual_metrics$deleted,
-                                                                                                rownames=FALSE,
-                                                                                                extensions = c("Buttons", "Scroller"),				
-                                                                                                option=list(
-                                                                                                  scrollX = TRUE,
-                                                                                                  scrollY = scrollY,
-                                                                                                  paging = TRUE, # necessary for scroller																		
-                                                                                                  dom = 'lBfrtip',
-                                                                                                  deferRender = TRUE, # defer render helps with large datasets
-                                                                                                  fixedColumns = TRUE,
-                                                                                                  searching= TRUE,
-                                                                                                  buttons=list(
-                                                                                                    # will allow column choice button
-                                                                                                    list(extend="colvis",
-                                                                                                         targets = 0, 
-                                                                                                         visible = FALSE)																		
-                                                                                                  )
-                                                                                                ))																
-                                                                                    })
+                         output$dt_deleted_individual_metrics <- DT::renderDataTable(server = TRUE, {
+                           validate(need(globaldata$connectOK, "No connection"))
+                           datatable(list_comp_individual_metrics$deleted,
+                             rownames = FALSE,
+                             extensions = c("Buttons", "Scroller"),
+                             options = list(
+                               scrollX = TRUE,
+                               scrollY = scrollY,
+                               paging = TRUE, # necessary for scroller
+                               dom = "lBfrtip",
+                               deferRender = TRUE, # defer render helps with large datasets
+                               fixedColumns = TRUE,
+                               searching = TRUE,
+                               buttons = list(
+                                 # will allow column choice button
+                                 list(
+                                   extend = "colvis",
+                                   targets = 0,
+                                   visible = FALSE
+                                 )
+                               )
+                             )
+                           )
+                         })
                          
                          # generate a button dynamically on the server side
                          output$"button_deleted_individual_metrics" <- renderUI({

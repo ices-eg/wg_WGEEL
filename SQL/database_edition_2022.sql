@@ -1061,7 +1061,7 @@ GROUP by ser_cou_code
 */
 
 -- pg_dump -U postgres -f "dataseries.sql" --table public.temp_dataseries wgeel0609
--- pg_dump -U postgres -f "dataserieslast.sql" --table datawg.t_dataseries_das -h 185.135.126.250 wgeel
+-- pg_dump -U postgres -f "dataserieslast.sql" --table datawg.t_dataseries_das -h db.mercure.eaux-et-vilaine.bzh wgeel
 
 CREATE TABLE temp_dataserieslast AS SELECT * FROM datawg.t_dataseries_das; --329
 

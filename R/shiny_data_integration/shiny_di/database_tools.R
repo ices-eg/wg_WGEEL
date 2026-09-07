@@ -2638,7 +2638,7 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
 write_updated_individual_metrics <- function(path, conn, type="series"){
   metrics_ind <- tr_metrictype_mty %>% 
     filter(mty_group!="group") %>% select(mty_name,mty_id)
-  updated <- readxlTemplate(path = path, sheet = 1, skip = 1)	
+  updated <- readxlTemplate(path = path, sheet = 1, skip = 0)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(updated$fi_id)) == 0)
@@ -2654,12 +2654,19 @@ write_updated_individual_metrics <- function(path, conn, type="series"){
   message <- NULL
   #dbGetQuery(conn, "DELETE FROM datawg.t_groupseries_grser")
   
-  sql0 <- glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
+  sql0 <- ifelse( type == "series",
+                  glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
+          (fi_date,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
+          (i.fi_date::date,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
+          ind_tmp i
+          WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
+                                 .con=conn),
+                  glue::glue_sql("UPDATE datawg.{`ind_table`} SET 
           (fi_date,fisa_x_4326,fisa_y_4326,fi_lfs_code, fi_year,fi_comment,fi_dts_datasource,{`ind_key`}) =
           (i.fi_date::date,i.fisa_x_4326,i.fisa_y_4326,i.fi_lfs_code, i.fi_year,i.fi_comment,i.fi_dts_datasource,i.{`ind_key`}) FROM
           ind_tmp i
           WHERE i.fi_id={`ind_table`}.fi_id returning datawg.{`ind_table`}.*",
-                         .con=conn)
+                                 .con=conn))
   res1 <- dbGetQuery(conn, sql0)
   nr1 <- nrow(res1)
   sql1 <- glue::glue_sql("delete from datawg.{`metric_table`} 

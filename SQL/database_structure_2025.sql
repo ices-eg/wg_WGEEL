@@ -8260,3 +8260,7 @@ ALTER TABLE datawg.t_fishsamp_fisa ADD CONSTRAINT c_fk_fisa_sai_id FOREIGN KEY (
 
 alter TABLE datawg.t_groupsamp_grsa drop CONSTRAINT c_fk_grsa_sai_id;
 ALTER TABLE datawg.t_groupsamp_grsa ADD CONSTRAINT c_fk_grsa_sai_id FOREIGN KEY (grsa_sai_id) REFERENCES datawg.t_samplinginfo_sai(sai_id) ON UPDATE CASCADE ON DELETE cascade;
+
+
+
+SELECT * FROM datawg.precodata_emu as pc WHERE eel_cou_code = 'FR'
