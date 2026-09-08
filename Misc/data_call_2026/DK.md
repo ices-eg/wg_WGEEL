@@ -7,7 +7,8 @@
 ### series
 
 ### dataseries
-
+- removed empty values
+- 10 new values inserted in the database
 
 ### group metrics
 
@@ -19,6 +20,8 @@
 ### series
 
 ### dataseries
+- year was missing in new dataseries, asked to data provider (2026)
+- 1 new values inserted in the database
 
 
 ### group metrics
@@ -34,6 +37,8 @@
 
 ### dataseries
 
+- 1 new values inserted in the database
+
 
 ### group metrics
 
@@ -44,10 +49,13 @@
 
 ## Annex 4
 
+- 325 new values inserted in the database
+
 
 
 ## Annex 5
 
+- 362 new values inserted in the database
 
 
 ## Annex 6
