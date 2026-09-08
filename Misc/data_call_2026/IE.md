@@ -622,6 +622,9 @@ The 2025 line saying no aquaculture was already there and marked as duplicate. N
 
 ### samplinginfo
 
+Note I have changed the names and removed the & which caused issues in the processing
+I had to correct some names with underscores
+
 4 new sampling
 
 [1] "this is what will be in the db"
@@ -662,6 +665,105 @@ Group variables            None
 
 ### group metrics
 
+ 9 and 56 new values inserted in the group and metric tables
+you forgot to put underscore in the two Corrib series names
+
+1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             9     
+Number of columns          19    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  15    
+________________________         
+Group variables            None  
+
+── Variable type: character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                5         0.444  27  52     0        3          0
+2 gr_dts_datasource         0         1       7   7     0        1          0
+3 grsa_lfs_code             0         1       1   2     0        2          0
+
+── Variable type: Date ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median     n_unique
+1 gr_lastupdate         0             1 2026-09-08 2026-09-08 2026-09-08        1
+
+── Variable type: numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate     mean       sd       p0      p25      p50      p75     p100 hist 
+ 1 gr_id                                                         0         1     6782       2.74   6778     6780     6782     6784     6786     ▇▇▃▇▇
+ 2 gr_year                                                       0         1     2025.      0.5    2024     2024     2025     2025     2025     ▃▁▁▁▇
+ 3 gr_number                                                     0         1      978.    526.      284      581      953     1245     1946     ▇▂▇▂▂
+ 4 grsa_sai_id                                                   0         1      844.    316.      286     1001     1002     1003     1004     ▂▁▁▁▇
+ 5 lengthmm                                                      0         1      627.    101.      464      582      650      686      786     ▅▅▂▇▂
+ 6 weightg                                                       6         0.333  483.    466.      182      214      246      633     1020     ▇▁▁▁▃
+ 7 anguillicola_intensity                                        7         0.222    4.88    3.03      2.73     3.80     4.88     5.95     7.02  ▇▁▁▁▇
+ 8 m_mean_lengthmm                                               0         1      382      19.8     345      378      381      390      416     ▂▂▇▃▂
+ 9 f_mean_lengthmm                                               0         1      633.    110.      451      597      672      693      788     ▅▁▅▇▅
+10 method_sex_(1=visual,0=use_length)                            0         1        0.222   0.441     0        0        0        0        1     ▇▁▁▁▂
+11 method_anguillicola_(1=stereomicroscope,0=visual_obs)         7         0.222    0       0         0        0        0        0        0     ▁▁▇▁▁
+12 female_proportion                                             0         1        0.948   0.0320    0.912    0.924    0.946    0.974    0.999 ▇▂▂▂▃
+13 anguillicola_proportion                                       7         0.222    0.723   0.0718    0.673    0.698    0.723    0.749    0.774 ▇▁▁▁▇
+14 m_mean_weightg                                                8         0.111   70      NA        70       70       70       70       70     ▁▁▇▁▁
+15 f_mean_weightg                                                8         0.111 1020      NA      1020     1020     1020     1020     1020     ▁▁▇▁▁
 
 ### individual metrics
 
+
+I remember you (Russell) had issues with pasting dates. It's still the case
+often the dates in your files are pasted as text and not identified as date.
+I needed to convert them.
+Some are missing again from Burrishoole in the sampling info but I have integrated.
+
+you forgot to put underscore in the two Corrib series names
+
+12722 and 41382 new values inserted in the fish and metric tables
+
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             12722 
+Number of columns          23    
+_______________________          
+Column type frequency:           
+  character                5     
+  Date                     2     
+  numeric                  16    
+________________________         
+Group variables            None  
+
+── Variable type: character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 fi_comment            12722             0  NA  NA     0        0          0
+2 fi_dts_datasource         0             1   7   7     0        1          0
+3 fi_lfs_code               0             1   1   1     0        2          0
+4 fisa_geom             12722             0  NA  NA     0        0          0
+5 fi_id_cou                 0             1  13  39     0    12716          0
+
+── Variable type: Date ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median     n_unique
+1 fi_date            4940         0.612 2009-06-23 2026-11-02 2024-01-09       58
+2 fi_lastupdate         0         1     2026-09-08 2026-09-08 2026-09-08        1
+
+── Variable type: numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   skim_variable                                         n_missing complete_rate         mean       sd         p0        p25        p50        p75       p100 hist 
+ 1 fi_id                                                         0       1       4585836.     3673.    4579476    4582656.   4585836.   4589017.   4592197    ▇▇▇▇▇
+ 2 fi_year                                                       0       1          2022.        4.58     2009       2017       2024       2025       2025    ▁▁▂▁▇
+ 3 fisa_sai_id                                                   0       1           749.      341.        286        287       1002       1003       1004    ▅▁▁▁▇
+ 4 fisa_x_4326                                                   0       1            -8.29      0.742      -9.58      -9.11      -7.99      -7.66      -7.49 ▅▃▁▅▇
+ 5 fisa_y_4326                                                   0       1            54.0       0.460      53.4       53.5       54.2       54.4       54.5  ▇▁▁▂▇
+ 6 lengthmm                                                      1       1.000       598.      130.        250        504        590        690       1080    ▂▇▇▂▁
+ 7 weightg                                                    7661       0.398       329.      307.         40        159        231        356       2790    ▇▁▁▁▁
+ 8 eye_diam_meanmm                                            9713       0.237         5.16      1.17        2.13       4.37       4.99       5.81      12.2  ▂▇▂▁▁
+ 9 pectoral_lengthmm                                          9767       0.232        21.4       5.22        5.94      17.7       20.7       24.5       47.9  ▁▇▅▁▁
+10 differentiated_proportion                                 12375       0.0273        0.666     0.472       0          0          1          1          1    ▅▁▁▁▇
+11 anguillicola_intensity                                    12606       0.00912       3.72      5.89        0          0          2          5         39    ▇▁▁▁▁
+12 method_sex_(1=visual,0=use_length)                         4367       0.657         0.0415    0.200       0          0          0          0          1    ▇▁▁▁▁
+13 method_anguillicola_(1=stereomicroscope,0=visual_obs)     12606       0.00912       0         0           0          0          0          0          0    ▁▁▇▁▁
+14 female_proportion                                          4367       0.657         0.932     0.251       0          1          1          1          1    ▁▁▁▁▇
+15 anguillicola_proportion                                   12606       0.00912       0.724     0.449       0          0          1          1          1    ▃▁▁▁▇
+16 ageyear                                                   12491       0.0182       28.3       8.71        5         22.5       29         34         59    ▁▆▇▂▁
