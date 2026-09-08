@@ -557,6 +557,48 @@ deleted_data
 
 There is a missing value in numbers in 2025 sent a message to check, trend in average weight not constant over time 
 (from 0.13 to 0.225 kg per individual)
+Added N = 49144  after exchanges with Guirec
+
+28 new values inserted in the database
+
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             28    
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0        1        7   7     0       10          0
+ 2 eel_cou_code              0        1        2   2     0        1          0
+ 3 eel_lfs_code              0        1        1   1     0        2          0
+ 4 eel_hty_code              0        1        1   1     0        2          0
+ 5 eel_area_division        26        0.0714   6   6     0        1          0
+ 6 eel_qal_comment          28        0       NA  NA     0        0          0
+ 7 eel_comment              28        0       NA  NA     0        0          0
+ 8 eel_missvaluequal        28        0       NA  NA     0        0          0
+ 9 eel_datasource            0        1        7   7     0        1          0
+10 eel_dta_code              0        1        6   6     0        1          0
+
+── Variable type: Date ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median     n_unique
+1 eel_datelastupdate         0             1 2026-09-08 2026-09-08 2026-09-08        1
+
+── Variable type: numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate     mean          sd     p0     p25      p50     p75    p100 hist 
+1 eel_id                0             1 612888.        8.23  612875 612882. 612888.  612895.  612902 ▇▇▇▇▇
+2 eel_typ_id            0             1      8.5       0.509      8      8       8.5      9        9 ▇▁▁▁▇
+3 eel_year              0             1   2026.        0.923   2023   2025    2026     2026     2026 ▁▁▁▂▇
+4 eel_value             0             1 289164.  1025426.         0      0       0      435. 5005154 ▇▁▁▁▁
+5 eel_qal_id            0             1      1         0          1      1       1        1        1 ▁▁▇▁▁
 
 ## Annex 8
 
