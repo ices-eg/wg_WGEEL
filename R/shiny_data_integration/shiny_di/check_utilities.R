@@ -124,7 +124,7 @@ check_values <- function(dataset,namedataset, column,country,values){
 #' @param country the current country being evaluated
 #' @param type, a class described as a character e.g. "numeric"
 
-check_type <- function(dataset,namedataset, column,country,values,type){
+check_type <- function(dataset,namedataset, column,country,type){
   answer = NULL
   newdataset <- dataset
   newdataset <- tibble::rowid_to_column(newdataset, "nline" )
