@@ -2636,9 +2636,11 @@ write_new_individual_metrics_proceed <- function(path, conn, type="series"){
 }
 # no way to know if fish is updated, I'm updating it anyways...
 write_updated_individual_metrics <- function(path, conn, type="series"){
+  test <- read_excel(path = path, sheet=1, range="A1:A1")
+  if (names(test) %in% c("fi_id_cou")) skip=0 else skip=1
   metrics_ind <- tr_metrictype_mty %>% 
     filter(mty_group!="group") %>% select(mty_name,mty_id)
-  updated <- readxlTemplate(path = path, sheet = 1, skip = 0)	
+  updated <- readxlTemplate(path = path, sheet = 1, skip = skip)	
   if (nrow(updated) == 0)
     return(list(message="empty file", cou_code=NULL))
   if (sum(!is.na(updated$fi_id)) == 0)
