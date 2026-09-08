@@ -148,7 +148,6 @@ importdcfstep0Server <- function(id,globaldata){
                        rls$message <- ls$message
                        file_type <- "DCF data"
                        rls$file_type <- file_type
-                       rls$file_type <- NULL
                        rls$res <- ls$res
                        
                        ##################################################

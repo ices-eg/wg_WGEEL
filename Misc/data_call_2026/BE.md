@@ -52,6 +52,8 @@
 ## Annex 5
 - 2 duplicates values: old series were kept since data were the same
 - 154 new values inserted in the database
+- Marieke fixed with a new version of the template, so insert two new values
+- 2 new values inserted in the database
 
 
 ## Annex 6
@@ -60,6 +62,7 @@
 
 ## Annex 7
 - eel_value_kg was a value in euros, not a weight. Asked a correction to the data provider
+- 
 
 ## Annex 8
 

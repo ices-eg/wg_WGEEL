@@ -7,7 +7,9 @@
 ### series
 
 ### dataseries
-
+- remove empty rows
+- in update data: seems that they havn't done anything with those old data, put
+qal_id to 0
 
 ### group metrics
 
