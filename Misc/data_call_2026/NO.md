@@ -12,6 +12,7 @@
 
 ### group metrics
 - 10 and 20 new values modified in the group and metric tables
+- 2 and 4 new values inserted in the group and metric tables
 
 
 ### individual metrics

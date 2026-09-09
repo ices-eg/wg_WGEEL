@@ -74,6 +74,8 @@ qal_id to 0
 
 ## Annex 7
 - no number reported, asked to data provider
+- 2 new values inserted in the database
+
 
 ## Annex 8
 - 1 new values inserted in the database

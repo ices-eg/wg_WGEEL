@@ -43,7 +43,8 @@
 
 
 ## Annex 4
-
+- fix area division
+- they report values of landings of YS of less than 1kg! error of units?
 
 
 ## Annex 5
