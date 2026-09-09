@@ -2,7 +2,7 @@
 # TN
 -----------------------------------------------------------
 
-## Annex 1
+## Annex 1 NC
 
 ### series
 
@@ -12,7 +12,7 @@
 ### group metrics
 
 
-### individual metrics
+### individual metrics NC
 
 ## Annex 2
 
@@ -28,7 +28,7 @@
 
 
 
-## Annex 3
+## Annex 3 NC
 
 ### series
 
@@ -44,7 +44,7 @@
 
 ## Annex 4
 
-
+ 16 new values inserted in the database
 
 ## Annex 5
 
@@ -60,7 +60,7 @@
 ## Annex 8
 
 
-## Annex 9
+## Annex 9 : pending data on the series
 
 ### samplinginfo
 

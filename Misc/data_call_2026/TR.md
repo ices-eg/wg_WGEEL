@@ -2,71 +2,88 @@
 # TR
 -----------------------------------------------------------
 
-## Annex 1
+## Annex 1 NR
 
-### series
+## Annex 2 NR
 
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
-## Annex 2
-
-### series
-
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
-
-
-## Annex 3
-
-### series
-
-### dataseries
-
-
-### group metrics
-
-
-### individual metrics
-
-
+## Annex 3 NR
 
 ## Annex 4
 
+ 1 new values inserted in the database
 
+## Annex 5 NP
 
-## Annex 5
+## Annex 6 NP
 
+## Annex 7 NP
 
-
-## Annex 6
-
-
-
-## Annex 7
-
-
-## Annex 8
-
+## Annex 8 NP
 
 ## Annex 9
 
 ### samplinginfo
 
+ 8 new values inserted in the database
+ 
+ 1 values updated in the db
 
 ### group metrics
 
+5 and 24 new values inserted in the group and metric tables
+
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             5     
+Number of columns          14    
+_______________________          
+Column type frequency:           
+  character                3     
+  Date                     1     
+  numeric                  10    
+________________________         
+Group variables            None  
+
+── Variable type: character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable     n_missing complete_rate min max empty n_unique whitespace
+1 gr_comment                0             1  46  46     0        1          0
+2 gr_dts_datasource         0             1   7   7     0        1          0
+3 grsa_lfs_code             0             1   1   1     0        2          0
+
+── Variable type: Date ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate min        max        median     n_unique
+1 gr_lastupdate         0             1 2026-09-09 2026-09-09 2026-09-09        1
+
+── Variable type: numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   skim_variable                      n_missing complete_rate     mean       sd       p0      p25   p50   p75  p100 hist 
+ 1 gr_id                                      0           1   6910       1.58   6908     6909     6910  6911  6912  ▇▇▇▇▇
+ 2 gr_year                                    0           1   2025       0      2025     2025     2025  2025  2025  ▁▁▇▁▁
+ 3 gr_number                                  0           1     32.2    37.9       4       11       19    29    98  ▇▂▁▁▂
+ 4 grsa_sai_id                                0           1   1022       1.87   1020     1020     1023  1023  1024  ▇▁▁▇▃
+ 5 f_mean_lengthmm                            0           1    526.     91.1     415      465      523   585   643  ▇▇▇▇▇
+ 6 f_mean_weightg                             0           1    353.    189.      129.     241.     299.  522.  573. ▃▇▁▁▇
+ 7 method_sex_(1=visual,0=use_length)         0           1      1       0         1        1        1     1     1  ▁▁▇▁▁
+ 8 female_proportion                          0           1      0.991   0.0149    0.966    0.990    1     1     1  ▂▁▁▂▇
+ 9 m_mean_lengthmm                            3           0.4  382.     31.8     360      371.     382.  394.  405  ▇▁▁▁▇
+10 m_mean_weightg                             3           0.4  101.     20.4      87       94.2    101.  109.  116. ▇▁▁▁▇
 
 ### individual metrics
 
+Error in proceedfunction(path, conn, ...): fishes do not fall in emu: c("Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_1", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_2", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_3", "Tr_kcg_121125_4", "Tr_kcg_121125_4", "Tr_kcg_121125_4", "Tr_kcg_121125_4", "Tr_kcg_121125_4", "Tr_kcg_121125_4", 
+"Tr_kcg_121125_4", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_5", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_6", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_7", "Tr_kcg_121125_8", "Tr_kcg_121125_8", "Tr_kcg_121125_8", "Tr_kcg_121125_8", "Tr_kcg_121125_8", 
+"Tr_kcg_121125_8", "Tr_kcg_121125_8", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_9", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_10", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_11", "Tr_kcg_121125_12", "Tr_kcg_121125_12", "Tr_kcg_121125_12", 
+"Tr_kcg_121125_12", "Tr_kcg_121125_12", "Tr_kcg_121125_12", "Tr_kcg_121125_12", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_13", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_14", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_15", "Tr_kcg_121125_16", 
+"Tr_kcg_121125_16", "Tr_kcg_121125_16", "Tr_kcg_121125_16", "Tr_kcg_121125_16", "Tr_kcg_121125_16", "Tr_kcg_121125_16", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_17", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_18", "Tr_kcg_121125_19", "Tr_kcg_121125_19", "Tr_kcg_121125_19", "Tr_kcg_121125_19", "Tr_kcg_121125_19", "Tr_kcg_121125_19", 
+"Tr_kcg_121125_19", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_20", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_21", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_22", "Tr_kcg_121125_23", "Tr_kcg_121125_23", "Tr_kcg_121125_23", "Tr_kcg_121125_23", 
+"Tr_kcg_121125_23", "Tr_kcg_121125_23", "Tr_kcg_121125_23", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_24", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_25", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_26", "Tr_kcg_121125_27", "Tr_kcg_121125_27", 
+"Tr_kcg_121125_27", "Tr_kcg_121125_27", "Tr_kcg_121125_27", "Tr_kcg_121125_27", "Tr_kcg_121125_27", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_28", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_29", "Tr_kcg_121125_30", "Tr_kcg_121125_30", "Tr_kcg_121125_30", "Tr_kcg_121125_30", "Tr_kcg_121125_30", "Tr_kcg_121125_30", "Tr_kcg_121125_30", 
+"Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_31", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_32", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_33", "Tr_kcg_121125_34", "Tr_kcg_121125_34", "Tr_kcg_121125_34", "Tr_kcg_121125_34", "Tr_kcg_121125_34", 
+"Tr_kcg_121125_34", "Tr_kcg_121125_34", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_35", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_36", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_37", "Tr_kcg_121125_38", "Tr_kcg_121125_38", "Tr_kcg_121125_38", 
+"Tr_kcg_121125_38", "Tr_kcg_121125_38", "Tr_kcg_121125_38", "Tr_kcg_121125_38", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_39", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_40", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_41", "Tr_kcg_121125_42", 
+"Tr_kcg_121125_42", "Tr_kcg_121125_42", "Tr_kcg_121125_42", "Tr_kcg_121125_42", "Tr_kcg_121125_42", "Tr_kcg_121125_42", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_43", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_44", "Tr_kcg_121125_45", "Tr_kcg_121125_45", "Tr_kcg_121125_45", "Tr_kcg_121125_45", "Tr_kcg_121125_45", "Tr_kcg_121125_45", 
+"Tr_kcg_121125_45", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_46", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_47", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_48", "Tr_kcg_121125_49", "Tr_kcg_121125_49", "Tr_kcg_121125_49", "Tr_kcg_121125_49", 
+"Tr_kcg_121125_49", "Tr_kcg_121125_49", "Tr_kcg_121125_49", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_50", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_51", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_52", "Tr_kcg_121125_53", "Tr_kcg_121125_53", 
+"Tr_kcg_121125_53", "Tr_kcg_121125_53", "Tr_kcg_121125_53", "Tr_kcg_121125_53", "Tr_kcg_121125_53", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_54", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_55", "Tr_kcg_121125_56", "Tr_kcg_121125_56", "Tr_kcg_121125_56", "Tr_kcg_121125_56", "Tr_kcg_121125_56", "Tr_kcg_121125_56", "Tr_kcg_121125_56", 
+"Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_1", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_2", "Tr_kcg_281025_3", "Tr_kcg_281025_3", "Tr_kcg_281025_3", "Tr_kcg_281025_3", "Tr_kcg_281025_3", "Tr_kcg_
