@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# AL
+# MA
 -----------------------------------------------------------
 
 ## Annex 1
@@ -43,14 +43,10 @@
 
 
 ## Annex 4
-- most data were obviously not checked so removed
-- two values in 2025: NP was removed
-- 2 new values inserted in the database
 
 
 
 ## Annex 5
-- 12 new values inserted in the database
 
 
 

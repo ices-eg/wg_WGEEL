@@ -62,7 +62,7 @@
 one per number and two releases in same year, same stage, same emu, same lfs. 
 Asked to data provider
 - 2 new values inserted in the database
-
+- inversion of kg and weight, fixed in table edit
 
 ## Annex 8
 

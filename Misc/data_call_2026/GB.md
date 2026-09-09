@@ -83,6 +83,10 @@
 ## Annex 7
 - weird updated value with no eel_id and seem to update a record where there was
 an NP with a comment. Ask data provider.
+- following data provider reply, add eel_typ_id to updated_data where missing
+- 10 new values inserted in the database
+- 2 values updated in the db
+
 
 ## Annex 8
 
