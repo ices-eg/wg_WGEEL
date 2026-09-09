@@ -1896,7 +1896,9 @@ load_series<-function(path, datasource, stage="glass_eel", use_contaminant_data 
     columns 
     #,nbcol
     ){
-      
+      showNotification(paste("loop checking sheet", sheet),
+                       id = "checksheet")
+
       data_xls <- readxlTemplate(path, sheet)
       if ("fi_idcou" %in% names(data_xls))
         data_xls <- data_xls %>%

@@ -18,14 +18,14 @@ params:
     value: 1960
     input: slider
     min: 1900
-    max: 2025
+    max: 2026
     step: 1
     sep: ""
   country:   
     label: "Country"
-    value: ES
+    value: LV
     input: select
-    choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV","NL","NO","PL","PT","SE","SI","TN","TR"]
+    choices: ["BE","DE","DK","EE","ES","FI","FR","GB","GR","HR","IE","IT","LT","LV", "ME","NL","NO","PL","PT","SE","SI","TN","TR","LB"]
   area:
     label: Area
     value: "Elsewhere Europe"
@@ -85,6 +85,7 @@ CY=lubridate::year(Sys.time())
 
 path <- paste0(gsub("wg_WGEEL(.+|$)","", getwd()),
                "/wg_WGEEL/R/utilities/")
+
 api <- yaml::read_yaml(paste0(path,
                               "stadia.yml"))
 ggmap::register_stadiamaps(api$api)
@@ -842,7 +843,7 @@ map_recruitment <- function(){
 				xlab("")+
 				ylab("")
 	} else {
-		gg <- ggplot() +
+		g <- ggplot() +
 				theme_void() +
 				geom_text(aes(0,0,label='N/A')) +
 				xlab(NULL)
@@ -852,59 +853,71 @@ map_recruitment <- function(){
 
 
 
-map_ys <- function(){	
-	
-	station <- ys_stations %>% dplyr::select(ser_nameshort,cou_code, ser_x, ser_y, ser_lfs_code) %>%
-			rename(site="ser_nameshort", stage = "ser_lfs_code") %>%
-			arrange(site) %>%
-			filter(cou_code==params$country)
-	sites_cou <- station %>% pull(site) 
-	if (length(sites_cou)>0){
-		if (length(sites_cou) <11) palette <- gdocs_pal()(length(sites_cou)) else 
-			palette <- ggthemes::gdocs_pal()(10)
-		palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
-		country_map <- as(country_p,"Spatial")
-		country_map	<- country_p[country_p$cou_code== params$country,]	
-		location=c(left=sf::st_bbox(country_map)[1]-0.5,
-				bottom=sf::st_bbox(country_map)[2]-0.5,
-				right=sf::st_bbox(country_map)[3]+0.5,
-				top=sf::st_bbox(country_map)[4]+0.5)
-		lon_range <- location[c("left.xmin", "right.xmax")]
-		lat_range <- location[c("bottom.ymin", "top.ymax")]
-		lonlength <- diff(lon_range)
-		latlength <- diff(lat_range)
-		zoomlon <- ceiling(log2(360 * 2/lonlength))
-		zoomlat <- ceiling(log2(180 * 2/latlength))
-		zoom <- max(zoomlon, zoomlat)
-		names(location)=c("left","bottom","right","top")
-		
-		mymap <-get_stadiamap(location,zoom=zoom,
-				maptype = "stamen_terrain_background",
-				source="stamen")
-		
-		g <- ggmap(mymap)+							
-				geom_point(data=station,
-						aes(x=ser_x, y=ser_y,
-								shape = stage,								
-								col=site),
-						size=2)+
-				geom_point(data=station[station$stage=="S",],
-						aes(x=ser_x, y=ser_y),
-						shape=21,						
-						size = 2,
-						color= "black")+		
-				scale_shape("Stage")+
-				scale_colour_manual(values=palette)+
-				scale_size_manual(values=c(2,3))+				
-				xlab("")+
-				ylab("")
-	} else {
-		gg <- ggplot() +
-				theme_void() +
-				geom_text(aes(0,0,label='N/A')) +
-				xlab(NULL)
-	}
-	return(g)
+map_ys <- function() {
+  station <- ys_stations %>%
+    dplyr::select(ser_nameshort, cou_code, ser_x, ser_y, ser_lfs_code) %>%
+    rename(site = "ser_nameshort", stage = "ser_lfs_code") %>%
+    arrange(site) %>%
+    filter(cou_code == params$country)
+  sites_cou <- station %>% pull(site)
+  if (length(sites_cou) > 0) {
+    if (length(sites_cou) < 11) {
+      palette <- gdocs_pal()(length(sites_cou))
+    } else {
+      palette <- ggthemes::gdocs_pal()(10)
+    }
+    palette <- grDevices::colorRampPalette(palette)(length(sites_cou))
+    country_map <- sf::as_Spatial(sf::st_geometry(country_p[country_p$cou_code == params$country, ]))
+    location <- c(
+      left = sf::st_bbox(country_map)[1] - 0.5,
+      bottom = sf::st_bbox(country_map)[2] - 0.5,
+      right = sf::st_bbox(country_map)[3] + 0.5,
+      top = sf::st_bbox(country_map)[4] + 0.5
+    )
+    lon_range <- location[c("left.xmin", "right.xmax")]
+    lat_range <- location[c("bottom.ymin", "top.ymax")]
+    lonlength <- diff(lon_range)
+    latlength <- diff(lat_range)
+    zoomlon <- ceiling(log2(360 * 2 / lonlength))
+    zoomlat <- ceiling(log2(180 * 2 / latlength))
+    zoom <- max(zoomlon, zoomlat)
+    names(location) <- c("left", "bottom", "right", "top")
+
+    mymap <- get_stadiamap(location,
+      zoom = zoom,
+      maptype = "stamen_terrain_background",
+      source = "stamen"
+    )
+
+    g <- ggmap(mymap) +
+      geom_point(
+        data = station,
+        aes(
+          x = ser_x, y = ser_y,
+          shape = stage,
+          col = site
+        ),
+        size = 2
+      ) +
+      geom_point(
+        data = station[station$stage == "S", ],
+        aes(x = ser_x, y = ser_y),
+        shape = 21,
+        size = 2,
+        color = "black"
+      ) +
+      scale_shape("Stage") +
+      scale_colour_manual(values = palette) +
+      scale_size_manual(values = c(2, 3)) +
+      xlab("") +
+      ylab("")
+  } else {
+    g <- ggplot() +
+      theme_void() +
+      geom_text(aes(0, 0, label = "N/A")) +
+      xlab(NULL)
+  }
+  return(g)
 }
 
 ```

@@ -32,7 +32,7 @@ plotduplicatesUI <- function(id){
                        sliderTextInput(inputId =ns("year_g"), 
                                        label = "Choose a year range:",
                                        choices=seq(the_years$min_year, current_year),
-                                       selected = c(the_years$min_year,the_years$max_year)
+                                       selected = c(the_years$min_year,current_year)
                        )))),               
           
           fluidRow(

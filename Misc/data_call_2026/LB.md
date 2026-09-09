@@ -1,5 +1,5 @@
 -----------------------------------------------------------
-# AL
+# MA
 -----------------------------------------------------------
 
 ## Annex 1
@@ -43,14 +43,11 @@
 
 
 ## Annex 4
-- most data were obviously not checked so removed
-- two values in 2025: NP was removed
-- 2 new values inserted in the database
-
+- fix area division
+- they report values of landings of YS of less than 1kg! error of units?
 
 
 ## Annex 5
-- 12 new values inserted in the database
 
 
 
