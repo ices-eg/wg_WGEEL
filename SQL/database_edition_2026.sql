@@ -14,8 +14,11 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_typ_id = 9 AND eel_cou_code = 'FR'
 AND eel_emu_nameshort = 'FR_Rhon'
 AND eel_qal_id = 1)
 SELECT numbers.eel_year, weights.eel_value / numbers.eel_value AS mean_weight FROM numbers inner JOIN weights ON 
-weights.eel_year = numbers.eel_year
+weights.eel_year = numbers.eel_year;
 
 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 552578
+
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_year >= 2100
 
 
