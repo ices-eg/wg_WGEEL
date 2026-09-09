@@ -43,7 +43,7 @@ Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY <- 2025 # current year ==> dont forget to update the graphics path below
+CY <- 2026 # current year ==> dont forget to update the graphics path below
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
 
@@ -1064,7 +1064,7 @@ resid <- ggplot() +
   annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg") + 
 		geom_sf(data=fao, inherit.aes = FALSE, fill = NA) +
 		geom_point(data = residualsge_tab |>
-		             filter(year_f %in% c("2025")),
+		             filter(year_f %in% CY),
 		           aes(x=X,
 		               y=Y,
 		               fill = residuals,
@@ -1478,7 +1478,7 @@ save(dat_ge, file=str_c(shinywd,"dat_ge.Rdata"))
 ```{r segmented_regression, echo=FALSE, eval=FALSE, results="hide", warning = FALSE, message = FALSE, error=FALSE, fig.show='hide'}
 if(!require(segmented)) install.packages("segmented") ; require(segmented)
 
-dat_ge1 <- expand.grid(year=1980:2025,area=as.factor(model_ge_area_b$xlevels$area),
+dat_ge1 <- expand.grid(year=1980:CY,area=as.factor(model_ge_area_b$xlevels$area),
 		site=model_ge_area_b$xlevels$site[1])
 
 dat_ge1$p <- predict(model_ge_area_b,newdata=dat_ge1)
@@ -2003,6 +2003,8 @@ if (params$regenerate | !file.exists(paste0(outputdatawd,"mohn.Rdata"))){
   inclusion=dbGetQuery(con,"select min(extract (year from run_date)) as intro_year, ser_nameshort from datawg.t_modeldata_dat left join datawg.t_modelrun_run on dat_run_id=run_id left join datawg.t_series_ser on ser_id=dat_ser_id group by ser_nameshort") %>%
     mutate(intro_year=ifelse(intro_year==2018,"≤2018",intro_year))
   
+  save(inclusion, file = paste0(outputdatawd,"inclusion.Rdata"))
+
   #####First we draw retrospective plots with the data as they were when the model was run
   
   
@@ -2241,6 +2243,7 @@ YY <- retro_YY + geom_magnify(from = list(xmin= CY -9,
   save_figure("retro_patchwork",retro,1200,800, pdf=FALSE)
 } else {
   load(paste0(outputdatawd,"mohn.Rdata"))
+  load(paste0(outputdatawd,"inclusion.Rdata"))
 }
 
 ```
@@ -2542,7 +2545,7 @@ Tt should be reminded that those results are still preliminary and will
 be updated next year once all time series will be made available.
 
 
-```{r benezech, echo = FALSE, warning=FALSE, message=FALSE, results = "hide"}
+```{r benezech, eval = FALSE, echo = FALSE, warning=FALSE, message=FALSE, results = "hide"}
 if (params$regenerate | ! file.exists(paste0(outputdatawd,"benezech.Rdata"))){
   source("fit_benezech.R")
   model_path <- "model_random_slope_benezech.R"
@@ -2582,9 +2585,9 @@ is then compared to the value estimated by the WGEEL index. The model is run wit
 JAGS using the exact same configuration as Bénézech et al. (2024). 
 
 The WGEEL estimated mean value of the Elsewhere Europe index corresponds to the
-`r round(benezech_EE * 100, digits = 1)`% quantile of the posterior distribution 
+`r  ifelse(exists("benezech_EE"), round(benezech_EE * 100, digits = 1), "TODO RUN BENEZECH")`% quantile of the posterior distribution 
 of the prediction of the model of Benezech et al. (2024), while the North Sea 
-index (mean value) corresponds to the `r round(benezech_NS * 100, digits = 1)`%
+index (mean value) corresponds to the `ifelse(exists("benezech_NS"), round(benezech_NS * 100, digits = 1), "TODO RUN BENEZECH")`%
 quantile. This confirms that, while the Elsewhere Europe is higher than 
 recent years and North Sea index is lower, they are both in the range of predicted values.
 
