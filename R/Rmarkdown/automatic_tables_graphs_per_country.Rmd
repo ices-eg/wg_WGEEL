@@ -1310,13 +1310,11 @@ cat("\n")
 
 asis_output("# Aquaculture\\n")
 cat("\n")
-asis_output("<br/>")
 if (table_function == "kable"){
   print(res %>% kable_styling())
 }else{
   (res)
 }
-asis_output("<br/>")
 cat("\n")
 
 ```
