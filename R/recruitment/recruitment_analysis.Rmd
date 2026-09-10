@@ -2871,7 +2871,7 @@ autofit(flextable(data = series_CYm1|>
   flextable2ICES()
 ```
 
-```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost"), eval = FALSE}
+```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost"), eval = TRUE}
 autofit(flextable(data = series_lost %>%
                                         setNames(str_match(names(.), "^\\\\scshape\\{(.*?)\\}$")[,2])%>%
                     rename(code = Site) %>%
