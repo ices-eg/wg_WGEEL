@@ -22,3 +22,25 @@ SELECT * FROM datawg.t_eelstock_eel WHERE eel_id = 552578
 SELECT * FROM datawg.t_eelstock_eel WHERE eel_year >= 2100
 
 
+SELECT * FROM datawg.t_dataseries_das WHERE das_year = 2025 AND das_ser_id IN
+(SELECT ser_id FROM datawg.t_series_ser WHERE ser_nameshort IN ('FlaG', 'FlaGY', 'FlaY'));
+
+-- adding the das_qal_comment in comment for warning table
+UPDATE datawg.t_dataseries_das
+  SET das_comment='Occasional problem with solar panel. Updated count to mid November 2025. Updated from 2276 to 3052.'
+  WHERE das_id=9497;
+UPDATE datawg.t_dataseries_das
+  SET das_comment='Occasional problem with solar panel. Updated count to mid November 2025. Updated from 371 to 861.'
+  WHERE das_id=9498;
+UPDATE datawg.t_dataseries_das
+  SET das_comment='Occasional problem with solar panel. Updated count to mid November 2025. Updated from 36 to 41.'
+  WHERE das_id=9499;
+
+SELECT ser_nameshort, das.*  FROM datawg.t_dataseries_das das JOIN datawg.t_series_ser ON ser_id=das_ser_id WHERE das_year >2021  AND das_qal_comment IS NOT NULL;
+
+-- update comment in LevS
+UPDATE datawg.t_dataseries_das
+  SET das_qal_comment='No counter data from 3rd October onwards',das_comment='No counter data from 3rd October onwards. Das_value updated from 26 to 43 by Ayesha Taylor'
+  WHERE das_id=7968;
+
+
