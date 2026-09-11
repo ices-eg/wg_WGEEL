@@ -44,3 +44,12 @@ UPDATE datawg.t_dataseries_das
   WHERE das_id=7968;
 
 
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'TR' AND eel_year = 2025 AND eel_typ_id = 4;
+
+
+-- fix values in RT reported in tons instead of kg
+UPDATE datawg.t_eelstock_eel
+  SET eel_value=267000
+  WHERE eel_id=615908;
+
+
