@@ -2871,15 +2871,7 @@ autofit(flextable(data = series_CYm1|>
   flextable2ICES()
 ```
 
-```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost"), eval = TRUE}
-autofit(flextable(data = series_lost %>%
-                                        setNames(str_match(names(.), "^\\\\scshape\\{(.*?)\\}$")[,2])%>%
-                    rename(code = Site) %>%
-                    arrange(Stage, code)) %>%
-          bold(bold = TRUE, part = "header")) |>
-  colformat_int(j = 7, big.mark = "") |>
-  flextable2ICES() 
-```
+
 
 # Annex 10:  Additional recruitment figures
 
@@ -3041,6 +3033,22 @@ for (i in na.omit(unique(datares$site))){
     geom_hline(aes(yintercept=-3), lty = 2) +
     geom_hline(aes(yintercept=3), lty = 2))
 }
+```
+
+## Additional table : series truly lost.
+
+::: {custom-style="Table Caption"}
+Table: The following table is for checking : please remove from the final document ...
+:::
+
+```{r xserieslost,echo=FALSE,warning=FALSE,error=FALSE,message=FALSE,tab.cap=str_c("table_serieslost"), eval = TRUE}
+autofit(flextable(data = series_lost %>%
+                                        setNames(str_match(names(.), "^\\\\scshape\\{(.*?)\\}$")[,2])%>%
+                    rename(code = Site) %>%
+                    arrange(Stage, code)) %>%
+          bold(bold = TRUE, part = "header")) |>
+  colformat_int(j = 7, big.mark = "") |>
+  flextable2ICES() 
 ```
 <!-- END_TAF_REMOVE -->
 
