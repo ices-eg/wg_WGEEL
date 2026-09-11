@@ -53,3 +53,12 @@ UPDATE datawg.t_eelstock_eel
   WHERE eel_id=615908;
 
 
+-- error NL #396
+SELECT * FROM datawg.t_eelstock_eel WHERE eel_cou_code = 'NL'  AND eel_typ_id = 11
+ORDER BY  eel_lfs_code,eel_year
+
+
+UPDATE datawg.t_eelstock_eel
+  SET eel_value=2200000
+  WHERE eel_id=615672;
+
