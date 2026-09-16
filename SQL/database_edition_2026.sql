@@ -62,3 +62,5 @@ UPDATE datawg.t_eelstock_eel
   SET eel_value=2200000
   WHERE eel_id=615672;
 
+
+SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id = 4 ORDER BY eel_cou_code

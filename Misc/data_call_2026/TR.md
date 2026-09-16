@@ -76,6 +76,7 @@ Put all fish in the ASI river at the river mouth
 Put all rivers at the river mouth
 Corrected missing stages with YS (historical fishes in the ASI were'nt checked for stage)
 
+ 826 and 4226 new values inserted in the fish and metric tables
 
 [1] "this is what will be in the db"
 ── Data Summary ────────────────────────
