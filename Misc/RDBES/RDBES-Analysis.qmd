@@ -190,15 +190,60 @@ imgfile <- file.path("images", "RDBES infographic.jpg")
 knitr::include_graphics(imgfile)
 ```
 
-blabla (Figure @fig-rdbes_workflow)
-
+Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow)
 
 # Testing the access to data
+
+[icesRDBES dev](https://ices-tools-prod.r-universe.dev/icesRDBES) [icesRDBES prod](https://github.com/ices-tools-prod/icesRDBES) [icesRDBEScore](https://github.com/ices-tools-prod/icesRDBEScore)
+
 
 
 ```{r}
 #| label: test-RDBES-API
-#| 
+#| eval: false
+#| result: "hide"
+
+
+#install.packages('icesRDBES', repos = c('https://ices-tools-prod.r-universe.dev', 'https://cloud.r-project.org'))
+#install.packages("RDBEScore", repos = c("https://ices-tools-prod.r-universe.dev", "https://cloud.r-project.org"))
+library(icesRDBES)
+# shift to sandbox mode
+use_sboxrdbes(flag = TRUE)
+rdbes_api()
+# back to production mode
+use_sboxrdbes(FALSE)
+rdbes_api() 
+# The rdbes_download_data can be used to download detailed RDBES data from RDBES and CEF data from RDBES.
+#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+#dataType: “CS”, “CL”, “CE”, “SL”, “VD”, or “CEF”
+#format: “SingleCsvFile” or “CsvFilePerTable”.
+#hierarchies: “HCS”, “HCL”, “HCE”, “HSL”, “HVD”, "HNI", "HEN", or "HSN".
+#data type filters: The specific filter object for the data type (e.g. csFilters).
+#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+type_filters[["CL"]]
+
+my_filters <- list(
+  dataType = "CL",
+  format = "SingleCsvFile",
+  hierarchies = list("HCL"),
+  CLFilters = list(
+    "clVesselFlagCountry" = list("FR"),
+    "clYear" = as.list(c("2024", "2025")),
+    "clArea" = list("27.8.a"),
+    "clSpeciesCode" = list("126281")
+  )
+)
+
+
+rdbes_download_data(
+  payload =  my_filters,
+  dest_dir = data,
+  production = getOption("rdbes.production"))
+
+
+
+
 ```
 
 ## Second Title
@@ -267,8 +312,46 @@ gt(head(iris)) |>
 \newpage
 
 ::: {custom-style="Annex heading"}
-Title of annex 1
+Annex XX Using the RDBES
 :::
+
+**RDBES (Regional Database and Estimation System)** organizes fisheries sampling data into a set of 13 standardized hierarchies representing commercial fisheries, recreational fisheries, scientific surveys, and associated biological and laboratory sampling. The hierarchical model links observations from sampling programmes and fishing activities down to individual fish measurements and analyses, ensuring traceability of data and supporting statistically robust estimation procedures used in ICES stock assessments and fisheries advice.
+
+## RDBES data types
+
+
+In the **ICES Regional Database & Estimation System (RDBES)**, the main data types are:
+
+| DataType | Description |
+|------------------------------------|------------------------------------|
+| **CS** | **Commercial Sampling**: detailed biological sampling data collected from commercial catches (length, age, sex, maturity, weight, etc.). |
+| **CL** | **Commercial Landings**: aggregated information on landings by fleet, métier, species, area, time period, and other fisheries variables. |
+| **CE** | **Commercial Effort**: fishing effort information associated with commercial fisheries (days at sea, fishing hours, gear deployment, vessel activity, etc.). |
+| **SL** | **Species List**: reference table containing the species included in a sampling or reporting activity. It is used together with biological and catch records. |
+| **VD** | **Vessel Details**: information describing vessels participating in fishing activities, such as vessel identifiers and characteristics. |
+| **CEF** | **Catch, Effort and Frequency**: the standard RDBES upload format that combines catch data, fishing effort information, and length/species frequency distributions for fisheries monitoring and reporting. The RDBES upload API is specifically described as handling CEF data. |
+
+For WGEEL the main use is currently **CL**.
+Commercial Effort **CE** needs to be analysed in a second time.
+Other data type will not be of use in the short term.
+
+## RDBES hierarchies for commercial sampling
+
+The following table summarizes the most commonly used **RDBES hierarchy codes** in ICES commercial fisheries sampling. These hierarchies define the pathway from the population of fishing activities to the biological observations collected from catches and individual fish. The hierarchy names are used throughout RDBES documentation and estimation workflows.
+
+Articles of note : [data import RDBEScore](https://ices-tools-dev.github.io/RDBEScore/articles/v01a-data-import.html)
+
+| Hierarchy | Name | Purpose |
+|------------------------|------------------------|------------------------|
+| **H** | Commercial Catch Sampling | Describes sampling of commercial catches, linking fishing activity, catch categories, and sampled catches. It is the core hierarchy for raising biological samples to catches. |
+| **HCL** | Commercial Length Sampling | Used for collection of length-frequency data from commercial fisheries. Individual fish lengths are measured from sampled catches. |
+| **HCE** | Commercial Age/Biological Estimation | Extends length sampling with biological measurements such as age, weight, sex, and maturity, supporting age-length-key based estimation. |
+| **HSL** | Survey Length Sampling | Records length-frequency measurements collected during scientific surveys rather than commercial fisheries. |
+| **HVD** | Vessel Details Hierarchy | Stores vessel-level information used to characterize the sampling frame and fishing effort associated with commercial fishing operations. |
+| **HNI** | Individual Biological Measurements | Contains observations on individual fish, such as length, weight, sex, maturity stage, and other biological variables. |
+| **HEN** | Age and Enhanced Biological Sampling | Hierarchy for samples requiring more detailed biological analyses, including age determination and related laboratory observations. |
+| **HSN** | Survey Biological Sampling | Survey-based hierarchy including individual fish biological observations collected during scientific surveys and monitoring programmes. |
+
 
 ::: {custom-style="Annex heading"}
 References
