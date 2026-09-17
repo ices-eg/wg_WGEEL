@@ -34,6 +34,8 @@ dataset <series_info>, column <ser_restocking>, missing values line 1
  dataset <series_info>, column <ser_restocking>, missing values line 3 
 ```
 
+=> 3 series updated
+
 
 ### series
 
@@ -51,10 +53,11 @@ dataset <series_info>, column <ser_restocking>, missing values line 1
 
 ### series
 
+2 rows updated
 
 ### dataseries
 
-removed an empty line
+ 1 new values inserted in the database
 
 
 ### group metrics
@@ -125,7 +128,49 @@ Format wrong had to be corrected
 
 ## Annex 7
 
-Format wrong had to be corrected
+1 Format wrong missing numbers mail sent
+2 The template used is wrong. Re-sent to Argyrios who checked that again
+3 all good file integrated
+
+ 6 new values inserted in the database
+[1] "this is what will be in the db"
+── Data Summary ────────────────────────
+                           Values
+Name                       datadb
+Number of rows             6     
+Number of columns          16    
+_______________________          
+Column type frequency:           
+  character                10    
+  Date                     1     
+  numeric                  5     
+________________________         
+Group variables            None  
+
+── Variable type: character ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   skim_variable     n_missing complete_rate min max empty n_unique whitespace
+ 1 eel_emu_nameshort         0         1       7   7     0        2          0
+ 2 eel_cou_code              0         1       2   2     0        1          0
+ 3 eel_lfs_code              0         1       1   1     0        2          0
+ 4 eel_hty_code              0         1       1   1     0        2          0
+ 5 eel_area_division         2         0.667   6   6     0        1          0
+ 6 eel_qal_comment           6         0      NA  NA     0        0          0
+ 7 eel_comment               6         0      NA  NA     0        0          0
+ 8 eel_missvaluequal         6         0      NA  NA     0        0          0
+ 9 eel_datasource            0         1       7   7     0        1          0
+10 eel_dta_code              0         1       6   6     0        1          0
+
+── Variable type: Date ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable      n_missing complete_rate min        max        median     n_unique
+1 eel_datelastupdate         0             1 2026-09-09 2026-09-09 2026-09-09        1
+
+── Variable type: numeric ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  skim_variable n_missing complete_rate     mean        sd     p0       p25      p50     p75   p100 hist 
+1 eel_id                0             1 615676.      1.87  615673 615674.   615676.  615677. 615678 ▇▃▃▃▃
+2 eel_typ_id            0             1      8.5     0.548      8      8         8.5      9       9 ▇▁▁▁▇
+3 eel_year              0             1   2025       0       2025   2025      2025     2025    2025 ▁▁▇▁▁
+4 eel_value             0             1  22186.  49790.         0      9.28   1971.    5076. 123707 ▇▁▁▁▂
+5 eel_qal_id            0             1      1       0          1      1         1        1       1 ▁▁▇▁▁
 
 
 ## Annex 8

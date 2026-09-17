@@ -178,7 +178,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
-                        bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
+                        shinyBS::bsTooltip(id= "combined_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="bottom", # default bottom
                             trigger="hover", # hover focus click, hover default
@@ -244,7 +244,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
-                        bsTooltip(id= "raw_landings_button", #  donne le lien vers n'importe quel input ou output
+                        shinyBS::bsTooltip(id= "raw_landings_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="top", # default bottom
                             trigger="hover", # hover focus click, hover default
@@ -275,7 +275,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                         color = "success",
                         icon("refresh",lib="glyphicon")
                     ),
-                    bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
+                    shinyBS::bsTooltip(id= "available_landings_button", #  donne le lien vers n'importe quel input ou output
                         title = "Click to refresh / launch the graph",
                         placement="bottom", # default bottom
                         trigger="hover", # hover focus click, hover default
@@ -325,7 +325,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
-                        bsTooltip(id= "aquaculture_button", #  donne le lien vers n'importe quel input ou output
+                        shinyBS::bsTooltip(id= "aquaculture_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="top", # default bottom
                             trigger="hover", # hover focus click, hover default
@@ -385,7 +385,7 @@ ui = shinydashboardPlus::dashboardPage(title="ICES Data Visualisation",
                             color = "success",
                             icon("refresh",lib="glyphicon")
                         ),
-                        bsTooltip(id= "release_button", #  donne le lien vers n'importe quel input ou output
+                        shinyBS::bsTooltip(id= "release_button", #  donne le lien vers n'importe quel input ou output
                             title = "Click to refresh / launch the graph",
                             placement="top", # default bottom
                             trigger="hover", # hover focus click, hover default
