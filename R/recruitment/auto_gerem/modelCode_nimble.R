@@ -113,7 +113,7 @@ geremCode <- nimbleCode({
   
   
   for (isurvey in 1:nbsurvey){
-    tauIA[isurvey] <- sdIA[isurvey]
+    tauIA[isurvey] <- 1/sdIA[isurvey]^2
     sdIA[isurvey]~ T(dt(df=1,mu=0,sigma=2.5),0.001,1)
   }
   for (itrap in 1:nbtrap){
