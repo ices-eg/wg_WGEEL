@@ -15,6 +15,12 @@ params:
 ```{r setup, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
 library(knitr)
 
+path <- paste0(gsub("wg_WGEEL(.+|$)","", getwd()),
+               "/wg_WGEEL/R/utilities/")
+api <- yaml::read_yaml(paste0(path,
+                              "stadia.yml"))
+ggmap::register_stadiamaps(api$api)
+
 flextable2ICES <- function(x){
   x |>
     font(fontname = "Calibri", part = "all") |>
@@ -30,7 +36,8 @@ flextable2ICES <- function(x){
     style(pr_p=fp_par(padding = 2,
                       border = fp_border(width = 0, col = "#B7D1C3", style = "none")),
           part = "header") |>
-    flextable::valign(part = "body", valign = "top")
+    flextable::valign(part = "body", valign = "top") |>
+    flextable::autofit()
 }
 
 
@@ -432,8 +439,8 @@ source("../shiny_data_visualisation/shiny_dv/database_connection.R")
 
 
 
-# my_map <- get_map( c(left = -13, bottom = 35, right =
-# 						27, top = 65),zoom=4, maptype = c("stamen_watercolor"))
+my_map <- get_map( c(left = -13, bottom = 35, right =
+					27, top = 65),zoom=4, maptype = c("stamen_watercolor"))
 
 
 #<TAF_REMOVE>
@@ -459,33 +466,32 @@ save(fao, file=paste0(datawd,"fao.Rdata"))
 #<END_TAF_REMOVE>
 
 load(paste0(datawd,"fao.Rdata"))
-# ggmap_bbox <- function(map) {
-# 	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
-# 	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
-# 	# and set the names to what sf::st_bbox expects:
-# 	map_bbox <- setNames(unlist(attr(map, "bb")), 
-# 			c("ymin", "xmin", "ymax", "xmax"))
-# 	
-# 	# Coonvert the bbox to an sf polygon, transform it to 3857, 
-# 	# and convert back to a bbox (convoluted, but it works)
-# 	bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
-# 	
-# 	# Overwrite the bbox of the ggmap object with the transformed coordinates 
-# 	attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
-# 	attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
-# 	attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
-# 	attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
-# 	map
-# }
-# my_map<- ggmap_bbox(my_map)
+ggmap_bbox <- function(map) {
+	if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
+	# Extract the bounding box (in lat/lon) from the ggmap to a numeric vector,
+	# and set the names to what sf::st_bbox expects:
+	map_bbox <- setNames(unlist(attr(map, "bb")),
+			c("ymin", "xmin", "ymax", "xmax"))
+
+	# Coonvert the bbox to an sf polygon, transform it to 3857,
+	# and convert back to a bbox (convoluted, but it works)
+	bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
+
+	# Overwrite the bbox of the ggmap object with the transformed coordinates
+	attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
+	attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
+	attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
+	attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
+	map
+}
+my_map<- ggmap_bbox(my_map)
 stations <- st_transform(st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326),3857)
 #stations <- st_as_sf(R_stations,coords=c("ser_x","ser_y"),crs=4326)
 
 stations$X = st_coordinates(stations)[,"X"]
 stations$Y = st_coordinates(stations)[,"Y"]
 
-singlemap <- ggplot() +
-  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+ 
+singlemap <- ggmap(my_map) +
 		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone,alpha="1")) +
 		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
@@ -533,8 +539,7 @@ singlemap <- ggplot() +
 print(singlemap)
 
 
-mapG <- ggplot() +
-  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
+mapG <- ggmap(my_map)+
   geom_sf(data=fao %>% filter(zone %in% c("North Sea","Elsewhere Europe")), inherit.aes = FALSE, aes(fill=zone)) +
 #		geom_sf(data=fao, inherit.aes = FALSE,aes(fill=zone)) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE, aes(label=f_code),cex=1.5) +
@@ -575,8 +580,7 @@ mapG <- ggplot() +
 		
 		) + xlab("")+ylab("")
 
-mapY <- ggplot()+
-  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg")+
+mapY <- ggmap(my_map)+
 		coord_sf(crs = st_crs(3857)) + # force it to be 3857
 		geom_sf(data=fao, inherit.aes = FALSE, fill=NA) +
 		geom_sf_text(data=st_centroid(fao), inherit.aes=FALSE,aes(label=f_code),cex=1.5) +
@@ -618,8 +622,8 @@ mapY <- ggplot()+
 
 figure1 <- ggpubr::ggarrange(plotlist=list(mapG,mapY),nrow=1)
 print(figure1)
-save_figure("figure1",figure1,1100,800)
-save_figure("singlemap",singlemap,1100,800)
+save_figure("figure1", figure1,1100,800)
+save_figure("singlemap", singlemap,1100,800)
 
 ```
 
@@ -1060,8 +1064,7 @@ residualsge_tab <- data.frame(residuals = residuals(model_ge_area)) |>
   left_join(stations |> dplyr::select(all_of(c("ser_nameshort", "X", "Y"))), by = join_by(site == ser_nameshort))
 
 
-resid <- ggplot() +
-  annotation_map_tile(type = "https://watercolormaps.collection.cooperhewitt.org/tile/watercolor/${z}/${x}/${y}.jpg") + 
+resid <- ggmap(my_map) + 
 		geom_sf(data=fao, inherit.aes = FALSE, fill = NA) +
 		geom_point(data = residualsge_tab |>
 		             filter(year_f %in% CY),
@@ -1922,7 +1925,8 @@ figure_inclusion_2 <- g
 save_figure("figure_inclusion_2",figure_inclusion_2,600,480)
 ```
 
-```{r diagramme,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r diagramme,echo=FALSE,eval=TRUE,results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, webshot="webshot2"}
+if(!require(webshot2)) install.packages("webshot2") ; require(webshot2)
 if(!require(DiagrammeR)) install.packages("DiagrammeR") ; require(DiagrammeR)
 if(!require(magrittr)) install.packages("magrittr") ; require(magrittr)
 if(!require(DiagrammeRsvg)) install.packages("DiagrammeRsvg") ; require(DiagrammeRsvg)
@@ -1984,7 +1988,7 @@ igraph3 <-igraph2 %>%
 				from_to_map = id_external
 		)
 
-render_graph(igraph3, layout="tree")
+#render_graph(igraph3, layout="tree")
 
 render_graph(igraph3, layout="tree") %>% 
     export_svg %>%  charToRaw %>% rsvg_png(str_c(imgwd,"series_selection.png"))

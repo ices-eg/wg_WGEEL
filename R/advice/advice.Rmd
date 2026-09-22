@@ -69,7 +69,7 @@ Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
-CY <- 2025 # current year ==> dont forget to update the graphics path below
+CY <- lubridate::year(Sys.Date()) # current year ==> dont forget to update the graphics path below
 opt_calculation <- "geomean" # "geomean" or "mean"
 opt_std <- "all" #"1979-1994" or "2000-2009" or "all"
 

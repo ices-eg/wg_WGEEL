@@ -9,6 +9,7 @@
 ### dataseries
 - 6 new values inserted in the database
 - 15 values updated in the db (note that missing values were unchanged so not integrated)
+- set qal_id 3 to all EbroG data >= 2016 and update das_qal_comment based on data provider feedback. (SQL script)
 
 
 ### group metrics

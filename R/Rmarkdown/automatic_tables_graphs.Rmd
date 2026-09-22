@@ -153,7 +153,6 @@ library("ggmagnify")
 # load functions ------------------------------------------------------------------------------------
 # retrieve reference tables needed
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
-if (is.null(options()$sqldf.RPostgreSQL.user)) {
   wd <- getwd()
   setwd("../shiny_data_visualisation/shiny_dv")
   source("database_connection.R")
@@ -166,7 +165,7 @@ if (is.null(options()$sqldf.RPostgreSQL.user)) {
   source("filter_and_group_functions.R")
   source("predict_missing.R")
   setwd(wd)
-}
+
 
 # loading datasets 
 
@@ -261,6 +260,8 @@ g_CY1 <- round(select_land$x[select_land$Group.1 == CY - 1 & select_land$Group.2
 g_mean_CY2_CY6 <- mean(round(select_land$x[select_land$Group.1 %in% c((CY - 6):(CY - 2)) & select_land$Group.2 == "G"] / 1000, 2))
 cou_G_CY <- unique(landings_all$eel_cou_code[landings_all$eel_year == CY & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code == "G"])
 cou_G_CY1 <- unique(landings_all$eel_cou_code[landings_all$eel_year == CY - 1 & is.na(landings_all$eel_missvaluequal) & landings_all$eel_lfs_code == "G"])
+
+dir.create(datawd, showWarnings = FALSE, recursive = TRUE)
 
 save(g_CY, g_CY1, g_mean_CY2_CY6, cou_G_CY, cou_G_CY1, file = paste0(
   datawd,
