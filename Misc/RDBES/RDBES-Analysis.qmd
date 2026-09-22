@@ -390,9 +390,10 @@ rdbes_download_data(
   production = getOption("rdbes.production"))
 
 
-zip_path <- paste0(dest_dir, "/unzipped")
-downloaded_files <- list.file(data)
-downloaded_files |> purrr::map(\(x) unzip(zipfile = x, exdir = "download_zenodo"))    
+zip_path <- paste0(dest_dir, "/extracts")
+dir.create(zip_path, showWarnings = FALSE)
+downloaded_files <- list.files("data", pattern = ".zip",include.dirs = FALSE)
+downloaded_files |> purrr::map(\(x) unzip(zipfile = x, exdir = "extracts"))    
 
 
 
