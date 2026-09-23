@@ -74,3 +74,7 @@ update datawg.t_dataseries_das set das_qal_id = 3,
                                    where das_year >= 2016 and das_qal_id in (1, 4)  and das_ser_id = 43;
 
 commit;
+
+
+select * from datawg.t_eelstock_eel where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
+update datawg.t_eelstock_eel set eel_lfs_code = 'YS' where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
