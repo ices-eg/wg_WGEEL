@@ -144,8 +144,9 @@ flextable2ICES <- function(x){
 
 ```
 
+# Loading WGEEL data
 
-```{r load_utilities, eval=TRUE, echo=FALSE,include=FALSE}
+```{r load_utilities, eval=FALSE, echo=FALSE,include=FALSE}
 
 source("../../R/utilities/load_library.R")
 
@@ -195,7 +196,7 @@ library("ggmagnify")
 # the shiny is launched from shiny_data_integration/shiny thus we need the ../
 if (is.null(options()$sqldf.RPostgreSQL.user)) {
   wd <- getwd()
-  setwd("../shiny_data_visualisation/shiny_dv")
+  setwd("../../R/shiny_data_visualisation/shiny_dv")
   source("database_connection.R")
   source("database_reference.R")
   source("database_data.R")
@@ -390,12 +391,11 @@ rdbes_download_data(
   production = getOption("rdbes.production"))
 
 
-zip_path <- paste0(dest_dir, "/extracts")
-dir.create(zip_path, showWarnings = FALSE)
 downloaded_files <- list.files("data", pattern = ".zip",include.dirs = FALSE)
-downloaded_files |> purrr::map(\(x) unzip(zipfile = x, exdir = "extracts"))    
-
-
+downloaded_paths <- paste0("data/", downloaded_files)
+ll <- downloaded_paths |> purrr::map(\(x) unzip(zipfile = x, exdir = "data/extracts"))    
+path <- sapply(ll, function(X) X[grepl(X, pattern = "csv")])
+country_landings <- readr::read_csv(path)
 
 ```
 
