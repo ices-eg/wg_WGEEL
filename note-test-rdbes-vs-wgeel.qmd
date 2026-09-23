@@ -1,0 +1,127 @@
+---
+title: "WGEEL VS RDBES"
+date: "2026-09-23"
+documentclass: report
+format:
+  docx:
+    fig_caption: yes
+    keep_md: yes
+    reference-doc: "R/quarto/ICES_template.docx"
+bibliography: "R/quarto/ICES.bib"
+csl: "R/quarto/ices-journal-of-marine-science.csl"
+lang: en
+crossref:
+  chapters: true
+  fig-prefix: ''
+  tbl-prefix: ''
+  eq-prefix: ''
+  ref-hyperlink: true
+link-citations: true
+link-bibliography: true
+editor: source
+---
+
+
+```{r} 
+### R session setup ---------------------------------------------------------------------
+library(tidyverse)
+library(readxl)
+options(scipen=999)
+```
+
+```{r}
+#### LOAD WGEEL LANDINGS DATA -----------------------------------------------------------
+load("R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
+source("R/shiny_data_visualisation/shiny_dv/filter_and_group_functions.R")
+
+tb_landings_wgeel_com <- 
+  filter_data("landings",
+    typ = 4,
+    # load all life stages
+    life_stage = unique(landings$eel_lfs_code),
+    # load all landings from all countries
+    country = country_ref$cou_code
+  ) |> 
+  mutate(
+    country = case_match(cou_iso3code,
+      "ESP" ~ "ES",
+      "IRL" ~ "IE",
+      "EST" ~ "EE",
+      "FIN" ~ "FI",
+      "GRC" ~ "GR",
+      "ITA" ~ "IT",
+      "DNK" ~ "DK",
+      "FRA" ~ "FR",
+      "DEU" ~ "DE",
+      "LTU" ~ "LT",
+      "GBR" ~ "GB",
+      "POL" ~ "PL",
+      "SVN" ~ "SI",
+      "NLD" ~ "NL",
+      "ALB" ~ "AL",
+      "TUR" ~ "TR",
+      "LVA" ~ "LV",
+      "SWE" ~ "SE",
+      "HRV" ~ "HR",
+      "TUN" ~ "TN",
+      "PRT" ~ "PT",
+      "BEL" ~ "BE",
+      "MAR" ~ "MA",
+      "DZA" ~ "DZ",
+      "LBY" ~ "LY",
+      "NOR" ~ "NO",
+      "CZE" ~ "CZ",
+      "MNE" ~ "ME",
+      .default = cou_iso3code
+    )
+  )
+```
+
+```{r}
+#### LOAD RDBES DATA -----------------------------------------------
+tb_landings_rdbes <- 
+  readxl::read_excel("DELETE-ME-commercial_landings.xlsx") |> 
+  mutate(
+    mass_landed_kg = as.numeric(CLofficialWeight)
+  ) 
+```
+
+```{r}
+tb_landings_combined <- bind_rows(
+  tb_landings_rdbes |> 
+    mutate(
+      source = "RDBES",
+      country = recode_values(CLlandingCountry, "GB-ENG"~"GB","GB-NIR"~"GB","GB-SCT"~"GB",default = CLlandingCountry),
+      year = CLyear,
+      mass_landed_kg = as.numeric(CLofficialWeight)
+    ),
+  tb_landings_wgeel_com |> 
+    filter(eel_hty_code %in% c("C","T","MO")) |> 
+    mutate(
+      source = "WGEEL",
+      country = country,
+      year = eel_year,
+      mass_landed_kg = eel_value
+    )  
+  ) |> 
+  summarise(
+    .by = c(country, year, source),
+    mass_landed_kg = sum(mass_landed_kg, na.rm=T)
+  )
+
+ggplot(tb_landings_combined |> filter(year %in% c(2010:2025)))+
+  aes(x=country, y=mass_landed_kg, fill=source)+
+  geom_col(position = "dodge",width=0.5) + 
+  coord_flip()+
+  facet_wrap(~year,ncol=1) 
+  
+ggsave(
+  "plot-compare-wgeel-rdbes.pdf",
+  height = 5000,
+  width = 500,
+  unit = "px",
+  scale=4,
+  limitsize = F
+)
+
+```
