@@ -1,36 +1,33 @@
 ---
-title: "WGEEL VS RDBES"
+title: "WGEEL VS RDBES landings amounts"
 date: "2026-09-23"
-documentclass: report
-format:
-  docx:
-    fig_caption: yes
-    keep_md: yes
-    reference-doc: "R/quarto/ICES_template.docx"
-bibliography: "R/quarto/ICES.bib"
-csl: "R/quarto/ices-journal-of-marine-science.csl"
-lang: en
-crossref:
-  chapters: true
-  fig-prefix: ''
-  tbl-prefix: ''
-  eq-prefix: ''
-  ref-hyperlink: true
-link-citations: true
-link-bibliography: true
-editor: source
+format: html
+knitr:
+  opts_chunk:
+    code-fold: true
+    code-line-numbers: true
+    fig-align: center
+    out-width: "70%"
+    fig-width: 10 
+    fig-asp: 0.618
 ---
 
 
 ```{r} 
-### R session setup ---------------------------------------------------------------------
+#| label: R session setup
+#| results: hide       # hide printed/text output
+#| message: false      # hide messages
+#| warning: false      # hide warnings
 library(tidyverse)
 library(readxl)
 options(scipen=999)
 ```
 
 ```{r}
-#### LOAD WGEEL LANDINGS DATA -----------------------------------------------------------
+#| label: Load WGEEL landings data
+#| results: hide       # hide printed/text output
+#| message: false      # hide messages
+#| warning: false      # hide warnings
 load("R/shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 source("R/shiny_data_visualisation/shiny_dv/filter_and_group_functions.R")
 
@@ -78,7 +75,10 @@ tb_landings_wgeel_com <-
 ```
 
 ```{r}
-#### LOAD RDBES DATA -----------------------------------------------
+#| label: Load RDBES landings data
+#| results: hide       # hide printed/text output
+#| message: false      # hide messages
+#| warning: false      # hide warnings
 tb_landings_rdbes <- 
   readxl::read_excel("DELETE-ME-commercial_landings.xlsx") |> 
   mutate(
@@ -87,6 +87,11 @@ tb_landings_rdbes <-
 ```
 
 ```{r}
+#| label: compare landings data and print results
+#| message: false      # hide messages
+#| warning: false      # hide warnings
+#| fig-width: 10
+#| fig-asp: 8
 tb_landings_combined <- bind_rows(
   tb_landings_rdbes |> 
     mutate(
@@ -113,15 +118,8 @@ ggplot(tb_landings_combined |> filter(year %in% c(2010:2025)))+
   aes(x=country, y=mass_landed_kg, fill=source)+
   geom_col(position = "dodge",width=0.5) + 
   coord_flip()+
-  facet_wrap(~year,ncol=1) 
+  facet_wrap(~year,ncol=1)+
+  theme_bw()
   
-ggsave(
-  "plot-compare-wgeel-rdbes.pdf",
-  height = 5000,
-  width = 500,
-  unit = "px",
-  scale=4,
-  limitsize = F
-)
 
 ```
