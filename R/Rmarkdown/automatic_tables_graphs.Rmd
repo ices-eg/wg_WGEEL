@@ -198,6 +198,7 @@ load("../shiny_data_visualisation/shiny_dv/data/ref_and_eel_data.Rdata")
 maxlandingsy <- max(landings$eel_year[landings$eel_qal_id %in% c(1, 4)])
 # The data have not been updated
 if (maxlandingsy < CY){
+  wd=getwd()
   cred <- yaml::read_yaml("../../credentials.yml")
   setwd("../shiny_data_visualisation/shiny_dv/")
   source("load_data_from_database.R")
@@ -268,7 +269,7 @@ fun.agg <- function(X, conversion = 1000) {
 ### Glass eel landings
 ```{r keyNumbersLandingsG, results="asis", eval=TRUE, echo=FALSE}
 
-landings_all <- filter_data("landings", typ = 4) %>% dplyr::filter(is.na(eel_missvaluequal))
+landings_all <- filter_data("landings", typ = 4) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value > 0)
 select_land <- aggregate(landings_all$eel_value, by = list(landings_all$eel_year, landings_all$eel_lfs_code), sum, na.rm = T)
 g_CY <- round(select_land$x[select_land$Group.1 == CY & select_land$Group.2 == "G"] / 1000, 2)
 g_CY1 <- round(select_land$x[select_land$Group.1 == CY - 1 & select_land$Group.2 == "G"] / 1000, 2)
@@ -295,7 +296,7 @@ save(g_CY, g_CY1, g_mean_CY2_CY6, cou_G_CY, cou_G_CY1, file = paste0(
 landings_YS <- filter_data("landings",
   typ = 4,
   life_stage = c("Y", "S", "YS")
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 select_land_YS <- aggregate(landings_YS$eel_value, by = list(landings_YS$eel_year), sum, na.rm = T)
 YS_CY1 <- round(sum(select_land_YS$x[select_land_YS$Group.1 == CY - 1] / 1000), 2)
 YS_CY2 <- round(select_land_YS$x[select_land_YS$Group.1 == CY - 2] / 1000, 2)
@@ -341,7 +342,7 @@ save(YS_CY1, YS_CY2, YS_meanCY3_CY7, nb_cou_Y_CY1, nb_cou_Y_CY2,
 ### Glass eel recreational landings
 
 ```{r keyNumbersRecLandings_G, results="asis", eval=TRUE, echo=FALSE}
-landings_rec <- filter_data("landings", typ = 6) %>% dplyr::filter(is.na(eel_missvaluequal))
+landings_rec <- filter_data("landings", typ = 6) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 select_rec <- aggregate(landings_rec$eel_value, by = list(landings_rec$eel_year, landings_rec$eel_lfs_code), sum, na.rm = T)
 rec_G_CY <- round(select_rec$x[select_rec$Group.1 == CY & select_rec$Group.2 == "G"] / 1000, 2)
 rec_G_CY1 <- round(select_rec$x[select_rec$Group.1 == CY - 1 & select_rec$Group.2 == "G"] / 1000, 2)
@@ -368,7 +369,7 @@ save(rec_G_CY, rec_G_CY1, rec_mean_G_CY2_CY6, rec_cou_G_CY1,
 landings_YS_rec <- filter_data("landings",
   typ = 6,
   life_stage = c("Y", "S", "YS")
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 select_land_YS_rec <- aggregate(landings_YS_rec$eel_value, by = list(landings_YS_rec$eel_year), sum, na.rm = T)
 YS_CY1_rec <- round(sum(select_land_YS_rec$x[select_land_YS_rec$Group.1 == CY - 1] / 1000, 2))
 YS_CY2_rec <- round(select_land_YS_rec$x[select_land_YS_rec$Group.1 == CY - 2] / 1000, 2)
@@ -428,7 +429,7 @@ save(aqua_CY2, aqua_mean_CY3_CY7, aqua_cou_CY2,
 rel <- filter_data("release",
   typ = 9,
   life_stage = c("G", "QG", "Y", "S"),
-  year = 1950:CY - 1
+  year = 1950:(CY - 1)
 ) %>% dplyr::filter(is.na(eel_missvaluequal))
 
 select_rel <- aggregate(rel$eel_value, by = list(rel$eel_year, rel$eel_lfs_code), sum, na.rm = T)
@@ -465,7 +466,7 @@ cou_CY2_relS <- length(unique(rel$eel_cou_code[rel$eel_year == CY - 2 & is.na(re
 rel_kg <- filter_data("release",
   typ = 8,
   life_stage = c("G", "QG", "Y", "S"),
-  year = 1950:CY - 1
+  year = 1950:(CY - 1)
 ) %>% dplyr::filter(is.na(eel_missvaluequal))
 
 select_rel_kg <- aggregate(rel_kg$eel_value, by = list(rel_kg$eel_year, rel_kg$eel_lfs_code), sum, na.rm = T)
@@ -571,7 +572,8 @@ Figure \@ref(fig:corrComGfig) presents the time-series up to and including
 `r CY` for total commercial glass eel landings as reported by
 `r ncol(tableComLandG)-2` countries in the Eel Data call
 (`r paste(names(tableComLandG)[-c(1,ncol(tableComLandG))], collapse = ", ")`),
-including reconstructed data to fill data gaps. In Spain, part of the former Basque recreational
+including reconstructed data to fill data gaps (following Dekker 2003 and ICES 2013,
+a GLM was used for this reconstruction). In Spain, part of the former Basque recreational
 fishery was recommissioned as a commercial fishery following the ban of recreational
 fisheries.
 
@@ -648,7 +650,7 @@ filtered_data <- filter_data("landings",
   life_stage = "G",
   year_range = 1970:CY,
   country = c("ES", "FR", "IT", "PT", "GB")
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -803,7 +805,9 @@ knitr::include_graphics(paste0("../recruitment/", CY, "/image/exploitation_rates
 
 Figure \@ref(fig:rawComLandYSfig) presents aggregated landings data for yellow
 and silver eels and Figure \@ref(fig:corrComYS)
-presents the time-series including reconstructed data to fill data gaps. The
+presents the time-series including reconstructed data to fill data gaps (following
+Dekker 2003 and ICES 2013,
+a GLM was used for this reconstruction). The
 proportion of "corrected" landings was as high as 50% in the 1950s, but rather
 low since the mid-1980s. The total landings (including reconstructed) of yellow
 and silver eels decreased from 18,000–20,000 t in the 1950s to 2,000–3,500 t
@@ -825,8 +829,8 @@ been incorporated in the analyses as they need evaluation.
 filtered_data <- filter_data("landings",
   typ = 4,
   life_stage = c("Y", "S", "YS"),
-  year_range = 1908:CY - 1
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+  year_range = 1908:(CY - 1)
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -947,7 +951,7 @@ filtered_data <- filter_data("landings",
   typ = 4,
   life_stage = c("Y", "S", "YS"),
   year_range = 1990:(CY - 1) # 1950:CY-1
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1057,7 +1061,7 @@ change since some countries do not report the landings annually (e.g. Germany an
 filtered_data <- filter_data("landings",
   typ = 6,
   life_stage = "G"
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1145,7 +1149,7 @@ print(g_raw_Rlandings_G)
 filtered_data <- filter_data("landings",
   typ = 6,
   life_stage = c("Y", "S", "YS")
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1266,7 +1270,7 @@ lesser extent in the Netherlands and Spain (Annex XX).
 filtered_data<-filter_data("other_landings",
         typ = 33,
         life_stage = c("Y"))%>% 
-    dplyr::filter(is.na(eel_missvaluequal))
+    dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)

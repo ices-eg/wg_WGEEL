@@ -1062,7 +1062,18 @@ save(model_ge_area,model_older,file=paste0(outputdatawd,"recruitment_models.Rdat
 
 #plot(model_ge_area)
 ```
+```{r check, echo=FALSE, eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+table_ge <- table(model_ge_area$data$site)
+if (any(table_ge < 10)) print(paste("CAUTION!!!!! those sites have less than 10 years of valide data:", paste(names(table_ge)[table_ge < 10], collapse = ", ")))
 
+```
+
+
+```{r check2, echo=FALSE, eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+table_y <- table(model_older$data$site)
+if (any(table_y < 10)) print(paste("CAUTION!!!!! those sites have less than 10 years of valide data:", paste(names(table_y)[table_y < 10], collapse = ", ")))
+
+```
 
 ```{r mapsresidualsyoy, echo=FALSE, eval=TRUE, results="hide", warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 residualsge_tab <- data.frame(residuals = residuals(model_ge_area)) |>
@@ -2517,7 +2528,7 @@ and `r round(100*synthesis[nrow(synthesis),"Elsewhere Europe"], digits =1)` % in
 (Figure \@ref(fig:figure5),
 Table \@ref(tab:tableglmglasseel)).
 
-```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("Annual WGEEL recruitment index for the continental North Sea and Elsewhere Europe. The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel,"  time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) have been scaled to p̄₁₉₆₀₋₁₉₇₉.")}
+```{r tableglmglasseel,echo=FALSE,eval=TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE,tab.cap=str_c("Annual WGEEL recruitment index for the continental North Sea and Elsewhere Europe. The index was estimated using a GLM (glasseel ∼ area : year + site) fitted on ",selection_summary$nb_series_glass_eel," time-series comprising either pure glass eel or a mixture of glass eels and yellow eels. Number of series, ",pull(selection_summary$nb_series_glass_eel_per_area[1,1]), "=", pull(selection_summary$nb_series_glass_eel_per_area[1,2]), ", ", pull(selection_summary$nb_series_glass_eel_per_area[2,1]),"=", pull(selection_summary$nb_series_glass_eel_per_area[2,2]),". The predictions (p) have been scaled to p̄₁₉₆₀₋₁₉₇₉.")}
 
 columns = names(gg)
 years = rep(196:202,each=2)*10
@@ -2540,11 +2551,12 @@ autofit(flextable(gg%>% setNames(1:ncol(gg)) %>%
 knitr::include_graphics(paste0(imgwd,"figure5_ribbon.png"))
 ```
 
-In Elsewhere Europe, the mean value in 2026 is higher than the mean value
-in 2025, and as last year, the maps of residuals still suggest a potential 
+In Elsewhere Europe, the mean recruitment index value in 2026 is lower than the mean value
+in 2025, and as last year, the map of residuals suggests a potential 
 spatial pattern with some higher positive residuals in northern latitudes 
-(Figure \@ref(fig:figuremapresidyoy)). The mean value in 2026 in North Sea
-is almost similar as last year. It should be reminded that those 2026 results
+(Figure \@ref(fig:figuremapresidyoy)), suggesting a potential shift in the spatial
+distribution of recruitment (Bénézech et al. 2025). The mean value in 2026 in North Sea
+is almost similar as last year. It should be kept in mind that those 2026 results
 are still preliminary and will be updated next year once all time series 
 will be made available.
 
@@ -2563,8 +2575,8 @@ if (params$regenerate | ! file.exists(paste0(outputdatawd,"benezech.Rdata"))){
 ```
 
 For the two glass eel indices, we carry out an analysis to assess the position 
-of the last values of indices compared to the overall trend. To do so, we used the 
-model adapted and used the model of Bénézech et al. (2024).
+of the last values of indices compared to the overall trend. To do so, we
+adapted and used the model of Bénézech et al. (2024).
 This model fits an autoregressive model to the recruitment index from 1980 to 
 `r CY-1`, using an AR(1) (autoregressive) model. It postulates that the
 recruitment follows a 
@@ -2628,7 +2640,7 @@ knitr::include_graphics(paste0(imgwd,"figure6.png"))
 A retrospective analysis assesses whether the outcomes of an assessment are
 sensitive to the inclusion of a new year of data. 
 
-Figure \@ref(fig:retrospective) shows that the variations of the GLM have 
+Figure \@ref(fig:retrospective) shows that the estimations of the GLM have 
 varied through 
 time. Several causes explain such variations:
 
@@ -2668,10 +2680,10 @@ rho index of North Sea is greater than 0.2 (absolute value).
 However, this is likely related to:
 
 - the lower number of time series included in the corresponding GLM, making the results more sensitive to latter revisions or integration of new time series,
-- to the low values of the North-Sea index (Mohn's rho is a relative index and North Sea recruitment is below 1%, so even a revision from 1.5 to 1% implies a change of 50%,
-- to the natural stochasticity of recruitment.
+- the low values of the North-Sea index (Mohn's rho is a relative index and North Sea recruitment is below 1%, so even a revision from 1.5 to 1% implies a change of 50%),
+- the natural stochasticity of recruitment.
 
-Despite this relatevely high Mohn’s rho index, the retrospective diagrams do not display specific 
+Despite this relatively high Mohn’s rho index, the retrospective diagrams do not display specific 
 patterns (i.e. a situation in which assessments are systematically above or below
 the previous assessments) and the trends are very consistent between assessment years, 
 indicating that the assessment is robust (Figure \@ref(fig:retrospective)).

@@ -166,6 +166,30 @@ setwd(wd)
 
 ```
 
+
+```{r keyfig, include=FALSE, warning = FALSE, message = FALSE, error=FALSE}
+landingsYS <- filter_data("landings",
+    typ = c(4,6),
+    life_stage = c("Y","S","YS"),
+    year_range = (CY-10):(CY-1)
+)%>% dplyr::filter(is.na(eel_missvaluequal)) |>
+  group_by(eel_year) |>
+  summarize(value = sum(eel_value, na.rm = TRUE)) |>
+  ungroup()
+meanlandingsYS <- round(mean(landingsYS$value) / 1000)
+
+landingsG <- filter_data("landings",
+    typ = c(4,6),
+    life_stage = c("G"),
+    year_range = (CY-10):(CY-1)
+)%>% dplyr::filter(is.na(eel_missvaluequal)) |>
+  group_by(eel_year) |>
+  summarize(value = sum(eel_value, na.rm = TRUE)) |>
+  ungroup()
+meanlandingsG <- round(mean(landingsG$value) / 1000)
+
+```
+
 # ICES advice on fishing opportunities
 
 ICES advises that when the precautionary approach is applied, there
@@ -208,7 +232,7 @@ knitr::include_graphics(paste0(imgwd,"figure_advice.png"))
 
 
 ::: {custom-style="Image Caption"}
-__Figure 1__ <tab> Indices of glass eel recruitment for the continental “North Sea” 
+__Figure 1__ &#9; Indices of glass eel recruitment for the continental “North Sea” 
 (top‑left panel) and “Elsewhere Europe” (top‑right panel) series. A statistical 
 model was fitted to `r selection_summary$nb_series_glass_eel` time-series 
 comprising either pure glass eel or a mixture of glass and yellow eels 
@@ -241,11 +265,10 @@ quantified [@ices2025], and no reference points are defined.
 European eel has been listed as Critically Endangered on the
 International Union for the Conservation of Nature (IUCN) Red List since
 2008 [@pike2020; @iucn2022]. It was listed in Appendix II of the
-Convention on International Trade of Endangered Species (CITES) in 2007
+Convention on International Trade of Endangered Species of Wild Fauna and Flora (CITES) in 2007
 that came into force in 2009
-[@conventiononinternationaltradeinendangeredspeciesofwildfaunaandfloracites2007;
-@conventiononinternationaltradeiendangeredspeciesofwildfaunaandfloracites2022],
-and Appendix II of the Conservation of Migratory Species of Wild Animals
+[@conventiononinternationaltradeiendangeredspeciesofwildfaunaandfloracites2022],
+and Appendix II of the Convention for Conservation of Migratory Species of Wild Animals
 (CMS) in 2014
 [@conventionontheconservationofmigratoryspeciesofwildanimalscms2018].
 
@@ -268,7 +291,7 @@ information, ICES is not in a position to provide catch scenarios.
 # Basis of the advice
 
 ::: {custom-style="Table Caption"}
-__Table 1a__&nbsp;    The basis of the advice for **fishing opportunities**.
+__Table 1a__&#9; The basis of the advice for **fishing opportunities**.
 :::
 
 ```{r , tab.id="basisfishing", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -292,7 +315,7 @@ flextable(basis) |>
 <br>
 
 ::: {custom-style="Table Caption"}
-__Table 1b__&nbsp;    The basis of the advice for **conservation aspects**.
+__Table 1b__&#9; The basis of the advice for **conservation aspects**.
 :::
 
 ```{r , tab.id = "basis", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -326,7 +349,8 @@ naturally causes changes in GLM predictions of past years. Mohn’s Rho is
 calculated to evaluate the consistency of the assessment in retrospect
 (Figure 2). Mohn’s Rho is `r round(mohn_EE/100, 2)` for the ”Elsewhere
 Europe” index, `r round(mohn_NS/100, 2)` for the ”North Sea” index, and
-`r round(mohn_YY/100, 2)` for the ”Yellow eel” index. While exceeding 0.2,
+`r round(mohn_YY/100, 2)` for the ”Yellow eel” index. While exceeding an 
+absolute value of 0.2,
 which is generally considered as a threshold of concern [@ices2023j],
 the number of series used in the eel indices may vary between assessment
 years, e.g. because of the inclusion of new series or replacement of
@@ -342,7 +366,7 @@ knitr::include_graphics(paste0(imgwd,"retro_patchwork.png"))
 
 
 ::: {custom-style="Image Caption"}
-__Figure 2__&nbsp;  European eel. Retrospective comparison of generalized linear
+__Figure 2__&#9; European eel. Retrospective comparison of generalized linear
 model (GLM) recruitment trends for “North Sea” 
 (Mohn’s ρ = `r round(mohn_NS/100, 2)`), “Elsewhere Europe” (Mohn’s ρ = `r round(mohn_EE/100, 2)`), and “Yellow eel” (Mohn’s ρ = `r round(mohn_YY/100, 2)`. The GLM 
 predictions of past years change with the addition of new data points for 
@@ -358,7 +382,8 @@ In the absence of precise quantitative information on the spatial
 distribution of recruitment, the model does not weight time-series. As a
 consequence, a time-series collected in a zone with low recruitment has
 the same weight as one collected in a zone of higher recruitment.
-Moreover, in the absence of weighting, regions with numerous time-series
+Moreover, in the absence of weighting and because of even spatial coverage,
+regions with numerous time-series
 have a greater weight than data-limited regions in the resulting
 recruitment index.
 
@@ -394,9 +419,11 @@ that cover the entire stock area.
 **On fishing opportunities**
 
 Total reported commercial landings and recreational catches of yellow and silver eel have
-amounted to at least 2 000 tonnes per year over the last decade, with several
+amounted an average of `r meanlandingsYS ` t per year over the last decade 
+(`r paste(CY-10, CY-1, collapse ="-")`), with several
 countries reporting annual landings of over 100 tonnes per year. Commercial glass
-eel total landings amounted to at least 40 tonnes per year for the past decade. Both are in contradiction with the
+eel total landings amounted to an average of `r meanlandingsG` t per
+year over the same period. Both are in contradiction with the
 advice.
 
 -   Restocking
@@ -452,11 +479,12 @@ vary over a range of temporal and spatial scales. The objective of the EU Counci
 Regulation (EC) No. 1100/2007 [@eucouncil2007] is to reduce anthropogenic 
 mortalities, including non-fisheries impacts.
 
-Global climate change has and
-will continue to directly and indirectly affect both marine and
-freshwater habitats, requiring similar considerations given the
-likelihood of dual impacts on migratory fish such as European eel.
-However, those effects from climate change are not well understood.
+Global climate change has and will continue to directly and indirectly affect 
+both marine and freshwater habitats and species. 
+It is highly likely that this will impact on migratory fish such as European eel. 
+However, effects of climate change are not well understood and are yet to be
+fully quantified.
+
 
 The implementation of environmental legislation (e.g. EU Nature Restoration Regulation, the EU Water
 Framework [WFD] and the Marine Strategy Framework directives [MSFD])
@@ -473,12 +501,12 @@ stations, and pollution) that negatively affect the eel stock should be zero.
 
 **Other aspects**
 
-Illegal, unreported, and unregulated (IUU) fishing is known to occur,
-and customs seizures indicate that the illegal export of eel could be
-substantial. Some countries have reported the level of misreporting and
-illegal fisheries (i.e. the seizure of illegal nets as well as the
-illegal trade of eels from countries both inside and outside the EU) to
-ICES, EIFAAC, or GFCM. However, there are insufficient data available to
+Illegal, unreported, and unregulated (IUU) fishing is known to occur. In addition,
+customs seizures indicate that the illegal export of eel could be
+substantial. Some countries have collected data on
+illegal fisheries and trade (i.e. the seizure of illegal nets as well as the
+illegal trade of eels from countries both inside and outside the EU).
+However, data insufficient to
 quantify their effect on the total stock size or status with any level
 of certainty.
 
@@ -488,13 +516,13 @@ of certainty.
 
 No biomass or fishing mortality reference points are formally defined
 for this stock. For the time being, the 1960–1979 recruitment is
-considered a potential limit reference point Rlim [@ices2021]
+considered a potential limit reference point Rlim [@ices2021].
 
 <br>
 
 # Basis of the assessment
 ::: {custom-style="Table Caption"}
-__Table 2__&nbsp;  European eel. Basis of the assessment.
+__Table 2__&#9; European eel. Basis of the assessment.
 :::
 
 ```{r, tab.id = "tab2", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -523,7 +551,7 @@ flextable(tab2)  |>
 # History of the advice, catch, and management
 
 ::: {custom-style="Table Caption"}
-__Table 3__&nbsp;  European eel. History of ICES advice.
+__Table 3__&#9; European eel. History of ICES advice.
 :::
 
 ```{r , tab.id = "tab3", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -551,13 +579,13 @@ flextable(tab3) |>
 
 # History of catch and landings
 
-Landings data are not complete for the entire natural range of thr European
+Landings data are not complete for the entire natural range of the European
 eel.
 
 ::: {custom-style="Table Caption"}
-__Table 4__&nbsp;  European eel. Commercial landings (tonnes) of glass eels 
-(1945–`r CY`), as reported to ICES by EU Member States (France [FR], Spain [ES],
-Portugal [PT], and Italy [IT]) and United Kingdom (GB). Empty cell = no data, 
+__Table 4__&#9; European eel. Commercial landings (tonnes) of glass eels 
+(1945–`r CY`), as reported to ICES by France [FR], Spain [ES],
+Portugal [PT], Italy [IT] and United Kingdom (GB). Empty cell = no data, 
 data not collected, or data not pertinent.
 :::
 
@@ -613,7 +641,7 @@ grouped_data |>
 filtered_data<-filter_data("landings",
     typ = 4,
     life_stage = c("Y","S","YS"),
-    year_range = 1908:CY-1
+    year_range = 1908:(CY-1)
 )%>% dplyr::filter(is.na(eel_missvaluequal))
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -655,8 +683,9 @@ set3names <- country_c$cou_country[match(gsub("\\*", "", set3), country_c$cou_co
 
 
 ::: {custom-style="Table Caption"}
-__Table 5a__&nbsp;  European eel. Official commercial landings (tonnes) of yellow 
-and silver eel (1908–`r CY-1`) in `r format_country_names(set1names, set1)`.
+__Table 5a__&#9; European eel. Commercial landings (tonnes) of yellow 
+and silver eel (1908–`r CY-1`)  as reported to ICES by 
+`r format_country_names(set1names, set1)`.
 Empty cell = no data, data not collected, or data not pertinent.
 :::
 
@@ -686,8 +715,9 @@ landingsYS |>
 <br>
 
 ::: {custom-style="Table Caption"}
-__Table 5b__&nbsp;  European eel. Official commercial landings (tonnes) of yellow 
-and silver eel (1908–`r CY-1`) in `r format_country_names(set2names, set2)`.
+__Table 5b__&#9; European eel. Commercial landings (tonnes) of yellow 
+and silver eel (1908–`r CY-1`)  as reported to ICES by 
+`r format_country_names(set2names, set2)`.
 Empty cell = no data, data not collected, or data not pertinent.
 :::
 ```{r, tab.id = "tab5b", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -714,8 +744,9 @@ flextable::align(align = "center", part = "header") |>
 <br>
 
 ::: {custom-style="Table Caption"}
-__Table 5c__&nbsp;  European eel. Official commercial landings (tonnes) of yellow 
-and silver eel (1908–`r CY-1`) in `r format_country_names(set3names, set3)`.
+__Table 5c__&#9; European eel. Commercial landings (tonnes) of yellow 
+and silver eel (1908–`r CY-1`)  as reported to ICES by
+`r format_country_names(set3names, set3)`.
 Empty cell = no data, data not collected, or data not pertinent. The total 
 column is the yearly sum for all countries included in tables 5a, 5b, and 5c and 
 not just the countries listed in this particular table.
@@ -746,8 +777,9 @@ flextable::align(align = "center", part = "header") |>
 <br>
 
 ::: {custom-style="Table Caption"}
-__Table 6__&nbsp;  European eel. Recreational landings (tonnes) of glass eels 
-(1978–2023) in countries where fisheries exist, i.e. France (FR) and Spain (ES).
+__Table 6__&#9; European eel. Recreational landings (tonnes) of glass eels 
+(1978–2023)  as reported to ICES by in countries where fisheries exist,
+i.e. France (FR) and Spain (ES).
 Empty cell = no data, data not collected, or data not pertinent.
 :::
 
@@ -827,9 +859,10 @@ set2names <- country_c$cou_country[match(gsub("\\*", "", set2), country_c$cou_co
 ```
 
 ::: {custom-style="Table Caption"}
-__Table 7a__&nbsp;  European eel. Recreational landings (tonnes) of yellow and 
-silver eel (1980–`r CY-1`) in `r paste(set1names, paste0("(",set1,")"), collapse = ", ")`
-and Belgium (BE). Countries omitted in tables 7a and 7b include those where 
+__Table 7a__&#9; European eel. Recreational landings (tonnes) of yellow and 
+silver eel (1980–`r CY-1`)  as reported to ICES by
+`r format_country_names(set1names, set1)`.
+Countries omitted in tables 7a and 7b include those where 
 recreational landings are prohibited and those that have not reported.
 :::
 
@@ -859,9 +892,10 @@ landingsrecYS |>
 
 
 ::: {custom-style="Table Caption"}
-__Table 7b__&nbsp;  European eel. Recreational landings (tonnes) of yellow and 
-silver eel (1980–`r CY-1`) in `r paste(set2names, paste0("(",set2,")"), collapse = ", ")`
-and Belgium (BE). Countries omitted in tables 7a and 7b include those where 
+__Table 7b__&#9; European eel. Recreational landings (tonnes) of yellow and 
+silver eel (1980–`r CY-1`) as reported to ICES by
+`r format_country_names(set2names, set2)`.
+Countries omitted in tables 7a and 7b include those where 
 recreational landings are prohibited and those that have not reported.
 :::
 
@@ -889,15 +923,16 @@ landingsrecYS |>
 # Summary of the assessment
 
 ::: {custom-style="Table Caption"}
-__Table 8__&nbsp;  European eel. Recruitment indices: geometric means (“Value”) of 
-estimated (GLM) recruitment for glass eels, with 95% prediction intervals
+__Table 8__&#9; European eel. Recruitment indices: geometric means (“Value”) of 
+estimated (GLM) recruitment for glass eels (period 1950-`r CY`), with 95% prediction intervals
 (“Lower” and “Upper”) in the continental “North Sea” and “Elsewhere Europe”,
 and recruitment of yellow eels in Europe. The glass eel GLM (predicting
 recruitment as a function of area, year, and site) was fitted to `r selection_summary$nb_series_glass_eel` time-series,
 comprising either pure glass eels or a mixture of glass eels and yellow eels and 
 scaled to the 1960–1979 geometric mean so that values correspond to the
 recruitment as a percentage of the 1960–1979 geometric mean. The yellow eel 
-GLM (predicting recruitment as a function of year and site) was fitted to `r selection_summary$nb_series_older`
+GLM (predicting recruitment as a function of year and site, (period 1950-`r CY-1`))
+was fitted to `r selection_summary$nb_series_older`
 yellow eel time-series and scaled to the 1960–1979 geometric mean so that values
 correspond to the recruitment as a percentage of the 1960–1979 geometric mean. 
 These indices are updated on an annual basis and, as they are presented in 
