@@ -451,7 +451,7 @@ WLTYP change the documentation to reflect the documentation in WLTYP
 use (MO MC FW CL T)
 
 Add life stage (See Vocab Stage)
-
+Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
 
 
 
