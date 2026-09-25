@@ -144,8 +144,6 @@ flextable2ICES <- function(x){
 
 ```
 
-
-
 ```{r load_utilities, eval=FALSE, echo=FALSE,include=FALSE}
 #### Loading WGEEL data
 source("../../R/utilities/load_library.R")
@@ -327,14 +325,13 @@ If the EDMO exists but need to be changed, for instance the address has changed,
 
 This corresponds to the series that are currently in our database. This code refers to the institute responsible for the governance of a station. It might be different from the national edmo. The name, native name, Longitude and Latitude are those of the institute, not the station. 
 
-### development of the diadromous DB
+### Development of the diadromous DB
 
-The diadromous DB is currently being developped in ICES. A first version of the database and API is planned for next year. The feedback on issues on the format is here : ices-tools-dev/DiadromousData: Development of the eel database and format
+The Diadromous DB is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : ices-tools-dev/DiadromousData: Development of the eel database and format. If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
 
-The current data for series and metrics (annex 1 to 3 and 9) will be imported (bulk import) during the next year. Series indentified as commercial sampling
+The current data for series and metrics (annex 1 to 3 and 9) will be imported (bulk import) during the next year. For 2027, all annex 1 (recruitment) data will be submitted in the Diadromous survey format, Series identified as commercial sampling will be excluded from the submission for both historical and 2026 data. These data will be submitted in RDBES/RDBFIS starting from 2028.
 
 ### Testing the Inclusion of data within the Diadromous Database
-
 
 ```{r}
 #| label: fig-tableedmo
@@ -357,6 +354,7 @@ knitr::include_graphics(imgfile)
 Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow)
 
 ## Commercial landings (Eirik)
+
 This is where we talk about RDBES
 
 [icesRDBES dev](https://ices-tools-prod.r-universe.dev/icesRDBES) [icesRDBES prod](https://github.com/ices-tools-prod/icesRDBES) [icesRDBEScore](https://github.com/ices-tools-prod/icesRDBEScore)
@@ -414,17 +412,16 @@ path <- sapply(ll, function(X) X[grepl(X, pattern = "csv")])
 country_landings <- readr::read_csv(path)
 
 ```
+
 ## Recreational landings (Clarisse)
 
 Recreational fishing data will continue to be incorporated into the WGEEL database through Annex 4 of the standard data call. Eventually, the RDBES database (for ICES countries) and the RDBFIS database (for non-ICES countries) are expected to incorporate this data, which will be integrated through the RDBES and RDBFIS data calls.
 
-::: {.callout-note icon=false}
-
+::: {.callout-note icon="false"}
 ## For next year
 
 Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 4
 :::
-
 
 ## Destination of current biometric sampling (Diadromous Survey) (Clarisse Elsa)
 
@@ -434,8 +431,7 @@ Depending on the protocols used to collect biometric data, the resulting data ar
 
 With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the scientific survey database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex X)
 
-::: {.callout-note icon=false}
-
+::: {.callout-note icon="false"}
 ## For next year
 
 The biometric data linked to a scientific survey (fishery independent data) will be incorporate during the WGEEL data call using the DATSU process.
@@ -445,50 +441,41 @@ The biometric data linked to a scientific survey (fishery independent data) will
 
 Concernant les données de biometrie collectées via des protocoles liées à des pêcheries commerciales ou récréatives (fishery dependent data), les changements vont se faire en plusieurs étapes:
 
- * l'année prochaine, les données de biometrie ne seront pas demandées dans l'appel à données WGEEL seront saisies via le processus classique du WGEEL 
+- l'année prochaine, les données de biometrie ne seront pas demandées dans l'appel à données WGEEL seront saisies via le processus classique du WGEEL
 
+Table of series removed from our current database (ELSA) Full table identifying where the series go
 
-Table of series removed from our current database (ELSA)
-Full table identifying where the series go
+## Spatial structure of habitat
 
+The regional structure of the reporting was proposed in ICES 2025 and was developped during the diaspara project. The diaspara [habitat database](!DIASPARA habitat database creation script) is available for download in [Zenodo](https://doi.org/10.5281/zenodo.18155125). The habitat is divided into marine habitat (which follows the current ICES and GFCM areas) and continental habitat
+
+The hierarchical structure of the habitat ranges from stock level to river section level (Figure XX) . This hierarchical level allows to aggregate data from the lower level to the upper level. E.g data collected for one river or one lagoon can be agregated as a regional or sub component (Substock) level
+
+![The hierachical levels in the WGEEL part of the Habitat database for diadromous fishes](images/clipboard-1857698266.png)
 
 ## Conclusion and future planning
 
-
-
-### Recommendation : Additional part about which area  level will be reported [Cedric]
+### Recommendation : Additional part about which area level will be reported \[Cedric\]
 
 Explain the different hierarchies, and explain how to report.
 
 ### Recommendation
 
-To WGRDBESGOV 
+To WGRDBESGOV
 
-Modifications of the format to support freshwater landings submission :
-Make area optional or use the corresponding ICES area 
+Modifications of the format to support freshwater landings submission : Make area optional or use the corresponding ICES area
 
-Fields 11 to 14 to be made optional for eel and salmon and Trutta
-WLTYP change the documentation to reflect the documentation in WLTYP 
-(Add CL coastal lagoon)
-use (MO MC FW CL T)
+Fields 11 to 14 to be made optional for eel and salmon and Trutta WLTYP change the documentation to reflect the documentation in WLTYP (Add CL coastal lagoon) use (MO MC FW CL T)
 
-Add life stage (See Vocab Stage)
-Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
-
-
-
-
+Add life stage (See Vocab Stage) Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
 
 Add lifestage to RDBES
 
-Have a repository about 
+Have a repository about
 
 ### Tor
 
-
 This is ICES report [@ices2007]. A reference to the graph (Figure @fig-fig1).
-
-
 
 ```{r}
 #| label: fig-fig1
