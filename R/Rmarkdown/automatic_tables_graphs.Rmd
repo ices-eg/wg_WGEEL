@@ -81,7 +81,7 @@ dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
 
-knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, error = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, error = TRUE, dev = "svglite")
 knitr::opts_knit$set(root.dir = getwd())
 options(dplyr.summarise.inform = FALSE) #remove warnings of summarize
 #source("R/utilities/set_directory.R")

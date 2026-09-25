@@ -43,10 +43,12 @@
 
 
 ## Annex 4
+-  2 new values inserted in the database
 
 
 
 ## Annex 5
+-  2 new values inserted in the database
 
 
 
@@ -55,6 +57,11 @@
 
 
 ## Annex 7
+- add missing eel_typ_name
+- add hty = F (releases have always been made in F)
+- add missing emu nameshort
+- remove false area_division
+- 2 new values inserted in the database
 
 
 ## Annex 8
