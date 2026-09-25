@@ -432,7 +432,41 @@ Full table identifying where the series go
 
 ## Conclusion and future planning
 
+
+
+### Recommendation : Additional part about which area  level will be reported [Cedric]
+
+Explain the different hierarchies, and explain how to report.
+
+### Recommendation
+
+To WGRDBESGOV 
+
+Modifications of the format to support freshwater landings submission :
+Make area optional or use the corresponding ICES area 
+
+Fields 11 to 14 to be made optional for eel and salmon and Trutta
+WLTYP change the documentation to reflect the documentation in WLTYP 
+(Add CL coastal lagoon)
+use (MO MC FW CL T)
+
+Add life stage (See Vocab Stage)
+
+
+
+
+
+
+Add lifestage to RDBES
+
+Have a repository about 
+
+### Tor
+
+
 This is ICES report [@ices2007]. A reference to the graph (Figure @fig-fig1).
+
+
 
 ```{r}
 #| label: fig-fig1
