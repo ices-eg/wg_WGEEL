@@ -289,13 +289,11 @@ fun.agg <- function(X, conversion = 1000) {
 }
 ```
 
-
 # ToR h) Review RDBES/RDBFIS
 
 Review RDBES/RDBFIS and i) identify the protocols used to collect landings data and ii) check if parameters/series recorded are consistent between DBES/RDBFIS and Metric DB and harmonize them
 
-In order to facilitate an efficient and complete data collection it is of fundamental importance that databases (RDBES/RDBFIS & WGEEL METRIC database) follow FAIR principles. Therefore it is required to harmonize/implement respective structures across all platforms and develop/amend protocols to collect data. For this we will consider the current development of the diadromous database, for which a module to import series data has already been developped in 2026 by the ICES data center, and proposed for testing with a small dataset generated for all countries with series data.
-Next year this database will be completed by a stock module which will store the elements necessary to run the stock model. The commercial landings data are currently stored in the WGEEL database, but WGEEL analysed the steps necessary for the WGEEL to shift to using landings from the RDBES.
+In order to facilitate an efficient and complete data collection it is of fundamental importance that databases (RDBES/RDBFIS & WGEEL METRIC database) follow FAIR principles. Therefore it is required to harmonize/implement respective structures across all platforms and develop/amend protocols to collect data. For this we will consider the current development of the diadromous database, for which a module to import series data has already been developped in 2026 by the ICES data center, and proposed for testing with a small dataset generated for all countries with series data. Next year this database will be completed by a stock module which will store the elements necessary to run the stock model. The commercial landings data are currently stored in the WGEEL database, but WGEEL analysed the steps necessary for the WGEEL to shift to using landings from the RDBES.
 
 ## The diadromous database
 
@@ -318,24 +316,21 @@ imgfile <- file.path("images", "Table_structure.png")
 knitr::include_graphics(imgfile)
 ```
 
-
 This file contains two sheets :
 
 - **National_edmo :**
 
-The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU. This is the first table. WGEEL members were asked to checked in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. 
-The table prepared for maris (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex XX
+The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU. This is the first table. WGEEL members were asked to checked in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. The table prepared for maris (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex XX
 
 - **Station_edmo :**
 
 This corresponds to the series that are currently in our database. This code refers to the institute responsible for the governance of a station. It might be different from the national edmo. The name, native name, Longitude and Latitude are those of the institute, not the station.
 
-
 ### Development of the diadromous DB
 
-The Diadromous database is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData) [^notes] 
+The Diadromous database is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData) [^1]
 
-[^notes]:  If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
+[^1]: If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
 
 ### Testing the Inclusion of data within the Diadromous Database
 
@@ -347,10 +342,9 @@ The Diadromous database is currently being developped in ICES. A first version o
  
 imgfile <- file.path("images", "RDBES infographic.jpg") 
 knitr::include_graphics(imgfile)
-``` 
-	
- 
-Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow)
+```
+
+Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow).
 
 ## Commercial landings and their inclusion in the RDBES
 
@@ -362,18 +356,15 @@ RDBES organizes fisheries sampling data into a set of 13 standardized "hierarchi
 
 National estimators have access to the most detailed level of data from RDBES (the "Detailed data" level). For this data to be accessible to other users, the level of detail needs to be reduced. It is the task of each country's national estimator to download their respective data, perform a simple aggregation-analysis (using a TAF template), and upload the aggregated data to the less detailed "National estimates" level. This data then becomes available for the Stock coordinator (using the catch estimation format CEF).
 
- WGEEL tested using the [icesRDBES R package](https://github.com/ices-tools-prod/icesRDBES) and the web-based RDBES data portal ([rdbes.ices.dk](https://rdbes.ices.dk)) for downloading data from the perspective of a national estimator. After being granted access, the process of downloading data was quite simple and resulted .csv files for various data, for example commercial landings. An example script for how to do this exists in the wgeel GitHub repository under the name "script-test-rdbes-se.R". 
- 
- > cedric's comment. We need to merge the branch and leave this file in the "main" branch + provide a link to github file
+WGEEL tested using the [icesRDBES R package](https://github.com/ices-tools-prod/icesRDBES) and the web-based RDBES data portal ([rdbes.ices.dk](https://rdbes.ices.dk)) for downloading data from the perspective of a national estimator. After being granted access, the process of downloading data was quite simple and resulted .csv files for various data, for example commercial landings. An example script for how to do this exists in the wgeel GitHub repository under the name "script-test-rdbes-se.R".
 
-Furthermore, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on European eel. 14 of the 28 countries having commercial landings data in the WGEEL database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, **Czech Republic**, Greece, **Ireland**, Italy, Libya, Montenegro, **Morocco**, **Norway**, Slovenia, Tunisia, and Türkiye. Note that Mediterranean countries submit their commercial landings to RDBFIS, not RDBES. Non-Mediterranean countries are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure @fig-rdbes_comparison). 
+> cedric's comment. We need to merge the branch and leave this file in the "main" branch + provide a link to github file
+
+Furthermore, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on european eel. 14 of the 28 countries having commercial landings data in the wgeel database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, Czech Republic, Greece, **Ireland**, Italy, Libya, Montenegro, Morocco, **Norway**, Slovenia, Tunisia, and Türkiye. Note that GFCM countries will submit their commercial landings to RDBFIS, not RDBES. ICES countries that should incorporate their data into the RDBES are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure @fig-rdbes_comparison).
 
 ![Total landed biomass (kg) of european eel (*Anguilla anguilla*), as reported to WGEEL and RDBES for all years and countries in which RDBES data is available. Empty black bars indicate RDBES numbers, and blue bars indicate WGEEL numbers. The horisontal axis is log-shifted. Note that catches of eel in the Mediterranean are not reported to RDBES but are reported to WGEEL, which explains some inconsistencies.](images/plot-rdbes-vs-wgeel-landings.png){#fig-rdbes_comparison}
 
 For the purpose of accessing data, the RDBES system currently seems to be ready. The main body of work will likely be in ensuring that data are appropriately submitted to the database, and that pending issues concerning the inclusion of continental habitat and stages are resolved.
-
-
-
 
 ```{r}
 #| label: test-RDBES-API
@@ -435,6 +426,7 @@ Recreational fishing data will continue to be incorporated into the WGEEL databa
 
 ::: {.callout-note icon="false"}
 ## For next year
+
 Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 5
 :::
 
@@ -607,35 +599,101 @@ df |> flextable()  |>
 
 ```
 
-
 ## Spatial structure of habitat
 
 The regional structure of the reporting was proposed in ICES 2025 and was developped during the DIASPARA project. The diaspara [habitat database](!DIASPARA%20habitat%20database%20creation%20script) is available for download in [Zenodo](https://doi.org/10.5281/zenodo.18155125). The habitat is divided into marine habitat (which follows the current ICES and GFCM areas) and continental habitat (Figure @fig-hierarchical).
 
-![The habitat database for WGEEL showing the regional level](images/fig-hierarchical){#fig-hierarchical.png}
+![The habitat database for WGEEL showing the regional level](images/fig-hierarchical.png){#fig-hierarchical}
 
-The hierarchical structure of the habitat ranges from stock level to river section level or lagoon level (Figure @fig-hierarchical). The hierarchy of countries and EMU is provided but does not follow the requirement of a nested stock structure allowing to aggregate from lower to upper step. In addition, EMU's limit currently do not respect the division between marine and continental habitat. 
-In order to build a comprehensive and consistent stock assessment, it is required that areas code used for the continental habitat are used. In the marine area, the standard ICES and GFCM reformed divisions will be used.
+The hierarchical structure of the habitat ranges from stock level to river section level or lagoon level (Figure @fig-hierarchical). The hierarchy of countries and EMU is provided but does not follow the requirement of a nested stock structure allowing to aggregate from lower to upper step. In addition, EMU's limit currently do not respect the division between marine and continental habitat. In order to build a comprehensive and consistent stock assessment, it is required that areas code used for the continental habitat are used. In the marine area, the standard ICES and GFCM reformed divisions will be used.
 
 This hierarchical level allows to aggregate data from the lower level to the upper level. Data collected for one river or one lagoon can be aggregated as a regional (Figure @fig-regional) level even higher at Sub component of the stock level (Figure @fig-subcomponent).
 
-![The habitat database for WGEEL showing the regional level](images/habitat_regional.png){#fig-regional.png}
+![The habitat database for WGEEL showing the regional level](images/habitat_regional.png){#fig-regional}
 
-![The habitat database for WGEEL showing the regional level](images/habitat_subcomponent.png){#fig-subcomponent.png}
+![The habitat database for WGEEL showing the regional level](images/habitat_subcomponent.png){#fig-subcomponent}
+
 WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS. For the continental habitat data should be reported at the river (Figure @fig-habitat_river), or lagoon level.
 
-![The habitat database for WGEEL showing the river level](images/habitat_river.png){#fig-habitat_river.png}
+![The habitat database for WGEEL showing the river level](images/habitat_river.png){#fig-habitat_river}
 
+
+## Conclusion and future planning
+
+::: {.callout-note icon="false"}
+### For next year
+
+- Freshwater landings will be incorporate into RDBES database but also in the WGEEL database using the annex 4.
+- Marine/transitional/coastal landings will be incorporate via the classic WGEEL data call using the annex 4.
+- Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 5.
+- The biometric data linked to a scientific survey (fishery independent data) will be incorporate during the WGEEL data call using the DATSU process.
+- The biometric data linked to a commercial or recreational landings (fishery dependent data) will not be incorporate during the WGEEL data call.
+:::
+
+```{r}
+#| label: fig-datacall_workflow
+#| fig-cap: "WGEEL data calls infographic summarizing the data flow for the coming years"
+#| fig-height: 6.3
+#| fig-width: 6.3
+imgfile <- file.path("images", "change_datacall_wgeel_b.png") 
+knitr::include_graphics(imgfile)
+
+
+```
+
+<br>
+
+\newpage
+
+::: {custom-style="Annex heading"}
+Annex 61. The table of EDMO codes
+:::
+
+::: {custom-style="Annex heading"}
+Annex 62. Commercial series in Annex 9
+:::
+
+```{r}
+#| label: tbl-annex9
+#| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+
+readxl::read_excel("data/annex9.xlsx") |>
+  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
+  flextable()  |>
+  flextable2ICES()
+
+```
+
+::: {custom-style="Annex heading"}
+Annex 63. Commercial series in annex 2 and 3
+:::
+
+```{r}
+#| label: tbl-annex2and3
+#| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+
+readxl::read_excel("data/annex9.xlsx") |>
+  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
+  flextable() |>
+  flextable2ICES()
+
+```
+
+::: {custom-style="Annex heading"}
+Annex 62.
+:::
+
+
+::: {.callout-important}
 ## Recommendations
 
-To : WGRDBESGOV 
+To : WGRDBESGOV
 
- * Modifications of the format to support freshwater landings submission :
-+ Make area optional or use the corresponding ICES area 
- * Fields 11 to 14 to be made optional for eel and salmon and Trutta
- * WLTYP change the documentation to reflect the documentation in WLTYP 
-(Add CL coastal lagoon) use (MO MC FW CL T)
-* Add life stage to landings data (the biological ) (See Vocab Stage) Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
+- Modifications of the format to support freshwater landings submission :
+- Make area optional or use the corresponding ICES area
+- Fields 11 to 14 to be made optional for eel and salmon and Trutta
+- WLTYP change the documentation to reflect the documentation in WLTYP (Add CL coastal lagoon) use (MO MC FW CL T)
+- Add life stage to landings data (the biological ) (See Vocab Stage) Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
 
 To : RDBES ?
 
@@ -651,117 +709,10 @@ WGEEL recommends the provision of the habitat vocabulary online, with menus allo
 
 To : WGRDBESGOV
 
-WGEEL recommends to integrate the continental habitats in the RDBES datacall in 2027 
+WGEEL recommends to integrate the continental habitats in the RDBES datacall in 2027
 
-
-![WGEEL habitat at the regional level](images/clipboard-2274661588.png){#fig-regional}
-
-## Conclusion and future planning
-
-::: {.callout-note icon="false"}
-## For next year
-
-- Freshwater landings will be incorporate into RDBES database but also in the WGEEL database using the annex 4.
-- Marine/transitional/coastal landings will be incorporate via the classic WGEEL data call using the annex 4.
-- Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 5.
-- The biometric data linked to a scientific survey (fishery independent data) will be incorporate during the WGEEL data call using the DATSU process.
-- The biometric data linked to a commercial or recreational landings (fishery dependent data) will not be incorporate during the WGEEL data call.
 :::
 
-This is ICES report [@ices2007]. A reference to the graph (Figure @fig-fig1).
-
-```{r}
-#| label: fig-datacall_workflow
-#| fig-cap: "WGEEL data calls infographic summarizing the data flow for the coming years"
-#| fig-height: 6.3
-#| fig-width: 6.3
-imgfile <- file.path("images", "change_datacall_wgeel_b.png") 
-knitr::include_graphics(imgfile)
-
-
-```
-
-```{r}
-#| label: fig-fig1
-#| fig-cap: "mon graph"
-#| fig-height: 6.3
-#| fig-width: 6.3
-
-data(iris)
-g <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) +
-  geom_point()
-plotfile <- tempfile(fileext = ".png", tmpdir = "images")
-ggsave(plotfile, g, width = 16/2.54, height = 16/2.54, dpi = 300)
-knitr::include_graphics(plotfile)
-```
-
-
-
-```{r}
-#| label: tbl-mytab2
-#| tbl-cap: mon tableau 2
-gt(head(iris)) |>
-  opt_table_font(font = "Calibri",
-                 size = gt::px(8.5)) |>
-  tab_style(
-    style = list(cell_fill("#B7D1C3"),
-                 cell_text(weight = "bolder",
-                           align = "left")),
-    locations = cells_column_labels()
-  ) |>
-  tab_style(
-    style = list(cell_text(align = "left")),
-    locations = cells_body()) |>
-  tab_options(table.layout = "auto",
-              table.border.top.width = px(0.5),
-              table.border.bottom.width = px(0.5),
-              table.border.top.color = "#000000",
-              table.border.bottom.color = "#000000") 
-```
-
-<br>
-
-\newpage
-
-::: {custom-style="Annex heading"}
-Annex 61. The table of EDMO codes
-:::
-
-::: {custom-style="Annex heading"}
-Annex 62. Commercial series in Annex 9 
-:::
-
-```{r}
-#| label: tbl-annex9
-#| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
-
-readxl::read_excel("data/annex9.xlsx") |>
-  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
-  flextable()  |>
-  flextable2ICES()
-
-```
-
-::: {custom-style="Annex heading"}
-Annex 63. Commercial series in annex 2 and 3 
-:::
-
-```{r}
-#| label: tbl-annex2and3
-#| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
-
-readxl::read_excel("data/annex9.xlsx") |>
-  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
-  flextable() |>
-  flextable2ICES()
-
-```
-
-
-::: {custom-style="Annex heading"}
-Annex 62. 
-:::
-
-References
+## References
 
 Oliviéro, J., Briand, C., & Helminen, J. (2026). DIASPARA - Habitat database (Version 0.0.6) \[Dataset\]. Zenodo. https://doi.org/10.5281/zenodo.20086128
