@@ -931,6 +931,9 @@ save_figure<-function(figname,fig,width,height, pdf = TRUE){
     print(fig)
     rien<-dev.off()
   }
+  svg(file= paste(figname,".svg",sep=""), width = width/100, height = height/100)
+  print(fig)
+  dev.off()
   setwd(wd)
   return(invisible(NULL))
 }

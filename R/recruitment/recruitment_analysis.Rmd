@@ -2480,11 +2480,11 @@ g <- ggplot(rates,aes(x=year_f)) +geom_ribbon(aes(ymin=(landings/p_std_1960_1979
   geom_point(aes(y=(landings/p_std_1960_1979)/std))+
   xlab("") + 
   scale_x_continuous(breaks=seq(2000, CY, 3), labels=seq(2000, CY, 3))+
-  ylab("Standardised ratio of glass eel landings over glass eel recruitment index") +
+  ylab("Standardised ratio of glass eel landings / glass eel recruitment index") +
   theme_bw()
 
 
-save_figure("exploitation_rates_GE",g,600,480, pdf = FALSE)
+save_figure("exploitation_rates_GE",g,600,480, pdf = TRUE)
 
 ```
 
