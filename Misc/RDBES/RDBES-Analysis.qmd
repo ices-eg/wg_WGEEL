@@ -327,11 +327,11 @@ If the EDMO exists but need to be changed, for instance the address has changed,
 
 This corresponds to the series that are currently in our database. This code refers to the institute responsible for the governance of a station. It might be different from the national edmo. The name, native name, Longitude and Latitude are those of the institute, not the station. 
 
-### development of the diadromous DB
+### Development of the diadromous DB
 
-The diadromous DB is currently being developped in ICES. A first version of the database and API is planned for next year. The feedback on issues on the format is here : ices-tools-dev/DiadromousData: Development of the eel database and format
+The Diadromous DB is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : ices-tools-dev/DiadromousData: Development of the eel database and format. If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
 
-The current data for series and metrics (annex 1 to 3 and 9) will be imported (bulk import) during the next year. Series indentified as commercial sampling
+The current data for series and metrics (annex 1 to 3 and 9) will be imported (bulk import) during the next year. For 2027, all annex 1 (recruitment) data will be submitted in the Diadromous survey format, Series identified as commercial sampling will be excluded from the submission for both historical and 2026 data. These data will be submitted in RDBES/RDBFIS starting from 2028.
 
 ### Testing the Inclusion of data within the Diadromous Database
 
@@ -425,9 +425,16 @@ path <- sapply(ll, function(X) X[grepl(X, pattern = "csv")])
 country_landings <- readr::read_csv(path)
 
 ```
+
 ## Recreational landings (Clarisse)
 
 Recreational fishing data will continue to be incorporated into the WGEEL database through Annex 4 of the standard data call. Eventually, the RDBES database (for ICES countries) and the RDBFIS database (for non-ICES countries) are expected to incorporate this data, which will be integrated through the RDBES and RDBFIS data calls.
+
+::: {.callout-note icon="false"}
+## For next year
+
+Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 4
+:::
 
 
 ## Destination of current biometric sampling (Diadromous Survey) (Clarisse Elsa)
@@ -437,6 +444,7 @@ Depending on the protocols used to collect biometric data, the resulting data ar
 ### Series (fishery independent data)
 
 With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the scientific survey database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex X)
+
 
 
 ### Commercial and recreational sampling (fishery dependent data)
@@ -544,6 +552,12 @@ gt(head(iris)) |>
 <br>
 
 \newpage
+
+::: {custom-style="Annex heading"}
+Annex XX Using the RDBES
+:::
+
+**RDBES (Regional Database and Estimation System)** organizes fisheries sampling data into a set of 13 standardized hierarchies representing commercial fisheries, recreational fisheries, scientific surveys, and associated biological and laboratory sampling. The hierarchical model links observations from sampling programmes and fishing activities down to individual fish measurements and analyses, ensuring traceability of data and supporting statistically robust estimation procedures used in ICES stock assessments and fisheries advice.
 
 ::: {custom-style="Annex heading"}
 References
