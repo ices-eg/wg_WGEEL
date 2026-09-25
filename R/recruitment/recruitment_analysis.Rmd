@@ -2999,43 +2999,53 @@ series or possible outliers and correspond to the deviance residuals of the GLM.
 It measures the goodness of fit of the model and value below -3 or above +3 are
 considered to be poorly fitted.
 
-```{r resdiualsyoy,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r resdiualsyoy,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, dev = "svglite"}
 datares <- data.frame(obs = names(residuals(model_ge_area)),
                       res = residuals(model_ge_area)) %>%
   right_join(model_ge_area$data %>%
                tibble::rownames_to_column("obs"))
 
-for (i in na.omit(unique(datares$site))){
-  print(ggplot(datares %>% filter(site == i),
+sites <- unique(datares$site)
+groups <- (seq_len(length(sites))-1) %/% 2
+
+for (g in groups){
+  print(ggplot(datares %>% filter(site == sites[groups == g]),
          aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
     geom_bar(stat = "identity", show.legend=FALSE) + 
     facet_wrap(~site, ncol = 2) +
-    ggtitle(i) + 
     scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
     theme_bw() + 
     geom_hline(aes(yintercept=-3), lty = 2) +
-    geom_hline(aes(yintercept = 3), lty = 2))
+    geom_hline(aes(yintercept = 0)) +
+    geom_hline(aes(yintercept = 3), lty = 2) +
+    facet_wrap(~site, ncol = 1))
 }
 ```
 
 
-```{r resdiualsolder,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r resdiualsolder,  eval= TRUE, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE, dev = "svglite"}
 datares <- data.frame(obs = names(residuals(model_older)),
                       res = residuals(model_older)) %>%
   right_join(model_older$data %>%
                tibble::rownames_to_column("obs"))
 
-for (i in na.omit(unique(datares$site))){
-  print(ggplot(datares %>% filter(site == i),
+sites <- unique(datares$site)
+groups <- (seq_len(length(sites))-1) %/% 2
+
+for (g in groups){
+  print(ggplot(datares %>% filter(site == sites[groups == g]),
          aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
     geom_bar(stat = "identity", show.legend=FALSE) + 
     facet_wrap(~site, ncol = 2) +
-    ggtitle(i) + 
     scale_fill_manual(values=c("FALSE"='red',"TRUE"="grey")) +
     theme_bw() + 
     geom_hline(aes(yintercept=-3), lty = 2) +
-    geom_hline(aes(yintercept=3), lty = 2))
+    geom_hline(aes(yintercept = 0)) +
+    geom_hline(aes(yintercept = 3), lty = 2) +
+    facet_wrap(~site, ncol = 1))
 }
+
+
 ```
 
 # TO BE REMOVED
