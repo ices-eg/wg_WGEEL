@@ -356,10 +356,21 @@ knitr::include_graphics(imgfile)
 
 Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow)
 
-## Commercial landings (Eirik)
-This is where we talk about RDBES
+## Commercial landings 
 
-[icesRDBES dev](https://ices-tools-prod.r-universe.dev/icesRDBES) [icesRDBES prod](https://github.com/ices-tools-prod/icesRDBES) [icesRDBEScore](https://github.com/ices-tools-prod/icesRDBEScore)
+The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users.
+
+RDBES organizes fisheries sampling data into a set of 13 standardized "hierarchies" representing commercial fisheries, recreational fisheries, scientific surveys, and associated biological and laboratory sampling. The hierarchical model links observations from sampling programmes and fishing activities down to individual fish measurements and analyses, ensuring traceability of data and supporting statistically robust estimation procedures used in ICES stock assessments and fisheries advice. To accomodate sampling programmes with different structures, there is a selection of 13 different hiearchies of data tables (named H1 to H13). See the documentation at the [RDBES github repository](https://github.com/ices-tools-dev/RDBES/) for more information. 
+
+National estimators have access to the most detailed level of data from RDBES (the "Detailed data" level). For this data to be accessible to other users, the level of detail needs to be reduced. It is the task of each country's national estimator to download their respective data, perform a simple aggregation-analysis (using a TAF template), and upload the aggregated data to the less detailed "National estimates" level. This data then becomes available for the Stock coordinator (using the catch estimation format CEF).
+
+At the WGEEL 2006 workshop, the RDBES subgroup tested using the [icesRDBES R package](https://github.com/ices-tools-prod/icesRDBES) and the web-based RDBES data portal ([rdbes.ices.dk](https://rdbes.ices.dk)) for downloading data from the perspective of a national estimator. After being granted access, the process of downloading data was quite simple and resulted .csv files for various data, for example commercial landings. An example script for how to do this exists in the wgeel GitHub repository under the name "script-test-rdbes-se.R".
+
+Further, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on european eel. 14 of the 28 countries having commercial landings data in the wgeel database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, **Czech Republic**, Greece, **Ireland**, Italy, Libya, Montenegro, **Morocco**, **Norway**, Slovenia, Tunisia, and Türkiye. Note that mediterranean countries submit their commercial landings to RDBFIS, not RDBES. Non-mediterranean countries are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure X). These countries may want to inspect these differences and assess if any data are missing or incorrect.
+
+For the purpose of accessing data, the RDBES system currently seems to be ready. The main body of work will likely be in ensuring that data are apropriately submitted to the database.
+
+![Figure X. Total landed biomass (kg) of european eel (Anguilla anguilla), as reported to WGEEL and RDBES for all years and countries in which RDBES data is available. Empty black bars indicate RDBES numbers, and blue bars indicate WGEEL numbers. The horisontal axis is log-shifted. Note that catches of eel in the mediterranean are not reported to RDBES but are reported to WGEEL, which explains some inconsistencies for some countries.](images/plot-rdbes-vs-wgeel-landings.png)
 
 ```{r}
 #| label: test-RDBES-API
@@ -533,12 +544,6 @@ gt(head(iris)) |>
 <br>
 
 \newpage
-
-::: {custom-style="Annex heading"}
-Annex XX Using the RDBES
-:::
-
-**RDBES (Regional Database and Estimation System)** organizes fisheries sampling data into a set of 13 standardized hierarchies representing commercial fisheries, recreational fisheries, scientific surveys, and associated biological and laboratory sampling. The hierarchical model links observations from sampling programmes and fishing activities down to individual fish measurements and analyses, ensuring traceability of data and supporting statistically robust estimation procedures used in ICES stock assessments and fisheries advice.
 
 ::: {custom-style="Annex heading"}
 References
