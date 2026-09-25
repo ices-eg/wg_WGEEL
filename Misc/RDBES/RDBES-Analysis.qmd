@@ -423,19 +423,26 @@ Recreational fishing data will continue to be incorporated into the WGEEL databa
 ## For next year
 
 Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 4
-
 :::
 
 
 ## Destination of current biometric sampling (Diadromous Survey) (Clarisse Elsa)
 
-Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Below are instructions for integrating this data based on its category.
+Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Below are explanation about what process to follow for integrating this data based on its category.
 
-### Series (fishery independant data)
+### Series (fishery independent data)
 
-Concernant les données issues de protocole fishery independant 
+With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the scientific survey database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex X)
+::: {.callout-note icon=false}
 
-### Commercial sampling (fishery dependant data)
+## For next year
+
+The biometric data linked to a scientific survey (fishery independent data) will be incorporate during the WGEEL data call using the DATSU process.
+:::
+
+### Commercial and recreational sampling (fishery dependent data)
+
+Concernant les données de biometrie collectées via des protocoles liées à des pêcheries commerciales (fishery dependent data)
 
 Table of series removed from our current database (ELSA)
 Full table identifying where the series go
