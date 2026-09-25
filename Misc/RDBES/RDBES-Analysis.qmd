@@ -428,7 +428,7 @@ Recreational fisheries data will be incorporate via the classic WGEEL data call 
 
 ## Destination of current biometric sampling (Diadromous Survey) (Clarisse Elsa)
 
-Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Below are explanation about what process to follow for integrating this data based on its category.
+Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Work was carried out during the WGEEL to classify existing series into these two categories (Table X).Below are explanation about what process to follow for integrating this data based on its category.
 
 ### Series (fishery independent data)
 
@@ -443,9 +443,10 @@ The biometric data linked to a scientific survey (fishery independent data) will
 
 ### Commercial and recreational sampling (fishery dependent data)
 
-Concernant les données de biometrie collectées via des protocoles liées à des pêcheries commerciales ou récréatives (fishery dependent data), les changements vont se faire en plusieurs étapes:
+Regarding biometric data collected through protocols related to commercial or recreational fisheries (fishery-dependent data, Table X), the changes will take place in several stages:
 
- * l'année prochaine, les données de biometrie ne seront pas demandées dans l'appel à données WGEEL seront saisies via le processus classique du WGEEL 
+ * Next year, biometric data will not be requested in the WGEEL data call.
+ * In the future, this data will be integrated through the RDBES procedure. To make this possible, for each data series, the data provider must identify the hierarchy to be used for integration into the RDBES database. The hierarchy depends on the protocol used to collect the data (for example: observers at sea on a selection of vessels who are required to collect data only for eels). It is strongly recommended that data provider read the documentation available on the [RDBES Git repository](https://github.com/ices-tools-dev/RDBES/blob/master/Documents/RDBES%20Documentation%20of%20the%20Data%20Model.docx) and take one of the training courses offered by ICES (see website).
 
 
 Table of series removed from our current database (ELSA)
@@ -454,7 +455,22 @@ Full table identifying where the series go
 
 ## Conclusion and future planning
 
+
+
 This is ICES report [@ices2007]. A reference to the graph (Figure @fig-fig1).
+
+
+```{r}
+#| label: fig-datacall_workflow
+#| fig-cap: "WGEEL data calls infographic summarizing the data flow for the coming years"
+#| fig-height: 6.3
+#| fig-width: 6.3
+imgfile <- file.path("images", "change_datacall_wgeel_b.png") 
+knitr::include_graphics(imgfile)
+
+
+```
+
 
 ```{r}
 #| label: fig-fig1
