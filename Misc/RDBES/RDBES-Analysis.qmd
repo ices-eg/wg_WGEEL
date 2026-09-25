@@ -416,15 +416,26 @@ country_landings <- readr::read_csv(path)
 ```
 ## Recreational landings (Clarisse)
 
-Not ready in RDBES. We will continue our data call
+Recreational fishing data will continue to be incorporated into the WGEEL database through Annex 4 of the standard data call. Eventually, the RDBES database (for ICES countries) and the RDBFIS database (for non-ICES countries) are expected to incorporate this data, which will be integrated through the RDBES and RDBFIS data calls.
 
+::: {.callout-note icon=false}
+
+## For next year
+
+Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 4
+
+:::
 
 
 ## Destination of current biometric sampling (Diadromous Survey) (Clarisse Elsa)
 
-### Series
+Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Below are instructions for integrating this data based on its category.
 
-### Commercial sampling
+### Series (fishery independant data)
+
+Concernant les données issues de protocole fishery independant 
+
+### Commercial sampling (fishery dependant data)
 
 Table of series removed from our current database (ELSA)
 Full table identifying where the series go
