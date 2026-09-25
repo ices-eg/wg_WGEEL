@@ -354,7 +354,7 @@ Data from RDBES were requested from ICES data center. The objective is to build 
 
 ## Commercial landings and their inclusion in the RDBES
 
-Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working group, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developped an habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighbouring continental waters.
+Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working group, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed an habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
 
 The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users.
 
@@ -610,22 +610,48 @@ df |> flextable()  |>
 
 ## Spatial structure of habitat
 
-The regional structure of the reporting was proposed in ICES 2025 and was developped during the diaspara project. The diaspara [habitat database](!DIASPARA%20habitat%20database%20creation%20script) is available for download in [Zenodo](https://doi.org/10.5281/zenodo.18155125). The habitat is divided into marine habitat (which follows the current ICES and GFCM areas) and continental habitat (Figure @fig-hierarchical).
+The regional structure of the reporting was proposed in ICES 2025 and was developped during the DIASPARA project. The diaspara [habitat database](!DIASPARA%20habitat%20database%20creation%20script) is available for download in [Zenodo](https://doi.org/10.5281/zenodo.18155125). The habitat is divided into marine habitat (which follows the current ICES and GFCM areas) and continental habitat (Figure @fig-hierarchical).
 
-![The hierachical levels for WGEEL in the Habitat database for diadromous fishes.](images/clipboard-1857698266.png){#fig-hierarchical}
+![The habitat database for WGEEL showing the regional level](images/fig-hierarchical){#fig-hierarchical.png}
 
-The hierarchical structure of the habitat ranges from stock level to river section level (Figure XX) . This hierarchical level allows to aggregate data from the lower level to the upper level. E.g data collected for one river or one lagoon can be aggregated as a regional (Figure @fig-regional) level or sub-Component (Substock) level.
+The hierarchical structure of the habitat ranges from stock level to river section level or lagoon level (Figure @fig-hierarchical). The hierarchy of countries and EMU is provided but does not follow the requirement of a nested stock structure allowing to aggregate from lower to upper step. In addition, EMU's limit currently do not respect the division between marine and continental habitat. 
+In order to build a comprehensive and consistent stock assessment, it is required that areas code used for the continental habitat are used. In the marine area, the standard ICES and GFCM reformed divisions will be used.
 
-## Rcommendations
+This hierarchical level allows to aggregate data from the lower level to the upper level. Data collected for one river or one lagoon can be aggregated as a regional (Figure @fig-regional) level even higher at Sub component of the stock level (Figure @fig-subcomponent).
 
-o WGRDBESGOV 
-Modifications of the format to support freshwater landings submission :
-Make area optional or use the corresponding ICES area 
-Fields 11 to 14 to be made optional for eel and salmon and Trutta
-WLTYP change the documentation to reflect the documentation in WLTYP 
+![The habitat database for WGEEL showing the regional level](images/habitat_regional.png){#fig-regional.png}
+
+![The habitat database for WGEEL showing the regional level](images/habitat_subcomponent.png){#fig-subcomponent.png}
+WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS. For the continental habitat data should be reported at the river (Figure @fig-habitat_river), or lagoon level.
+
+![The habitat database for WGEEL showing the river level](images/habitat_river.png){#fig-habitat_river.png}
+
+## Recommendations
+
+To : WGRDBESGOV 
+
+ * Modifications of the format to support freshwater landings submission :
++ Make area optional or use the corresponding ICES area 
+ * Fields 11 to 14 to be made optional for eel and salmon and Trutta
+ * WLTYP change the documentation to reflect the documentation in WLTYP 
 (Add CL coastal lagoon) use (MO MC FW CL T)
+* Add life stage to landings data (the biological ) (See Vocab Stage) Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
 
+To : RDBES ?
 
+WGEEL recommends that the lagoon or river (river basin) level be used as a reference using the habitat database code (area).
+
+To : GFCM
+
+WGEEL recommends the development of a support for continental waters within the RDBFIS.
+
+To : ICES data center
+
+WGEEL recommends the provision of the habitat vocabulary online, with menus allowing to select the diadromous working group (WGBAST, WGNAS or WGEEL) and then to select a hierarchy to display data. This online tool would allow users to select the code of the area for the submission in RDBES or the for data submission in the diadromous database.
+
+To : WGRDBESGOV
+
+WGEEL recommends to integrate the continental habitats in the RDBES datacall in 2027 
 
 
 ![WGEEL habitat at the regional level](images/clipboard-2274661588.png){#fig-regional}
