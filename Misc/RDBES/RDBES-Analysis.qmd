@@ -424,12 +424,6 @@ country_landings <- readr::read_csv(path)
 
 Recreational fishing data will continue to be incorporated into the WGEEL database through Annex 5 of the standard data call. Eventually, the RDBES database (for ICES countries in the Atlantic) and the RDBFIS database (for the Mediterranean) are expected to incorporate this data, which will be integrated through the RDBES and RDBFIS data calls.
 
-::: {.callout-note icon="false"}
-## For next year
-
-Recreational fisheries data will be incorporate via the classic WGEEL data call using the annex 5
-:::
-
 ## Destination of current biometric sampling (Diadromous Survey).
 
 The current data for series and metrics (Annex 1 to 3 and 9 of the 2026 data call) will be imported (bulk import) during the next year. For 2027, all annexes containing series and biometric data (Annex 1, 2, 3 and 9) data will be submitted in the Diadromous survey format. Series identified as commercial sampling will be excluded from the submission for both historical and 2026 data (see Annex 6.2). These data will be submitted in RDBES/RDBFIS starting from 2028.
@@ -599,7 +593,7 @@ df |> flextable()  |>
 
 ```
 
-## Spatial structure of habitat
+## At which spatial level the fishery dependent data should be incorporate
 
 The regional structure of the reporting was proposed in ICES 2025 and was developped during the DIASPARA project. The diaspara [habitat database](!DIASPARA%20habitat%20database%20creation%20script) is available for download in [Zenodo](https://doi.org/10.5281/zenodo.18155125). The habitat is divided into marine habitat (which follows the current ICES and GFCM areas) and continental habitat (Figure @fig-hierarchical).
 
