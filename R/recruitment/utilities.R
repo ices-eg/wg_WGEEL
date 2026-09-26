@@ -952,6 +952,7 @@ save_figure<-function(figname,fig,width,height, pdf = TRUE){
            height = height/72,
            dpi = 300,
            units = "in")
+    rsvg::rsvg_svg(paste(figname,".svg",sep=""), paste(figname,".svg",sep=""))
   } else {
     svg(file= paste(figname,".svg",sep=""), width = width/100, height = height/100)
   }

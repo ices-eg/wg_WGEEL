@@ -2269,12 +2269,12 @@ YY <- retro_YY + geom_magnify(from = list(xmin= CY -9,
               widths = c(1,1))
   
   
-  save(mohn_YY, mohn_NS, mohn_EE,file=paste0(outputdatawd,"mohn.Rdata"))
-  save_figure("retro_patchwork",retro,1200,800, pdf=FALSE)
+  save(mohn_YY, mohn_NS,retro, mohn_EE,file=paste0(outputdatawd,"mohn.Rdata"))
 } else {
   load(paste0(outputdatawd,"mohn.Rdata"))
   load(paste0(outputdatawd,"inclusion.Rdata"))
 }
+save_figure("retro_patchwork",retro,1200,800, pdf=FALSE)
 
 ```
 

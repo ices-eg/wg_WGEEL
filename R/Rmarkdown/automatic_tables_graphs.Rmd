@@ -264,6 +264,15 @@ fun.agg <- function(X, conversion = 1000) {
     sum(c(X, NA))
   }
 }
+
+export_svg<- function(fig, figname, width = 7, height = 5, units = "in"){
+  ggsave(paste0(imgwd,figname, ".svg"),
+         fig,
+         width = width,
+         height = height, units = "in")
+  rsvg::rsvg_svg(paste0(imgwd,figname, ".svg"), paste0(imgwd,figname, ".svg"))
+
+}
 ```
 
 # Key numbers (TO BE REMOVED)
@@ -411,7 +420,8 @@ stock.
 
 
 ```{r keNumbersAquaculture, results="asis", eval=FALSE, echo=FALSE}
-aqua<-filter_data("aquaculture", typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal))
+aqua<-filter_data("aquaculture", typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 select_aqua<-aggregate(aqua$eel_value,by=list(aqua$eel_year),sum,na.rm=T)
 aqua_CY2<-round(select_aqua$x[select_aqua$Group.1==CY-2]/1000,2)
 aqua_mean_CY3_CY7 <- round(mean(select_aqua$x[select_aqua$Group.1 %in% c((CY-7):(CY-3))]/1000,2))
@@ -432,7 +442,8 @@ rel <- filter_data("release",
   typ = 9,
   life_stage = c("G", "QG", "Y", "S"),
   year = 1950:(CY - 1)
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 
 select_rel <- aggregate(rel$eel_value, by = list(rel$eel_year, rel$eel_lfs_code), sum, na.rm = T)
 rel_CY_G <- round(sum(select_rel$x[select_rel$Group.1 == CY & select_rel$Group.2 %in% c("G", "QG")]) / 10^6, 2)
@@ -469,7 +480,8 @@ rel_kg <- filter_data("release",
   typ = 8,
   life_stage = c("G", "QG", "Y", "S"),
   year = 1950:(CY - 1)
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 
 select_rel_kg <- aggregate(rel_kg$eel_value, by = list(rel_kg$eel_year, rel_kg$eel_lfs_code), sum, na.rm = T)
 rel_CY_G_t <- round(sum(select_rel_kg$x[select_rel_kg$Group.1 == CY & select_rel_kg$Group.2 %in% c("G", "QG")]) / 10^3, 2)
@@ -533,7 +545,8 @@ filtered_data <- filter_data("landings",
   typ = 4,
   life_stage = "G",
   country = c("ES", "FR", "IT", "PT", "GB")
-) %>% dplyr::filter(is.na(eel_missvaluequal)) # removing data from Ireland
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -652,7 +665,8 @@ filtered_data <- filter_data("landings",
   life_stage = "G",
   year_range = 1970:CY,
   country = c("ES", "FR", "IT", "PT", "GB")
-) %>% dplyr::filter(is.na(eel_missvaluequal))  |> filter(eel_value > 0)
+) %>% dplyr::filter(is.na(eel_missvaluequal))  |> 
+  filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -767,8 +781,12 @@ g_combined_landings_G <- g_percentage_reconstructed /
   g_reconstructed_landings + patchwork::plot_layout(heights = c(1, 3))
 
 
-g_combined_landings_G
 
+export_svg(g_combined_landings_G, 
+           "g_combined_landings_G",
+           width = 8,
+           height = 8)
+knitr::include_graphics(paste0(imgwd,"g_combined_landings_G", ".svg"))
 ```
 
 <br>
@@ -931,7 +949,15 @@ g_raw_Clandings_YS <- ggplot(landings3) +
     to = c(xmin = 1996.5, xmax = CY + 3, ymin = 9000, ymax = 13500), axes = "xy"
   )
 
-print(g_raw_Clandings_YS)
+
+export_svg(g_raw_Clandings_YS, 
+           "g_raw_Clandings_YS",
+           width = 8,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_raw_Clandings_YS", ".svg"))
+
+
+#print(g_raw_Clandings_YS)
 #print(g_raw_Clandings_YS<-subplot(g_raw_Clandings_YS,
 #  coeffy=1.3,
 #  minyear=2009, 
@@ -1021,7 +1047,16 @@ g_percentage_reconstructed <- addSmallLegend(ggplot(landings3) +
 g3_grob <- ggplotGrob(g_percentage_reconstructed)
 g_combined_landings_YS <- g_percentage_reconstructed /
   g_reconstructed_landings + patchwork::plot_layout(heights = c(1, 3))
-print(g_combined_landings_YS)
+#print(g_combined_landings_YS)
+
+
+
+export_svg(g_combined_landings_YS, 
+           "g_combined_landings_YS",
+           width = 7,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_combined_landings_YS", ".svg"))
+
 
 ```
 
@@ -1129,7 +1164,17 @@ g_raw_Rlandings_G <- ggplot(raw_Rlandings_G) +
     to = c(xmin = 2000, xmax = CY, ymin = 500, ymax = 1250), axes = "xy"
   )
 
-print(g_raw_Rlandings_G)
+#print(g_raw_Rlandings_G)
+
+
+
+export_svg(g_raw_Rlandings_G, 
+           "g_raw_Rlandings_G",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_raw_Rlandings_G", ".svg"))
+
+
 # print(g_raw_Rlandings_G<-subplot(g_raw_Rlandings_G,
 #       coeffy=1.3,
 #      minyear=2000,
@@ -1227,7 +1272,16 @@ g_raw_Rlandings_YS <- ggplot(filter(landings3, eel_value > 0)) +
   scale_fill_manual("Country", values = color_countries4plot) +
   theme_bw() +
   guides(fill = guide_legend(ncol = 2))
-print(g_raw_Rlandings_YS)
+#print(g_raw_Rlandings_YS)
+
+
+
+
+export_svg(g_raw_Rlandings_YS, 
+           "g_raw_Rlandings_YS",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_raw_Rlandings_YS", ".svg"))
 
 
 ```
@@ -1322,7 +1376,17 @@ g_other_landings_Y <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landings_Y)
+
+
+export_svg(g_other_landings_Y, 
+           "g_other_landings_Y",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landings_Y", ".svg"))
+
+
+
+#print(g_other_landings_Y)
 ```
 
 
@@ -1357,7 +1421,7 @@ filtered_data <- filter_data("release",
   typ = 9,
   life_stage = c("G", "QG"),
   year = 1950:CY
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value > 0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1419,7 +1483,17 @@ g_release_G <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw()
 
-print(g_release_G)
+#print(g_release_G)
+
+
+export_svg(g_release_G, 
+           "g_release_G",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_G", ".svg"))
+
+
+
 #g_release_G<-subplot(g_release_G,
 #       coeffy=1.6, # no need to increase the scale
 #      minyear=2008, 
@@ -1443,7 +1517,7 @@ filtered_data <- filter_data("release",
   typ = 8,
   life_stage = c("G", "QG"),
   year = 1950:CY
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value >0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1472,8 +1546,13 @@ g_releasekg_G <- ggplot(release3) +
     to = c(xmin = 1992, xmax = CY + 1, ymin = 25, ymax = 45), axes = "xy"
   )
 
-print(g_releasekg_G)
+#print(g_releasekg_G)
 
+export_svg(g_releasekg_G, 
+           "g_releasekg_G",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_G", ".svg"))
 
 # print(g_releasekg_G<-subplot(g_releasekg_G,
 #       coeffy=1.4, # no need to increase the scale
@@ -1496,7 +1575,7 @@ filtered_data <- filter_data("other_landings",
   typ = 33,
   life_stage = c("G"),
   year = 1950:CY
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value >0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1558,7 +1637,14 @@ g_other_landings_G <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landings_G)
+#print(g_other_landings_G)
+
+export_svg(g_other_landings_G, 
+           "g_other_landings_G",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landings_G", ".svg"))
+
 
 ```
 
@@ -1573,7 +1659,7 @@ filtered_data <- filter_data("other_landings",
   typ = 32,
   life_stage = c("G"),
   year = 1950:CY
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value >0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1593,7 +1679,13 @@ g_other_landingskg_G <- ggplot(other_landings3) +
   scale_fill_manual("Country", values = color_countries2) +
   theme_bw()
 
-print(g_other_landingskg_G)
+#print(g_other_landingskg_G)
+export_svg(g_other_landingskg_G, 
+           "g_other_landingskg_G",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landingskg_G", ".svg"))
+
 ```
 
 \newline
@@ -1606,7 +1698,7 @@ print(g_other_landingskg_G)
 filtered_data <- filter_data("release",
   typ = 9,
   life_stage = "QG"
-) %>% dplyr::filter(is.na(eel_missvaluequal))
+) %>% dplyr::filter(is.na(eel_missvaluequal)) |> filter(eel_value >0)
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -1659,7 +1751,13 @@ g_release_QG <- ggplot(release3) +
   scale_fill_manual("Country", values = color_countries2) +
   theme_bw()
 
-print(g_release_QG)
+#print(g_release_QG)
+export_svg(g_release_QG, 
+           "g_release_QG",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_QG", ".svg"))
+
 
 ```
 
@@ -1670,7 +1768,7 @@ print(g_release_QG)
 
 filtered_data<-filter_data("release",
     typ = 8,
-    life_stage = "QG")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "QG")%>% dplyr::filter(is.na(eel_missvaluequal))|> filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1692,7 +1790,14 @@ g_releasekg_QG <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_releasekg_QG)
+#print(g_releasekg_QG)
+
+export_svg(g_releasekg_QG, 
+           "g_releasekg_QG",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_QG", ".svg"))
+
 
 ```
 
@@ -1720,7 +1825,7 @@ reporting: `r cou_CY2_relY_t` and `r cou_CY1_relY_t`).
 filtered_data<-filter_data("release",
     typ = 9,
     life_stage = "OG" 
-)%>% dplyr::filter(is.na(eel_missvaluequal))
+)%>% dplyr::filter(is.na(eel_missvaluequal))|> filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1774,7 +1879,14 @@ g_release_OG <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries4plot)+
     theme_bw() 
 
-print(g_release_OG)
+#print(g_release_OG)
+
+
+export_svg(g_release_OG, 
+           "g_release_OG",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_OG", ".svg"))
 
 ```
 
@@ -1786,7 +1898,7 @@ print(g_release_OG)
 
 filtered_data<-filter_data("release",
     typ = 9,
-    life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))|> filter(eel_value >0)
 
 #filtered_data <- filtered_data %>% #dplyr::filter(!(eel_cou_code == 'SE'))
 year<-unique(filtered_data$eel_year)
@@ -1843,7 +1955,7 @@ g_release_Y <-  ggplot(release3) +
 
 # print(g_release_Y)
 
-print(g_release_Y<-subplot(g_release_Y,
+#print(g_release_Y<-subplot(g_release_Y,
         coeffy=1.4, # no need to increase the scale
         minyear=2008, 
         xmin=-Inf, 
@@ -1851,6 +1963,19 @@ print(g_release_Y<-subplot(g_release_Y,
         ymin=3,
         ymax=Inf,
         ymaxbox=2.3))
+
+export_svg(subplot(g_release_Y,
+        coeffy=1.4, # no need to increase the scale
+        minyear=2008, 
+        xmin=-Inf, 
+        xmax= 1975, 
+        ymin=3,
+        ymax=Inf,
+        ymaxbox=2.3), 
+           "g_release_Y",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_Y", ".svg"))
 ```
 
 \newline
@@ -1859,7 +1984,7 @@ print(g_release_Y<-subplot(g_release_Y,
 
 filtered_data<-filter_data("release",
     typ = 8,
-    life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))|> filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1886,7 +2011,13 @@ g_releasekg_Y <-  ggplot(release3) +
     geom_magnify(from = c(xmin = 2010, xmax = CY, ymin = 0, ymax = 20),
         to = c(xmin=1900, xmax=1970, ymin=100, ymax=225), axes="xy")
 
-print(g_releasekg_Y)
+#print(g_releasekg_Y)
+export_svg(g_releasekg_Y, 
+           "g_releasekg_Y",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_Y", ".svg"))
+
 
 #print(g_releasekg_Y<-subplot(g_releasekg_Y,
 #       coeffy=1, # no need to increase the scale
@@ -1904,7 +2035,9 @@ print(g_releasekg_Y)
 
 filtered_data<-filter_data("other_landings",
     typ = 32,
-    life_stage = c("Y"))%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = c("Y"))%>%
+  dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1928,7 +2061,14 @@ g_other_landingskg_Y <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landingskg_Y)
+#print(g_other_landingskg_Y)
+
+export_svg(g_other_landingskg_Y, 
+           "g_other_landingskg_Y",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landingskg_Y", ".svg"))
+
 ```
 
 
@@ -1940,7 +2080,8 @@ print(g_other_landingskg_Y)
 filtered_data<-filter_data("release",
     typ = 8,
     life_stage = "OG" 
-)%>% dplyr::filter(is.na(eel_missvaluequal))
+)%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -1963,7 +2104,14 @@ g_releasekg_OG <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_releasekg_OG)
+#print(g_releasekg_OG)
+
+export_svg(g_releasekg_OG, 
+           "g_releasekg_OG",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_OG", ".svg"))
+
 
 ```
 
@@ -1989,7 +2137,8 @@ of silver eels (S) released in `r CY-2` and
 
 filtered_data<-filter_data("release",
     typ = 9,
-    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2043,7 +2192,13 @@ g_release_S <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries4plot)+
     theme_bw() 
 
-print(g_release_S)
+#print(g_release_S)
+
+export_svg(g_release_S, 
+           "g_release_S",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_S", ".svg"))
 ```
 
 
@@ -2052,7 +2207,8 @@ print(g_release_S)
 
 filtered_data<-filter_data("release",
     typ = 8,
-    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2075,7 +2231,12 @@ g_releasekg_S <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries4plot)+
     theme_bw() 
 
-print(g_releasekg_S)
+#print(g_releasekg_S)
+export_svg(g_releasekg_S, 
+           "g_releasekg_S",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_S", ".svg"))
 ```
 
 
@@ -2087,7 +2248,8 @@ print(g_releasekg_S)
 
 filtered_data<-filter_data("other_landings",
     typ = 33,
-    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2142,7 +2304,12 @@ g_other_landings_S <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landings_S)
+#print(g_other_landings_S)
+export_svg(g_other_landings_S, 
+           "g_other_landings_S",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landings_S", ".svg"))
 ```
 
 
@@ -2151,7 +2318,8 @@ print(g_other_landings_S)
 
 filtered_data<-filter_data("other_landings",
     typ = 32,
-    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "S")%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2173,7 +2341,12 @@ g_other_landingskg_S <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landingskg_S)
+#print(g_other_landingskg_S)
+export_svg(g_other_landingskg_S, 
+           "g_other_landingskg_S",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landingskg_S", ".svg"))
 ```
 
 \newline
@@ -2194,7 +2367,9 @@ print(g_other_landingskg_S)
 filtered_data<-filter_data("release",
     typ = 9,
     life_stage=c("G","Y","QG","OG","YS","S"),
-    year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+    year_range = 1950:max(year))%>%
+  dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 #TODO REMOVE THIS NEXT YEAR
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -2217,7 +2392,12 @@ g_release_all <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_release_all)
+#print(g_release_all)
+export_svg(g_release_all, 
+           "g_release_all",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_release_all", ".svg"))
 ```
 
 
@@ -2228,7 +2408,9 @@ print(g_release_all)
 filtered_data<-filter_data("release",
     typ = 8,
     life_stage=c("G","Y","QG","OG","YS","S"),
-    year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+    year_range = 1950:max(year))%>%
+  dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 #TODO REMOVE THIS NEXT YEAR
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -2252,7 +2434,12 @@ g_releasekg_all <-  ggplot(release3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_releasekg_all)
+#print(g_releasekg_all)
+export_svg(g_releasekg_all, 
+           "g_release_all",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_releasekg_all", ".svg"))
 ```
 
 
@@ -2264,7 +2451,9 @@ print(g_releasekg_all)
 filtered_data<-filter_data("other_landings",
     typ = 33,
     life_stage=c("G","Y","YS","S"),
-    year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+    year_range = 1950:max(year))%>%
+  dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2286,7 +2475,12 @@ g_other_landings_all <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landings_all)
+#print(g_other_landings_all)
+export_svg(g_other_landings_all, 
+           "g_other_landings_all",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landings_all", ".svg"))
 ```
 
 
@@ -2297,7 +2491,9 @@ print(g_other_landings_all)
 filtered_data<-filter_data("other_landings",
     typ = 32,
     life_stage=c("G","Y","QG","OG","YS","S"),
-    year_range = 1950:max(year))%>% dplyr::filter(is.na(eel_missvaluequal))
+    year_range = 1950:max(year))%>%
+  dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 #TODO REMOVE THIS NEXT YEAR
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
@@ -2321,7 +2517,12 @@ g_other_landingskg_all <-  ggplot(other_landings3) +
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw() 
 
-print(g_other_landingskg_all)
+#print(g_other_landingskg_all)
+export_svg(g_other_landingskg_all, 
+           "g_other_landingskg_all",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_other_landingskg_all", ".svg"))
 ```
 
 # 	Aquaculture
@@ -2336,7 +2537,8 @@ WGEEL considered that those data are not reliable (see Chapter 3 for further det
 ##Table aquaculture for all the countries
 
 filtered_data<-filter_data("aquaculture",
-    typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal))
+    typ = 11)%>% dplyr::filter(is.na(eel_missvaluequal)) |> 
+  filter(eel_value >0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -2391,8 +2593,12 @@ g_aquaculture <-  ggplot(aquaculture3) +
     xlab("year") + ylab("Aquaculture (tonnes)")+
     scale_fill_manual("Country",values=color_countries2)+
     theme_bw()  
-print(g_aquaculture)
-
+#print(g_aquaculture)
+export_svg(g_aquaculture, 
+           "g_aquaculture",
+           width = 10,
+           height = 5)
+knitr::include_graphics(paste0(imgwd,"g_aquaculture", ".svg"))
 ```
 
 
