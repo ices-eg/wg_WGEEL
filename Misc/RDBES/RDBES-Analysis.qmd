@@ -320,7 +320,7 @@ This file contains two sheets :
 
 - **National_edmo :**
 
-The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU (ReportingOrganisation). This is the first table. WGEEL members were asked to check in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. The table prepared for MARIS (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex XX
+The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU (ReportingOrganisation). This is the first table. WGEEL members were asked to check in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. The table prepared for MARIS (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex @sec-annex61
 
 - **Station_edmo :**
 
@@ -335,7 +335,7 @@ The Diadromous database is currently being developped in ICES. A first version o
 
 ## Commercial landings and their inclusion in the RDBES
 
-Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working groups, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed a habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
+Currently commercial landings are included in Annex 4 of the data call and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working groups, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed a habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
 
 The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users (Figure @fig-rdbes_workflow)..
 
@@ -428,17 +428,17 @@ Recreational fishing data will continue to be incorporated into the WGEEL databa
 
 ## Destination of current biometric sampling (Diadromous Survey).
 
-The current data for series and metrics (Annex 1 to 3 and 9 of the 2026 data call) will be imported (bulk import) during the next year. For 2027, all annexes containing series and biometric data (Annex 1, 2, 3 and 9) data will be submitted in the Diadromous survey format. Series identified as commercial sampling will be excluded from the submission for both historical and 2026 data (see Annex 6.2). These data will be submitted in RDBES/RDBFIS starting from 2028.
+The current data for series and metrics (Annex 1 to 3 and 9 of the 2026 data call) will be imported (bulk import) during the next year. For 2027, all annexes containing series and biometric data (Annex 1, 2, 3 and 9) data will be submitted in the Diadromous survey format. Series identified as commercial sampling will be excluded from the submission for both historical and 2026 data (see Annex @sec-annex_62). These data will be submitted in RDBES/RDBFIS starting from 2028.
 
 Depending on the protocols used to collect biometric data, the resulting data are either fishery-dependent (for example, individuals measured on a fishing vessel or at the fish auction) or fishery-independent (for example, measurements taken during electrofishing or scientific surveys at sea). Work was carried out during the WGEEL to classify existing series into these two categories (Annex 1.2 and 1.3).Below are explanation about what process to follow for integrating this data based on its category.
 
 ### Series (fishery independent data)
 
-With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the diadromous database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex 6.2)
+With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the diadromous database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex @sec-annex_63)
 
 ### Commercial and recreational sampling (fishery dependent data)
 
-Regarding biometric data collected through protocols related to commercial or recreational fisheries (fishery-dependent data, Annex 6.3), the integration will take several steps :
+Regarding biometric data collected through protocols related to commercial or recreational fisheries (fishery-dependent data, Annex @sec-annex63), the integration will take several steps :
 
 - Next year, biometric data will not be requested in the WGEEL data call.
 - In the future, these data will be integrated through the RDBES procedure. To make this possible, for each data series, the data provider will have to identify the hierarchy to be used for integration into the RDBES database. The hierarchy depends on the protocol used to collect the data (for example: observers at sea on a selection of vessels who are required to collect data only for eels). It is strongly recommended that data provider read the documentation available on the [RDBES Git repository](https://github.com/ices-tools-dev/RDBES/blob/master/Documents/RDBES%20Documentation%20of%20the%20Data%20Model.docx) and take one of the training courses offered by ICES in 2026 @tbl-RDBESsessions.
@@ -622,13 +622,12 @@ The new process will consist of several stages and will require sustained effort
 
 It is likely that, during the first few years, the diversity and complexity of the new formats will result in a decline in the quality of the accessible data. To minimize this risk, the transition will take place gradually over several years, with an adjustment phase aimed at integrating all necessary data into the three formats and enabling the WGEEL to work with the entire dataset (Figure @fig-timeline).
 
-The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All the changes planned for 2027 are summarized in the below (see @planned_change).
+The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All the changes planned for 2027 are summarized in the below (see @par-planned_change).
 
 
-
-::: {.callout-note icon="false" #planned_change}
-### For next year
-
+ 
+## For next year{#par-planned_change}
+::: {.callout-note icon="false"}
 - Freshwater landings will be incorporated into RDBES database but also in the WGEEL database using annex 4.
 - Marine/transitional/coastal landings will be incorporated via the classic WGEEL data call using annex 4.
 - Recreational fisheries data will be incorporated via the classic WGEEL data call using annex 5.
@@ -662,17 +661,17 @@ knitr::include_graphics(imgfile)
 
 \newpage
 
-::: {custom-style="Annex heading"}
+::: {custom-style="Annex heading" #sec-annex_61}
 Annex The table of EDMO codes
 :::
 
-::: {custom-style="Annex heading"}
+::: {custom-style="Annex heading" #sec-annex_62}
 Annex Commercial series in Annex 9
 :::
 
 ```{r}
 #| label: tbl-annex9
-#| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+#| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries. These should not be submitted to the Diadromous database. Instead they should be submitted to the RDBES or RDBFIS in 2028."
 
 readxl::read_excel("inputtable/annex9.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
@@ -681,13 +680,13 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 
 ```
 
-::: {custom-style="Annex heading"}
-Annex 63. Commercial series in annex 2 and 3
+::: {custom-style="Annex heading" #sec-annex_63}
+Annex Commercial series in annex 2 and 3
 :::
 
 ```{r}
 #| label: tbl-annex2and3
-#| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+#| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries. These should not be submitted to the Diadromous database. They should be submitted instead to RDBES or RDBFIS in 2028."
 
 readxl::read_excel("inputtable/annex9.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
@@ -696,8 +695,18 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 
 ```
 
-::: {custom-style="Annex heading"}
-Annex : [TODO] add table with scientific series annex 2 and 3 that are not commercial series
+::: {custom-style="Annex heading" #sec-annex64}
+Annex : Scientific series for Yellow and Silver eels.
+```{r}
+#| label: tbl-annex23sc
+#| tbl-cap: "Series identified in annex 2 and 3 which correspond to scientific sampling and should be submitted to the Diadromous database."
+
+readxl::read_excel("inputtable/annex9.xlsx") |>
+  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
+  flextable()  |>
+  flextable2ICES()
+
+```
 :::
 
 ::: callout-important
@@ -730,6 +739,12 @@ WGEEL recommends to integrate the continental habitats to be used for data submi
 To: WGDIAD
 
 WGEEL Recommends discussing and formalizing in their report definitions of the following terms to be used in the new Diadromous survey database: FishWay (https://github.com/ices-eg/DIG/issues/862), MonitoringDevice (https://github.com/ices-eg/DIG/issues/863) and LifeStages (https://github.com/ices-eg/DIG/issues/885#issue-3747272041)
+
+To :
+
+GEEL notes that the availability, quality and consistency of recreational fisheries data for European eel remain limited and that improvements to the data basis would support future stock assessments.
+WGEEL therefore recommends strengthening collaboration between eel stock assessment experts and the relevant expert groups dealing with recreational fisheries data, in particular ICES WGRFS and the DCF RCG ISSG Recreational Fisheries. This collaboration can improve communication of the specific data needs for eel stock assessment, ensuring that these end-user requirements are adequately reflected in the development and refinement of DCF recreational fisheries data collection methodologies. In the longer term, closer alignment between assessment needs and data collection methodologies can then contribute to improved availability, quality and consistency of recreational fisheries data for European eel and thereby strengthen the data basis for stock assessment.
+
 :::
 
 ## References
