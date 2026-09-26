@@ -71,6 +71,7 @@ begin;
 select * from datawg.t_dataseries_das where das_year >= 2016 and das_qal_id in (1, 4)  and das_ser_id = 43;
 update datawg.t_dataseries_das set das_qal_id = 3,
                                    das_qal_comment = das_qal_comment || ' ; there are concerns that data from other fish markets, which had not been included previously, may have been incorporated from that year onward, resulting in a loss of continuity in the time series.'
+                                   das_comment = 'there are concerns that data from other fish markets, which had not been included previously, may have been incorporated from that year onward, resulting in a loss of continuity in the time series.';
                                    where das_year >= 2016 and das_qal_id in (1, 4)  and das_ser_id = 43;
 
 commit;

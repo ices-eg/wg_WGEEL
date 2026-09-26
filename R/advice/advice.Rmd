@@ -138,8 +138,8 @@ maxlandingsy <- max(landings$eel_year[landings$eel_qal_id %in% c(1, 4)])
 # The data have not been updated
 if (maxlandingsy < CY){
   wd <-getwd()
-  setwd("../shiny_data_visualisation/shiny_dv/")
   cred <- yaml::read_yaml("../../credentials.yml")
+  setwd("../shiny_data_visualisation/shiny_dv/")
   source("load_data_from_database.R")
   setwd(wd)
   load("../shiny_data_visualisation/shiny_dv/data/maps_for_shiny.Rdata") 
