@@ -667,14 +667,14 @@ Annex The table of EDMO codes
 :::
 
 ::: {custom-style="Annex heading"}
-Annex Commercial series in Annex 9
+Annex Fishery-dependent series
 :::
 
 ```{r}
-#| label: tbl-annex9
-#| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+#| label: tbl-fish_dependent
+#| tbl-cap: "Fishery-dependent series identified in annexes 2, 3 and 9 which should be submitted to the Diadromous database through RDBES or RDBFIS in 2028."
 
-readxl::read_excel("inputtable/annex9.xlsx") |>
+readxl::read_excel("inputtable/fishery_dependent_series.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable()  |>
   flextable2ICES()
@@ -682,14 +682,14 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 ```
 
 ::: {custom-style="Annex heading"}
-Annex 63. Commercial series in annex 2 and 3
+Annex Fishery-independent series
 :::
 
 ```{r}
-#| label: tbl-annex2and3
-#| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
+#| label: tbl-fish_independent
+#| tbl-cap: "Fishery-independent series identified in annexes 2, 3 and 9 which should be submitted to the Diadromous database through DATSU in 2028."
 
-readxl::read_excel("inputtable/annex9.xlsx") |>
+readxl::read_excel("inputtable/fishery_independent_series.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable() |>
   flextable2ICES()
