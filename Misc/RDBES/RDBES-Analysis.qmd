@@ -694,9 +694,6 @@ readxl::read_excel("inputtable/fishery_independent_series.xlsx") |>
 
 ```
 
-::: {custom-style="Annex heading"}
-Annex : [TODO] add table with scientific series annex 2 and 3 that are not commercial series
-:::
 
 ::: callout-important
 ## Recommendations
