@@ -291,15 +291,15 @@ fun.agg <- function(X, conversion = 1000) {
 
 # ToR h) Review RDBES/RDBFIS
 
-Review RDBES/RDBFIS and i) identify the protocols used to collect landings data and ii) check if parameters/series recorded are consistent between DBES/RDBFIS and Metric DB and harmonize them
+Review RDBES/RDBFIS and i) identify the protocols used to collect landings data and ii) check if parameters/series recorded are consistent between RDBES/RDBFIS and the WGEEL Metric DB and harmonize them.
 
-In order to facilitate an efficient and complete data collection it is of fundamental importance that databases (RDBES/RDBFIS & WGEEL METRIC database) follow FAIR principles. Therefore it is required to harmonize/implement respective structures across all platforms and develop/amend protocols to collect data. For this we will consider the current development of the diadromous database, for which a module to import series data has already been developped in 2026 by the ICES data center, and proposed for testing with a small dataset generated for all countries with series data. Next year this database will be completed by a stock module which will store the elements necessary to run the stock model. The commercial landings data are currently stored in the WGEEL database, but WGEEL analysed the steps necessary for the WGEEL to shift to using landings from the RDBES.
+In order to facilitate an efficient and complete data collection it is of fundamental importance that databases (RDBES/RDBFIS & WGEEL METRIC database) follow FAIR principles. Therefore it is required to harmonize/implement respective structures across all platforms and develop/amend protocols to collect data. For this we will consider the current development of the diadromous database, for which a module to import series data has already been developed in 2026 by the ICES data center, and proposed for testing with a small dataset generated for all countries with series data. Next year this database will be completed by a stock module which will store the elements necessary to run the stock model. The commercial landings data are currently stored in the WGEEL database, but WGEEL analysed the steps necessary for the WGEEL to shift to using landings from the RDBES.
 
 ## The diadromous database
 
 ### Preparing the future datacall : EDMO and stations.
 
-The locations of the sampling have to be recorded in the Station vocabulary. A station is a fixed location, where a sampling or data collecting instrument is deployed. Stations may be associated with a national or international project or with a monitoring programmes. Station metadata provide additional information about the location where samples or observations are collected. For WGEEL stations are most often corresponding to series code. Station can change over time if for instance another organisation takes over monitoring at that location. [Stations](https://www.ices.dk/data/tools/Pages/Station-dictionary.aspx) are maintained in ICES. As part of the stations attributes, we need to identify the organisations doing the monitoring and register them as "marine organisations".
+The locations of the sampling have to be recorded in the Station vocabulary. A station is a fixed location, where a sampling or data collecting instrument is deployed. Stations may be associated with a national or international project or with a monitoring program. Station metadata provide additional information about the location where samples or observations are collected. For WGEEL stations are most often corresponding to series code. Station can change over time if for instance another organisation takes over monitoring at that location. [Stations](https://www.ices.dk/data/tools/Pages/Station-dictionary.aspx) are maintained in ICES. As part of the stations attributes, we need to identify the organisations doing the monitoring and register them as "marine organisations".
 
 **EDMO** **(European Directory of Marine Organisations) :**
 
@@ -320,15 +320,15 @@ This file contains two sheets :
 
 - **National_edmo :**
 
-The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU. This is the first table. WGEEL members were asked to checked in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. The table prepared for maris (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex XX
+The [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) will be needed to submit data through DATSU (ReportingOrganisation). This is the first table. WGEEL members were asked to check in [ICES directory of EDMO codes](https://vocab.ices.dk/?ref=1398) or in the [EDMO](http://European%20Directory%20of%20Marine%20Organisations%20(EDMO)%20-%20SeaDataNet) web site to see if the national data reporter or data collectors at stations had an EDMO. When missing, WGEEL country representative were asked to fill in all details to prepare the table for submission. The table prepared for MARIS (the structure handling the EDMO database) to fill in new EDMO codes is presented in Annex XX
 
 - **Station_edmo :**
 
-This corresponds to the series that are currently in our database. This code refers to the institute responsible for the governance of a station. It might be different from the national edmo. The name, native name, Longitude and Latitude are those of the institute, not the station.
+This corresponds to the series that are currently in our database. This code refers to the institute responsible for the governance of a station. It might be different from the national EDMO. The name, native name, Longitude and Latitude are those of the institute, not the station.
 
 ### Development of the diadromous DB
 
-The Diadromous database is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData) [^1]
+The Diadromous database is currently being developed in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData) [^1]
 
 [^1]: If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
 
@@ -348,7 +348,7 @@ Data from RDBES were requested from ICES data center. The objective is to build 
 
 ## Commercial landings and their inclusion in the RDBES
 
-Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working group, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed an habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
+Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working groups, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed a habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
 
 The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users.
 
@@ -713,27 +713,32 @@ Annex 62.
 
 To : WGRDBESGOV
 
-- Modifications of the format to support freshwater landings submission :
-- Make area optional or use the corresponding ICES area
+WGEEL recomends the followng modifications of the format to support freshwater landings submission in the HCL table:
+- Make area optional or use the corresponding ICES area based on the Mapping done during the DIASPARA.
 - Fields 11 to 14 to be made optional for eel and salmon and Trutta
-- WLTYP change the documentation to reflect the documentation in WLTYP (Add CL coastal lagoon) use (MO MC FW CL T)
-- Add life stage to landings data (the biological ) (See Vocab Stage) Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
+- WLTYP change the documentation to reflect the codes that can be used by the diadromous group (Add CL coastal lagoon) use (MO MC FW CL T)
+- Add life stage to landings data (https://vocab.ices.dk/?codetypeguid=76fab5ff-5f3e-4488-8167-17d360f47c35). Check if we can make it conditional mandatory Landing location (Should be conditional mandatory on Freshwater - most freshwater will not have harbour)
 
-To : RDBES ?
+To : ICES Data Centre
 
-WGEEL recommends that the lagoon or river (river basin) level be used as a reference using the habitat database code (area).
+WGEEL recommends that the lagoon or river (river basin) level be used as a reference using the habitat database code (https://doi.org/10.5281/zenodo.19005250).
 
 To : GFCM
 
 WGEEL recommends the development of a support for continental waters within the RDBFIS.
 
-To : ICES data center
+To : ICES data Centre
 
-WGEEL recommends the provision of the habitat vocabulary online, with menus allowing to select the diadromous working group (WGBAST, WGNAS or WGEEL) and then to select a hierarchy to display data. This online tool would allow users to select the code of the area for the submission in RDBES or the for data submission in the diadromous database.
+WGEEL recommends the provision of the habitat map (rivers basins, lagoons) linked to the vocabulary on the ICES spatial facility. This online tool would allow users to select the code of the area for the submission in RDBES or the for data submission in the diadromous database.
 
-To : WGRDBESGOV
+To : ICES Data Centre
 
-WGEEL recommends to integrate the continental habitats in the RDBES datacall in 2027
+WGEEL recommends to integrate the continental habitats to be used for data submission in the 2027 WGEEL data call.
+
+To: WGDIAD
+
+WGEEL Recommends discussing and formalizing in their report definitions of the following terms to be used in the new Diadromous survey database: FishWay (https://github.com/ices-eg/DIG/issues/862), MonitoringDevice (https://github.com/ices-eg/DIG/issues/863) and LifeStages (https://github.com/ices-eg/DIG/issues/885#issue-3747272041)
+
 
 :::
 
