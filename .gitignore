@@ -11,7 +11,12 @@ wg_WGEEL.Rproj
 /R/Y_S_series/2023/final
 *.log
 .Rprofile
+# ignore all word documents
 *.docx
+# But keep the templates
+!R/quarto/Rmd_ICES_templates.docx
+!R/quarto/ICES_template.docx
+!R/quarto/ICES_template_no_number.docx
 Misc/WKEMP/data_dependencies/
 Misc/WKEMP/Annex_14/
 Misc/WKEMP/WKEMP4/SG1/for_compilation
