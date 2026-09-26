@@ -597,7 +597,8 @@ filtered_data <- filter_data("landings",
     typ = 4,
     life_stage = "G",
     country=c("ES","FR","IT","PT","GB")
-) %>% dplyr::filter(is.na(eel_missvaluequal)) # removing data from Ireland
+) %>% dplyr::filter(is.na(eel_missvaluequal)) %>%
+  dplyr::filter(eel_value > 0)# removing data from Ireland
 year <- unique(filtered_data$eel_year)
 country <- unique(filtered_data$eel_cou_code)
 hty <- unique(filtered_data$eel_hty_code)
@@ -644,7 +645,8 @@ filtered_data<-filter_data("landings",
     typ = 4,
     life_stage = c("Y","S","YS"),
     year_range = 1908:(CY-1)
-)%>% dplyr::filter(is.na(eel_missvaluequal))
+)%>% dplyr::filter(is.na(eel_missvaluequal)) %>%
+  dplyr::filter(eel_value > 0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -790,7 +792,8 @@ Empty cell = no data, data not collected, or data not pertinent.
 
 filtered_data<-filter_data("landings",
     typ = 6,
-    life_stage = "G")%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = "G")%>% dplyr::filter(is.na(eel_missvaluequal)) %>%
+  dplyr::filter(eel_value > 0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)
@@ -832,7 +835,8 @@ flextable::align(align = "center", part = "header") |>
 
 filtered_data<-filter_data("landings",
     typ = 6,
-    life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal))
+    life_stage = c("Y","S","YS"))%>% dplyr::filter(is.na(eel_missvaluequal)) %>%
+  dplyr::filter(eel_value > 0)
 year<-unique(filtered_data$eel_year)
 country<-unique(filtered_data$eel_cou_code)
 hty<-unique(filtered_data$eel_hty_code)

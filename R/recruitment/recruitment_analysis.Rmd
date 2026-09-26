@@ -3010,7 +3010,7 @@ datares <- data.frame(obs = names(residuals(model_ge_area)),
 sites <- unique(datares$site)
 groups <- (seq_len(length(sites))-1) %/% 2
 
-for (g in groups){
+for (g in unique(groups)){
   print(ggplot(datares %>% filter(site == sites[groups == g]),
          aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
     geom_bar(stat = "identity", show.legend=FALSE) + 
@@ -3034,7 +3034,7 @@ datares <- data.frame(obs = names(residuals(model_older)),
 sites <- unique(datares$site)
 groups <- (seq_len(length(sites))-1) %/% 2
 
-for (g in groups){
+for (g in unique(groups)){
   print(ggplot(datares %>% filter(site == sites[groups == g]),
          aes(x = year, y = res, fill=ifelse(abs(res)<=3,"TRUE","FALSE")))+
     geom_bar(stat = "identity", show.legend=FALSE) + 
