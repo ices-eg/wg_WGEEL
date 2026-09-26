@@ -81,7 +81,7 @@ dir.create(imgwd, showWarnings = FALSE)
 dir.create(tabwd, showWarnings = FALSE)
 dir.create(datawd, showWarnings = FALSE)
 
-knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, error = TRUE, dev = "svglite")
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, error = TRUE, dpi = 300)
 knitr::opts_knit$set(root.dir = getwd())
 options(dplyr.summarise.inform = FALSE) #remove warnings of summarize
 #source("R/utilities/set_directory.R")
@@ -790,7 +790,7 @@ yellow eel standing stock and silver eels no reliable abundance estimates are
 available to allow comparison with landings.
 
 
-```{r, eval=TRUE, fig.cap="Reported G and GY commercial landings divided by recruitment index for EE (including landings reported in EMUs ES_Astu, ES_Cant, ES_Cata, ES_Minh, ES_Mino, ES_Vale, FR_Adou, FR_Arto, FR_Bret, FR_Garo, FR_Loir, FR_Sein, FR_total, GB_Dee, GB_NorW, GB_Seve, GB_SouE, GB_SouW, GB_Wale, GB_total, IT_Lazi, IT_Tosc, IT_Vene). The resulting ratio was standardised by the mean value till 2008 and  is a relative proxy of the exploitation rate that informs on trends in fishing mortality. Landings data from 2000 are not available for GB. Year 2009 was removed since France, which accounts for a significant part of the landings, did not report data for this year.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
+```{r fishingmortality, eval=TRUE, fig.cap="Reported G and GY commercial landings divided by recruitment index for EE (including landings reported in EMUs ES_Astu, ES_Cant, ES_Cata, ES_Minh, ES_Mino, ES_Vale, FR_Adou, FR_Arto, FR_Bret, FR_Garo, FR_Loir, FR_Sein, FR_total, GB_Dee, GB_NorW, GB_Seve, GB_SouE, GB_SouW, GB_Wale, GB_total, IT_Lazi, IT_Tosc, IT_Vene). The resulting ratio was standardised by the mean value till 2008 and  is a relative proxy of the exploitation rate that informs on trends in fishing mortality. Landings data from 2000 are not available for GB. Year 2009 was removed since France, which accounts for a significant part of the landings, did not report data for this year.", fig.width=14/2.54, warning = FALSE, message = FALSE, error=FALSE, echo=FALSE}
 
 knitr::include_graphics(paste0("../recruitment/", CY, "/image/exploitation_rates_GE.svg"))
 
