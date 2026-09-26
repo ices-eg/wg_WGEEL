@@ -641,6 +641,17 @@ knitr::include_graphics(imgfile)
 
 ```
 
+
+```{r}
+#| label: fig-timeline
+#| fig-cap: "Timeline of changes in future data submission"
+#| fig-height: 6.3
+#| fig-width: 6.3
+imgfile <- file.path("images", "Timeline_future_submissions.png") 
+knitr::include_graphics(imgfile)
+```
+
+
 <br>
 
 \newpage
