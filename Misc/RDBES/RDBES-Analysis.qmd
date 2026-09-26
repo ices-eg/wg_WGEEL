@@ -675,7 +675,6 @@ Annex Fishery-dependent series
 #| tbl-cap: "Fishery-dependent series identified in annexes 2, 3 and 9 which should be submitted to the Diadromous database through RDBES or RDBFIS in 2028."
 
 readxl::read_excel("inputtable/fishery_dependent_series.xlsx") |>
-  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable()  |>
   flextable2ICES()
 
@@ -690,7 +689,6 @@ Annex Fishery-independent series
 #| tbl-cap: "Fishery-independent series identified in annexes 2, 3 and 9 which should be submitted to the Diadromous database through DATSU in 2028."
 
 readxl::read_excel("inputtable/fishery_independent_series.xlsx") |>
-  select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable() |>
   flextable2ICES()
 
