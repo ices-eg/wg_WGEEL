@@ -68,6 +68,8 @@ flextable2ICES <- function(x) {
 
 
 if (getUsername() == "phja0001") setwd("\\\\storage-og.slu.se\\home$\\phja0001\\My Documents\\Philip\\Researcher SLU\\Eel\\ICES\\2025\\wg_WGEEL_2025\\R\\Rmarkdown")
+if (getUsername() == "rbva0001") setwd("C:/Users/rbva0001/OneDrive/Rob/SLU/ICES/Working groups/WGEEL/GIT/wg_WGEEL/R/Rmarkdown")
+if (getUsername() == "marieke_desender") setwd("G:/Mijn Drive/Paling/ICES/WGEEL/ICES 2026/wg_WGEEL/R/Rmarkdown")
 if (getUsername() == "hdrouineau") setwd("~/Documents/Bordeaux/migrateurs/WGEEL/github/wg_WGEEL/R/Rmarkdown/")
 if (getUsername() == "cedric.briand") setwd("C:/workspace/wg_WGEEL/R/Rmarkdown") 
 if (getUsername() == "cboulenger") setwd("C:/Users/cboulenger/Documents/wg_WGEEL/R/Rmarkdown") 
