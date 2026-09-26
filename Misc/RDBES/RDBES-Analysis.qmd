@@ -657,7 +657,7 @@ Annex 62. Commercial series in Annex 9
 #| label: tbl-annex9
 #| tbl-cap: "Series identified in annex 9 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
 
-readxl::read_excel("data/annex9.xlsx") |>
+readxl::read_excel("inputtable/annex9.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable()  |>
   flextable2ICES()
@@ -672,7 +672,7 @@ Annex 63. Commercial series in annex 2 and 3
 #| label: tbl-annex2and3
 #| tbl-cap: "Series identified in annex 2 and 3 which correspond to commercial fisheries and should not be submitted to the Diadromous database but be submitted instead to RDBFIS in 2028."
 
-readxl::read_excel("data/annex9.xlsx") |>
+readxl::read_excel("inputtable/annex9.xlsx") |>
   select(sai_name, sai_cou_code, sai_emu_nameshort, sai_hty_code)  |> 
   flextable() |>
   flextable2ICES()
