@@ -441,7 +441,7 @@ With regard to data from fishery-independent protocols, for all countries (both 
 Regarding biometric data collected through protocols related to commercial or recreational fisheries (fishery-dependent data, Annex 6.3), the integration will take several steps :
 
 - Next year, biometric data will not be requested in the WGEEL data call.
-- In the future, these data will be integrated through the RDBES procedure. To make this possible, for each data series, the data provider will have to identify the hierarchy to be used for integration into the RDBES database. The hierarchy depends on the protocol used to collect the data (for example: observers at sea on a selection of vessels who are required to collect data only for eels). It is strongly recommended that data provider read the documentation available on the [RDBES Git repository](https://github.com/ices-tools-dev/RDBES/blob/master/Documents/RDBES%20Documentation%20of%20the%20Data%20Model.docx) and take one of the training courses offered by ICES in 2026 @tbl-RDBESsessions.
+- In the future, these data will be integrated through the RDBES procedure. To make this possible, for each data series, the data provider will have to identify the hierarchy to be used for integration into the RDBES database. The hierarchy depends on the protocol used to collect the data (for example: observers at sea on a selection of vessels who are required to collect data only for eels). It is strongly recommended that data provider read the documentation available on the [RDBES Git repository](https://github.com/ices-tools-dev/RDBES/blob/master/Documents/RDBES%20Documentation%20of%20the%20Data%20Model.docx) and take one of the training courses offered by ICES in 2026 (Table @tbl-RDBESsessions).
 
 ```{r}
 #| label: tbl-RDBESsessions
@@ -622,11 +622,11 @@ The new process will consist of several stages and will require sustained effort
 
 It is likely that, during the first few years, the diversity and complexity of the new formats will result in a decline in the quality of the accessible data. To minimize this risk, the transition will take place gradually over several years, with an adjustment phase aimed at integrating all necessary data into the three formats and enabling the WGEEL to work with the entire dataset (Figure @fig-timeline).
 
-The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All the changes planned for 2027 are summarized in the below (see @planned_change).
+The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All the changes planned for 2027 are summarized in the below (see @nte-planned_change).
 
 
 
-::: {.callout-note icon="false" #planned_change}
+::: {.callout-note icon="false" #nte-planned_change}
 ### For next year
 
 - Freshwater landings will be incorporated into RDBES database but also in the WGEEL database using annex 4.
