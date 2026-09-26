@@ -56,7 +56,7 @@
 
 ## Annex 4
 - 2 new values inserted in the database
-
+- values were reported in t instead of kilo, fixed manually in tableEdit afterwards
 
 
 ## Annex 5

@@ -1,6 +1,6 @@
 library(icesSAG)
 library(dplyr)
-CY=2025
+CY=2026
 
 icesConnect::set_username("hilaire.drouineau@inrae.fr")
 

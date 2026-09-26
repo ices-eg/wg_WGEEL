@@ -64,3 +64,18 @@ UPDATE datawg.t_eelstock_eel
 
 
 SELECT DISTINCT eel_cou_code FROM datawg.t_eelstock_eel WHERE eel_typ_id = 4 ORDER BY eel_cou_code
+
+
+# fix ebroG, remvoe data post 2016 included
+begin;
+select * from datawg.t_dataseries_das where das_year >= 2016 and das_qal_id in (1, 4)  and das_ser_id = 43;
+update datawg.t_dataseries_das set das_qal_id = 3,
+                                   das_qal_comment = das_qal_comment || ' ; there are concerns that data from other fish markets, which had not been included previously, may have been incorporated from that year onward, resulting in a loss of continuity in the time series.'
+                                   das_comment = 'there are concerns that data from other fish markets, which had not been included previously, may have been incorporated from that year onward, resulting in a loss of continuity in the time series.';
+                                   where das_year >= 2016 and das_qal_id in (1, 4)  and das_ser_id = 43;
+
+commit;
+
+
+select * from datawg.t_eelstock_eel where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
+update datawg.t_eelstock_eel set eel_lfs_code = 'YS' where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;

@@ -45,6 +45,9 @@
 ## Annex 4
 - fix area division
 - they report values of landings of YS of less than 1kg! error of units?
+- fix conversion to kg
+- 10 new values inserted in the database
+
 
 
 ## Annex 5

@@ -24,7 +24,6 @@ source("database_reference.R")
 source("database_data.R")
 source("database_precodata.R")
 #cred=read_yaml("../../../credentials.yml")
-
 con_wgeel = dbConnect(RPostgres::Postgres(), dbname=cred$dbname,host=cred$host,port=cred$port,user=cred$user, password=cred$password)
 
 pool <<- pool::dbPool(drv = RPostgres::Postgres(),

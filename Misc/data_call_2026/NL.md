@@ -259,6 +259,12 @@ Group variables            None
 4 eel_value             2           0.5 213772  300510.     1279 107526. 213772  320018. 426265 ▇▁▁▁▇
 5 eel_qal_id            0           1        1       0         1      1       1       1       1 ▁▁▇▁▁
 
+
+In 2025, landings were reported as 'G', changed for YS with an sql query
+select * from datawg.t_eelstock_eel where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
+update datawg.t_eelstock_eel set eel_lfs_code = 'YS' where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
+
+
 #### modified
 
 Much smaller coastal landings Y 19000 - > 4600 in 2018

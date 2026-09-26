@@ -922,15 +922,41 @@ save_figure<-function(figname,fig,width,height, pdf = TRUE){
   print(fig)
   dev.off()
   
-  png(filename = paste(figname,".png",sep=""), width = width, height = height)
-  print(fig)
-  dev.off()
+  if (inherits(fig, "ggplot")){
+    ggsave(paste(figname,".png",sep=""),
+           fig,
+           width = width/72,
+           height = height/72,
+           dpi = 300,
+           units = "in")
+  } else {
+    png(filename = paste(figname,".png",sep=""), width = width, height = height)
+    print(fig)
+    dev.off()
+  }
+
+  
+
+  
   
   if (pdf){
     pdf(file= paste(figname,".pdf",sep=""), width = width/100, height = height/100)
     print(fig)
     rien<-dev.off()
   }
+  
+  if (inherits(fig, "ggplot")){
+    ggsave(paste(figname,".svg",sep=""),
+           fig,
+           width = width/72,
+           height = height/72,
+           dpi = 300,
+           units = "in")
+  } else {
+    svg(file= paste(figname,".svg",sep=""), width = width/100, height = height/100)
+  }
+  print(fig)
+  dev.off()
   setwd(wd)
   return(invisible(NULL))
 }
