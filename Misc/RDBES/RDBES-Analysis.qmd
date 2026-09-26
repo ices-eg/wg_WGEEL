@@ -358,7 +358,7 @@ At the WGEEL 2026 workshop, the RDBES subgroup tested using the [icesRDBES R pac
 
 > cedric's comment. We need to merge the branch and leave this file in the "main" branch + provide a link to github file
 
-Further, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on european eel. 14 of the 28 countries having commercial landings data in the wgeel database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, **Czech Republic**, Greece, **Ireland**, Italy, Libya, Montenegro, **Morocco**, **Norway**, Slovenia, Tunisia, and Türkiye. Note that mediterranean landings are submittede RDBFIS, not RDBES. Countries without a mediterranean coastline are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure X). These countries may want to inspect these differences and assess if any data are missing or incorrect.
+Further, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on european eel. 14 of the 28 countries having commercial landings data in the wgeel database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, **Czech Republic**, Greece, **Ireland**, Italy, Libya, Montenegro, **Morocco**, **Norway**, Slovenia, Tunisia, and Türkiye. Note that mediterranean landings are submittede RDBFIS, not RDBES. Countries without a mediterranean coastline are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure @fig-wgeelrdbeslandings). These countries may want to inspect these differences and assess if any data are missing or incorrect.
 
 ```{r}
 #| label: fig-wgeelrdbeslandings
@@ -434,7 +434,7 @@ Depending on the protocols used to collect biometric data, the resulting data ar
 
 ### Series (fishery independent data)
 
-With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the scientific survey database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex 6.2)
+With regard to data from fishery-independent protocols, for all countries (both ICES and non-ICES countries), these data must be integrated into the diadromous database via the DATSU process starting next year. A list has been created to identify the data series that will be integrated via the DATSU process (Annex 6.2)
 
 ### Commercial and recreational sampling (fishery dependent data)
 
@@ -616,9 +616,9 @@ WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS
 ## Conclusion and future planning
 
 
-At the request of ICES and GFCM, the WGEEL working group will make significant changes to its data reporting process. This change is essential to harmonize the flow of information, streamline the work alongside other working groups from ICES and enable a full use the t ofools provided by ICES and GFCM for quality control, reporting and stock assessment.
+At the request of ICES and GFCM, the WGEEL working group will make significant changes to its data reporting process. This change is essential to harmonize the flow of information with other working groups and enable the WGEEL to use the tools provided by ICES and GFCM for stock assessment.
 
-The new process will consist of several stages and will require sustained effort from all those involved to ensure long-term data quality. Thus, the WGEEL will transition from a data call comprising nine annexes to a data call structured around three formats: the Diadromous database (which will comprise a survey and a stock module), the RDBES database and the RDBfis database. The steps towards building the new data system are illustrated in an infographic (Figure @fig-datacall_workflow).
+The new process will consist of several stages and will require sustained effort from all those involved to ensure long-term data quality. Thus, the WGEEL will transition from a data call comprising nine annexes to a data call structured around three formats: the diadromous Database, the RDBES Database, and the RDBfis Database. The group will also need to extract information from the databases where it will be stored. These steps are illustrated in an infographic (Figure @fig-datacall_workflow).
 
 It is likely that, during the first few years, the diversity and complexity of the new formats will result in a decline in the quality of the accessible data. To minimize this risk, the transition will take place gradually over several years, with an adjustment phase aimed at integrating all necessary data into the three formats and enabling the WGEEL to work with the entire dataset (Figure @fig-timeline).
 
@@ -682,7 +682,7 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 ```
 
 ::: {custom-style="Annex heading"}
-Annex  Commercial series in annex 2 and 3
+Annex 63. Commercial series in annex 2 and 3
 :::
 
 ```{r}
