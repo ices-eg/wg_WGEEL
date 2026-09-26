@@ -614,6 +614,17 @@ WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS
 
 ## Conclusion and future planning
 
+
+At the request of ICES and GFCM, the WGEEL working group will make significant changes to its data reporting process. This change is essential to harmonize the flow of information with other working groups and enable the WGEEL to use the tools provided by ICES and GFCM for stock assessment.
+
+The new process will consist of several stages and will require sustained effort from all those involved to ensure long-term data quality. Thus, the WGEEL will transition from a data call comprising nine annexes to a data call structured around three formats: the Scientific Survey Database, the RDBES Database, and the RDBfis Database. The group will also need to extract information from the databases where it will be stored. These steps are illustrated in an infographic (Figure @fig-datacall_workflow).
+
+It is likely that, during the first few years, the diversity and complexity of the new formats will result in a decline in the quality of the accessible data. To minimize this risk, the transition will take place gradually over several years, with an adjustment phase aimed at integrating all necessary data into the three formats and enabling the WGEEL to work with the entire dataset (Figure @fig-timeline).
+
+The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All of the changes planned for 2027 are summarized in the callout box below.
+
+
+
 ::: {.callout-note icon="false"}
 ### For next year
 
@@ -623,6 +634,8 @@ WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS
 - The biometric data linked to a scientific survey (fishery independent data) will be incorporate during the WGEEL data call using the DATSU process.
 - The biometric data linked to a commercial or recreational landings (fishery dependent data) will not be incorporate during the WGEEL data call.
 :::
+
+<br>
 
 ```{r}
 #| label: fig-datacall_workflow
