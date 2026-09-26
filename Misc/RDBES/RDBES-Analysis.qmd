@@ -621,17 +621,17 @@ WGEEL recommends to use more detailed levels of reporting in the RDBES or RDBFIS
 ## Conclusion and future planning
 
 
-At the request of ICES and GFCM, the WGEEL working group will make significant changes to its data reporting process. This change is essential to harmonize the flow of information with other working groups and enable the WGEEL to use the tools provided by ICES and GFCM for stock assessment.
+At the request of ICES and GFCM, the WGEEL working group will make significant changes to its data reporting process. This change is essential to harmonize the flow of information, streamline the work alongside other working groups from ICES and enable a full use the t ofools provided by ICES and GFCM for quality control, reporting and stock assessment.
 
-The new process will consist of several stages and will require sustained effort from all those involved to ensure long-term data quality. Thus, the WGEEL will transition from a data call comprising nine annexes to a data call structured around three formats: the Scientific Survey Database, the RDBES Database, and the RDBfis Database. The group will also need to extract information from the databases where it will be stored. These steps are illustrated in an infographic (Figure @fig-datacall_workflow).
+The new process will consist of several stages and will require sustained effort from all those involved to ensure long-term data quality. Thus, the WGEEL will transition from a data call comprising nine annexes to a data call structured around three formats: the Diadromous database (which will comprise a survey and a stock module), the RDBES database and the RDBfis database. The steps towards building the new data system are illustrated in an infographic (Figure @fig-datacall_workflow).
 
 It is likely that, during the first few years, the diversity and complexity of the new formats will result in a decline in the quality of the accessible data. To minimize this risk, the transition will take place gradually over several years, with an adjustment phase aimed at integrating all necessary data into the three formats and enabling the WGEEL to work with the entire dataset (Figure @fig-timeline).
 
-The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All of the changes planned for 2027 are summarized in the callout box below.
+The first phase will begin next year, for example, with the entry of data from scientific surveys into the ICES Scientific Surveys Database. All the changes planned for 2027 are summarized in the below (see @planned_change).
 
 
 
-::: {.callout-note icon="false"}
+::: {.callout-note icon="false" #planned_change}
 ### For next year
 
 - Freshwater landings will be incorporate into RDBES database but also in the WGEEL database using the annex 4.
@@ -670,11 +670,11 @@ knitr::include_graphics(imgfile)
 \newpage
 
 ::: {custom-style="Annex heading"}
-Annex 61. The table of EDMO codes
+Annex The table of EDMO codes
 :::
 
 ::: {custom-style="Annex heading"}
-Annex 62. Commercial series in Annex 9
+Annex Commercial series in Annex 9
 :::
 
 ```{r}
@@ -689,7 +689,7 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 ```
 
 ::: {custom-style="Annex heading"}
-Annex 63. Commercial series in annex 2 and 3
+Annex  Commercial series in annex 2 and 3
 :::
 
 ```{r}
@@ -704,7 +704,7 @@ readxl::read_excel("inputtable/annex9.xlsx") |>
 ```
 
 ::: {custom-style="Annex heading"}
-Annex 62.
+Annex : [TODO] add table with scientific series annex 2 and 3 that are not commercial series
 :::
 
 
