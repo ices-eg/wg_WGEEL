@@ -77,7 +77,7 @@ opts_knit$set(eval.after = "fig.cap",
 		warning = FALSE,
 		message = FALSE,
 		error=FALSE)
-Sys.setlocale("LC_ALL", "English_United States.932")
+#Sys.setlocale("LC_ALL", "English_United States.932")
 #options(save.defaults = list(version=2))
 # Password are stored in R/etc/Rprofile.site
 # For the moment the database is stored locally
