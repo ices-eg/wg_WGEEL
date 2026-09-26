@@ -328,11 +328,16 @@ This corresponds to the series that are currently in our database. This code ref
 
 ### Development of the diadromous DB
 
-The Diadromous database is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.> This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData/issues) [^1]
+The Diadromous database is currently being developped in ICES. A first version of the database and API is planned for next year (scientific survey data). Currently the submission format for Diadromous survey data can be found here: <https://datsu.ices.dk/web/selRep.aspx?Dataset=172.>. This submission format will be used in the next data call for annexes 1 to 3 and 9. It was tested during the WGEEL. Feedback on issues on the format is here : [ices-tools-dev/DiadromousData](https://github.com/ices-tools-dev/DiadromousData/issues) [^1]
 
 [^1]: If new issues arise and write access to the repository is needed, please contact accessions\@ices.dk.
 
-### Testing the Inclusion of data within the Diadromous Database
+
+## Commercial landings and their inclusion in the RDBES
+
+Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working groups, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed a habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
+
+The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users (Figure @fig-rdbes_workflow)..
 
 ```{r}
 #| label: fig-rdbes_workflow
@@ -344,13 +349,6 @@ imgfile <- file.path("images", "RDBES infographic.jpg")
 knitr::include_graphics(imgfile)
 ```
 
-Data from RDBES were requested from ICES data center. The objective is to build the data workflow (Figure @fig-rdbes_workflow).
-
-## Commercial landings and their inclusion in the RDBES
-
-Currently commercial landings are included in Annex 4 and stored in the WGEEL database. While this system includes a quality control procedure, it does not adhere to ICES standard, nor provide a tracking system for data upload and transmission. Among diadromous working groups, WGEEL will initiate the transition to a full use of the RDBES. The DIASPARA project has developed a habitat referential that follows the hierarchy of stock structure used by diadromous working groups, and extends the marine areas used by GFCM and ICES to neighboring continental waters.
-
-The **RDBES (Regional Database and Estimation System)** is a database system (or "data model") developed and hosted by ICES. It involves a system of data submission and analysis which maintains appropriate levels of access (data levels) for users in different roles (e.g. national estimators, stock coordinators, and stock assessors). Translation of data between these levels is done using the TAF (transparent assessment framework), ensuring that methods for processing data are open and standardizable between users.
 
 RDBES organizes fisheries sampling data into a set of 13 standardized "hierarchies" representing commercial fisheries sampling. The hierarchical model links observations from sampling programmes and fishing activities down to individual fish measurements and analyses, ensuring traceability of data and supporting statistically robust estimation procedures used in ICES stock assessments and fisheries advice. To accommodate sampling programmes with different structures, there is a selection of 13 different hierarchies of data tables (named H1 to H13). See the documentation at the [RDBES GitHub repository](https://github.com/ices-tools-dev/RDBES/) for more information.
 
