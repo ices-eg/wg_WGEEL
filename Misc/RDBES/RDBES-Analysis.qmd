@@ -362,9 +362,14 @@ WGEEL tested using the [icesRDBES R package](https://github.com/ices-tools-prod/
 
 Furthermore, we also compared the data currently available in RDBES with the data available in WGEEL's database. This was done using an export from RDBES including all countries' commercial landings on european eel. 14 of the 28 countries having commercial landings data in the wgeel database did not have commercial landings in RDBES. These countries are Albania, Algeria, Croatia, Czech Republic, Greece, **Ireland**, Italy, Libya, Montenegro, Morocco, **Norway**, Slovenia, Tunisia, and Türkiye. Note that GFCM countries will submit their commercial landings to RDBFIS, not RDBES. ICES countries that should incorporate their data into the RDBES are here printed in bold. Further, for the countries with data available in RDBES, many had differing total landings reported to RDBES and WGEEL, indicating that either of the databases may be incomplete for these countries (Figure @fig-rdbes_comparison).
 
-![Total landed biomass (kg) of european eel (*Anguilla anguilla*), as reported to WGEEL and RDBES for all years and countries in which RDBES data is available. Empty black bars indicate RDBES numbers, and blue bars indicate WGEEL numbers. The horisontal axis is log-shifted. Note that catches of eel in the Mediterranean are not reported to RDBES but are reported to WGEEL, which explains some inconsistencies.](images/plot-rdbes-vs-wgeel-landings.png){#fig-rdbes_comparison}
+```{r}
+#| label: fig-wgeelrdbeslandings
+#| fig-cap: "Total landed biomass (kg) of european eel (Anguilla anguilla), as reported to WGEEL and RDBES for all years and countries in which RDBES data is available. From the WGEEL database, only catches in marine, transitional or open marine waters are included (i.e. freshwater catches are excluded). Empty black bars indicate RDBES numbers, and blue bars indicate WGEEL numbers. The horisontal axis is log-shifted. Note that catches of eel in the mediterranean are not reported to RDBES but are reported to WGEEL, which explains some inconsistencies for some countries."
+#| fig-width: 6.3
+imgfile <- file.path("images", "plot-rdbes-vs-wgeel-landings.png") 
+knitr::include_graphics(imgfile)
+```
 
-For the purpose of accessing data, the RDBES system currently seems to be ready. The main body of work will likely be in ensuring that data are appropriately submitted to the database, and that pending issues concerning the inclusion of continental habitat and stages are resolved.
 
 ```{r}
 #| label: test-RDBES-API

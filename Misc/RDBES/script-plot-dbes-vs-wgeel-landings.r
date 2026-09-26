@@ -20,37 +20,7 @@ tb_landings_wgeel <-
     source = "WGEEL",
     year = eel_year,
     mass_landed_kg = eel_value,
-    country = recode_values(cou_iso3code,
-      "ESP" ~ "ES",
-      "IRL" ~ "IE",
-      "EST" ~ "EE",
-      "FIN" ~ "FI",
-      "GRC" ~ "GR",
-      "ITA" ~ "IT",
-      "DNK" ~ "DK",
-      "FRA" ~ "FR",
-      "DEU" ~ "DE",
-      "LTU" ~ "LT",
-      "GBR" ~ "GB",
-      "POL" ~ "PL",
-      "SVN" ~ "SI",
-      "NLD" ~ "NL",
-      "ALB" ~ "AL",
-      "TUR" ~ "TR",
-      "LVA" ~ "LV",
-      "SWE" ~ "SE",
-      "HRV" ~ "HR",
-      "TUN" ~ "TN",
-      "PRT" ~ "PT",
-      "BEL" ~ "BE",
-      "MAR" ~ "MA",
-      "DZA" ~ "DZ",
-      "LBY" ~ "LY",
-      "NOR" ~ "NO",
-      "CZE" ~ "CZ",
-      "MNE" ~ "ME",
-      default = cou_iso3code
-    )
+    country = eel_cou_code,
   )
 
 #### Load RDBES landings data -----------------------------------------------------------
@@ -143,4 +113,5 @@ ggsave(
   unit = "px",
   scale = 1,
 )
+
 
