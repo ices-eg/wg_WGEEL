@@ -359,7 +359,9 @@ years, e.g. because of the inclusion of new series or replacement of
 existing series with other monitoring activities in the same area. This
 may cause additional variation of Mohn’s Rho compared to a situation
 where variation is caused only by the addition of new data points in
-recent years.
+recent years. Despite this higher value for the North-Sea index the
+consistency of trends between assessment years indicate that the assessment 
+is robust. 
 
 
 ```{r, echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -384,7 +386,7 @@ In the absence of precise quantitative information on the spatial
 distribution of recruitment, the model does not weight time-series. As a
 consequence, a time-series collected in a zone with low recruitment has
 the same weight as one collected in a zone of higher recruitment.
-Moreover, in the absence of weighting and because of even spatial coverage,
+Moreover, in the absence of weighting and because of uneven spatial coverage,
 regions with numerous time-series
 have a greater weight than data-limited regions in the resulting
 recruitment index.
@@ -425,7 +427,7 @@ amounted an average of `r meanlandingsYS ` t per year over the last decade
 (`r paste(CY-10, CY-1, collapse ="-")`), with several
 countries reporting annual landings of over 100 tonnes per year. Commercial glass
 eel total landings amounted to an average of `r meanlandingsG` t per
-year over the same period. Both are in contradiction with the
+year over the same period. Both are in contradiction with the ICES
 advice.
 
 -   Restocking
@@ -434,7 +436,7 @@ ICES notes that the restocking of eels (the practice of moving eels from
 one waterbody to another) is intended as a conservation measure in EU
 Council Regulation (EC) No. 1100/2007 [@eucouncil2007] and is
 implemented in many eel management plans. Restocking is reliant on a
-glass eel catch, which is in contradiction with the current advice.
+glass eel catch, which is in contradiction with the ICES advice.
 
 The net benefit of restocking to the reproductive potential of the eel
 stock is unknown. It requires information on e.g. the carrying capacity
@@ -442,7 +444,7 @@ of glass eel source basins, reliable mortality estimates at each step
 of the restocking process, and the spawning potential of stocked vs.
 non-stocked eels. While a local increase in eel production may be
 apparent [@ices2016b], an assessment of net benefit to the spawning
-stock was unquantifiable. When constrained by the above-mentioned
+stock remains unquantifiable. When constrained by the above-mentioned
 uncertainties and potential harmful effects, while following the
 precautionary approach, no catch for restocking should be allowed.
 
@@ -484,7 +486,7 @@ mortalities, including non-fisheries impacts.
 Global climate change has and will continue to directly and indirectly affect 
 both marine and freshwater habitats and species. 
 It is highly likely that this will impact on migratory fish such as European eel. 
-However, effects of climate change are not well understood and are yet to be
+However, such effects of climate change are not well understood and are yet to be
 fully quantified.
 
 
@@ -504,11 +506,12 @@ stations, and pollution) that negatively affect the eel stock should be zero.
 **Other aspects**
 
 Illegal, unreported, and unregulated (IUU) fishing is known to occur. In addition,
-customs seizures indicate that the illegal export of eel could be
+customs seizures indicate that the illegal export of eel
+(both legally and illegally caught) could be
 substantial. Some countries have collected data on
-illegal fisheries and trade (i.e. the seizure of illegal nets as well as the
-illegal trade of eels from countries both inside and outside the EU).
-However, data insufficient to
+illegal fisheries and trade (e.g. the seizure of illegal nets as well as the
+illegal trade of eels from countries both inside and outside the EU.
+However, data are insufficient to
 quantify their effect on the total stock size or status with any level
 of certainty.
 
@@ -587,8 +590,8 @@ eel.
 ::: {custom-style="Table Caption"}
 __Table 4__&#9; European eel. Commercial landings (tonnes) of glass eels 
 (1945–`r CY`), as reported to ICES by France [FR], Spain [ES],
-Portugal [PT], Italy [IT] and United Kingdom (GB). Empty cell = no data, 
-data not collected, or data not pertinent.
+Portugal [PT], Italy [IT] and United Kingdom (GB). Empty cell = actual zero, 
+no data, data not collected, or data not pertinent.
 :::
 
 ```{r, tab.id = "tab4", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -690,7 +693,7 @@ set3names <- country_c$cou_country[match(gsub("\\*", "", set3), country_c$cou_co
 __Table 5a__&#9; European eel. Commercial landings (tonnes) of yellow 
 and silver eel (1908–`r CY-1`)  as reported to ICES by 
 `r format_country_names(set1names, set1)`.
-Empty cell = no data, data not collected, or data not pertinent.
+Empty cell = actual zero, no data, data not collected, or data not pertinent.
 :::
 
 ```{r, tab.id = "tab5a", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
@@ -722,7 +725,7 @@ landingsYS |>
 __Table 5b__&#9; European eel. Commercial landings (tonnes) of yellow 
 and silver eel (1908–`r CY-1`)  as reported to ICES by 
 `r format_country_names(set2names, set2)`.
-Empty cell = no data, data not collected, or data not pertinent.
+Empty cell = actual zero, no data, data not collected, or data not pertinent.
 :::
 ```{r, tab.id = "tab5b", echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
 
@@ -751,7 +754,7 @@ flextable::align(align = "center", part = "header") |>
 __Table 5c__&#9; European eel. Commercial landings (tonnes) of yellow 
 and silver eel (1908–`r CY-1`)  as reported to ICES by
 `r format_country_names(set3names, set3)`.
-Empty cell = no data, data not collected, or data not pertinent. The total 
+Empty cell = actual zero, no data, data not collected, or data not pertinent. The total 
 column is the yearly sum for all countries included in tables 5a, 5b, and 5c and 
 not just the countries listed in this particular table.
 :::
@@ -784,7 +787,7 @@ flextable::align(align = "center", part = "header") |>
 __Table 6__&#9; European eel. Recreational landings (tonnes) of glass eels 
 (1978–2023)  as reported to ICES by in countries where fisheries exist,
 i.e. France (FR) and Spain (ES).
-Empty cell = no data, data not collected, or data not pertinent.
+Empty cell = actual zero, no data, data not collected, or data not pertinent.
 :::
 
 ```{r, tab.id = "tab6",  echo = FALSE, warning = FALSE, error = FALSE, message = FALSE}
