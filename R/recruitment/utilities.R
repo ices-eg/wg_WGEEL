@@ -15,17 +15,17 @@ predict_model <- function(mymodel, reference = 1960:1979){
   #we build the prediction grid
   lookup <- c(site = "as.factor(site)")
   newdata <- expand.grid(mymodel$xlevels) %>%
-      dplyr::rename(any_of(lookup))
+    dplyr::rename(any_of(lookup))
   
   names(mymodel$xlevels) <- ifelse(names(mymodel$xlevels) == "as.factor(site)",
-      "site",
-      names(mymodel$xlevels))
+                                   "site",
+                                   names(mymodel$xlevels))
   
   #we only predict for reference site
   if ("site" %in% names(newdata))
     newdata <- newdata %>%
-        dplyr::filter(site==mymodel$xlevels$site[1]) %>%
-        mutate(year = as.numeric(as.character(year_f)))
+    dplyr::filter(site==mymodel$xlevels$site[1]) %>%
+    mutate(year = as.numeric(as.character(year_f)))
   
   newdata$p=predict(mymodel ,newdata = newdata)
   newdata$se=predict(mymodel, newdata = newdata, se.fit=TRUE)[["se.fit"]]
@@ -34,22 +34,22 @@ predict_model <- function(mymodel, reference = 1960:1979){
   vargroup <- variables[! variables %in% c("year_f", "site")]
   if (length(vargroup) == 0){
     newdata <- newdata %>%
-        mutate(customgroup = "1")
+      mutate(customgroup = "1")
     vargroup = "customgroup"
   }
   newdata <- newdata %>%
-      group_by(!!sym(vargroup))
+    group_by(!!sym(vargroup))
   
   #rescale by reference period
   newdata <- newdata %>%
-      group_by(!!sym(vargroup)) %>%
-      mutate(mean_ref = mean(ifelse(year %in% reference, p, NA), #compute mean over the reference period
-              na.rm = TRUE)) %>%
-      mutate(p_std = exp(p - mean_ref),
-          p_std_min = exp(p - mean_ref - 1.96 * se),
-          p_std_max = exp(p - mean_ref + 1.96 * se)) %>%
-      ungroup() %>%
-      dplyr::select(-any_of("customgroup"))
+    group_by(!!sym(vargroup)) %>%
+    mutate(mean_ref = mean(ifelse(year %in% reference, p, NA), #compute mean over the reference period
+                           na.rm = TRUE)) %>%
+    mutate(p_std = exp(p - mean_ref),
+           p_std_min = exp(p - mean_ref - 1.96 * se),
+           p_std_max = exp(p - mean_ref + 1.96 * se)) %>%
+    ungroup() %>%
+    dplyr::select(-any_of("customgroup"))
   newdata
   
 }
@@ -71,34 +71,34 @@ predict_model <- function(mymodel, reference = 1960:1979){
 #' @examples
 
 plot_trend_model <- function(predtable, 
-    xlab = "", 
-    ylab = "",
-    palette = NULL,
-    logscale = FALSE,
-    ...){
+                             xlab = "", 
+                             ylab = "",
+                             palette = NULL,
+                             logscale = FALSE,
+                             ...){
   variables <- names(predtable)
   vargroup <-  variables[!variables %in% c("year_f",
-          "site", 
-          "year", 
-          "p", 
-          "se",
-          "mean_ref", 
-          "p_std",
-          "p_std_min",
-          "p_std_max")]
+                                           "site", 
+                                           "year", 
+                                           "p", 
+                                           "se",
+                                           "mean_ref", 
+                                           "p_std",
+                                           "p_std_min",
+                                           "p_std_max")]
   showlegend <- length(vargroup) > 0 #we do not display legend if no grouping
   if (length(vargroup) > 0){
     if (length(vargroup) > 1){
       predtable$group <- interaction(predtable[vargroup],
-          sep = ":")
+                                     sep = ":")
       p <- ggplot(predtable,
-          aes(x = year,
-              y = p_std)) 
+                  aes(x = year,
+                      y = p_std)) 
       vargroup <- "group"
     } else {
       p <- ggplot(predtable,
-          aes(x = year,
-              y = p_std) )
+                  aes(x = year,
+                      y = p_std) )
     }
   } else {
     predtable$group <- "1"
@@ -106,18 +106,18 @@ plot_trend_model <- function(predtable,
     p <- ggplot(predtable, aes(x = year, y = p_std))
   }
   p <- p + 
-      geom_line(aes(col = !!sym(vargroup)), show.legend = showlegend) +
-      geom_ribbon(aes(ymin = p_std_min,
-              ymax = p_std_max,
-              fill = !!sym(vargroup)),
-          alpha = .3,
-          show.legend = showlegend)
+    geom_line(aes(col = !!sym(vargroup)), show.legend = showlegend) +
+    geom_ribbon(aes(ymin = p_std_min,
+                    ymax = p_std_max,
+                    fill = !!sym(vargroup)),
+                alpha = .3,
+                show.legend = showlegend)
   if (logscale)
     p <- p + scale_y_log10()
   if (!is.null(palette))
     p <- p + 
-        scale_fill_manual(values = palette) + 
-        scale_color_manual(values = palette)
+    scale_fill_manual(values = palette) + 
+    scale_color_manual(values = palette)
   p <- p + xlab(xlab) + ylab(ylab) +theme(...) + labs(fill = "", col = "")
   p + theme_bw() + theme(...)
 }
@@ -139,8 +139,8 @@ plot_trend_model <- function(predtable,
 #' @examples
 load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   
-# Description of the series -------------------------------
-# this will load series used in recruitment ser_typ_id = 1
+  # Description of the series -------------------------------
+  # this will load series used in recruitment ser_typ_id = 1
   
   query ='select 
       ser_id, ser_nameshort, ser_namelong, ser_typ_id, ser_effort_uni_code,
@@ -160,7 +160,7 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   
   R_stations= dbGetQuery(con, query)
   
-# Main data  --------------------------------------------------------------
+  # Main data  --------------------------------------------------------------
   
   query <- 'SELECT 
       das_id,
@@ -207,18 +207,18 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   
   wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
   wger_init <- chnames(wger_init,
-      c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
-      c("id","value","year","site","area_division","lifestage"))
+                       c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
+                       c("id","value","year","site","area_division","lifestage"))
   
-# selection of the last years with problem for graph --------------------------------------------
+  # selection of the last years with problem for graph --------------------------------------------
   
   query <- paste0("SELECT * FROM datawg.t_series_ser join  datawg.t_dataseries_das ON das_ser_id = ser_id
           WHERE das_year in(", paste(year,year-1,sep=",",collapse=","),") AND das_qal_id IN (0,3,4) and ser_typ_id=1;")
   last_years_with_problem <- dbGetQuery(con, query)
-
-# Issue an error if any series in recruitment has das_qal_id NULL, the db currently still has missing quality for
-# Silver eel series, here we are creating a specific query
-# 
+  
+  # Issue an error if any series in recruitment has das_qal_id NULL, the db currently still has missing quality for
+  # Silver eel series, here we are creating a specific query
+  # 
   query <- "SELECT ser_nameshort, t_dataseries_das.* FROM datawg.t_dataseries_das  
   JOIN datawg.t_series_ser ON ser_id = das_ser_id
   WHERE das_qal_id IS NULL 
@@ -230,33 +230,33 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
   w <- sprintf("Series %s has missing quality, data with das_qal_id NULL will not be queried from the database, check this series and remove NULL das_qal_id", paste(ser_qal_missing, collapse = ','))
   if (nrow(problems_of_missing_quality)>0) warning(w)
   
-# When were the series included ? -------------------------------
+  # When were the series included ? -------------------------------
   
   query='SELECT * FROM datawg.t_seriesglm_sgl'
   inclusion <- dbGetQuery(con, query)
   ############################################################################
-# Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
-# See Ices (2008) for the reason why we need to do that
-# We cannot use just one series, as the series from the North Sea have dropped more
-# rapidly than the others, and are now at a much lower level.
-# Some of that drop might be explained by decreasing catch in some of the semi-commercial
-# catch and trap and transport series (Ems, Vidaa) but it also concerns fully scientific
-# Estimates....
+  # Rebuilding areas used by wgeel (North Sea, Elswhere Europe) from area_divisions
+  # See Ices (2008) for the reason why we need to do that
+  # We cannot use just one series, as the series from the North Sea have dropped more
+  # rapidly than the others, and are now at a much lower level.
+  # Some of that drop might be explained by decreasing catch in some of the semi-commercial
+  # catch and trap and transport series (Ems, Vidaa) but it also concerns fully scientific
+  # Estimates....
   ###############################################################################
-   wger_init[,"area"] <- NA
-# below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
-# but currently wgeel only uses two areas so the following script is kept for memory
-# but mostly useless
+  wger_init[,"area"] <- NA
+  # below these are area used in some of the scripts see wgeel 2008 and Willem's Analysis 
+  # but currently wgeel only uses two areas so the following script is kept for memory
+  # but mostly useless
   wger_init$area2[wger_init$f_subarea%in%'27.4'] <- "North Sea"
   wger_init$area2[wger_init$f_subarea%in%'27.3'] <- "Baltic"
   wger_init$area2[wger_init$f_subarea%in%c('27.6','27.7','27.8','27.9')] <- "Atlantic"
   wger_init$area2[wger_init$f_subarea%in%c('37.1','37.2','37.3')] <- "Mediterranean Sea"
   wger_init[wger_init$area2%in%c("Atlantic","Mediterranean Sea"),"area"] <- "Elsewhere Europe"
-# We consider that the series of glass eel recruitment in the Baltic are influenced
-# similarly in the Baltic and North Sea. This has no effect on Baltic data
+  # We consider that the series of glass eel recruitment in the Baltic are influenced
+  # similarly in the Baltic and North Sea. This has no effect on Baltic data
   wger_init[wger_init$area2%in%c("Baltic","North Sea"),"area"] <- "North Sea"
   
-#check if all series have been assign to an area
+  #check if all series have been assign to an area
   if (sum(is.na(wger_init$area))>0) {    
     cat("sites with qal_id 1 or 4")
     wger_init %>% dplyr::filter(is.na(area)&(ser_qal_id==1|ser_qal_id==4)) %>% dplyr::select(site) %>% distinct()
@@ -265,29 +265,29 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
     stop("At least one series has not been affected to an area, stop this script NOW and check !!!")
   }
   wger_init$area <- as.factor(wger_init$area)
-# We will also need this for summary tables per recruitment site, here we go straight to 
-# the result
+  # We will also need this for summary tables per recruitment site, here we go straight to 
+  # the result
   R_stations[,"area"] <- NA
   R_stations$area[R_stations$f_subarea%in%c('27.4','27.3')] <- "North Sea"
   R_stations$area[R_stations$f_subarea%in%c('27.6','27.7','27.8','27.9','37.1','37.2','37.3')] <- "Elsewhere Europe"
-#REMOVE THIS !!!!!!!!!!!
-#R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
-#wger_init$area[is.na(wger_init$area)]<-"Elsewhere Europe"
+  #REMOVE THIS !!!!!!!!!!!
+  #R_stations$area[is.na(R_stations$area)]<-"Elsewhere Europe"
+  #wger_init$area[is.na(wger_init$area)]<-"Elsewhere Europe"
   
   
   stopifnot(all(!is.na(R_stations$f_subarea)))
   
-# Check that there was no error in the query (while joining foreign table)
+  # Check that there was no error in the query (while joining foreign table)
   stopifnot(all(!duplicated(wger_init$id)))
-# creates some variables
+  # creates some variables
   wger_init$decade=factor(trunc(wger_init$year/10)*10)
   wger_init$year_f=factor(wger_init$year)
   wger_init$decade=factor(wger_init$decade,level=sort(unique(as.numeric(as.character(wger_init$decade)))))
   wger_init$ldata=log(wger_init$value)
   wger_init$lifestage=as.factor(wger_init$lifestage)
   
-# This is a view (like the result of a query) showing a summary of each series, including first year, last year,
-# and duration
+  # This is a view (like the result of a query) showing a summary of each series, including first year, last year,
+  # and duration
   statseries <- dbGetQuery(con, 'select site,namelong,min,max,duration,missing,life_stage,sampling_type,unit,habitat_type,"order",series_kept,
   qal_comment
           from datawg.series_summary where ser_typ_id=1')
@@ -295,24 +295,36 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
           ser_comment,ser_uni_code,ser_lfs_code,ser_hty_code,ser_locationdescription,ser_emu_nameshort,ser_cou_code,
           ser_area_division,ser_tblcodeid,ser_x,ser_y,ser_sam_id,ser_qal_id,ser_qal_comment,ser_ccm_wso_id,ser_dts_datasource,
           ser_distanceseakm,ser_method,ser_sam_gear,ser_restocking from datawg.t_series_ser where ser_typ_id =1 ')
-# fix integer64 rounded to zero :-o
+  # fix integer64 rounded to zero :-o
   statseries$missing <- as.integer(statseries$missing)
-  for (i in 1:length(path)){
-    save(wger_init,file=str_c(path[i],"wger_init.Rdata"))
-    cat("writing", str_c(path[i],"wger_init.Rdata"),"\n")
-    save(statseries,file=str_c(path[i],"statseries.Rdata"))
-    cat("writing", str_c(path[i],"statseries.Rdata"),"\n")
-    save(R_stations,file=str_c(path[i],"R_stations.Rdata"))
-    cat("writing", str_c(path[i],"R_stations.Rdata"),"\n")
-    save(last_years_with_problem,file=str_c(path[i],"last_years_with_problem.Rdata"))
-    cat("writing", str_c(path[i],"last_years_with_problem.Rdata"),"\n")
-    save(t_series_ser, file=str_c(path[i],"t_series_ser.Rdata"))
-    cat("writing", str_c(path[i],"t_series_ser.Rdata"),"\n")
-    write.table(R_stations, sep=";",file=str_c(path[i],"R_stations.csv"))
-    cat("writing", str_c(path[i],"R_stations.csv"),"\n")
-    openxlsx::write.xlsx(x=list("R_stations"=R_stations,
-            "t_series_ser"=t_series_ser, "statseries"=statseries),file=str_c(outputdatawd,"series_description", CY, ".xlsx"))
-    
+  if (! is.null(path)){
+    for (i in 1:length(path)){
+      save(wger_init, file = str_c(path[i], "wger_init.Rdata"))
+      cat("writing", str_c(path[i], "wger_init.Rdata"), "\n")
+      save(statseries, file = str_c(path[i], "statseries.Rdata"))
+      cat("writing", str_c(path[i], "statseries.Rdata"), "\n")
+      save(R_stations, file = str_c(path[i], "R_stations.Rdata"))
+      cat("writing", str_c(path[i], "R_stations.Rdata"), "\n")
+      save(last_years_with_problem, file = str_c(path[i], "last_years_with_problem.Rdata"))
+      cat("writing", str_c(path[i], "last_years_with_problem.Rdata"), "\n")
+      save(t_series_ser, file = str_c(path[i], "t_series_ser.Rdata"))
+      cat("writing", str_c(path[i], "t_series_ser.Rdata"), "\n")
+      write.table(R_stations, sep = ";", file = str_c(path[i], "R_stations.csv"))
+      cat("writing", str_c(path[i], "R_stations.csv"), "\n")
+      openxlsx::write.xlsx(x = list(
+        "R_stations" = R_stations,
+        "t_series_ser" = t_series_ser, "statseries" = statseries
+      ), file = str_c(outputdatawd, "series_description", CY, ".xlsx"))
+      return(invisible(NULL))
+    } else {
+      return(list(
+        wger_init = wger_init,
+        statseries = statseries,
+        R_stations = R_stations,
+        last_years_with_problem = last_years_with_problem,
+        t_series_ser = t_series_ser
+      ))
+    }
     
   }
 }
@@ -333,26 +345,26 @@ select_series <- function(wger_init, R_stations){
   selection_summary$sites_summary <- list()
   selection_summary$sites_summary$qal_0 <- ""
   selection_summary$sites_summary$qal_0 <- 
-  wger_init %>% filter(ser_qal_id==0) %>%
-      dplyr::select(site,cou_code) %>%
-      mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
-      dplyr::select(site_cou) %>%
-      arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
+    wger_init %>% filter(ser_qal_id==0) %>%
+    dplyr::select(site,cou_code) %>%
+    mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
+    dplyr::select(site_cou) %>%
+    arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
   selection_summary$sites_summary$qal_3 <- 
-  wger_init %>% filter(ser_qal_id==3) %>%
-  dplyr::select(site,cou_code) %>%
-  mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
-  dplyr::select(site_cou) %>%
-  arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
+    wger_init %>% filter(ser_qal_id==3) %>%
+    dplyr::select(site,cou_code) %>%
+    mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
+    dplyr::select(site_cou) %>%
+    arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
   # this one should not contain any data
   selection_summary$sites_summary$qal_4 <- 
-      wger_init %>% filter(ser_qal_id==4) %>%
-      dplyr::select(site,cou_code) %>%
-      mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
-      dplyr::select(site_cou) %>%
-      arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
+    wger_init %>% filter(ser_qal_id==4) %>%
+    dplyr::select(site,cou_code) %>%
+    mutate(site_cou = str_c(site,"(",cou_code,")"))  %>%
+    dplyr::select(site_cou) %>%
+    arrange(site_cou) %>% distinct() %>% pull(site_cou) %>% paste(collapse=", ")
   if ( selection_summary$sites_summary$qal_4[1] !="") warning("There should not be any series with qal_id 4, please check")
-# wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
+  # wger_init is used to keep the "whole" dataset, just in case we mess with it afterwards
   wger <- wger_init
   
   selection_summary$nb_series_init <- length(unique(wger$site)) # this is the true number at the beginning
@@ -362,52 +374,52 @@ select_series <- function(wger_init, R_stations){
   selection_summary$stat_discarded_series$span_sup_10 <- list()
   selection_summary$stat_discarded_series$span_sup_10$text <- "Series with qal_id = 0 and spanning more than ten years, along with their true length"
   selection_summary$stat_discarded_series$span_sup_10$table <-
-      left_join(left_join(
-          wger_init %>% dplyr::group_by(ser_id, site, ser_qal_id) %>%
-              dplyr::summarize(span=max(year)-min(year)+1) %>% 
-              mutate(sup10=span>=10) %>%
-              filter(ser_qal_id %in% c(0,3) & sup10)%>%
-              dplyr::select(site,ser_qal_id,span ),
-          wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-              filter(!is.na(value)) %>% 
-              dplyr::summarize(len=n()) %>% 
-              dplyr::select(site, len)
-      ),
+    left_join(left_join(
+      wger_init %>% dplyr::group_by(ser_id, site, ser_qal_id) %>%
+        dplyr::summarize(span=max(year)-min(year)+1) %>% 
+        mutate(sup10=span>=10) %>%
+        filter(ser_qal_id %in% c(0,3) & sup10)%>%
+        dplyr::select(site,ser_qal_id,span ),
       wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-        filter(!is.na(value) & das_qal_id == 1) %>% 
-        dplyr::summarize(len_qal_id1=n()) %>% 
-        dplyr::select(site, len_qal_id1))
+        filter(!is.na(value)) %>% 
+        dplyr::summarize(len=n()) %>% 
+        dplyr::select(site, len)
+    ),
+    wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+      filter(!is.na(value) & das_qal_id == 1) %>% 
+      dplyr::summarize(len_qal_id1=n()) %>% 
+      dplyr::select(site, len_qal_id1))
   selection_summary$stat_discarded_series$span_less_10 <- list()
   selection_summary$stat_discarded_series$span_less_10$text <-
-      "Series with ser_qal_id 1 or 4 and spanning less than ten years, number consecutive years ?. SHOULD BE NO SERIES"
+    "Series with ser_qal_id 1 or 4 and spanning less than ten years, number consecutive years ?. SHOULD BE NO SERIES"
   selection_summary$stat_discarded_series$span_less_10$table <-  
-      left_join(
-          wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-              dplyr::summarize(span=max(year)-min(year)+1) %>% 
-              mutate(sup10=span<10) %>%
-              filter(ser_qal_id %in% c(1,4) & sup10)%>%
-              dplyr::select(site,span, ser_qal_id),
-          wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
-              filter(!is.na(value)) %>% 
-              dplyr::summarize(len=n()) %>% 
-              dplyr::select(site, len)
-      )
-    
+    left_join(
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+        dplyr::summarize(span=max(year)-min(year)+1) %>% 
+        mutate(sup10=span<10) %>%
+        filter(ser_qal_id %in% c(1,4) & sup10)%>%
+        dplyr::select(site,span, ser_qal_id),
+      wger_init %>% group_by(ser_id, site, ser_qal_id) %>%
+        filter(!is.na(value)) %>% 
+        dplyr::summarize(len=n()) %>% 
+        dplyr::select(site, len)
+    )
+  
   selection_summary$ser_qal_id_count <- wger_init %>% group_by(ser_qal_id) %>% distinct(ser_id) %>%dplyr::summarize(len=n())
   wger <- wger[wger$ser_qal_id==1,] # fix 2023 we don't want any ser_qal_id 4
   
   
   selection_summary$nb_series_init_qual1 <- length(unique(wger$site)) #number of series thare are kept 
   
-# check on series discarded -----------------------------------------------
+  # check on series discarded -----------------------------------------------
   
-# There is no automatic rule to include series that
-# are more than 10 year long. So each year we have to check. Some of the series have been
-# discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
+  # There is no automatic rule to include series that
+  # are more than 10 year long. So each year we have to check. Some of the series have been
+  # discared for other reasons and this is stated in column eel_qal_comment of the t_series_ser table
   
   wgerdiscarded <- wger_init[wger_init$ser_qal_id!=1,]
   
-# series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
+  # series marked as "0" might have a very low value but not included in the analysis, here replaced by NA
   wgerdiscarded$value[wgerdiscarded$das_qal_id==0] <- NA #das_qal_id=0 means data are not good
   selection_summary$wgerdiscarded <- list()
   selection_summary$wgerdiscarded$text <- "  
@@ -419,25 +431,25 @@ select_series <- function(wger_init, R_stations){
       Series with data to be removed have eel_qal_id = 3
       Series about which we have serious doubts but that we choose to keep have eel_qal_id = 4"
   selection_summary$wgerdiscarded$table <- wgerdiscarded
-# storing this information in a list for eventual later display and check
+  # storing this information in a list for eventual later display and check
   selection_summary$wgerdiscarded$length_discarded <- tapply(wgerdiscarded$value,wgerdiscarded$site,function(X) sum(!is.na(X)))
-
+  
   
   
   
   #This is a way to check that data with identified issues are indeed excluded from the analysis
-# All values labelled 0 must have no data 
-selection_summary$wgerdiscarded$should_be_na <- list()
-selection_summary$wgerdiscarded$should_be_na$table <-should_be_na <- wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
-selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
+  # All values labelled 0 must have no data 
+  selection_summary$wgerdiscarded$should_be_na <- list()
+  selection_summary$wgerdiscarded$should_be_na$table <-should_be_na <- wger[!is.na(wger$das_qal_id) & wger$das_qal_id==0 & is.na(wger$das_value),c("value")]
+  selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==0 & is.na(wger$das_value),c("id")]
   
   if (! all(is.na(
-          should_be_na
-      )))
+    should_be_na
+  )))
     stop("Rows with id", paste(should_be_na_id[which(!is.na(should_be_na))],collapse=","), 
-        " with qal_id 0 should be NA")
+         " with qal_id 0 should be NA")
   
-# Checking series with eel_qal_id 3 (wrong data to be ignored) -------------------------------------
+  # Checking series with eel_qal_id 3 (wrong data to be ignored) -------------------------------------
   wger$site_cou <- paste0(wger$site, "(", wger$cou_code,")")
   removed_id <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("id")] 
   removed_year <-  wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("year")]
@@ -445,56 +457,56 @@ selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.
   removed_country <-  unique(wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("cou_code")])
   removed_site_cou <- unique(wger[!is.na(wger$das_qal_id)&wger$das_qal_id==3,c("site_cou")])
   warnings("Rows with ids: ", paste(removed_id,collapse=","),     
-      " years: ", paste(removed_year,collapse=","),
-      " sites: ", paste(removed_site,collapse=","),     
-      " with qal_id = 3 removed from analysis")
+           " years: ", paste(removed_year,collapse=","),
+           " sites: ", paste(removed_site,collapse=","),     
+           " with qal_id = 3 removed from analysis")
   selection_summary$wgerdiscarded$das_qal_id_3_removed <- list()
   selection_summary$das_qal_id_3_removed$length <- length(removed_id)
   selection_summary$das_qal_id_3_removed$year <- removed_year
   selection_summary$das_qal_id_3_removed$site <- removed_site_cou
   
   
-# For those series, values are replaced with NA -----------------------------------------------------
+  # For those series, values are replaced with NA -----------------------------------------------------
   
   wger[!is.na(wger$das_qal_id) & wger$das_qal_id==3,c("value")] <- NA
   
   #########################################################################
-# standardizing with 2000-2009
-# this was a question asked by ACFM ? 2014 ?
-# so it's still done, we produce a graph but don't show it
-# as it might confuse the reader
+  # standardizing with 2000-2009
+  # this was a question asked by ACFM ? 2014 ?
+  # so it's still done, we produce a graph but don't show it
+  # as it might confuse the reader
   ##########################################################################
   
   mdata <- wger[wger$year>=2000 & wger$year<2010,]
   std_site <- unique(mdata$site[order(mdata$site)])
-# length(std_site) 
+  # length(std_site) 
   site <- unique(wger$site[order(wger$site)])
-# length(site)  #52
+  # length(site)  #52
   unused_series_2000_2009  <-  site[!site%in%std_site] # series not having data between 2000 and 2009 # "Vida" "YFS1" 
   selection_summary$sc_2000_2009_unused_series <- unused_series_2000_2009
   selection_summary$sc_2000_2009_nb <- selection_summary$nb_series_init_qual1-length(selection_summary$sc_2000_2009_unused_series)
-#add a column to R_station for flagging unused series
+  #add a column to R_station for flagging unused series
   R_stations$unused_2000_2009  <-  FALSE
   R_stations[R_stations$rec_nameshort %in% unused_series_2000_2009, "unused_2000_2009"]  <-  TRUE
-#ex(std_site) 
+  #ex(std_site) 
   mean_site <- data.frame(mean_2000_2009=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
   mean_site$site <- rownames(mean_site)
   wger <- merge(wger,mean_site,by="site",all.x=TRUE,all.y=FALSE) # here we loose the two stations Inag and Maig and also Fr\E9mur
   wger$value_std_2000_2009 <- wger$value/wger$mean_2000_2009
   
   #########################################################################
-#standardizing with mean from 1979-1994
+  #standardizing with mean from 1979-1994
   ##########################################################################
   
   mdata <- wger[wger$year>=1979 & wger$year<1994,]
   std_site <- unique(mdata$site[order(mdata$site)])
-# length(std_site) # 45
+  # length(std_site) # 45
   site <- unique(wger$site[order(wger$site)])
-# length(site) #49
+  # length(site) #49
   unused_series_1979_1994 <- site[!site%in%std_site] # "Bres" "Fre"  "Inag" "Klit" "Maig" "Nors" "Sle"  "Vac"
   selection_summary$sc_1979_1994_unused_series <- unused_series_1979_1994
   selection_summary$sc_1979_1994_nb <- selection_summary$nb_series_init_qual1-length(selection_summary$sc_1979_1994_unused_series)
-#add a column to R_station for flagging unused series
+  #add a column to R_station for flagging unused series
   R_stations$unused_1979_1994  <-  FALSE
   R_stations[R_stations$rec_nameshort %in% unused_series_1979_1994, "unused_1979_1994"]  <-  TRUE
   mean_site <- data.frame(mean_1979_1994=tapply(mdata$value,mdata$site,mean,na.rm=TRUE))
@@ -503,7 +515,7 @@ selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.
   wger$value_std_1979_1994 <- wger$value/wger$mean_1979_1994
   
   #########################################################################
-#standardizing with mean (all data)
+  #standardizing with mean (all data)
   ##########################################################################
   
   mean_site <- data.frame(mean = tapply(wger$value,wger$site,mean,na.rm=TRUE))
@@ -513,23 +525,23 @@ selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.
   
   
   #########################################################################
-#separating glass eel and yellow eels
+  #separating glass eel and yellow eels
   ##########################################################################
   
   
   glass_eel_yoy <- wger[wger$lifestage!="yellow eel" & wger$year>1959,] #glass eel and yoy
   older <- wger[wger$lifestage=="yellow eel" & wger$year>1949,] # Advice Drafting 2017 asks to 
-# give from 1949 to be consistent with previous years
+  # give from 1949 to be consistent with previous years
   
   ##########################################################################
-# Some statistics for later use, nb of year per series
+  # Some statistics for later use, nb of year per series
   #########################################################################
   
   nb_year <- colSums(ftable(xtabs(formula = value_std_1979_1994~year+site,data=wger))>0)
   names(nb_year) <- colnames(xtabs(formula = value_std_1979_1994~year+site,data=wger))
   
   ###############################################################
-# some other statistics used there
+  # some other statistics used there
   ###############################################################
   
   nb_series_glass_eel <- length(unique(glass_eel_yoy$site)) # this will be reported in the pdf later
@@ -547,7 +559,7 @@ selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.
   selection_summary$nb_series_older_atlantic <- older%>% filter(area2=="Atlantic") %>%distinct(site) %>%dplyr::summarize(n()) %>% pull()
   
   ###############################################################
-# Finally saving the data
+  # Finally saving the data
   ###############################################################
   
   
@@ -555,10 +567,10 @@ selection_summary$wgerdiscarded$should_be_na$ids <-should_be_na_id <-  wger[!is.
   write.table(glass_eel_yoy,file=str_c(datawd,"glass_eel_yoy.csv"), sep=";")
   write.table(older,file=str_c(datawd,"older.csv"), sep=";")
   return(list(selection_summary=selection_summary,
-          glass_eel_yoy = glass_eel_yoy,
-          older = older,
-          wger = wger,
-          R_stations = R_stations))
+              glass_eel_yoy = glass_eel_yoy,
+              older = older,
+              wger = wger,
+              R_stations = R_stations))
 }
 
 #' Function to create diagram of series used
@@ -569,64 +581,64 @@ diagram_series_used <- function(selection_summary){
   library(DiagrammeRsvg)
   library(rsvg)
   node_list <- create_node_df(n=16,		
-      type=rep(c("box",
-              "value"), 16
-      ),
-      label=c(
-          str_c("Series available in ", CY),
-          selection_summary$nb_series_init,
-          "used",
-          selection_summary$nb_series_final,
-          "G + GY",
-          selection_summary$nb_series_glass_eel,
-          "Y",
-          selection_summary$nb_series_older,
-          "NS",
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
-          "EE",
-          as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
-          "< 10 Y",
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
-          "discarded",
-          as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
-      ),
-      color=c(rep("green",12),"orange","orange","red","red"),
-      style="filled",
-      shape=rep(c("plaintext","circle"),8),
-      value=1:16,
-      fixedsize =FALSE
+                              type=rep(c("box",
+                                         "value"), 16
+                              ),
+                              label=c(
+                                str_c("Series available in ", CY),
+                                selection_summary$nb_series_init,
+                                "used",
+                                selection_summary$nb_series_final,
+                                "G + GY",
+                                selection_summary$nb_series_glass_eel,
+                                "Y",
+                                selection_summary$nb_series_older,
+                                "NS",
+                                as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="Elsewhere Europe",2]),
+                                "EE",
+                                as.numeric(selection_summary$nb_series_glass_eel_per_area[selection_summary$nb_series_glass_eel_per_area$area=="North Sea",2]),
+                                "< 10 Y",
+                                as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==0,"len"]),
+                                "discarded",
+                                as.numeric(selection_summary$ser_qal_id_count[selection_summary$ser_qal_id_count$ser_qal_id==3,"len"])
+                              ),
+                              color=c(rep("green",12),"orange","orange","red","red"),
+                              style="filled",
+                              shape=rep(c("plaintext","circle"),8),
+                              value=1:16,
+                              fixedsize =FALSE
   )
   
   edge_list<-create_edge_df(
-      from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
-      to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
-      rel="a",
-      label=rep(" ",15),
-      color=rep("grey",15),
-      length=100)
+    from=c(1,2,3,4,5,4,7,2 ,2 ,13,15,6,6,11,9),
+    to=  c(2,3,4,5,6,7,8,13,15,14,16,9,11,12,10),
+    rel="a",
+    label=rep(" ",15),
+    color=rep("grey",15),
+    length=100)
   
   
   
   igraph1 <- create_graph( attr_theme = NULL)
   
   igraph2 <- igraph1%>%
-      add_nodes_from_table(table = node_list, 
-          type_col=type,
-          label_col=label) 
-#igraph2 %>% get_node_df()
-# Add the edges to the graph
+    add_nodes_from_table(table = node_list, 
+                         type_col=type,
+                         label_col=label) 
+  #igraph2 %>% get_node_df()
+  # Add the edges to the graph
   igraph3 <-igraph2 %>%
-      add_edges_from_table(
-          table = edge_list,
-          from_col = from,
-          to_col = to,
-          from_to_map = id_external
-      )
+    add_edges_from_table(
+      table = edge_list,
+      from_col = from,
+      to_col = to,
+      from_to_map = id_external
+    )
   
   # we save data into the image directory
   dir.create(path="images", showWarnings = FALSE)
   render_graph(igraph3, layout="tree") %>% 
-      export_svg %>%  charToRaw %>% rsvg_png("images/series_selection.png")
+    export_svg %>%  charToRaw %>% rsvg_png("images/series_selection.png")
   
   
 }
@@ -652,14 +664,14 @@ make_table_series <- function(selection_summary, R_stations, wger){
   R_stations$ser_namelong <- iconv(R_stations$ser_namelong,to= "UTF8")
   R_stations$ser_nameshort  <- iconv(R_stations$ser_nameshort, to ="UTF-8")
   series_CY <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY]),
-      c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y", "ser_qal_comment")]
+                          c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","ser_qal_id","cou_order","ser_y", "ser_qal_comment")]
   #series_CY <- merge(series_CY,last_years_with_problem[,c("das_qal_id", "ser_nameshort")], by="ser_nameshort", all.x=T)
   #series_CY$das_qal_id[is.na(series_CY$das_qal_id)] <- 1
   
   series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),-c(ncol(series_CY)-1,ncol(series_CY))]
   #series_CY <- series_CY[order(series_CY$ser_lfs_code,series_CY$cou_order),	c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
   colnames(series_CY) <-c("Site","Name","Coun.","Stage","Area","Division", "Kept", "Qal Comment")
-
+  
   
   selection_summary$nCY <- nrow(series_CY) # number of series updated to the current year (for later use)
   selection_summary$nCYG <- nrow(series_CY[series_CY$Stage=="G",]) # number of series with glass eel updated to the current year
@@ -668,9 +680,9 @@ make_table_series <- function(selection_summary, R_stations, wger){
   
   #"stations updated to",CY-1
   series_CYm1 <- R_stations[R_stations$ser_nameshort%in%names(last_year[last_year==CY-1]),
-      c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
+                            c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division","cou_order","ser_y")]
   series_CYm1 <- series_CYm1[order(series_CYm1$ser_lfs_code,series_CYm1$cou_order),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")]
-   colnames(series_CYm1) <- c("Site","Name","Coun.","Stage","Area","Division")
+  colnames(series_CYm1) <- c("Site","Name","Coun.","Stage","Area","Division")
   selection_summary$nCYm1 <- nrow(series_CYm1) # number series updated last year only (and not this year)
   selection_summary$nCYm1G <- nrow(series_CYm1[series_CYm1$Stage=="G",]) # same for glass eel 
   selection_summary$nCYm1GY <- nrow(series_CYm1[series_CYm1$Stage=="GY",]) # same for glass eel 
@@ -680,9 +692,9 @@ make_table_series <- function(selection_summary, R_stations, wger){
   lost_ones <- last_year[last_year<CY-1]
   d_lost_ones <- data.frame("site"=names(lost_ones),"year"=lost_ones) # data frame
   series_lost <- merge(
-      R_stations[R_stations$ser_nameshort%in%names(lost_ones),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")],
-      d_lost_ones,
-      by.y="site",by.x="ser_nameshort")
+    R_stations[R_stations$ser_nameshort%in%names(lost_ones),c("ser_nameshort","ser_namelong","cou_code","ser_lfs_code","areashort","ser_area_division")],
+    d_lost_ones,
+    by.y="site",by.x="ser_nameshort")
   series_lost <- series_lost[order(series_lost$year),]
   selection_summary$nseries_lost <- nrow(series_lost) # number of series not updated for the two last years
   selection_summary$nseries_lostG <- nrow(series_lost[series_lost$ser_lfs_code=="G",])
@@ -692,7 +704,7 @@ make_table_series <- function(selection_summary, R_stations, wger){
   
   
   
-
+  
   
   #------------------------------------------------------
   # xtable of series that have not been updated
@@ -716,65 +728,65 @@ make_table_series <- function(selection_summary, R_stations, wger){
   column_to_import <- R_stations[,c("ser_nameshort","areashort")]
   printstatseries <- merge(printstatseries,column_to_import,by.x="site",by.y="ser_nameshort")
   printstatseriesGNS <- printstatseries%>% 
-      filter(life_stage=="G", areashort=="NS")%>%
-      arrange(site)%>%
-      dplyr::select(1,13,2:9,11:12)%>%
-      dplyr::rename("code"="site",
-          "area"="areashort",
-          "n+"="duration",
-          "n-"="missing", 
-          "life stage"="life_stage", 
-          "sampling type"="sampling_type",
-          "habitat"="habitat_type",
-          "kept"="series_kept",
-          "comment"="qal_comment")
+    filter(life_stage=="G", areashort=="NS")%>%
+    arrange(site)%>%
+    dplyr::select(1,13,2:9,11:12)%>%
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept",
+                  "comment"="qal_comment")
   
   
   printstatseriesGEE <- printstatseries%>% 
-      filter(life_stage=="G", areashort=="EE")%>%
-      arrange(site)%>%
+    filter(life_stage=="G", areashort=="EE")%>%
+    arrange(site)%>%
     dplyr::select(1,13,2:9,11:12)%>%
-      dplyr::rename("code"="site",
-          "area"="areashort",
-          "n+"="duration",
-          "n-"="missing", 
-          "life stage"="life_stage", 
-          "sampling type"="sampling_type",
-          "habitat"="habitat_type",
-          "kept"="series_kept",
-          "comment"="qal_comment")
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept",
+                  "comment"="qal_comment")
   
   
   
   
   printstatseriesGY <- printstatseries %>% 
-      filter(life_stage=="GY") %>%
-      arrange(site) %>%
+    filter(life_stage=="GY") %>%
+    arrange(site) %>%
     dplyr::select(1,13,2:9,11:12) %>%
-      dplyr::rename("code"="site",
-          "area"="areashort",
-          "n+"="duration",
-          "n-"="missing", 
-          "life stage"="life_stage", 
-          "sampling type"="sampling_type",
-          "habitat"="habitat_type",
-          "kept"="series_kept",
-          "comment"="qal_comment")
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept",
+                  "comment"="qal_comment")
   
   
   printstatseriesY <- printstatseries%>% 
-      filter(life_stage=="Y")%>%
-      arrange(site)%>%
+    filter(life_stage=="Y")%>%
+    arrange(site)%>%
     dplyr::select(1,13,2:9,11:12)%>%
-      dplyr::rename("code"="site",
-          "area"="areashort",
-          "n+"="duration",
-          "n-"="missing", 
-          "life stage"="life_stage", 
-          "sampling type"="sampling_type",
-          "habitat"="habitat_type",
-          "kept"="series_kept",
-          "comment"="qal_comment")
+    dplyr::rename("code"="site",
+                  "area"="areashort",
+                  "n+"="duration",
+                  "n-"="missing", 
+                  "life stage"="life_stage", 
+                  "sampling type"="sampling_type",
+                  "habitat"="habitat_type",
+                  "kept"="series_kept",
+                  "comment"="qal_comment")
   
   
   ################################################################
@@ -784,7 +796,7 @@ make_table_series <- function(selection_summary, R_stations, wger){
   series_prob <- last_years_with_problem[last_years_with_problem$ser_typ_id %in% 1,c("ser_nameshort","ser_lfs_code","ser_cou_code","ser_area_division","das_year","das_qal_id","das_comment" )]
   series_prob <- series_prob[order(series_prob$ser_lfs_code,series_prob$das_year, series_prob$ser_nameshort),]
   colnames(series_prob) <- c("Name","Stage", "Country","Division","Year", "Kept", "Comment")
-
+  
   
   ################################################################
   # some additional stats for the report
@@ -806,15 +818,15 @@ make_table_series <- function(selection_summary, R_stations, wger){
   selection_summary$nbcurrentyellow <- n_y_lfs$"yellow"[n_y_lfs$year==CY]
   
   return(list(selection_summary = selection_summary,
-          R_stations = R_stations, 
-          series_CY = series_CY, 
-          series_CYm1 = series_CYm1, 
-          series_lost = series_lost, 
-          printstatseriesY = printstatseriesY,
-          printstatseriesGNS = printstatseriesGNS,
-          printstatseriesGEE = printstatseriesGEE,
-          printstatseriesGY = printstatseriesGY,
-          series_prob = series_prob))
+              R_stations = R_stations, 
+              series_CY = series_CY, 
+              series_CYm1 = series_CYm1, 
+              series_lost = series_lost, 
+              printstatseriesY = printstatseriesY,
+              printstatseriesGNS = printstatseriesGNS,
+              printstatseriesGEE = printstatseriesGEE,
+              printstatseriesGY = printstatseriesGY,
+              series_prob = series_prob))
 }
 #' Function to remove unwanted charaters from latex code
 #' @param str A string
@@ -859,43 +871,43 @@ sn <- function(x,scientific=FALSE,digits=0)
 #' function to create a back theme,  deprecated by latest ggplot releases
 theme_black <- function (base_size = 12,base_family=""){
   theme_grey(base_size=base_size,base_family=base_family) %+replace%
-      theme(
-          axis.line = element_blank(), 
-          axis.text.x = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, vjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
-          axis.text.y = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, hjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
-          axis.ticks = element_line(colour = "white", size = 0.2), 
-          axis.title.x = element_text(size = base_size, colour = 'white', vjust = 1), 
-          axis.title.y = element_text(size = base_size, colour = 'white', angle = 90, vjust = 0.5), 
-          axis.ticks.length = unit(0.3, "lines"), 
-          
-          
-          legend.background = element_rect(colour = NA, fill = 'black'), 
-          legend.key = element_rect(colour = NA, fill = 'black'), 
-          legend.key.size = unit(1.2, "lines"), 
-          legend.key.height = NULL, 
-          legend.key.width = NULL,     
-          legend.text = element_text(size = base_size * 0.8, colour = 'white'), 
-          legend.title = element_text(size = base_size * 0.8, face = "bold", hjust = 0, colour = 'white'), 
-          #legend.position = c(0.85,0.6), 
-          legend.text.align = NULL, 
-          legend.title.align = NULL, 
-          legend.direction = "vertical", 
-          legend.box = NULL,    
-          
-          panel.background = element_rect(fill = "black", colour = NA), 
-          panel.border = element_rect(fill = NA, colour = "white"), 
-          panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank(), 
-          panel.spacing = unit(0.25, "lines"), 
-          
-          strip.background = element_rect(fill = "grey30", colour = "grey10"), 
-          strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
-          strip.text.y = element_text(size = base_size * 0.8, colour = 'white', angle = -90), 
-          
-          plot.background = element_rect(colour = 'black', fill = 'black'), 
-          plot.title = element_text(size = base_size * 1.2, colour = "white"), 
-          plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
-      )
+    theme(
+      axis.line = element_blank(), 
+      axis.text.x = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, vjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
+      axis.text.y = element_text(size = base_size * 0.8, colour = 'white', lineheight = 0.9, hjust = 1, margin=margin(0.5,0.5,0.5,0.5,"lines")), 
+      axis.ticks = element_line(colour = "white", size = 0.2), 
+      axis.title.x = element_text(size = base_size, colour = 'white', vjust = 1), 
+      axis.title.y = element_text(size = base_size, colour = 'white', angle = 90, vjust = 0.5), 
+      axis.ticks.length = unit(0.3, "lines"), 
+      
+      
+      legend.background = element_rect(colour = NA, fill = 'black'), 
+      legend.key = element_rect(colour = NA, fill = 'black'), 
+      legend.key.size = unit(1.2, "lines"), 
+      legend.key.height = NULL, 
+      legend.key.width = NULL,     
+      legend.text = element_text(size = base_size * 0.8, colour = 'white'), 
+      legend.title = element_text(size = base_size * 0.8, face = "bold", hjust = 0, colour = 'white'), 
+      #legend.position = c(0.85,0.6), 
+      legend.text.align = NULL, 
+      legend.title.align = NULL, 
+      legend.direction = "vertical", 
+      legend.box = NULL,    
+      
+      panel.background = element_rect(fill = "black", colour = NA), 
+      panel.border = element_rect(fill = NA, colour = "white"), 
+      panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.spacing = unit(0.25, "lines"), 
+      
+      strip.background = element_rect(fill = "grey30", colour = "grey10"), 
+      strip.text.x = element_text(size = base_size * 0.8, colour = 'white'), 
+      strip.text.y = element_text(size = base_size * 0.8, colour = 'white', angle = -90), 
+      
+      plot.background = element_rect(colour = 'black', fill = 'black'), 
+      plot.title = element_text(size = base_size * 1.2, colour = "white"), 
+      plot.margin = unit(c(1, 1, 0.5, 0.5), "lines")
+    )
 }
 #' Calculates the geometric means of a series
 #' @param x a numeric
@@ -934,9 +946,9 @@ save_figure<-function(figname,fig,width,height, pdf = TRUE){
     print(fig)
     dev.off()
   }
-
   
-
+  
+  
   
   
   if (pdf){
@@ -1041,31 +1053,31 @@ quote_string <- function(string){
 createReportTableFromPred <- function(predtable){
   variables <- names(predtable)
   vargroup <-  variables[!variables %in% c("year_f",
-          "site", 
-          "year", 
-          "p", 
-          "se",
-          "mean_ref", 
-          "p_std",
-          "p_std_min",
-          "p_std_max")]
+                                           "site", 
+                                           "year", 
+                                           "p", 
+                                           "se",
+                                           "mean_ref", 
+                                           "p_std",
+                                           "p_std_min",
+                                           "p_std_max")]
   if (length(vargroup) == 0){
     predtable$R <- "R"
     vargroup <- "R" 
   }
   predtable <- predtable %>%
-      dplyr::select(all_of(c(c("year", "p_std"), vargroup))) %>%
-      mutate(p_std = round(100*p_std, digits = 1)) %>%
-      tidyr::pivot_wider(names_from = all_of(vargroup), 
-          values_from = p_std) %>%
-      dplyr::arrange(year) %>%
-      mutate(yearindecade = year - as.integer(year/10) * 10) %>%
-      mutate(decade = year - yearindecade) %>%
-      tibble::column_to_rownames("year") %>% 
-      tidyr::pivot_wider(id_cols = yearindecade, 
-          names_from = decade,
-          values_from = !all_of(c("decade", "yearindecade")),
-          names_vary = "slowest")
+    dplyr::select(all_of(c(c("year", "p_std"), vargroup))) %>%
+    mutate(p_std = round(100*p_std, digits = 1)) %>%
+    tidyr::pivot_wider(names_from = all_of(vargroup), 
+                       values_from = p_std) %>%
+    dplyr::arrange(year) %>%
+    mutate(yearindecade = year - as.integer(year/10) * 10) %>%
+    mutate(decade = year - yearindecade) %>%
+    tibble::column_to_rownames("year") %>% 
+    tidyr::pivot_wider(id_cols = yearindecade, 
+                       names_from = decade,
+                       values_from = !all_of(c("decade", "yearindecade")),
+                       names_vary = "slowest")
   predtable
   
 }
@@ -1124,7 +1136,7 @@ compute_retro_year <- function(y, model = "glm_yoy", exclude_run_id = NULL, upda
     
     subdata <- subdata %>%
       left_join(R_stations)
-
+    
     
     subdata <- subdata %>%
       inner_join(meanseries) %>%
@@ -1472,7 +1484,7 @@ theme_ICES_plots <-
       line_color <- c("#969696","#737373","#525252","#252525","#28b3e8") %>% tail(length(unique(df$AssessmentYear)))
       names(line_color) <- as.character(sort(unique(df$AssessmentYear)))
       
-
+      
       theme_ICES_plots <- list(
         tmp,
         scale_color_manual(values = line_color
@@ -1508,17 +1520,17 @@ computeMohnsRho <- function(dataset, value_name, year_name, assessment_year_name
   lag <- 0
   if (max(dataset[,assessment_year_name])> max(dataset[,year_name]))
     lag <- 1
-   lastassessment = dataset %>%
-     filter(!!as.symbol(assessment_year_name) == terminalyear &
-              !!as.symbol(year_name) >= firstyear - lag) %>%
-     dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
-   oldassessment = dataset %>%
-     filter(!!as.symbol(assessment_year_name) %in% (firstyear:(terminalyear-1)) &
-              (!!as.symbol(assessment_year_name)- lag) == (!!as.symbol(year_name) )) %>%
-     dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
-   
-   mergedata <- merge(lastassessment, oldassessment, by ="year", suffixes=c(".last",".old"))
-   1/nrow(mergedata) * sum((mergedata[,paste0(value_name, ".old")] - mergedata[,paste0(value_name,".last")])/
-                             mergedata[,paste0(value_name,".last")]) * 100
+  lastassessment = dataset %>%
+    filter(!!as.symbol(assessment_year_name) == terminalyear &
+             !!as.symbol(year_name) >= firstyear - lag) %>%
+    dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
+  oldassessment = dataset %>%
+    filter(!!as.symbol(assessment_year_name) %in% (firstyear:(terminalyear-1)) &
+             (!!as.symbol(assessment_year_name)- lag) == (!!as.symbol(year_name) )) %>%
+    dplyr::select(all_of(c(assessment_year_name, year_name,value_name)))
+  
+  mergedata <- merge(lastassessment, oldassessment, by ="year", suffixes=c(".last",".old"))
+  1/nrow(mergedata) * sum((mergedata[,paste0(value_name, ".old")] - mergedata[,paste0(value_name,".last")])/
+                            mergedata[,paste0(value_name,".last")]) * 100
   
 }
