@@ -304,8 +304,8 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
           ser_distanceseakm,ser_method,ser_sam_gear,ser_restocking from datawg.t_series_ser where ser_typ_id =1 ')
   # fix integer64 rounded to zero :-o
   statseries$missing <- as.integer(statseries$missing)
-  if (! is.null(path)){
-    for (i in 1:length(path)){
+  if (!is.null(path)) {
+    for (i in 1:length(path)) {
       save(wger_init, file = str_c(path[i], "wger_init.Rdata"))
       cat("writing", str_c(path[i], "wger_init.Rdata"), "\n")
       save(statseries, file = str_c(path[i], "statseries.Rdata"))
@@ -322,7 +322,9 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
         "R_stations" = R_stations,
         "t_series_ser" = t_series_ser, "statseries" = statseries
       ), file = str_c(outputdatawd, "series_description", CY, ".xlsx"))
+    }
       return(invisible(NULL))
+      
     } else {
       return(list(
         wger_init = wger_init,
@@ -332,8 +334,6 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
         t_series_ser = t_series_ser
       ))
     }
-    
-  }
 }
 
 #' select_series
