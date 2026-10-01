@@ -77,5 +77,17 @@ update datawg.t_dataseries_das set das_qal_id = 3,
 commit;
 
 
-select * from datawg.t_eelstock_eel where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
-update datawg.t_eelstock_eel set eel_lfs_code = 'YS' where eel_cou_code = 'NL' and eel_typ_id = 4 and eel_lfs_code ='G' and eel_value is not null and eel_year = 2025;
+DROP VIEW IF EXISTS datawg.series_stats CASCADE;
+CREATE OR REPLACE VIEW datawg.series_stats AS 
+ SELECT ser_id, 
+ ser_nameshort AS site,
+ ser_namelong AS namelong,
+ min(das_year) AS min, max(das_year) AS max, 
+ max(das_year) - min(das_year) + 1 AS duration,
+ max(das_year) - min(das_year) + 1 - count(*) AS missing
+   FROM datawg.t_dataseries_das
+   JOIN datawg.t_series_ser ON das_ser_id=ser_id
+   LEFT JOIN ref.tr_country_cou ON ser_cou_code=cou_code
+WHERE das_qal_id in (1,2,4)
+  GROUP BY ser_id, cou_order
+  ORDER BY cou_order;
