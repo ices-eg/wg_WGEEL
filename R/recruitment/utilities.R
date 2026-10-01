@@ -131,7 +131,8 @@ plot_trend_model <- function(predtable,
 # this fuction requires a db connection
 
 #' @param con A DBI connection
-#' @param path A vector of path to the place where the data will be saved
+#' @param path A vector of path to the place where the data will be saved, if NULL
+#' the function returns a list with the objects instead of saving it
 #' @param year The current year
 #' @return nothing
 #' @export
@@ -206,9 +207,15 @@ load_database <- function(con, path, year=strftime(Sys.Date(), format="%Y")){
       where ser_typ_id=1 and das_qal_id in (0,1,2,3,4)'
   
   wger_init <- dbGetQuery(con, query) # (wge)el (r)ecruitment data
-  wger_init <- chnames(wger_init,
-                       c("das_id","das_value","das_year","ser_nameshort","ser_area_division","lfs_name"),
-                       c("id","value","year","site","area_division","lifestage"))
+  wger_init <- wger_init <- wger_init |>
+    rename(
+      "id" = "das_id",
+      "value" = "das_value",
+      "year" = "das_year",
+      "site" = "ser_nameshort",
+      "area_division" = "ser_area_division",
+      "lifestage" = "lfs_name"
+    )
   
   # selection of the last years with problem for graph --------------------------------------------
   
