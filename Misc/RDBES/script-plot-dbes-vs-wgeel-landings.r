@@ -20,8 +20,13 @@ tb_landings_wgeel <-
     source = "WGEEL",
     year = eel_year,
     mass_landed_kg = eel_value,
-    country = eel_cou_code,
+    country_short = eel_cou_code,
+    country = cou_country
   )
+
+tb_lookup_countries <- 
+  tb_landings_wgeel |>
+  distinct(country_short, country)
 
 #### Load RDBES landings data -----------------------------------------------------------
 # We have to adjust the catch year in order to match up against wgeel
@@ -31,13 +36,14 @@ tb_landings_rdbes <-
   read_excel("DELETE-ME-commercial_landings.xlsx") |> 
   mutate(
     mass_landed_kg = as.numeric(CLofficialWeight),
-    country = recode_values(CLlandingCountry, "GB-ENG"~"GB","GB-NIR"~"GB","GB-SCT"~"GB",default = CLlandingCountry),
+    country_short = recode_values(CLlandingCountry, "GB-ENG"~"GB","GB-NIR"~"GB","GB-SCT"~"GB",default = CLlandingCountry),
     source = "RDBES",
     year = case_when(
       CLmonth %in% c(1:5) ~ CLyear-1,
       TRUE ~ CLyear,
     )
-  ) 
+  ) |> 
+  left_join(tb_lookup_countries, by = "country_short")
 
 
 
@@ -83,27 +89,29 @@ ggplot(tb_landings_combined |> filter(year %in% list_years_rdbes))+
   aes(x=country, y=mass_landed_kg, fill=source, color=source)+
   labs(
     title = "Total landed mass (kg) reported to WGEEL and RDBES",
+    subtitle = "(In costal, transitional, or open marine waters)",
     x="",y="",
   ) +
-  geom_col(position="identity", width=0.6) +
-  scale_fill_manual(values = c("RDBES"="#f9f9f900", "WGEEL"="#3498d65d"))+
-  scale_color_manual(values =c("RDBES"="#04040495", "WGEEL"="#f9f9f900"))+
+  geom_col(position = "identity", width=0.7, linewidth=0.4) +
+  scale_fill_manual(values = c("RDBES"="#e7101000", "WGEEL"="#62b2e3cd"))+
+  scale_color_manual(values =c("RDBES"="#0c0c0cfe", "WGEEL"="#f9f9f900"))+
   coord_flip()+
   scale_y_continuous(transform = "log", breaks = c(10,100,1000,10000,100000))+
-  facet_wrap(~year,ncol=2,axes="all") + 
+  facet_wrap(~year,ncol=2,axes="all",axis.labels="margins") + 
   theme_bw() + 
   theme(
     strip.background = element_blank(),
     panel.border = element_blank(),
     axis.line = element_line(linewidth = 0.5, color = "black"),
     panel.grid = element_blank(),
-    panel.grid.major.x = element_line(color = "black", linewidth=0.5, linetype="dotted"),
+    panel.grid.major.x = element_line(color = "#1111117d", linewidth=0.5, linetype="dotted"),
     legend.title = element_blank(),
     legend.position = "top",
     legend.key.size = unit(.4, "cm"),
     legend.justification = "left",
     legend.margin = margin(t=0,r=0,b=0,l=0),
     plot.margin = margin(t = 15, r = 20, b = 3, l = 1),
+    strip.text = element_text(hjust=0, margin = margin(t=0,b=4,r=0,l=0), size=10)
   )
   
 ggsave(
@@ -111,7 +119,5 @@ ggsave(
   width = 3000,
   height =  4000,
   unit = "px",
-  scale = 1,
+  scale = 0.8,
 )
-
-
