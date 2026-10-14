@@ -5,7 +5,7 @@ run_location <- "local" # server
 if (run_location == "local") {
 path_to_shiny_dv <- "../shiny_data_visualisation/shiny_dv/"
 } else {
-  path_to_shiny_dv <- "srv/shiny_server/shiny_dv/"  
+  path_to_shiny_dv <- "/srv/shiny_server/shiny_dv/"  
 }
 
 # dynamically re-reads the yaml file (if we add things in it) 
@@ -44,7 +44,7 @@ has_stock_access <- function(req, res, roles) {
 #* Verify the JWT on every request except login and docs
 #* @filter check_jwt
 function(req, res) {
-  open_paths <- c("/login", "/openapi.json")
+  open_paths <- c("/api/login", "/openapi.json")
   if (req$PATH_INFO %in% open_paths || grepl("^/__docs__", req$PATH_INFO)) {
     return(plumber::forward())
   }
@@ -74,7 +74,7 @@ function(req, res) {
 #* @serializer json
 #* @param username
 #* @param password
-#* @post /login
+#* @post /api/login
 function(username = "", password = "", res) {
   role <- check_login(username, password)
   if (is.null(role)) {
@@ -93,7 +93,7 @@ function(username = "", password = "", res) {
 #* getRecruitment
 #* @tag Data
 #* @serializer rds
-#* @post /recruitment_data
+#* @post /api/recruitment_data
 function(req, res) {
   cred <- read_cred()
   con <- dbConnect(Postgres(),
@@ -116,7 +116,7 @@ function(req, res) {
 #* getEelStock
 #* @tag Data
 #* @serializer rds
-#* @post /eel_stocks
+#* @post /api/eel_stocks
 function(req , res) {
   # test whether the user has access to stock data
   denied <- has_stock_access(req, res, "stock")
@@ -147,4 +147,35 @@ function(req , res) {
        statseries_ys = statseries_ys,
        biometry_group_data_sampling_long = biometry_group_data_sampling_long,
        biometry_group_data_series_long = biometry_group_data_series_long))
+}
+
+
+
+#---- metrics and series -------------------------------------------------------
+#  Any authenticated user (with role recruit or stock (we don't run forbid_unless))
+#* getRecruitmentDetail
+#* @tag Data
+#* @serializer rds
+#* @post /api/series_detail
+function(req , res) {
+  cred <- read_cred() # read local credentials from the API 
+  # a file with connexions settings is stored on the server in srv/api folder
+  # or at the root of the api folder in wgeel code
+  wd <- getwd()
+  on.exit(setwd(wd), add = TRUE)           # restore wd even on error
+  cred <- read_cred()
+  body <- jsonlite::fromJSON(req$postBody)
+
+  if (is.null(body$series) || length(body$series) == 0) {
+    res$status <- 400
+    return(list(error = "series must contain at least one value"))
+  }
+  
+  series <- as.character(body$series)
+
+  setwd(path_to_shiny_dv)
+  source("get_series_detail.R", local = TRUE)
+  list_series <- get_series_detail(series = series, cred = cred)
+  
+  return(list_series)
 }

@@ -6,20 +6,6 @@ library(RPostgres)
 library(jose)
 library(callr)
 
-# Here we assume you are running this from "wgeel/R/API"
-# setwd to current file location
-
-# this will regenerate the file if changed on github
-
-
-# this will regenerate the file if changed on github
-url <- "https://raw.githubusercontent.com/ices-eg/wg_WGEEL/master/R/recruitment/utilities.R"
-download.file(url, destfile = "utilities.R")
-
-source("utilities.R", local = TRUE) # loads the load_database function 
-
-
- 
 
 # run front end ------------------------------------------
 # if you do it open an R session in terminal to debug it
