@@ -5,7 +5,7 @@ run_location <- "local" # server
 if (run_location == "local") {
 path_to_shiny_dv <- "../shiny_data_visualisation/shiny_dv/"
 } else {
-  path_to_shiny_dv <- "/srv/shiny_server/shiny_dv/"  
+  path_to_shiny_dv <- "/srv/shiny-server/shiny_dv/"  
 }
 
 # dynamically re-reads the yaml file (if we add things in it) 
