@@ -21,7 +21,8 @@ get_series_detail <- function(series, cred){
   )
 
   # ----------- station (t_series_ser data)------------------------------------- 
-  station <-
+
+station <-
     dbGetQuery(con_wgeel,
                glue::glue_sql(
                  "SELECT 
@@ -31,13 +32,19 @@ get_series_detail <- function(series, cred){
         				ser_locationdescription,
         				ser_emu_nameshort, ser_cou_code, ser_area_division, ser_x, 
         				ser_y,             
-        				ser_sam_id, ser_qal_id, ser_qal_comment,
-        				cou_code, cou_country, cou_order 
+        				ser_sam_id, ser_qal_id, 
+        				ser_qal_comment,
+        				ser_ccm_wso_id,
+        				area_km2,
+        				cou_code, 
+        				cou_country, 
+        				cou_order 
         				FROM datawg.t_series_ser 
-        				LEFT JOIN ref.tr_country_cou on cou_code=ser_cou_code 
-        				LEFT JOIN ref.tr_lifestage_lfs on ser_lfs_code=lfs_code
-        				LEFT JOIN ref.tr_faoareas on ser_area_division=f_division
-        				AND ser_nameshort IN ({.ser_nameshort*})", 
+        				LEFT JOIN ref.tr_country_cou ON cou_code=ser_cou_code 
+        				LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
+        				LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
+        				LEFT JOIN ccm21.seaoutlets ON seaoutlets.wso_id = ANY(ser_ccm_wso_id)
+        				WHERE ser_nameshort IN ({.ser_nameshort*})", 
                  .ser_nameshort = series,
                  .con = con_wgeel)
     )
@@ -65,7 +72,7 @@ get_series_detail <- function(series, cred){
                 				JOIN datawg.t_series_ser ON das_ser_id=ser_id
                 				LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
                 				LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
-                				AND ser_nameshort IN ({.ser_nameshort*})", 
+                				WHERE ser_nameshort IN ({.ser_nameshort*})", 
                         .ser_nameshort = series,
                         .con = con_wgeel))
   
