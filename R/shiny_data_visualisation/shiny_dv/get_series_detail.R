@@ -7,11 +7,11 @@
 get_series_detail <- function(series, cred){
   #read working group credentials
   con_wgeel <- dbConnect(RPostgres::Postgres(),
-    dbname = cred$dbname,
-    host = cred$host,
-    port = cred$port,
-    user = cred$user,
-    password = cred$password
+                         dbname = cred$dbname,
+                         host = cred$host,
+                         port = cred$port,
+                         user = cred$user,
+                         password = cred$password
   )
   # add = TRUE expr will be executed after nay previously set expression
   on.exit(
@@ -19,47 +19,64 @@ get_series_detail <- function(series, cred){
       DBI::dbDisconnect(con_wgeel),
     add = TRUE
   )
-
+  
   # ----------- station (t_series_ser data)------------------------------------- 
-
-station <-
+  
+  station <-
     dbGetQuery(con_wgeel,
                glue::glue_sql(
-                 "SELECT 
-        				ser_id,  ser_nameshort, ser_namelong, ser_typ_id, 
-        				ser_effort_uni_code,
-        				ser_comment, ser_uni_code, 
-        				ser_lfs_code, ser_hty_code, 
-        				ser_locationdescription,
-        				ser_emu_nameshort, 
-        				ser_cou_code, 
-        				ser_area_division,
-        				ser_x, 
-        				ser_y,             
-        				ser_sam_id, 
-        				ser_sam_gear,
-        				ser_qal_id, 
-        				ser_qal_comment,
-        				ser_ccm_wso_id,
-        				area_km2,
-        				cou_code, 
-        				cou_country, 
-        				cou_order 
-        				FROM datawg.t_series_ser 
-        				LEFT JOIN ref.tr_country_cou ON cou_code=ser_cou_code 
-        				LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
-        				LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
-        				LEFT JOIN ccm21.seaoutlets ON seaoutlets.wso_id = ANY(ser_ccm_wso_id)
-        				WHERE ser_nameshort IN ({.ser_nameshort*})", 
-                 .ser_nameshort = series,
-                 .con = con_wgeel)
+    "WITH basins AS (
+        SELECT ser_id, ser_nameshort,  area_km2, wso_id FROM datawg.t_series_ser 
+        LEFT JOIN ccm21.seaoutlets ON seaoutlets.wso_id = ANY(ser_ccm_wso_id)
+        WHERE ser_nameshort IN ({.ser_nameshort*})
+    ),
+    grouped_basins AS(
+        SELECT 
+        sum(area_km2) AS area_km2,
+        ser_id AS bas_ser_id
+        FROM basins
+        GROUP BY ser_id
     )
-  
-  # -------------- Annual data t_dataseries_das --------------------------------
-  
-  annual <- dbGetQuery(con_wgeel,
-                      glue::glue_sql(
-                        "SELECT 
+    SELECT 
+        ser_id,  
+        ser_nameshort, 
+        ser_namelong, 
+        ser_typ_id, 
+        ser_effort_uni_code,
+        ser_comment, 
+        ser_uni_code, 
+        ser_lfs_code, 
+        ser_hty_code, 
+        ser_locationdescription,
+        ser_emu_nameshort, 
+        ser_cou_code, 
+        ser_area_division,
+        ser_x, 
+        ser_y,             
+        ser_sam_id, 
+        ser_sam_gear,
+        ser_qal_id, 
+        ser_qal_comment,
+        ser_ccm_wso_id,
+        gb.area_km2,
+        cou_code, 
+        cou_country, 
+        cou_order 
+        FROM datawg.t_series_ser ser
+        LEFT JOIN ref.tr_country_cou ON cou_code=ser_cou_code 
+        LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
+        LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
+        LEFT JOIN grouped_basins gb ON gb.bas_ser_id = ser.ser_id
+        WHERE ser_nameshort IN ({.ser_nameshort*})", 
+     .ser_nameshort = series,
+     .con = con_wgeel)
+    )
+
+# -------------- Annual data t_dataseries_das --------------------------------
+
+annual <- dbGetQuery(con_wgeel,
+                     glue::glue_sql(
+                       "SELECT 
                 				das_id,
                 				das_value,       
                 				das_year,
@@ -79,29 +96,29 @@ station <-
                 				LEFT JOIN ref.tr_lifestage_lfs ON ser_lfs_code=lfs_code
                 				LEFT JOIN ref.tr_faoareas ON ser_area_division=f_division
                 				WHERE ser_nameshort IN ({.ser_nameshort*})", 
-                        .ser_nameshort = series,
-                        .con = con_wgeel))
-  
-  # -------------- Group metrics  ----------------------------------------------
-  
-  group <- dbGetQuery(
-    con_wgeel,
-    glue::glue_sql(
-      "SELECT * FROM datawg.t_series_ser
+                       .ser_nameshort = series,
+                       .con = con_wgeel))
+
+# -------------- Group metrics  ----------------------------------------------
+
+group <- dbGetQuery(
+  con_wgeel,
+  glue::glue_sql(
+    "SELECT * FROM datawg.t_series_ser
 				JOIN datawg.t_groupseries_grser  ON grser_ser_id = ser_id
 				JOIN datawg.t_metricgroupseries_megser ON meg_gr_id = gr_id 
 				LEFT JOIN ref.tr_metrictype_mty ON mty_id=meg_mty_id
 				WHERE ser_nameshort IN ({.ser_nameshort*})",
-      .ser_nameshort = series,
-      .con = con_wgeel)
-  )
-  
-  # -------------- Indiv metrics  ----------------------------------------------
-  
-  indiv <- dbGetQuery(
-    con_wgeel,
-    glue::glue_sql(
-      "SELECT 
+    .ser_nameshort = series,
+    .con = con_wgeel)
+)
+
+# -------------- Indiv metrics  ----------------------------------------------
+
+indiv <- dbGetQuery(
+  con_wgeel,
+  glue::glue_sql(
+    "SELECT 
       ser.ser_nameshort,
       fiser.*,
       meiser.*,
@@ -112,11 +129,11 @@ station <-
 				JOIN datawg.t_metricindseries_meiser meiser ON mei_fi_id = fi_id 
 				LEFT JOIN ref.tr_metrictype_mty ON mty_id=mei_mty_id
 				WHERE ser_nameshort IN ({.ser_nameshort*})",
-      .ser_nameshort = series,
-      .con = con_wgeel)
-  )
-  return(list(station = station,
-              annual = annual,
-              group = group,
-              indiv = indiv))
+    .ser_nameshort = series,
+    .con = con_wgeel)
+)
+return(list(station = station,
+            annual = annual,
+            group = group,
+            indiv = indiv))
 }
